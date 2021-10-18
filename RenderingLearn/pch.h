@@ -45,5 +45,7 @@
             __debugbreak(); \
         }
 
+#define CHECK_HRESULT(hr) Utility::CheckHresult(hr);
+
 #pragma endregion
 

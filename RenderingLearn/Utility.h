@@ -25,4 +25,9 @@ namespace Utility
         Print(buffer);
     }
     inline void Trace(void) {}
+
+    inline HRESULT CheckHresult(HRESULT hr)
+    {
+        return winrt::check_hresult(hr);
+    }
 }
