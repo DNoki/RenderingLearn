@@ -8,10 +8,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppMain.h" />
-    <ClInclude Include="AppConfig.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AppConfig.cpp" />
+    <ClCompile Include="pch.cpp" />
     <ClCompile Include="AppMain.cpp" />
+    <ClCompile Include="Utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
