@@ -2404,7 +2404,10 @@ inline HRESULT D3DX12SerializeVersionedRootSignature(
                         {
                             if (desc_1_1.pParameters[n].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
                             {
+#pragma warning(push)
+#pragma warning(disable:6001)
                                 HeapFree(GetProcessHeap(), 0, reinterpret_cast<void*>(const_cast<D3D12_DESCRIPTOR_RANGE*>(pParameters_1_0[n].DescriptorTable.pDescriptorRanges)));
+#pragma warning(pop)
                             }
                         }
                         HeapFree(GetProcessHeap(), 0, pParameters);

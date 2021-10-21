@@ -31,8 +31,8 @@
 *.out
 *.app
 
-
+# Develop
 /.vs
 /obj
-
 /Packages
+/Project/*.user
