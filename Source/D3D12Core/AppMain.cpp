@@ -1,6 +1,9 @@
 ﻿#include "pch.h"
 
+#include <iostream>
+
 #include "GraphicsCore.h"
+#include "Display.h"
 
 #include "AppMain.h"
 
@@ -8,11 +11,13 @@
 //#pragma comment(lib, "dxgi.lib")
 //#pragma comment(lib, "dxguid.lib")
 
+using namespace std;
+
 
 namespace Application
 {
     HWND g_Hwnd; // 当前程序窗口句柄
-    bool ExitFlag;
+    bool g_ExitFlag;
 
 
     LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -23,8 +28,12 @@ namespace Application
             break;
 
         case WM_SIZE: // 在窗口的大小更改后发送到窗口
-
-            break;
+        {
+            UINT width = LOWORD(lParam);
+            UINT height = HIWORD(lParam);
+            Display::Resize(width, height);
+        }
+        break;
 
         case WM_CLOSE: // 窗口将要关闭时
             DestroyWindow(g_Hwnd);
@@ -41,19 +50,15 @@ namespace Application
         return 0;
     }
 
-    int InitializeApplication(HINSTANCE hInstance, int nCmdShow)
+    void CreateGameWindow(HINSTANCE hInstance, LPCWSTR title, UINT width, UINT height)
     {
         // 第一个 Windows 程序
         // https://docs.microsoft.com/zh-cn/windows/win32/learnwin32/creating-a-window
-        auto title = L"TestClass";
-        ExitFlag = false;
-        auto screenWidth = DEFAULT_SCREEN_WIDTH;
-        auto screenHeight = DEFAULT_SCREEN_HEIGHT;
 
         // --------------------------------------------------------------------------
         // 注册窗口类 
         // https://docs.microsoft.com/zh-cn/windows/win32/winmsg/using-window-classes
-        WNDCLASSEX wcex;
+        WNDCLASSEX wcex{};
         wcex.cbSize = sizeof(wcex);
         wcex.style = CS_GLOBALCLASS; // 指示窗口类是应用程序全局类 https://docs.microsoft.com/zh-cn/windows/win32/winmsg/window-class-styles
         //wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -72,7 +77,7 @@ namespace Application
 
         // --------------------------------------------------------------------------
         // 调整窗口大小
-        RECT rc = { 0, 0, (LONG)screenWidth, (LONG)screenHeight };
+        RECT rc = { 0, 0, (LONG)width, (LONG)height };
         AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
 
         // 创建窗口
@@ -83,29 +88,33 @@ namespace Application
             WS_OVERLAPPEDWINDOW,    // top-level window style
             CW_USEDEFAULT,          // default horizontal position 
             CW_USEDEFAULT,          // default vertical position 
-            rc.right - rc.left,
-            rc.bottom - rc.top,
+            rc.right - rc.left,     // 窗口宽度
+            rc.bottom - rc.top,     // 窗口高度
             nullptr,                // Parent window
             nullptr,                // Menu
             hInstance,              // 应用程序实例的句柄
             nullptr                 // Additional application data
         );
+    }
+
+    int RunApplication(HINSTANCE hInstance, int nCmdShow)
+    {
+        CreateGameWindow(hInstance, WINDOW_TITLE, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
         if (g_Hwnd == NULL)
         {
-            DWORD dwError = GetLastError();
-            ASSERT(0);
-            return HRESULT_FROM_WIN32(dwError);
+            auto errorHR = HRESULT_FROM_WIN32(GetLastError());
+            CHECK_HRESULT(errorHR);
+            return errorHR;
         }
 
         // --------------------------------------------------------------------------
         Graphics::Initialize();
 
-
         // --------------------------------------------------------------------------
         ShowWindow(g_Hwnd, nCmdShow);
 
         MSG msg;
-        while (!ExitFlag)
+        while (!g_ExitFlag)
         {
             while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
             {
@@ -113,7 +122,7 @@ namespace Application
                 DispatchMessage(&msg);
 
                 if (msg.message == WM_QUIT)
-                    ExitFlag = true;
+                    g_ExitFlag = true;
             }
 
             Graphics::OnRender();
@@ -130,14 +139,14 @@ namespace Application
 
         return 0;
     }
-
 }
 
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPWSTR /*lpCmdLine*/, _In_ int nCmdShow)
 {
+    wcout.imbue(locale("CHS"));
 
-    auto result = Application::InitializeApplication(hInstance, nCmdShow);
+    auto result = Application::RunApplication(hInstance, nCmdShow);
 
     return 0;
 }

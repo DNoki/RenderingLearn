@@ -6,21 +6,41 @@
 
 #include "Display.h"
 
+using namespace std;
+using namespace Application;
 using namespace Graphics;
+
+#include "DescriptorHeap.h"
+#include "Texture.h"
+namespace Graphics
+{
+    extern unique_ptr<DescriptorHeap> g_RTVDescriptorHeap;
+    extern vector<unique_ptr<RenderTexture>> g_RenderTargets;
+}
 
 namespace Display
 {
+    UINT g_DisplayWidth;
+    UINT g_DisplayHeight;
+
+    UINT g_CurrentBackBufferIndex;
 
     void Initialize()
     {
+        ASSERT(g_Hwnd != nullptr);
         ASSERT(g_SwapChain == nullptr);
+
+        RECT clientRect;
+        GetClientRect(g_Hwnd, &clientRect);
+        g_DisplayWidth = clientRect.right - clientRect.left;
+        g_DisplayHeight = clientRect.bottom - clientRect.top;
 
         // --------------------------------------------------------------------------
         // 创建交换链
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{}; // 交换链描述
-        swapChainDesc.Width = DEFAULT_SCREEN_WIDTH;                     // 分辨率宽度
-        swapChainDesc.Height = DEFAULT_SCREEN_HEIGHT;                   // 分辨率高度
-        swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;              // 显示格式
+        swapChainDesc.Width = g_DisplayWidth;                           // 分辨率宽度
+        swapChainDesc.Height = g_DisplayHeight;                         // 分辨率高度
+        swapChainDesc.Format = SC_RENDER_TARGET_FORMAT;                 // 显示格式
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;    // 后台缓冲区的表面使用情况和 CPU 访问选项
         swapChainDesc.BufferCount = SWAP_FRAME_BACK_BUFFER_COUNT;       // 交换链中缓冲区数量
         swapChainDesc.SampleDesc.Count = 1;                             // 多采样数量
@@ -42,6 +62,61 @@ namespace Display
             (IDXGISwapChain1**)g_SwapChain.put()
         ));
 
+        //auto backColor = DXGI_RGBA{ 1.0f, 1.0f, 1.0f, 1.0f };
+        //g_SwapChain->SetBackgroundColor(&backColor);
+        
         //auto currentBackBufferIndex = pIDXGISwapChain4->GetCurrentBackBufferIndex(); // 当前被绘制的后缓冲序号
+    }
+
+    float GetScreenAspect()
+    {
+        return g_DisplayWidth / (float)g_DisplayHeight;
+    }
+
+    UINT GetScreenWidth()
+    {
+        return g_DisplayWidth;
+    }
+    UINT GetScreenHeight()
+    {
+        return g_DisplayHeight;
+    }
+
+    void Resize(UINT width, UINT height)
+    {
+        // TODO 需要在这里等待指令队列完成
+        g_GraphicsCommandQueue->WaitForQueueCompleted();
+
+        g_DisplayWidth = width;
+        g_DisplayHeight = height;
+
+        g_RenderTargets.clear();
+
+        // 重置交换链缓冲大小
+        CHECK_HRESULT(g_SwapChain->ResizeBuffers(
+            SWAP_FRAME_BACK_BUFFER_COUNT,
+            g_DisplayWidth, g_DisplayHeight,
+            SC_RENDER_TARGET_FORMAT,
+            0));
+
+        // 重新创建描述符堆
+        //g_RTVDescriptorHeap = nullptr;
+        //g_RTVDescriptorHeap = unique_ptr<DescriptorHeap>(new DescriptorHeap());
+        //g_RTVDescriptorHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, SWAP_FRAME_BACK_BUFFER_COUNT);
+
+        for (UINT i = 0; i < SWAP_FRAME_BACK_BUFFER_COUNT; i++)
+        {
+            g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
+            auto& rt = g_RenderTargets[i];
+            auto handle = g_RTVDescriptorHeap->GetDescriptorHandle(i);
+            rt->CreateFromSwapChain(i, nullptr, &handle);
+        }
+
+        g_SwapChain->Present(1, 0); // 交换一次缓冲，使黑色填充屏幕
+
+        // TODO 需要在这里等待指令队列完成
+        g_GraphicsCommandQueue->WaitForQueueCompleted();
+
+        TRACE("Changing display resolution to %ux%u", width, height);
     }
 }

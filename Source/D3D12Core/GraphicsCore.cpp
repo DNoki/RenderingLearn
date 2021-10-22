@@ -15,6 +15,8 @@
 
 
 using namespace winrt;
+using namespace std;
+using namespace Display;
 
 
 namespace Graphics
@@ -23,19 +25,19 @@ namespace Graphics
     com_ptr<ID3D12Device6> g_Device;
     com_ptr<IDXGISwapChain4> g_SwapChain;
 
-    std::unique_ptr<DescriptorHeap> g_RTVDescriptorHeap;
-    std::vector<RenderTexture> g_RenderTargets;
+    unique_ptr<DescriptorHeap> g_RTVDescriptorHeap;
+    vector<unique_ptr<RenderTexture>> g_RenderTargets;
 
-    std::unique_ptr<RootSignature> g_RootSignature;
-    std::unique_ptr<GraphicsPipelineState> g_PipelineState;
-
-
-    std::unique_ptr<CommandQueue> g_GraphicsCommandQueue;
+    unique_ptr<RootSignature> g_RootSignature;
+    unique_ptr<GraphicsPipelineState> g_PipelineState;
 
 
-    UINT CurrentBackBufferIndex;
+    unique_ptr<CommandQueue> g_GraphicsCommandQueue;
 
-    std::unique_ptr<GpuBuffer> SampleVBV;
+
+    unique_ptr<GpuBuffer> SampleVBV;
+
+    UINT g_Frame;
 
     void Initialize()
     {
@@ -87,13 +89,13 @@ namespace Graphics
             pAdapter = nullptr;
         }
         if (MaxSize > 0)
-            g_Device = std::move(pDevice);
+            g_Device = move(pDevice);
         ASSERT(g_Device != nullptr, L"D3D12设备对象创建失败");
 
 
         // --------------------------------------------------------------------------
         // 创建图形命令队列
-        g_GraphicsCommandQueue = std::unique_ptr<CommandQueue>(new CommandQueue());
+        g_GraphicsCommandQueue = unique_ptr<CommandQueue>(new CommandQueue());
         g_GraphicsCommandQueue->Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
 
@@ -102,26 +104,26 @@ namespace Graphics
         Display::Initialize();
         // --------------------------------------------------------------------------
         // 创建描述符堆
-        g_RTVDescriptorHeap = std::unique_ptr<DescriptorHeap>(new DescriptorHeap());
+        g_RTVDescriptorHeap = unique_ptr<DescriptorHeap>(new DescriptorHeap());
         g_RTVDescriptorHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, Display::SWAP_FRAME_BACK_BUFFER_COUNT);
         // --------------------------------------------------------------------------
         // 创建RTV描述符  RTV（渲染目标视图）
         g_RenderTargets.clear();
         for (UINT i = 0; i < Display::SWAP_FRAME_BACK_BUFFER_COUNT; i++)
         {
-            g_RenderTargets.push_back(RenderTexture());
+            g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
             auto& rt = g_RenderTargets[i];
             auto handle = g_RTVDescriptorHeap->GetDescriptorHandle(i);
-            rt.CreateFromSwapChain(i, nullptr, &handle);
+            rt->CreateFromSwapChain(i, nullptr, &handle);
         }
         // --------------------------------------------------------------------------
         // 创建根签名
-        g_RootSignature = std::unique_ptr<RootSignature>(new RootSignature());
+        g_RootSignature = unique_ptr<RootSignature>(new RootSignature());
         g_RootSignature->Reset(0, 0);
         g_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
         // --------------------------------------------------------------------------
         // 创建图形管线状态
-        g_PipelineState = std::unique_ptr<GraphicsPipelineState>(new GraphicsPipelineState());
+        g_PipelineState = unique_ptr<GraphicsPipelineState>(new GraphicsPipelineState());
 
         // 编译Shader
         winrt::com_ptr<ID3DBlob> vertexShader;
@@ -155,7 +157,7 @@ namespace Graphics
             DirectX::XMFLOAT4 color;
         };
 
-        auto m_aspectRatio = DEFAULT_SCREEN_WIDTH / (float)DEFAULT_SCREEN_HEIGHT;
+        auto m_aspectRatio = Display::GetScreenAspect();
         Vertex vertices[] =
         {
             { { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
@@ -164,7 +166,7 @@ namespace Graphics
         };
         const UINT vertexBufferSize = sizeof(vertices);
 
-        SampleVBV = std::unique_ptr<GpuBuffer>(new GpuBuffer());
+        SampleVBV = unique_ptr<GpuBuffer>(new GpuBuffer());
         SampleVBV->CreateVertexBuffer(sizeof(Vertex), sizeof(vertices), vertices);
 
 
@@ -188,19 +190,22 @@ namespace Graphics
             // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。
             CHECK_HRESULT(g_GraphicsCommandQueue->GetD3D12CommandAllocator()->Reset());
 
+            // 获取当前后台缓冲索引
+            g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
+
             // 但是，当对特定命令列表调用 ExecuteCommandList() 时，该命令列表可以随时重置，并且必须在重新录制之前重置。
             auto currentCommandList = g_GraphicsCommandQueue->GetD3D12CommandList();
             CHECK_HRESULT(currentCommandList->Reset(g_GraphicsCommandQueue->GetD3D12CommandAllocator(), g_PipelineState->GetD3D12PSO()));
 
             // 设置必要的状态。
             currentCommandList->SetGraphicsRootSignature(g_PipelineState->GetD3D12RootSignature());
-            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(DEFAULT_SCREEN_WIDTH), static_cast<float>(DEFAULT_SCREEN_HEIGHT));
+            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(Display::GetScreenWidth()), static_cast<float>(Display::GetScreenHeight()));
             currentCommandList->RSSetViewports(1, &viewport);
-            auto scissorRect = CD3DX12_RECT(0, 0, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
+            auto scissorRect = CD3DX12_RECT(0, 0, Display::GetScreenWidth(), Display::GetScreenHeight());
             currentCommandList->RSSetScissorRects(1, &scissorRect);
 
             // 指示后台缓冲区将用作渲染目标。
-            auto& currentRenderTarget = g_RenderTargets[CurrentBackBufferIndex];
+            auto& currentRenderTarget = *(g_RenderTargets[g_CurrentBackBufferIndex].get());
             auto barriers1 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
             currentCommandList->ResourceBarrier(1, &barriers1);
 
@@ -231,7 +236,6 @@ namespace Graphics
         CHECK_HRESULT(g_SwapChain->Present(1, 0));
 
         g_GraphicsCommandQueue->WaitForQueueCompleted();
-        CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
     }
 
     void OnDestroy()

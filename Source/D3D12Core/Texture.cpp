@@ -8,9 +8,9 @@
 using namespace Graphics;
 
 
-RenderTexture::RenderTexture()
+RenderTexture::RenderTexture() : m_RtvDesc(nullptr)
 {
-    ZeroMemory(this, sizeof(*this));
+    //ZeroMemory(this, sizeof(*this));
 }
 
 void RenderTexture::Create(const D3D12_RENDER_TARGET_VIEW_DESC* pDesc, const DescriptorHandle* pDescriptorHandle, UINT width, UINT height)
@@ -34,7 +34,5 @@ void RenderTexture::CreateFromSwapChain(UINT index, const D3D12_RENDER_TARGET_VI
 
     CHECK_HRESULT(g_SwapChain->GetBuffer(index, IID_PPV_ARGS(m_Resource.put())));
 
-    CHECK_HRESULT(g_SwapChain->GetSourceSize(&m_Width, &m_Height));
-
-    Create(pDesc, pDescriptorHandle, m_Width, m_Height);
+    Create(pDesc, pDescriptorHandle, Display::GetScreenWidth(), Display::GetScreenHeight());
 }

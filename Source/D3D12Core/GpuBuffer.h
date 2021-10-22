@@ -9,7 +9,7 @@ enum class BufferType
     //INDEX,
 };
 
-class GpuBuffer : GpuResource
+class GpuBuffer : public GpuResource
 {
 public:
     GpuBuffer() : m_Type(BufferType::UNCREATED), m_VertexBufferView(nullptr) {}

@@ -8,7 +8,8 @@
 using namespace Graphics;
 
 CommandQueue::CommandQueue() : m_Type(), m_CommandQueue(nullptr), m_CommandAllocator(nullptr), m_CommandList(nullptr),
-m_Fence(nullptr), m_FenceValue(1), m_FenceEvent(nullptr)
+m_Fence(nullptr), m_FenceValue(1), m_FenceEvent(nullptr),
+m_IsClose(false)
 {
 }
 

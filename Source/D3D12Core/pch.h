@@ -71,11 +71,3 @@
 #endif // _DEBUG
 
 #pragma endregion
-
-
-#pragma region CONSTEXPR
-
-constexpr UINT DEFAULT_SCREEN_WIDTH = 1280u; // 初始窗口宽度
-constexpr UINT DEFAULT_SCREEN_HEIGHT = 720u; // 初始窗口高度
-
-#pragma endregion
