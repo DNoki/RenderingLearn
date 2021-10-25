@@ -103,7 +103,7 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCWSTR pFileName, ID3DB
     if (FAILED(compileResult) && errorBlob)
         TRACE((char*)errorBlob->GetBufferPointer());
 
-    //CHECK_HRESULT(compileResult);
+    CHECK_HRESULT(compileResult);
 
     return compileResult;
 }

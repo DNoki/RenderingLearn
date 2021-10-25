@@ -45,8 +45,6 @@ void CommandQueue::CreateCommandList(PipelineState* pso)
 {
     // 创建图形命令列表
     CHECK_HRESULT(g_Device->CreateCommandList(0, m_Type, m_CommandAllocator.get(), pso->GetD3D12PSO(), IID_PPV_ARGS(m_CommandList.put())));
-    // 命令列表是在录制状态下创建的，但还没有什么可录制的。 主循环希望它关闭，所以现在关闭它。
-    m_CommandList->Close();
 }
 
 void CommandQueue::CloseQueue()

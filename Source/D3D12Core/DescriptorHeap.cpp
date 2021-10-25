@@ -34,9 +34,8 @@ using namespace Graphics;
 
 
 
-DescriptorHeap::DescriptorHeap()
+DescriptorHeap::DescriptorHeap() : m_Heap(nullptr), m_HeapDesc(), m_DescriptorSize(), m_StartDescriptorHandle()
 {
-    memset(this, 0, sizeof(*this));
 }
 
 void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count)

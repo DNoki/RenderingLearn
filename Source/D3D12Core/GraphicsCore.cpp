@@ -37,6 +37,9 @@ namespace Graphics
 
     unique_ptr<GpuBuffer> SampleVBV;
 
+    DescriptorHeap t_TexDH;
+    Texture2D t_DefaultTexture;
+
     UINT g_Frame;
 
     void Initialize()
@@ -113,13 +116,25 @@ namespace Graphics
         {
             g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
             auto& rt = g_RenderTargets[i];
-            auto handle = g_RTVDescriptorHeap->GetDescriptorHandle(i);
-            rt->CreateFromSwapChain(i, nullptr, &handle);
+            rt->CreateFromSwapChain(i, nullptr, g_RTVDescriptorHeap->GetDescriptorHandle(i));
         }
         // --------------------------------------------------------------------------
         // 创建根签名
         g_RootSignature = unique_ptr<RootSignature>(new RootSignature());
-        g_RootSignature->Reset(0, 0);
+        g_RootSignature->Reset(1, 1);
+
+        CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
+        ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC);
+        (*g_RootSignature)[0].InitAsDescriptorTable(1, ranges);
+
+        g_RootSignature->GetStaticSamplerDesc(0).Init(0,
+            D3D12_FILTER_MIN_MAG_MIP_POINT,
+            D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+            D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+            D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+            0, 0, D3D12_COMPARISON_FUNC_NEVER
+        );
+
         g_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
         // --------------------------------------------------------------------------
         // 创建图形管线状态
@@ -128,7 +143,7 @@ namespace Graphics
         // 编译Shader
         winrt::com_ptr<ID3DBlob> vertexShader;
         winrt::com_ptr<ID3DBlob> pixelShader;
-        auto shaderPath = L"F:\\DxProject\\RenderingLearnProject\\RenderingLearn\\Source\\Shaders\\Sample.hlsl";
+        auto shaderPath = L"F:\\DxProject\\RenderingLearnProject\\RenderingLearn\\Source\\Shaders\\SampleTexture.hlsl";
         ShaderUtility::CompileVSFromFile(shaderPath, vertexShader.put());
         ShaderUtility::CompilePSFromFile(shaderPath, pixelShader.put());
 
@@ -138,6 +153,7 @@ namespace Graphics
         {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
             {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
         };
 
         g_PipelineState->SetInputLayout(_countof(SAMPLE_INPUT_ELEMENT_DESCS), SAMPLE_INPUT_ELEMENT_DESCS);
@@ -150,19 +166,24 @@ namespace Graphics
         g_PipelineState->Finalize();
 
         // --------------------------------------------------------------------------
+        // 创建指令列表
+        g_GraphicsCommandQueue->CreateCommandList(g_PipelineState.get());
+
+        // --------------------------------------------------------------------------
         // 创建顶点缓冲
         struct Vertex
         {
             DirectX::XMFLOAT3 position;
             DirectX::XMFLOAT4 color;
+            DirectX::XMFLOAT2 uv;
         };
 
         auto m_aspectRatio = Display::GetScreenAspect();
         Vertex vertices[] =
         {
-            { { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-            { { 0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-            { { -0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
+            { { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.5f, 1.0f } },
+            { { 0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }  },
+            { { -0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }  }
         };
         const UINT vertexBufferSize = sizeof(vertices);
 
@@ -172,9 +193,20 @@ namespace Graphics
 
 
         // --------------------------------------------------------------------------
-        // 创建指令列表
-        g_GraphicsCommandQueue->CreateCommandList(g_PipelineState.get());
+        // 创建2D贴图
+        t_TexDH = DescriptorHeap();
+        t_TexDH.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 
+        t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
+
+
+        // --------------------------------------------------------------------------
+        // 由于初始化贴图时需要执行复制命令
+        // 关闭命令列表并执行它以开始初始 GPU 设置。
+        g_GraphicsCommandQueue->GetD3D12CommandList()->Close();
+        // 执行命令列表
+        ID3D12CommandList* ppCommandLists[] = { g_GraphicsCommandQueue->GetD3D12CommandList() };
+        g_GraphicsCommandQueue->GetD3D12CommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 
         // 等待命令列表执行。 我们在主循环中重用相同的命令列表，但现在，我们只想等待设置完成后再继续。
         g_GraphicsCommandQueue->WaitForQueueCompleted();
@@ -216,6 +248,12 @@ namespace Graphics
             // 记录命令
             const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
             currentCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
+
+            // 绑定描述符堆
+            ID3D12DescriptorHeap* ppHeaps[] = { t_TexDH.GetD3D12DescriptorHeap() };
+            currentCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+            currentCommandList->SetGraphicsRootDescriptorTable(0, t_TexDH.GetDescriptorHandle(0));
+
             currentCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
             currentCommandList->IASetVertexBuffers(0, 1, SampleVBV->GetD3D12VBV());
             currentCommandList->DrawInstanced(3, 1, 0, 0);

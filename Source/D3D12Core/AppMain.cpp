@@ -9,7 +9,7 @@
 
 //#pragma comment(lib, "d3d12.lib")
 //#pragma comment(lib, "dxgi.lib")
-//#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "dxguid.lib")
 
 using namespace std;
 
@@ -31,7 +31,7 @@ namespace Application
         {
             UINT width = LOWORD(lParam);
             UINT height = HIWORD(lParam);
-            Display::Resize(width, height);
+            Display::Resize(width, height); // TODO 不应该再实时窗口改变时重置窗口大小，考虑放到每帧开始渲染时修改
         }
         break;
 

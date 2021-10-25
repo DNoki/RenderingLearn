@@ -108,8 +108,7 @@ namespace Display
         {
             g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
             auto& rt = g_RenderTargets[i];
-            auto handle = g_RTVDescriptorHeap->GetDescriptorHandle(i);
-            rt->CreateFromSwapChain(i, nullptr, &handle);
+            rt->CreateFromSwapChain(i, nullptr, g_RTVDescriptorHeap->GetDescriptorHandle(i));
         }
 
         g_SwapChain->Present(1, 0); // 交换一次缓冲，使黑色填充屏幕
