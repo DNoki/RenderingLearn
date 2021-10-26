@@ -52,21 +52,6 @@ void RootSignature::Finalize(D3D12_ROOT_SIGNATURE_FLAGS Flags)
     m_IsFinalized = true;
     ASSERT(m_RootSignature == nullptr);
 
-    //CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-    //rootSignatureDesc.Init(
-    //    m_NumRootParams,
-    //    m_NumRootParams > 0 ? m_ParamArray.data() : nullptr,
-    //    m_NumStaticSamplers,
-    //    m_NumStaticSamplers > 0 ? m_SamplerArray.data() : nullptr,
-    //    Flags);
-
-    //com_ptr<ID3DBlob> pSignature;
-    //com_ptr<ID3DBlob> pErrorSignature;
-
-    //CHECK_HRESULT(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pSignature.put(), pErrorSignature.put()));
-    //CHECK_HRESULT(g_Device->CreateRootSignature(1, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
-
-
     // 检测是否支持 V1.1 版本的根签名
     D3D12_FEATURE_DATA_ROOT_SIGNATURE rsFeatureData{};
     rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;

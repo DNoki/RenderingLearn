@@ -15,6 +15,10 @@
     <ClInclude Include="..\Source\D3D12Core\GpuBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture.h" />
+    <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
+    <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
+    <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
+    <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -31,6 +35,10 @@
     <ClCompile Include="..\Source\D3D12Core\GpuBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

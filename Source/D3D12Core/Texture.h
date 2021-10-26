@@ -2,6 +2,8 @@
 
 #include "GpuResource.h"
 
+// TODO 将贴图从 GpuResource 类解耦出来？
+
 class Texture : public GpuResource
 {
 public:
@@ -29,16 +31,4 @@ public:
 protected:
     std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc;
 
-};
-
-
-class Texture2D : public Texture
-{
-public:
-    Texture2D() {}
-
-    void GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT width, UINT height);
-
-private:
-    winrt::com_ptr<ID3D12Resource1> m_UploadResource;
 };

@@ -34,35 +34,35 @@ using namespace Graphics;
 
 
 
-DescriptorHeap::DescriptorHeap() : m_Heap(nullptr), m_HeapDesc(), m_DescriptorSize(), m_StartDescriptorHandle()
+DescriptorHeap::DescriptorHeap() : m_DescriptorHeap(nullptr), m_DescriptorHeapDesc(), m_DescriptorSize(), m_StartDescriptorHandle()
 {
 }
 
 void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count)
 {
-    ASSERT(m_Heap == nullptr);
-    m_HeapDesc = {};
+    ASSERT(m_DescriptorHeap == nullptr);
+    m_DescriptorHeapDesc = {};
 
     // 是否为着色器可见（SRV、UAV、CBV、Sampler）
     auto isShaderVisible = (type == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV || type == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
     // 描述符堆描述
-    m_HeapDesc.NumDescriptors = count;
-    m_HeapDesc.Type = type;
-    m_HeapDesc.Flags = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    //m_HeapDesc.NodeMask = 1;
+    m_DescriptorHeapDesc.NumDescriptors = count;
+    m_DescriptorHeapDesc.Type = type;
+    m_DescriptorHeapDesc.Flags = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    m_DescriptorHeapDesc.NodeMask = 1;
 
 
     // 创建描述符堆
-    CHECK_HRESULT(g_Device->CreateDescriptorHeap(&m_HeapDesc, IID_PPV_ARGS(m_Heap.put())));
+    CHECK_HRESULT(g_Device->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
 
     // 单个描述符大小
     m_DescriptorSize = g_Device->GetDescriptorHandleIncrementSize(type);
 
     // 描述符起始句柄
     m_StartDescriptorHandle = {
-        m_Heap->GetCPUDescriptorHandleForHeapStart(),
-        isShaderVisible ? m_Heap->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{ D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN }
+        m_DescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+        isShaderVisible ? m_DescriptorHeap->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{ D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN }
     };
 }
 

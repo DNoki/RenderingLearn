@@ -38,7 +38,7 @@ public:
 private:
     winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue;
     winrt::com_ptr<ID3D12CommandAllocator> m_CommandAllocator;
-    winrt::com_ptr<ID3D12GraphicsCommandList5> m_CommandList;
+    winrt::com_ptr<ID3D12GraphicsCommandList5> m_CommandList; // TODO 解耦命令队列
 
     D3D12_COMMAND_LIST_TYPE m_Type;
 

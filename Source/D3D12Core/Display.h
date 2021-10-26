@@ -18,5 +18,5 @@ namespace Display
 
 namespace Graphics
 {
-    extern winrt::com_ptr<IDXGISwapChain4> g_SwapChain;
+    extern winrt::com_ptr<IDXGISwapChain4> g_SwapChain; // TODO 封装交换链
 }

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 namespace Utility
 {
@@ -34,7 +34,7 @@ private:
     };
 
     /**
-     * @brief ÔËĞĞÆÚ±àÒë×ÅÉ«Æ÷´úÂë
+     * @brief è¿è¡ŒæœŸç¼–è¯‘ç€è‰²å™¨ä»£ç 
      * @param type
      * @param pFileName
      * @param ppCode

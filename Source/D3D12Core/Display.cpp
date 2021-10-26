@@ -6,6 +6,8 @@
 
 #include "Display.h"
 
+// DirectX 图形基础结构 (DXGI) ：最佳实践 https://docs.microsoft.com/zh-cn/windows/win32/direct3darticles/dxgi-best-practices
+
 using namespace std;
 using namespace Application;
 using namespace Graphics;

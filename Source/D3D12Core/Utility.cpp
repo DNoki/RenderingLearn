@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include <iostream>
 
 #include "GraphicsCore.h"
@@ -39,6 +39,7 @@ namespace Utility
     }
     HRESULT CheckHresult(HRESULT hr)
     {
+        // æŸ¥è¯¢é”™è¯¯ä¿¡æ¯ https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dxgi-error
         if (hr == 0x887a0005)
         {
             auto error = Graphics::g_Device->GetDeviceRemovedReason();
@@ -77,7 +78,7 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCWSTR pFileName, ID3DB
 
     // CompileFlags https://docs.microsoft.com/zh-cn/windows/win32/direct3dhlsl/d3dcompile-constants
 #ifdef _DEBUG
-    // Ê¹ÓÃÍ¼ĞÎµ÷ÊÔ¹¤¾ßÆôÓÃ×ÅÉ«Æ÷µ÷ÊÔ
+    // ä½¿ç”¨å›¾å½¢è°ƒè¯•å·¥å…·å¯ç”¨ç€è‰²å™¨è°ƒè¯•
     auto compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
     auto compileFlags = 0;
@@ -87,18 +88,18 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCWSTR pFileName, ID3DB
     com_ptr<ID3DBlob> errorBlob;
 
     // #define D3D_COMPILE_STANDARD_FILE_INCLUDE ((ID3DInclude*)(UINT_PTR)1)
-    // D3D_COMPILE_STANDARD_FILE_INCLUDE ¿ÉÒÔÔÚÈÎºÎ API ÖĞÎª pInclude ´«µİ£¬²¢Ö¸Ê¾Ó¦¸ÃÊ¹ÓÃ¼òµ¥µÄÄ¬ÈÏ°üº¬´¦Àí³ÌĞò¡£ °üº¬´¦Àí³ÌĞò½«°üº¬Óëµ±Ç°Ä¿Â¼Ïà¹ØµÄÎÄ¼şºÍÓë³õÊ¼Ô´ÎÄ¼şÄ¿Â¼Ïà¹ØµÄÎÄ¼ş¡£ µ±Óë D3DCompile Ö®ÀàµÄ API Ò»ÆğÊ¹ÓÃÊ±£¬pSourceName ±ØĞëÊÇÎÄ¼şÃû£¬²¢ÇÒ³õÊ¼Ïà¶ÔÄ¿Â¼½«´ÓËüÅÉÉú¡£
+    // D3D_COMPILE_STANDARD_FILE_INCLUDE å¯ä»¥åœ¨ä»»ä½• API ä¸­ä¸º pInclude ä¼ é€’ï¼Œå¹¶æŒ‡ç¤ºåº”è¯¥ä½¿ç”¨ç®€å•çš„é»˜è®¤åŒ…å«å¤„ç†ç¨‹åºã€‚ åŒ…å«å¤„ç†ç¨‹åºå°†åŒ…å«ä¸å½“å‰ç›®å½•ç›¸å…³çš„æ–‡ä»¶å’Œä¸åˆå§‹æºæ–‡ä»¶ç›®å½•ç›¸å…³çš„æ–‡ä»¶ã€‚ å½“ä¸ D3DCompile ä¹‹ç±»çš„ API ä¸€èµ·ä½¿ç”¨æ—¶ï¼ŒpSourceName å¿…é¡»æ˜¯æ–‡ä»¶åï¼Œå¹¶ä¸”åˆå§‹ç›¸å¯¹ç›®å½•å°†ä»å®ƒæ´¾ç”Ÿã€‚
 
     compileResult = D3DCompileFromFile(
-        pFileName,                              // HLSLÎÄ¼şÂ·¾¶
-        nullptr,                                // ¶¨Òå×ÅÉ«Æ÷ºê
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,      // Ä¬ÈÏ°üº¬´¦Àí
-        entryPoints[static_cast<int>(type)],    // ×ÅÉ«Æ÷Èë¿Úº¯Êı
-        compileTarget[static_cast<int>(type)],  // ×ÅÉ«Æ÷Ä¿±ê
-        compileFlags,                           // ×ÅÉ«Æ÷±àÒëÑ¡Ïî
-        0,                                      // Ğ§¹û±àÒëÑ¡Ïî
-        ppCode,                                 // ½ÓÊÕÒÑ±àÒëµÄ´úÂë
-        errorBlob.put()                         // ½ÓÊÕ±àÒë´íÎóĞÅÏ¢
+        pFileName,                              // HLSLæ–‡ä»¶è·¯å¾„
+        nullptr,                                // å®šä¹‰ç€è‰²å™¨å®
+        D3D_COMPILE_STANDARD_FILE_INCLUDE,      // é»˜è®¤åŒ…å«å¤„ç†
+        entryPoints[static_cast<int>(type)],    // ç€è‰²å™¨å…¥å£å‡½æ•°
+        compileTarget[static_cast<int>(type)],  // ç€è‰²å™¨ç›®æ ‡
+        compileFlags,                           // ç€è‰²å™¨ç¼–è¯‘é€‰é¡¹
+        0,                                      // æ•ˆæœç¼–è¯‘é€‰é¡¹
+        ppCode,                                 // æ¥æ”¶å·²ç¼–è¯‘çš„ä»£ç 
+        errorBlob.put()                         // æ¥æ”¶ç¼–è¯‘é”™è¯¯ä¿¡æ¯
     );
     if (FAILED(compileResult) && errorBlob)
         TRACE((char*)errorBlob->GetBufferPointer());
@@ -107,13 +108,13 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCWSTR pFileName, ID3DB
 
     return compileResult;
 }
-//// ±àÒëShader£¬´´½¨äÖÈ¾¹ÜÏß×´Ì¬¶ÔÏó½Ó¿Ú
+//// ç¼–è¯‘Shaderï¼Œåˆ›å»ºæ¸²æŸ“ç®¡çº¿çŠ¶æ€å¯¹è±¡æ¥å£
 //winrt::com_ptr<ID3DBlob> vertexShader;
 //winrt::com_ptr<ID3DBlob> pixelShader;
 //winrt::com_ptr<ID3DBlob> errorBlob;
 //
 //#ifdef _DEBUG
-//// Ê¹ÓÃÍ¼ĞÎµ÷ÊÔ¹¤¾ßÆôÓÃ×ÅÉ«Æ÷µ÷ÊÔ
+//// ä½¿ç”¨å›¾å½¢è°ƒè¯•å·¥å…·å¯ç”¨ç€è‰²å™¨è°ƒè¯•
 //auto compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 //#else
 //auto compileFlags = 0;

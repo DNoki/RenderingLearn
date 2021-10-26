@@ -21,18 +21,18 @@ public:
      * @brief 是否是着色器可见
      * @return
     */
-    inline bool IsShaderVisible() { return m_HeapDesc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; }
+    inline bool IsShaderVisible() { return m_DescriptorHeapDesc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; }
 
     /**
      * @brief 描述符数量
      * @return
     */
-    inline UINT GetDescriptorsCount() { return m_HeapDesc.NumDescriptors; }
+    inline UINT GetDescriptorsCount() { return m_DescriptorHeapDesc.NumDescriptors; }
     /**
      * @brief 描述符堆类型
      * @return
     */
-    inline D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() { return m_HeapDesc.Type; }
+    inline D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() { return m_DescriptorHeapDesc.Type; }
     /**
      * @brief 单个描述符大小
      * @return
@@ -43,7 +43,7 @@ public:
      * @brief D3D12 描述符堆
      * @return
     */
-    inline ID3D12DescriptorHeap* GetD3D12DescriptorHeap() const { return m_Heap.get(); }
+    inline ID3D12DescriptorHeap* GetD3D12DescriptorHeap() const { return m_DescriptorHeap.get(); }
 
     /**
      * @brief 获取描述符句柄
@@ -53,8 +53,8 @@ public:
     DescriptorHandle GetDescriptorHandle(UINT index);
 
 private:
-    winrt::com_ptr<ID3D12DescriptorHeap> m_Heap;        // 描述符堆
-    D3D12_DESCRIPTOR_HEAP_DESC m_HeapDesc;              // 描述符堆属性
+    winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap;        // 描述符堆
+    D3D12_DESCRIPTOR_HEAP_DESC m_DescriptorHeapDesc;              // 描述符堆属性
     UINT m_DescriptorSize;                              // 单个描述符大小
     DescriptorHandle m_StartDescriptorHandle;           // 描述符起始句柄
 };

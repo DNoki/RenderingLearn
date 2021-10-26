@@ -64,7 +64,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;$(SolutionDir)Libraries\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -88,7 +88,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;$(SolutionDir)Libraries\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,6 +106,7 @@
     <ClInclude Include="..\Source\D3D12Core\Display.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h" />
     <ClInclude Include="..\Source\D3D12Core\GpuBuffer.h" />
+    <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
     <ClInclude Include="..\Source\D3D12Core\GpuResource.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
@@ -113,7 +114,10 @@
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
     <ClInclude Include="..\Source\D3D12Core\RootSignature.h" />
+    <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture.h" />
+    <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
+    <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\Utility.h" />
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +126,7 @@
     <ClCompile Include="..\Source\D3D12Core\Display.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GpuBuffer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GpuResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
@@ -129,7 +134,10 @@
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
