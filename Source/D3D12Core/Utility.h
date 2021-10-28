@@ -9,6 +9,9 @@ namespace Utility
     void Trace(const wchar_t* format, ...);
     inline void Trace(void) {}
 
+    std::string Format(const char* format, ...);
+    std::wstring Format(const wchar_t* format, ...);
+
     HRESULT CheckHresult(HRESULT hr);
 }
 

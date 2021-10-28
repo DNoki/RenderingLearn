@@ -17,7 +17,7 @@ namespace SampleResource
 
     extern DescriptorHeap t_TexDH;
     extern Texture2D t_DefaultTexture;
-    extern GpuPlacedHeap g_PlacedHeap;
+    extern GpuPlacedHeap g_TexPlacedHeap;
     extern GpuPlacedHeap g_UploadPlacedHeap;
 
 

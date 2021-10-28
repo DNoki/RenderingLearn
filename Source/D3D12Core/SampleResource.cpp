@@ -21,12 +21,14 @@ namespace SampleResource
     GraphicsPipelineState g_PipelineState;
 
 
+    UploadBuffer g_UploadSampleVBV;
     GpuBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
     Texture2D t_DefaultTexture;
 
-    GpuPlacedHeap g_PlacedHeap;
+    GpuPlacedHeap g_TexPlacedHeap;
+    GpuPlacedHeap g_VertexPlacedHeap;
     GpuPlacedHeap g_UploadPlacedHeap;
 
 
@@ -110,10 +112,19 @@ namespace SampleResource
     }
     void InitPlacedHeap()
     {
-        g_PlacedHeap = GpuPlacedHeap();
-        g_PlacedHeap.Create(D3D12_HEAP_TYPE_DEFAULT, 1024 * 1024 * 4 * 2, D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES | D3D12_HEAP_FLAG_DENY_BUFFERS);
+        const UINT64 sampleSize = 65536ull * 100u;
+
+        // 纹理放置堆
+        g_TexPlacedHeap = GpuPlacedHeap();
+        g_TexPlacedHeap.Create(D3D12_HEAP_TYPE_DEFAULT, sampleSize, D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES | D3D12_HEAP_FLAG_DENY_BUFFERS);
+
+        // 顶点放置堆
+        g_VertexPlacedHeap = GpuPlacedHeap();
+        g_VertexPlacedHeap.Create(D3D12_HEAP_TYPE_DEFAULT, sampleSize, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS); // 默认顶点堆选项必须为缓冲区
+
+        // 通用上传放置堆
         g_UploadPlacedHeap = GpuPlacedHeap();
-        g_UploadPlacedHeap.Create(D3D12_HEAP_TYPE_UPLOAD, 1024 * 1024 * 4 * 2, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS);
+        g_UploadPlacedHeap.Create(D3D12_HEAP_TYPE_UPLOAD, sampleSize, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS); // 上传堆允许存放任何类型数据
     }
     void InitTexture2D()
     {
@@ -129,7 +140,7 @@ namespace SampleResource
         //t_DefaultTexture.Create(texPath, t_TexDH.GetDescriptorHandle(0));
 
         // 使用定位方式创建贴图
-        t_DefaultTexture.Placed(texPath, t_TexDH.GetDescriptorHandle(0), g_PlacedHeap, g_UploadPlacedHeap);
+        t_DefaultTexture.Placed(texPath, t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
 
     }
     void InitMesh()
@@ -143,7 +154,7 @@ namespace SampleResource
         };
 
         auto m_aspectRatio = Display::GetScreenAspect();
-        auto meshSize = 2.5f;
+        auto meshSize = 0.5f;
         Vertex vertices[] =
         {
             //{ { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.5f, 1.0f } },
@@ -159,21 +170,10 @@ namespace SampleResource
         const UINT vertexBufferSize = sizeof(vertices);
 
         g_SampleVBV = GpuBuffer();
-        g_SampleVBV.CreateVertexBuffer(sizeof(Vertex), sizeof(vertices), vertices);
+        //g_SampleVBV.CreateVertexBuffer(sizeof(Vertex), _countof(vertices), vertices);
 
-        // TODO 学习使用定位方式创建顶点缓冲
-        //D3D12_RESOURCE_DESC vertexBufferDesc{};
-        //vertexBufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-        //vertexBufferDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-        //vertexBufferDesc.Width = vertexBufferSize;
-        //vertexBufferDesc.Height = 1;
-        //vertexBufferDesc.DepthOrArraySize = 1;
-        //vertexBufferDesc.MipLevels = 1;
-        //vertexBufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-        //vertexBufferDesc.SampleDesc.Count = 1;
-        //vertexBufferDesc.SampleDesc.Quality = 0;
-        //vertexBufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-        //vertexBufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+        // 使用定位方式创建顶点缓冲
+        g_SampleVBV.PlacedVertexBuffer(sizeof(Vertex), _countof(vertices), vertices, g_VertexPlacedHeap, g_UploadPlacedHeap);
     }
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList)
@@ -183,7 +183,7 @@ namespace SampleResource
         commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
         commandList->SetGraphicsRootDescriptorTable(0, *t_DefaultTexture.GetDescriptorHandle());
-        commandList->SetGraphicsRootDescriptorTable(1, g_SamplerLinearClamp);
+        commandList->SetGraphicsRootDescriptorTable(1, g_SamplerLinearMirror);
 
         //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());

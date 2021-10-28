@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <functional>
 //#include <iostream>
 //#include <string>
 //#include <sstream>
@@ -57,7 +58,7 @@
             TRACE(L"\'" #isFalse "\' is false \n"); \
             TRACE(__VA_ARGS__); \
             TRACE(L"\n"); \
-            __debugbreak(); \
+            DebugBreak(); \
         }
 
 #define CHECK_HRESULT(hr) Utility::CheckHresult(hr);

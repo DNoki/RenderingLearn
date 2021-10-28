@@ -1,8 +1,15 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
+#include "GpuPlacedHeap.h"
+#include "CommandQueue.h"
 
 #include "GpuBuffer.h"
+
+using namespace Graphics;
+
+
+GpuBuffer::GpuBuffer() : m_Type(BufferType::UNCREATED), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
 
 void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
 {
@@ -11,15 +18,15 @@ void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void
     // 注意：不推荐使用上传堆来传输静态数据，如垂直缓冲区。 每次 GPU 需要它时，上传堆都会被编组。 请阅读默认堆用法。 此处使用上传堆是为了代码简单，并且因为要实际传输的顶点很少。
     auto bufferSize = strideSize * vertexCount;
     auto pHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    auto pDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
     CHECK_HRESULT(Graphics::g_Device->CreateCommittedResource(
         &pHeapProperties, // 为资源的堆提供属性
         D3D12_HEAP_FLAG_NONE, // 堆选项
-        &pDesc, // 描述资源
+        &m_ResourceDesc, // 描述资源
         D3D12_RESOURCE_STATE_GENERIC_READ, // 资源的初始状态
         nullptr, // 清除操作最优化的值
-        IID_PPV_ARGS(m_Resource.put())));
+        IID_PPV_ARGS(PutD3D12Resource())));
 
 
     // 将三角形数据复制到顶点缓冲区
@@ -42,4 +49,43 @@ void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void
 
     m_Type = BufferType::VERTEX;
 }
-;
+
+void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
+{
+    auto bufferSize = strideSize * vertexCount;
+
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+    pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_COPY_DEST, *this);
+
+
+    m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+    m_UploadBuffer->Create(bufferSize);
+    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(bufferSize));
+    pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
+
+    D3D12_SUBRESOURCE_DATA srcData = {};
+    srcData.pData = vertices;
+    srcData.RowPitch = bufferSize;
+    srcData.SlicePitch = bufferSize;
+    UpdateSubresources(
+        g_GraphicsCommandQueue->GetD3D12CommandList(),
+        m_Resource.get(),
+        m_UploadBuffer->GetD3D12Resource(),
+        0, 0, 1,
+        &srcData);
+
+    auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
+        m_Resource.get(),
+        D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
+        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+    g_GraphicsCommandQueue->GetD3D12CommandList()->ResourceBarrier(1, &barriers);
+
+
+    SetAddressOrDescriptor(m_Resource->GetGPUVirtualAddress(), DescriptorHandle::DESCRIPTOR_HANDLE_NULL);
+
+    // 创建顶点缓冲视图
+    m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+            m_GpuVirtualAddress,
+            bufferSize,
+            strideSize });
+}

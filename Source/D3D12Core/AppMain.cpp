@@ -19,6 +19,17 @@ namespace Application
     HWND g_Hwnd; // 当前程序窗口句柄
     bool g_ExitFlag;
 
+    wstring GetWindowTitle()
+    {
+        TCHAR pszWndTitle[MAX_PATH] = {};
+        GetWindowText(g_Hwnd, pszWndTitle, MAX_PATH);
+        return pszWndTitle;
+    }
+
+    void SetWindowTitle(LPCWSTR lpTitle)
+    {
+        SetWindowText(g_Hwnd, lpTitle);
+    }
 
     LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {

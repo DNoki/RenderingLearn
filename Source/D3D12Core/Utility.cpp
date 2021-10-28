@@ -37,6 +37,26 @@ namespace Utility
         va_end(ap);
         Print(buffer);
     }
+
+    string Format(const char* format, ...)
+    {
+        char buffer[256];
+        va_list ap;
+        va_start(ap, format);
+        vsprintf_s(buffer, 256, format, ap);
+        va_end(ap);
+        return buffer;
+    }
+    wstring Format(const wchar_t* format, ...)
+    {
+        wchar_t buffer[256];
+        va_list ap;
+        va_start(ap, format);
+        vswprintf(buffer, 256, format, ap);
+        va_end(ap);
+        return buffer;
+    }
+
     HRESULT CheckHresult(HRESULT hr)
     {
         // 查询错误信息 https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dxgi-error

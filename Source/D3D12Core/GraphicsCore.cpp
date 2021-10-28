@@ -10,6 +10,7 @@
 #include "CommandQueue.h"
 
 #include "SampleResource.h"
+#include "AppMain.h"
 
 #include "GraphicsCore.h"
 
@@ -94,6 +95,12 @@ namespace Graphics
 
         DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{}; // TODO 描述当前的GPU内存预算参数
         CHECK_HRESULT(g_Adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));
+        {
+            auto title = Application::GetWindowTitle();
+            DXGI_ADAPTER_DESC3 desc;
+            g_Adapter->GetDesc3(&desc);
+            Application::SetWindowTitle(Utility::Format(L"%s  GPU(%s)", title.c_str(), desc.Description).c_str());
+        }
 
         // --------------------------------------------------------------------------
         // 创建图形命令队列
@@ -136,8 +143,8 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 创建示例资源
-        SampleResource::InitMesh();
         SampleResource::InitPlacedHeap();
+        SampleResource::InitMesh();
         SampleResource::InitTexture2D();
 
         // --------------------------------------------------------------------------

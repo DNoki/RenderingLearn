@@ -34,7 +34,8 @@ void RenderTexture::CreateFromSwapChain(UINT index, const D3D12_RENDER_TARGET_VI
 {
     ASSERT(m_Resource == nullptr);
 
-    CHECK_HRESULT(g_SwapChain->GetBuffer(index, IID_PPV_ARGS(m_Resource.put())));
+    CHECK_HRESULT(g_SwapChain->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
+    m_ResourceDesc = m_Resource->GetDesc();
 
     Create(pDesc, pDescriptorHandle, Display::GetScreenWidth(), Display::GetScreenHeight());
 }

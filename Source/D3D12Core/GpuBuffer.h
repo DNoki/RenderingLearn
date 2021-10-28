@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include "GpuResource.h"
+#include "UploadBuffer.h"
+
+class GpuPlacedHeap;
 
 enum class BufferType
 {
@@ -12,7 +15,7 @@ enum class BufferType
 class GpuBuffer : public GpuResource
 {
 public:
-    GpuBuffer() : m_Type(BufferType::UNCREATED), m_VertexBufferView(nullptr) {}
+    GpuBuffer();
 
     /**
      * @brief 创建顶点缓冲视图（VBV）
@@ -21,14 +24,18 @@ public:
      * @param vertices 顶点列表
     */
     void CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices);
+    void PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap);
 
     /**
      * @brief 获取 D3D12 顶点缓冲视图
-     * @return 
+     * @return
     */
     inline D3D12_VERTEX_BUFFER_VIEW* GetD3D12VBV() const { return m_VertexBufferView.get(); }
 
 private:
     BufferType m_Type; // 缓冲类型
     std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferView;
+
+
+    std::unique_ptr<UploadBuffer> m_UploadBuffer;
 };

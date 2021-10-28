@@ -8,4 +8,8 @@ namespace Application
     constexpr UINT DEFAULT_SCREEN_HEIGHT = 720u; // 初始窗口高度
 
     extern HWND g_Hwnd;     // 当前程序窗口句柄
+
+
+    std::wstring GetWindowTitle();
+    void SetWindowTitle(LPCWSTR lpTitle);
 }

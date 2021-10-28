@@ -35,6 +35,7 @@ public:
         switch (nrChannels)
         {
         case 1: Format = DXGI_FORMAT_R8_UNORM; break;
+        case 2: Format = DXGI_FORMAT_R8G8_UNORM; break;
         case 4: Format = DXGI_FORMAT_R8G8B8A8_UNORM; break;
         default: ASSERT(0, L"未定义格式"); break;
         }
@@ -59,7 +60,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
 
 
     // 描述并创建2D贴图
-    auto textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         format,
         width,
         height,
@@ -73,7 +74,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
     UINT64 rowSizeInBytes[1] = {};
     UINT64 totalBytes = 0;
     g_Device->GetCopyableFootprints(
-        &textureDesc,       // 资源的描述
+        &m_ResourceDesc,    // 资源的描述
         0,                  // 资源中第一个子资源索引
         1,                  // 资源中子资源数量
         0,                  // 资源的偏移量
@@ -88,10 +89,10 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
     CHECK_HRESULT(g_Device->CreateCommittedResource(
         &texHeapProperties,             // 默认堆类型
         D3D12_HEAP_FLAG_NONE,           // 堆选项
-        &textureDesc,                   // 贴图描述
+        &m_ResourceDesc,                // 贴图描述
         D3D12_RESOURCE_STATE_COPY_DEST, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
         nullptr,
-        IID_PPV_ARGS(m_Resource.put())));
+        IID_PPV_ARGS(PutD3D12Resource())));
 
     // 返回要用于数据上传的缓冲区的所需大小
     UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_Resource.get(), 0, 1);
@@ -128,7 +129,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
     // 描述并创建纹理的 SRV
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = textureDesc.Format;
+    srvDesc.Format = m_ResourceDesc.Format;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = 1;
 
@@ -146,7 +147,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     auto format = texData.Format;
 
     // 描述并创建2D贴图
-    auto textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         format,
         width,
         height,
@@ -160,7 +161,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     UINT64 rowSizeInBytes[1] = {};
     UINT64 totalBytes = 0;
     g_Device->GetCopyableFootprints(
-        &textureDesc,       // 资源的描述
+        &m_ResourceDesc,       // 资源的描述
         0,                  // 资源中第一个子资源索引
         1,                  // 资源中子资源数量
         0,                  // 资源的偏移量
@@ -172,7 +173,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
 
 
     // 使用定位方式创建纹理，这步操作实际上没有实际分配和释放内存，所以性能很高，可以反复调用来创建不同的纹理
-    pPlacedHeap.PlacedResource(pPlacedHeap.GetNextOffset(), &textureDesc, D3D12_RESOURCE_STATE_COPY_DEST, *this);
+    pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_COPY_DEST, *this);
 
 
     // 返回要用于数据上传的缓冲区的所需大小
@@ -182,8 +183,8 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
     m_UploadBuffer->Create(uploadBufferSize);
 
-    auto buffer = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
-    pUploadPlacedHeap.PlacedResource(pUploadPlacedHeap.GetNextOffset(), &buffer, D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
+    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize));
+    pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
 
 
     // 通过 UpdateSubresources 函数直接通过中间资源将数据拷贝到默认堆
@@ -214,7 +215,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     // 描述并创建纹理的 SRV
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = textureDesc.Format;
+    srvDesc.Format = m_ResourceDesc.Format;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = 1;
 
@@ -239,7 +240,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     //textureDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 
     // 描述并创建2D贴图
-    auto textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         format,
         width,
         height,
@@ -253,7 +254,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     UINT64 rowSizeInBytes[1] = {};
     UINT64 totalBytes = 0;
     g_Device->GetCopyableFootprints(
-        &textureDesc,       // 资源的描述
+        &m_ResourceDesc,       // 资源的描述
         0,                  // 资源中第一个子资源索引
         1,                  // 资源中子资源数量
         0,                  // 资源的偏移量
@@ -268,10 +269,10 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     CHECK_HRESULT(g_Device->CreateCommittedResource(
         &texHeapProperties,             // 默认堆类型
         D3D12_HEAP_FLAG_NONE,           // 堆选项
-        &textureDesc,                   // 贴图描述
+        &m_ResourceDesc,                   // 贴图描述
         D3D12_RESOURCE_STATE_COPY_DEST, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
         nullptr,
-        IID_PPV_ARGS(m_Resource.put())));
+        IID_PPV_ARGS(PutD3D12Resource())));
 
     // 关于对齐说明
     //auto 实际行大小 = width * 4;
@@ -385,7 +386,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     // 描述并创建纹理的 SRV
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = textureDesc.Format;
+    srvDesc.Format = m_ResourceDesc.Format;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = 1;
 
