@@ -8,6 +8,7 @@
 #include "CommandQueue.h"
 #include "GpuPlacedHeap.h"
 #include "GraphicsCore.h"
+#include "CommandList.h"
 
 #include "Texture2D.h"
 
@@ -109,7 +110,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
 
     // 使用堆分配实现更新子资源。无需考虑内存对齐
     UpdateSubresources(
-        g_GraphicsCommandQueue->GetD3D12CommandList(),  // 命令列表
+        g_GraphicCommandList.GetD3D12CommandList(),  // 命令列表
         m_Resource.get(),                               // 目标资源
         m_UploadBuffer->GetD3D12Resource(),             // 中间资源
         0,                                              // 中间资源的偏移量
@@ -123,7 +124,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
-    g_GraphicsCommandQueue->GetD3D12CommandList()->ResourceBarrier(1, &barriers);
+    g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
     // 描述并创建纹理的 SRV
@@ -182,8 +183,6 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     // 创建 GPU 上传缓冲
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
     m_UploadBuffer->Create(uploadBufferSize);
-
-    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize));
     pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
 
 
@@ -195,7 +194,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
 
     // 使用堆分配实现更新子资源。无需考虑内存对齐
     UpdateSubresources(
-        g_GraphicsCommandQueue->GetD3D12CommandList(),  // 命令列表
+        g_GraphicCommandList.GetD3D12CommandList(),  // 命令列表
         m_Resource.get(),                               // 目标资源
         m_UploadBuffer->GetD3D12Resource(), // 中间资源，需要注意中间资源的生命周期应当在复制完成之后再释放
         0,                                              // 中间资源的偏移量
@@ -209,7 +208,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
-    g_GraphicsCommandQueue->GetD3D12CommandList()->ResourceBarrier(1, &barriers);
+    g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
     // 描述并创建纹理的 SRV
@@ -364,7 +363,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
 
         // 使用堆分配实现更新子资源。无需考虑内存对齐
         UpdateSubresources(
-            g_GraphicsCommandQueue->GetD3D12CommandList(),  // 命令列表
+            g_GraphicCommandList.GetD3D12CommandList(),  // 命令列表
             m_Resource.get(),                               // 目标资源
             m_UploadBuffer->GetD3D12Resource(), // 中间资源，需要注意中间资源的生命周期应当在复制完成之后再释放
             0,                                              // 中间资源的偏移量
@@ -380,7 +379,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
-    g_GraphicsCommandQueue->GetD3D12CommandList()->ResourceBarrier(1, &barriers);
+    g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
     // 描述并创建纹理的 SRV

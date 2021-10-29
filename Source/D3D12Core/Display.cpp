@@ -56,7 +56,7 @@ namespace Display
         //fsSwapChainDesc.Windowed = TRUE;
 
         CHECK_HRESULT(g_Factory->CreateSwapChainForHwnd(
-            g_GraphicsCommandQueue->GetD3D12CommandQueue(), // 对于 Direct3D 12，这是一个指向直接命令队列的指针
+            g_GraphicsCommandQueue.GetD3D12CommandQueue(), // 对于 Direct3D 12，这是一个指向直接命令队列的指针
             Application::g_Hwnd,
             &swapChainDesc,
             nullptr,
@@ -87,7 +87,7 @@ namespace Display
     void Resize(UINT width, UINT height)
     {
         // TODO 需要在这里等待指令队列完成
-        g_GraphicsCommandQueue->WaitForQueueCompleted();
+        g_GraphicsCommandQueue.WaitForQueueCompleted();
 
         g_DisplayWidth = width;
         g_DisplayHeight = height;
@@ -116,7 +116,7 @@ namespace Display
         g_SwapChain->Present(1, 0); // 交换一次缓冲，使黑色填充屏幕
 
         // TODO 需要在这里等待指令队列完成
-        g_GraphicsCommandQueue->WaitForQueueCompleted();
+        g_GraphicsCommandQueue.WaitForQueueCompleted();
 
         TRACE("Changing display resolution to %ux%u", width, height);
     }

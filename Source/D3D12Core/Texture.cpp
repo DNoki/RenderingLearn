@@ -25,6 +25,7 @@ void RenderTexture::Create(const D3D12_RENDER_TARGET_VIEW_DESC* pDesc, const Des
     m_RtvDesc = std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC>(pRtvDesc);
 
     g_Device->CreateRenderTargetView(m_Resource.get(), m_RtvDesc.get(), m_DescriptorHandle);
+    m_ResourceDesc = m_Resource->GetDesc();
 
     m_Width = width;
     m_Height = height;
@@ -35,7 +36,6 @@ void RenderTexture::CreateFromSwapChain(UINT index, const D3D12_RENDER_TARGET_VI
     ASSERT(m_Resource == nullptr);
 
     CHECK_HRESULT(g_SwapChain->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
-    m_ResourceDesc = m_Resource->GetDesc();
 
     Create(pDesc, pDescriptorHandle, Display::GetScreenWidth(), Display::GetScreenHeight());
 }

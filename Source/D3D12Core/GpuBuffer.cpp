@@ -3,6 +3,7 @@
 #include "GraphicsCore.h"
 #include "GpuPlacedHeap.h"
 #include "CommandQueue.h"
+#include "CommandList.h"
 
 #include "GpuBuffer.h"
 
@@ -60,7 +61,6 @@ void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void
 
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
     m_UploadBuffer->Create(bufferSize);
-    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(bufferSize));
     pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
 
     D3D12_SUBRESOURCE_DATA srcData = {};
@@ -68,7 +68,7 @@ void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void
     srcData.RowPitch = bufferSize;
     srcData.SlicePitch = bufferSize;
     UpdateSubresources(
-        g_GraphicsCommandQueue->GetD3D12CommandList(),
+        g_GraphicCommandList.GetD3D12CommandList(),
         m_Resource.get(),
         m_UploadBuffer->GetD3D12Resource(),
         0, 0, 1,
@@ -78,7 +78,7 @@ void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
-    g_GraphicsCommandQueue->GetD3D12CommandList()->ResourceBarrier(1, &barriers);
+    g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
     SetAddressOrDescriptor(m_Resource->GetGPUVirtualAddress(), DescriptorHandle::DESCRIPTOR_HANDLE_NULL);

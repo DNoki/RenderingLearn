@@ -8,6 +8,7 @@
 
 #include "Display.h"
 #include "CommandQueue.h"
+#include "CommandList.h"
 
 #include "SampleResource.h"
 #include "AppMain.h"
@@ -30,8 +31,11 @@ namespace Graphics
     unique_ptr<DescriptorHeap> g_RTVDescriptorHeap;
     vector<unique_ptr<RenderTexture>> g_RenderTargets;
 
-    unique_ptr<CommandQueue> g_GraphicsCommandQueue;
+    CommandQueue g_GraphicsCommandQueue;
+    CommandQueue g_ComputeCommandQueue;
+    CommandQueue g_CopyCommandQueue;
 
+    CommandList g_GraphicCommandList;
 
     UINT64 g_FrameCount; // 已渲染帧数量
 
@@ -104,8 +108,17 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 创建图形命令队列
-        g_GraphicsCommandQueue = unique_ptr<CommandQueue>(new CommandQueue());
-        g_GraphicsCommandQueue->Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        g_GraphicsCommandQueue = CommandQueue();
+        g_GraphicsCommandQueue.Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+
+        // --------------------------------------------------------------------------
+        // 创建指令列表
+        //g_GraphicsCommandQueue->CreateCommandList(&SampleResource::g_PipelineState);
+        g_GraphicCommandList.Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+        // 重置命令列表以其便能够帮助初始化资源复制命令
+        g_GraphicCommandList.Reset(nullptr);
 
 
         // --------------------------------------------------------------------------
@@ -137,11 +150,6 @@ namespace Graphics
 
 
         // --------------------------------------------------------------------------
-        // 创建指令列表
-        g_GraphicsCommandQueue->CreateCommandList(&SampleResource::g_PipelineState);
-
-
-        // --------------------------------------------------------------------------
         // 创建示例资源
         SampleResource::InitPlacedHeap();
         SampleResource::InitMesh();
@@ -149,71 +157,60 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 由于初始化贴图时需要执行复制命令
-        // 关闭命令列表并执行它以开始初始 GPU 设置。
-        g_GraphicsCommandQueue->GetD3D12CommandList()->Close();
         // 执行命令列表
-        ID3D12CommandList* ppCommandLists[] = { g_GraphicsCommandQueue->GetD3D12CommandList() };
-        g_GraphicsCommandQueue->GetD3D12CommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicCommandList);
+
 
         // 等待命令列表执行。 我们在主循环中重用相同的命令列表，但现在，我们只想等待设置完成后再继续。
-        g_GraphicsCommandQueue->WaitForQueueCompleted();
+        g_GraphicsCommandQueue.WaitForQueueCompleted();
     }
 
 
     void OnRender()
     {
         // --------------------------------------------------------------------------
-            // 渲染
-            // 填充命令列表
+        // 渲染
+        // 填充命令列表
         {
-            // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。
-            CHECK_HRESULT(g_GraphicsCommandQueue->GetD3D12CommandAllocator()->Reset());
-
             // 获取当前后台缓冲索引
             g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
 
-            // 当对特定命令列表调用 ExecuteCommandList() 时，该命令列表可以随时重置，并且必须在重新录制之前重置。
-            auto currentCommandList = g_GraphicsCommandQueue->GetD3D12CommandList();
-            CHECK_HRESULT(currentCommandList->Reset(g_GraphicsCommandQueue->GetD3D12CommandAllocator(), SampleResource::g_PipelineState.GetD3D12PSO()));
+            // 重置命令列表
+            g_GraphicCommandList.Reset(&SampleResource::g_PipelineState);
+
 
             // 设置必要的状态。
-            currentCommandList->SetGraphicsRootSignature(SampleResource::g_PipelineState.GetD3D12RootSignature());
+            g_GraphicCommandList->SetGraphicsRootSignature(SampleResource::g_PipelineState.GetD3D12RootSignature());
             auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(Display::GetScreenWidth()), static_cast<float>(Display::GetScreenHeight()));
-            currentCommandList->RSSetViewports(1, &viewport);
+            g_GraphicCommandList->RSSetViewports(1, &viewport);
             auto scissorRect = CD3DX12_RECT(0, 0, Display::GetScreenWidth(), Display::GetScreenHeight());
-            currentCommandList->RSSetScissorRects(1, &scissorRect);
+            g_GraphicCommandList->RSSetScissorRects(1, &scissorRect);
 
             // 指示后台缓冲区将用作渲染目标。
             auto& currentRenderTarget = *(g_RenderTargets[g_CurrentBackBufferIndex].get());
             auto barriers1 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            currentCommandList->ResourceBarrier(1, &barriers1);
+            g_GraphicCommandList->ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            currentCommandList->OMSetRenderTargets(1, currentRenderTarget.GetDescriptorHandle()->GetCpuHandle(), FALSE, nullptr);
-
+            g_GraphicCommandList->OMSetRenderTargets(1, currentRenderTarget.GetDescriptorHandle()->GetCpuHandle(), FALSE, nullptr);
 
             // 记录命令
             const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-            currentCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
+            g_GraphicCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
 
-            SampleResource::SampleDraw(currentCommandList);
-
+            SampleResource::SampleDraw(g_GraphicCommandList.GetD3D12CommandList());
 
             // 指示现在将使用后台缓冲区来呈现。
             auto barriers2 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-            currentCommandList->ResourceBarrier(1, &barriers2);
-
-            CHECK_HRESULT(currentCommandList->Close());
+            g_GraphicCommandList->ResourceBarrier(1, &barriers2);
         }
-
         // 执行命令列表
-        ID3D12CommandList* ppCommandLists[] = { g_GraphicsCommandQueue->GetD3D12CommandList() };
-        g_GraphicsCommandQueue->GetD3D12CommandQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicCommandList);
 
         // 呈现帧。
         CHECK_HRESULT(g_SwapChain->Present(1, 0));
 
-        g_GraphicsCommandQueue->WaitForQueueCompleted();
+        g_GraphicsCommandQueue.WaitForQueueCompleted();
 
         g_FrameCount++;
     }
@@ -221,7 +218,7 @@ namespace Graphics
     void OnDestroy()
     {
         // 等待队列指令完成后关闭
-        g_GraphicsCommandQueue->CloseQueue();
+        g_GraphicsCommandQueue.CloseQueue();
     }
 
 }

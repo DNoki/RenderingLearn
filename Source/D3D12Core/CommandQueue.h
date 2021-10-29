@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class PipelineState;
+class CommandList;
 
 /**
  * @brief 指令队列
@@ -15,11 +16,8 @@ public:
      * @param type 指令列表类型
     */
     void Create(D3D12_COMMAND_LIST_TYPE type);
-    /**
-     * @brief 创建指令列表
-     * @param pso
-    */
-    void CreateCommandList(PipelineState* pso);
+
+    void ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists = 1);
 
     /**
      * @brief 等待队列完成
@@ -32,13 +30,9 @@ public:
     void CloseQueue();
 
     inline ID3D12CommandQueue* GetD3D12CommandQueue() const { return m_CommandQueue.get(); }
-    inline ID3D12CommandAllocator* GetD3D12CommandAllocator() const { return m_CommandAllocator.get(); }
-    inline ID3D12GraphicsCommandList5* GetD3D12CommandList() const { return m_CommandList.get(); }
 
 private:
     winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue;
-    winrt::com_ptr<ID3D12CommandAllocator> m_CommandAllocator;
-    winrt::com_ptr<ID3D12GraphicsCommandList5> m_CommandList; // TODO 解耦命令队列
 
     D3D12_COMMAND_LIST_TYPE m_Type;
 
@@ -48,3 +42,11 @@ private:
 
     bool m_IsClose;
 };
+
+
+namespace Graphics
+{
+    extern CommandQueue g_GraphicsCommandQueue; // 图形命令队列
+    extern CommandQueue g_ComputeCommandQueue;  // 计算命令队列
+    extern CommandQueue g_CopyCommandQueue;     // 拷贝命令队列
+}

@@ -19,6 +19,7 @@
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
     <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
+    <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -39,6 +40,7 @@
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />
     <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
