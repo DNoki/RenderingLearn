@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <functional>
+#include <queue>
 //#include <iostream>
 //#include <string>
 //#include <sstream>

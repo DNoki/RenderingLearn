@@ -101,6 +101,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHeap.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="..\Source\D3D12Core\Utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHeap.cpp" />
