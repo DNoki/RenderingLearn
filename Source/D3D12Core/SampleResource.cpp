@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#include "AppMain.h"
 #include "DescriptorHeap.h"
 #include "GpuBuffer.h"
 #include "Texture2D.h"
@@ -88,9 +89,9 @@ namespace SampleResource
         // 编译Shader
         winrt::com_ptr<ID3DBlob> vertexShader;
         winrt::com_ptr<ID3DBlob> pixelShader;
-        auto shaderPath = L"F:\\DxProject\\RenderingLearnProject\\RenderingLearn\\Source\\Shaders\\SampleTexture.hlsl";
-        ShaderUtility::CompileVSFromFile(shaderPath, vertexShader.put());
-        ShaderUtility::CompilePSFromFile(shaderPath, pixelShader.put());
+        auto shaderPath = Application::GetShaderPath().append("SampleTexture.hlsl");
+        ShaderUtility::CompileVSFromFile(shaderPath.c_str(), vertexShader.put());
+        ShaderUtility::CompilePSFromFile(shaderPath.c_str(), pixelShader.put());
 
 
         // 定义顶点输入层
@@ -131,7 +132,8 @@ namespace SampleResource
         t_TexDH = DescriptorHeap();
         t_TexDH.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
 
-        auto texPath = "F:/DxProject/RenderingLearnProject/RenderingLearn/Assets/Shimarin.png";
+        auto texPath = Application::GetAssetPath();
+        texPath.append("Shimarin.png");
 
         // 创建Checker贴图
         //t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
@@ -140,7 +142,8 @@ namespace SampleResource
         //t_DefaultTexture.Create(texPath, t_TexDH.GetDescriptorHandle(0));
 
         // 使用定位方式创建贴图
-        t_DefaultTexture.Placed(texPath, t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
+        USES_CONVERSION;
+        t_DefaultTexture.Placed(W2A(texPath.c_str()), t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
 
     }
     void InitMesh()

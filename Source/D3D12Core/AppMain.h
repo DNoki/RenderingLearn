@@ -11,5 +11,9 @@ namespace Application
 
 
     std::wstring GetWindowTitle();
-    void SetWindowTitle(LPCWSTR lpTitle);
+    void SetWindowTitle(LPCTSTR lpTitle);
+
+    Path GetProjectPath();
+    Path GetAssetPath();
+    Path GetShaderPath();
 }

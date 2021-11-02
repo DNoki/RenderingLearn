@@ -59,7 +59,7 @@ void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GpuResour
 
     // 查询要放置资源大小，并比较剩余可分配大小
     auto& resourceInfo = resourceInfos[index];
-    ASSERT((resourceInfo.Offset + resourceInfo.SizeInBytes) <= m_PlacedHeapDesc.SizeInBytes, "PlacedResource::指定资源无法放置到堆。");
+    ASSERT((resourceInfo.Offset + resourceInfo.SizeInBytes) <= m_PlacedHeapDesc.SizeInBytes, L"PlacedResource::指定资源无法放置到堆。");
     
     CHECK_HRESULT(g_Device->CreatePlacedResource(
         m_PlacedHeap.get(),     // 放置资源的堆

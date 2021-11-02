@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <queue>
+#include <filesystem>
 //#include <iostream>
 //#include <string>
 //#include <sstream>
@@ -9,6 +10,8 @@
 
 //#include <shellapi.h>
 //#include <stdio.h>
+
+#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
 
 // --------------------------------------------------------------------------
 // 更新 WINVER 和 _WIN32_WINNT https://docs.microsoft.com/zh-cn/cpp/porting/modifying-winver-and-win32-winnt?view=msvc-160
@@ -43,6 +46,9 @@
 
 // --------------------------------------------------------------------------
 #include "Utility.h"
+
+
+typedef std::filesystem::path Path;
 
 
 #pragma region DEFINE

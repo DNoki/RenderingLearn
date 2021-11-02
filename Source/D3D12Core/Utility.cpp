@@ -77,7 +77,7 @@ namespace Utility
 using namespace winrt;
 
 
-HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCWSTR pFileName, ID3DBlob** ppCode)
+HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob** ppCode)
 {
     const LPCSTR entryPoints[] =
     {

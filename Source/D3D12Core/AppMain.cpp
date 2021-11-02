@@ -19,6 +19,11 @@ namespace Application
     HWND g_Hwnd; // 当前程序窗口句柄
     bool g_ExitFlag;
 
+    Path g_AppFullPath; // 程序全路径
+    Path g_ProjectPath; // 项目路径 TODO 对应发布版本
+    Path g_AssetPath;   // 资源路径
+    Path g_ShaderPath;  // 着色器路径
+
     wstring GetWindowTitle()
     {
         TCHAR pszWndTitle[MAX_PATH] = {};
@@ -26,9 +31,22 @@ namespace Application
         return pszWndTitle;
     }
 
-    void SetWindowTitle(LPCWSTR lpTitle)
+    void SetWindowTitle(LPCTSTR lpTitle)
     {
         SetWindowText(g_Hwnd, lpTitle);
+    }
+
+    Path GetProjectPath()
+    {
+        return g_ProjectPath;
+    }
+    Path GetAssetPath()
+    {
+        return g_AssetPath;
+    }
+    Path GetShaderPath()
+    {
+        return g_ShaderPath;
     }
 
     LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -61,7 +79,7 @@ namespace Application
         return 0;
     }
 
-    void CreateGameWindow(HINSTANCE hInstance, LPCWSTR title, UINT width, UINT height)
+    void CreateGameWindow(HINSTANCE hInstance, LPCTSTR title, UINT width, UINT height)
     {
         // 第一个 Windows 程序
         // https://docs.microsoft.com/zh-cn/windows/win32/learnwin32/creating-a-window
@@ -110,6 +128,30 @@ namespace Application
 
     int RunApplication(HINSTANCE hInstance, int nCmdShow)
     {
+        // 程序路径
+        {
+            TCHAR path[MAX_PATH + 1];
+            if (GetModuleFileName(NULL, path, MAX_PATH) == 0)
+            {
+                auto errorHR = HRESULT_FROM_WIN32(GetLastError());
+                CHECK_HRESULT(errorHR);
+                return errorHR;
+            }
+
+            g_AppFullPath = Path(path);
+            g_ProjectPath = g_AppFullPath.parent_path();
+            while (g_ProjectPath.filename() != "RenderingLearn")
+            {
+                if (!g_ProjectPath.has_parent_path())
+                    ASSERT(0, L"未能找到项目路径");
+                g_ProjectPath = g_ProjectPath.parent_path();
+            }
+            g_AssetPath = g_ProjectPath;
+            g_AssetPath.append("Assets");
+            g_ShaderPath = g_ProjectPath;
+            g_ShaderPath.append("Source\\Shaders");
+        }
+
         CreateGameWindow(hInstance, WINDOW_TITLE, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
         if (g_Hwnd == NULL)
         {
@@ -152,12 +194,13 @@ namespace Application
     }
 }
 
+using namespace Application;
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPWSTR /*lpCmdLine*/, _In_ int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPTCH /*lpCmdLine*/, _In_ int nCmdShow)
 {
     wcout.imbue(locale("CHS"));
 
-    auto result = Application::RunApplication(hInstance, nCmdShow);
+    auto result = RunApplication(hInstance, nCmdShow);
 
     return 0;
 }

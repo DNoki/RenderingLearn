@@ -20,11 +20,11 @@ namespace Utility
 class ShaderUtility
 {
 public:
-    inline static HRESULT CompileVSFromFile(LPCWSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompilePSFromFile(LPCWSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompileGSFromFile(LPCWSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::GEOMETRY_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompileHSFromFile(LPCWSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompileDSFromFile(LPCWSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
+    inline static HRESULT CompileVSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
+    inline static HRESULT CompilePSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
+    inline static HRESULT CompileGSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::GEOMETRY_SHADER, pFileName, ppCode); }
+    inline static HRESULT CompileHSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
+    inline static HRESULT CompileDSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
 
 private:
     enum class ShaderType
