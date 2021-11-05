@@ -2,6 +2,7 @@
 
 #include "GraphicsCore.h"
 #include "PipelineState.h"
+#include "CommandAllocatorPool.h"
 #include "CommandList.h"
 
 #include "CommandQueue.h"
@@ -11,19 +12,20 @@
     Direct3D 12 中的工作提交
     https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/command-queues-and-command-lists
 
-    为了提高 Direct3D 应用的 CPU 效率，从版本 12 开始，Direct3D 不再支持与设备关联的即时上下文。 相反，应用程序会记录并提交“命令列表”，其中包含绘图和资源管理调用。 可以将这些命令列表从多个线程提交到一个或多个命令队列，命令队列用于管理命令的执行。 这种根本性的改变通过允许应用程序预先计算渲染工作以供以后重用，从而提高了单线程的效率，并且它通过将渲染工作分散到多个线程来利用多核系统。
+    命令队列
+        为了提高 Direct3D 应用的 CPU 效率，从版本 12 开始，Direct3D 不再支持与设备关联的即时上下文。 相反，应用程序会记录并提交“命令列表”，其中包含绘图和资源管理调用。 可以将这些命令列表从多个线程提交到一个或多个命令队列，命令队列用于管理命令的执行。 这种根本性的改变通过允许应用程序预先计算渲染工作以供以后重用，从而提高了单线程的效率，并且它通过将渲染工作分散到多个线程来利用多核系统。
 
-    命令分配器（CommandAllocator）
-        命令分配器可让应用管理分配给命令列表的内存，对应于存储 GPU 命令的底层分配。一个给定的分配器可同时与多个“当前正在记录”命令列表相关联，不过，可以使用一个命令分配器来创建任意数量的 GraphicsCommandList 对象。
+        Direct3D 12 命令队列将以前不会向开发人员公开的即时模式工作提交内容的运行时和驱动程序同步，替换为可显式管理并发性、并行度和同步的 API。 
 
-    命令列表(CommandList)
-        命令列表通常执行一次。 但是，如果应用程序在提交新执行之前确保先前的执行完成，则可以多次执行命令列表。
-        任何线程都可以随时向任何命令队列提交命令列表，运行时将自动序列化命令队列中的命令列表提交，同时保留提交顺序。
+        命令队列为开发人员提供以下方面的改进：
+            ·可让开发人员避免意外的同步导致效率意外下降的问题。
+            ·可让开发人员引入更高级别的同步，以便更有效、更准确地确定所需的同步。 这意味着，运行时和图形驱动程序可以减少被动式工程并行度的时间。
+            ·使高开销的操作更为明确。
+        这些改进实现或增强了以下方案：
+            ·提高并行度 - 如果应用程序为前台工作提供独立的队列，则可以使用更深层的队列来完成后台工作负荷（例如视频解码）。
+            ·异步和低优先级 GPU 工作 - 命令队列模型可以实现低优先级 GPU 工作和原子操作的并发执行，这些操作支持在不阻塞的情况下，通过一个 GPU 线程来使用另一个未同步线程的结果。
+            ·高优先级计算工作 - 使用此设计可实现以下方案：中断 3D 渲染来执行少量的高优先级计算工作，可以提前获取结果，以便在 CPU 上进行其他处理。
 
-    GPU 工作项的分组(Bundles)
-        除了命令列表之外，Direct3D 12 通过添加第二级命令列表（称为bundles）来利用当今所有硬件中存在的功能。为了帮助区分这两种类型，可以将第一级命令列表称为直接命令列表。
-        捆绑包的目的是允许应用程序将少量 API 命令组合在一起，以便以后从直接命令列表中重复执行。
-        在创建 bundle 时，驱动程序将执行尽可能多的预处理，以提高后续执行的效率。然后可以从多个命令列表中执行捆绑包，并在同一命令列表中多次执行。
 
 */
 // --------------------------------------------------------------------------
@@ -82,7 +84,8 @@ void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numComman
     for (UINT i = 0; i < numCommandLists; i++)
     {
         commandLists[0]->Close(); // 关闭列表以执行命令
-        commandLists[0].SetLocked(true);
+        m_Allocators.push_back(commandLists[0].GetCommandAllocator()); // 添加分配器到使用中
+        commandLists[0].SetLocked();
         ppCommandLists[i] = commandLists[0].GetD3D12CommandList();
     }
     m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
@@ -106,42 +109,13 @@ void CommandQueue::WaitForQueueCompleted()
         CHECK_HRESULT(m_Fence->SetEventOnCompletion(fence, m_FenceEvent));
         WaitForSingleObject(m_FenceEvent, INFINITE);
     }
+
+    // 将所有使用的分配器释放
+    for (auto allocator : m_Allocators)
+    {
+        allocator->Restore();
+    }
+    m_Allocators.clear();
 }
 
 
-
-//com_ptr<ID3D12CommandQueue> g_CommandQueue;
-//winrt::com_ptr<ID3D12CommandAllocator> g_CommandAllocator;
-//winrt::com_ptr<ID3D12GraphicsCommandList5> g_GraphicsCommandList;
-
-//winrt::com_ptr<ID3D12Fence1> g_Fence;
-//UINT64 FenceValue;
-//HANDLE FenceEvent;
-
-
-//// --------------------------------------------------------------------------
-//// 创建D3D12命令队列接口
-//D3D12_COMMAND_QUEUE_DESC queueDesc{};
-//queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-//queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-//CHECK_HRESULT(g_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&g_CommandQueue)));
-//g_CommandQueue->SetName(L"Graphics Command Queue");
-
-//// --------------------------------------------------------------------------
-//// 创建命令列表分配器
-//CHECK_HRESULT(g_Device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(g_CommandAllocator.put())));
-//// 创建图形命令列表
-//CHECK_HRESULT(g_Device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, g_CommandAllocator.get(), g_PipelineState->GetD3D12PSO(), IID_PPV_ARGS(g_GraphicsCommandList.put())));
-//// 命令列表是在录制状态下创建的，但还没有什么可录制的。 主循环希望它关闭，所以现在关闭它。
-//g_GraphicsCommandList->Close();
-
-
-//// --------------------------------------------------------------------------
-//// 创建同步对象 Fence， 用于等待渲染完成
-//CHECK_HRESULT(g_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(g_Fence.put())));
-//UINT64 FenceValue = 1;
-
-//// 创建用于帧同步的事件句柄，用于等待Fence事件通知
-//FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-//if (FenceEvent == nullptr)
-//    CHECK_HRESULT(HRESULT_FROM_WIN32(GetLastError()));

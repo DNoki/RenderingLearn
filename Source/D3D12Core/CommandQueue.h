@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 class PipelineState;
+class CommandAllocator;
 class CommandList;
 
 /**
@@ -35,6 +36,8 @@ private:
     winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue;
 
     D3D12_COMMAND_LIST_TYPE m_Type;
+
+    std::vector<CommandAllocator*> m_Allocators; // 执行中的命令分配器
 
     winrt::com_ptr<ID3D12Fence1> m_Fence;   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
     UINT64 m_FenceValue;                    // 围栏值
