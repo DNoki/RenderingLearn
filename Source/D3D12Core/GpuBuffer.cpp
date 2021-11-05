@@ -40,7 +40,7 @@ void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void
     memcpy(pVertexDataBegin, vertices, bufferSize);
     m_Resource->Unmap(0, nullptr);
 
-    SetAddressOrDescriptor(m_Resource->GetGPUVirtualAddress(), DescriptorHandle::DESCRIPTOR_HANDLE_NULL);
+    Finalize();
 
     // 创建顶点缓冲视图
     m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
@@ -60,8 +60,10 @@ void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void
 
 
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-    m_UploadBuffer->Create(bufferSize);
+    //m_UploadBuffer->Create(bufferSize);
+    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(bufferSize));
     pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
+    m_UploadBuffer->Finalize();
 
     D3D12_SUBRESOURCE_DATA srcData = {};
     srcData.pData = vertices;
@@ -81,7 +83,7 @@ void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void
     g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
-    SetAddressOrDescriptor(m_Resource->GetGPUVirtualAddress(), DescriptorHandle::DESCRIPTOR_HANDLE_NULL);
+    Finalize();
 
     // 创建顶点缓冲视图
     m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{

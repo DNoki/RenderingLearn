@@ -136,7 +136,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
 
     g_Device->CreateShaderResourceView(m_Resource.get(), &srvDesc, pDescriptorHandle);
 
-    SetAddressOrDescriptor(D3D12_GPU_VIRTUAL_ADDRESS_NULL, pDescriptorHandle);
+    Finalize(&pDescriptorHandle);
 }
 
 void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHandle, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
@@ -162,7 +162,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     UINT64 rowSizeInBytes[1] = {};
     UINT64 totalBytes = 0;
     g_Device->GetCopyableFootprints(
-        &m_ResourceDesc,       // 资源的描述
+        &m_ResourceDesc,    // 资源的描述
         0,                  // 资源中第一个子资源索引
         1,                  // 资源中子资源数量
         0,                  // 资源的偏移量
@@ -220,7 +220,7 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
 
     g_Device->CreateShaderResourceView(m_Resource.get(), &srvDesc, pDescriptorHandle);
 
-    SetAddressOrDescriptor(D3D12_GPU_VIRTUAL_ADDRESS_NULL, pDescriptorHandle);
+    Finalize(&pDescriptorHandle);
 }
 
 void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT width, UINT height)
@@ -253,7 +253,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     UINT64 rowSizeInBytes[1] = {};
     UINT64 totalBytes = 0;
     g_Device->GetCopyableFootprints(
-        &m_ResourceDesc,       // 资源的描述
+        &m_ResourceDesc,    // 资源的描述
         0,                  // 资源中第一个子资源索引
         1,                  // 资源中子资源数量
         0,                  // 资源的偏移量
@@ -268,7 +268,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     CHECK_HRESULT(g_Device->CreateCommittedResource(
         &texHeapProperties,             // 默认堆类型
         D3D12_HEAP_FLAG_NONE,           // 堆选项
-        &m_ResourceDesc,                   // 贴图描述
+        &m_ResourceDesc,                // 贴图描述
         D3D12_RESOURCE_STATE_COPY_DEST, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
         nullptr,
         IID_PPV_ARGS(PutD3D12Resource())));
@@ -391,5 +391,5 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
 
     g_Device->CreateShaderResourceView(m_Resource.get(), &srvDesc, pDescriptorHandle);
 
-    SetAddressOrDescriptor(D3D12_GPU_VIRTUAL_ADDRESS_NULL, pDescriptorHandle);
+    Finalize(&pDescriptorHandle);
 }

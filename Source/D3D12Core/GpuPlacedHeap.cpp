@@ -52,9 +52,9 @@ void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GpuResour
     // 当需要放置多个资源时，可以直接利用 GetResourceAllocationInfo1 函数计算偏移
     g_Device->GetResourceAllocationInfo1(
         1u,
-        size,                           // 资源描述的数量
+        size,                   // 资源描述的数量
         resourceDescs.data(),   // 资源描述列表
-        resourceInfos.data());          // 用于填充资源描述额外信息
+        resourceInfos.data());  // 用于填充资源描述额外信息
 
 
     // 查询要放置资源大小，并比较剩余可分配大小
@@ -64,7 +64,7 @@ void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GpuResour
     CHECK_HRESULT(g_Device->CreatePlacedResource(
         m_PlacedHeap.get(),     // 放置资源的堆
         resourceInfo.Offset,    // 资源的偏移量，必须是资源的对齐的倍数
-        &resourceDescs[index],          // 资源描述
+        &resourceDescs[index],  // 资源描述
         initialState,           // 资源的初始状态
         pOptimizedClearValue,   // 描述用于优化特定资源的清除操作的值
         IID_PPV_ARGS(resource.PutD3D12Resource()))); // 要放置的资源

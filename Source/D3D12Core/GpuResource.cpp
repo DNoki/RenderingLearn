@@ -61,10 +61,24 @@
 */
 // --------------------------------------------------------------------------
 
-void GpuResource::SetAddressOrDescriptor(D3D12_GPU_VIRTUAL_ADDRESS gpuVirtualAddress, const DescriptorHandle& descriptorHandle)
+
+int III = 0;
+void GpuResource::Finalize(const DescriptorHandle* descriptorHandle)
 {
-    m_GpuVirtualAddress = gpuVirtualAddress;
-    m_DescriptorHandle = descriptorHandle;
+    if (descriptorHandle == nullptr)
+    {
+        // Resource必须创建以后才可以完成初始化
+        ASSERT(m_Resource != nullptr);
+        m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
+    }
+    else m_DescriptorHandle = *descriptorHandle;
+
+
+    // D3D12错误调查
+    std::wstringstream str;
+    str << "Name_name_" << III++;
+    auto name = str.str();
+    auto nameW = name.c_str();
+
+    m_Resource->SetName(nameW);
 }
-
-

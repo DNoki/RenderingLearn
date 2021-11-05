@@ -15,6 +15,8 @@ public:
     inline D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return m_GpuVirtualAddress; }
     inline const DescriptorHandle* GetDescriptorHandle() const { return &m_DescriptorHandle; }
 
+    void Finalize(const DescriptorHandle* descriptorHandle = nullptr);
+
 protected:
     // 资源对象
     // 封装了 CPU 和 GPU 读取和写入物理内存或堆的通用能力。
@@ -31,7 +33,5 @@ protected:
 
 
     GpuResource() :m_Resource(nullptr), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_DescriptorHandle(), m_ResourceDesc() {}
-
-    void SetAddressOrDescriptor(D3D12_GPU_VIRTUAL_ADDRESS gpuVirtualAddress = D3D12_GPU_VIRTUAL_ADDRESS_NULL, const DescriptorHandle& descriptorHandle = DescriptorHandle::DESCRIPTOR_HANDLE_NULL);
 };
 

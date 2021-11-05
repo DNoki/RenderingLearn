@@ -30,7 +30,7 @@ namespace SampleResource
 
     GpuPlacedHeap g_TexPlacedHeap;
     GpuPlacedHeap g_VertexPlacedHeap;
-    GpuPlacedHeap g_UploadPlacedHeap;
+    GpuPlacedHeap g_UploadPlacedHeap; // TODO 上传堆可以改成全局管理分配模式，按需索取
 
 
     void InitRootSignature()
