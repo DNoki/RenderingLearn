@@ -136,14 +136,15 @@ namespace SampleResource
         texPath.append("Shimarin.png");
 
         // 创建Checker贴图
-        //t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
+        t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
 
         // 使用注册方式创建贴图
-        //t_DefaultTexture.Create(texPath, t_TexDH.GetDescriptorHandle(0));
+        //USES_CONVERSION;
+        //t_DefaultTexture.Create(W2A(texPath.c_str()), t_TexDH.GetDescriptorHandle(0));
 
         // 使用定位方式创建贴图
-        USES_CONVERSION;
-        t_DefaultTexture.Placed(W2A(texPath.c_str()), t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
+        //USES_CONVERSION;
+        //t_DefaultTexture.Placed(W2A(texPath.c_str()), t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
 
     }
     void InitMesh()

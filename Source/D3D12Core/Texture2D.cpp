@@ -123,7 +123,10 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
     auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+        // 之后的状态
+        D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
+        | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
+    );
     g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
@@ -207,7 +210,10 @@ void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHand
     auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+        // 之后的状态
+        D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
+        | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
+    );
     g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
@@ -322,36 +328,36 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
 
     // 先拷贝资源到上传堆，在添加拷贝命令到GPU
     {
-        //    // 使用Map、memcpy、Unmap方式向上传堆拷贝数据
-        //    UINT8* pData = nullptr;
-        //    m_UploadResource->Map(0, NULL, reinterpret_cast<void**>(&pData));
+        //// 使用Map、memcpy、Unmap方式向上传堆拷贝数据
+        //UINT8* pData = nullptr;
+        //m_UploadBuffer->GetD3D12Resource()->Map(0, NULL, reinterpret_cast<void**>(&pData));
 
-        //    // 这里实际使用按行拷贝的方式，因为实际图片行大小与对齐大小可能不一致
-        //    UINT8* pDstSliceData = pData + stTxtLayouts->Offset; // 计算子资源偏移量
-        //    UINT8* pSrcSlice = texture.data();
-        //    for (UINT i = 0; i < numRows[0]; i++)
-        //    {
-        //        memcpy(
-        //            pDstSliceData + stTxtLayouts->Footprint.RowPitch * i,
-        //            pSrcSlice + rowSizeInBytes[0] * i,
-        //            rowSizeInBytes[0]);
-        //    }
+        //// 这里实际使用按行拷贝的方式，因为实际图片行大小与对齐大小可能不一致
+        //UINT8* pDstSliceData = pData + stTxtLayouts->Offset; // 计算子资源偏移量
+        //UINT8* pSrcSlice = texture.data();
+        //for (UINT i = 0; i < numRows[0]; i++)
+        //{
+        //    memcpy(
+        //        pDstSliceData + stTxtLayouts->Footprint.RowPitch * i,
+        //        pSrcSlice + rowSizeInBytes[0] * i,
+        //        rowSizeInBytes[0]);
+        //}
 
-        //    m_UploadResource->Unmap(0, NULL);
+        //m_UploadBuffer->GetD3D12Resource()->Unmap(0, NULL);
 
-        //    //向命令队列发出从上传堆复制纹理数据到默认堆的命令
-        //    D3D12_TEXTURE_COPY_LOCATION stDst = {};
-        //    stDst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-        //    stDst.pResource = m_Resource.get();
-        //    stDst.SubresourceIndex = 0;
+        ////向命令队列发出从上传堆复制纹理数据到默认堆的命令
+        //D3D12_TEXTURE_COPY_LOCATION stDst = {};
+        //stDst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+        //stDst.pResource = m_Resource.get();
+        //stDst.SubresourceIndex = 0;
 
-        //    D3D12_TEXTURE_COPY_LOCATION stSrc = {};
-        //    stSrc.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-        //    stSrc.pResource = m_UploadResource.get();
-        //    stSrc.PlacedFootprint = stTxtLayouts[0];
+        //D3D12_TEXTURE_COPY_LOCATION stSrc = {};
+        //stSrc.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+        //stSrc.pResource = m_UploadBuffer->GetD3D12Resource();
+        //stSrc.PlacedFootprint = stTxtLayouts[0];
 
-        //    // 添加复制命令到队列
-        //    g_GraphicsCommandQueue->GetD3D12CommandList()->CopyTextureRegion(&stDst, 0, 0, 0, &stSrc, nullptr);
+        //// 添加复制命令到队列
+        //g_GraphicCommandList.GetD3D12CommandList()->CopyTextureRegion(&stDst, 0, 0, 0, &stSrc, nullptr);
     }
 
     // 通过 UpdateSubresources 函数直接通过中间资源将数据拷贝到默认堆
@@ -378,7 +384,10 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
     auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+        // 之后的状态
+        D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
+        | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
+    );
     g_GraphicCommandList->ResourceBarrier(1, &barriers);
 
 
