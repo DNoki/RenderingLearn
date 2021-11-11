@@ -69,3 +69,8 @@ void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GpuResour
         pOptimizedClearValue,   // 描述用于优化特定资源的清除操作的值
         IID_PPV_ARGS(resource.PutD3D12Resource()))); // 要放置的资源
 }
+
+void GpuPlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, GpuResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+{
+    // TODO 能否用Map来管理放置堆？
+}

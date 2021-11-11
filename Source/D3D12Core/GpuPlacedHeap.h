@@ -13,6 +13,7 @@ public:
     void Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags);
 
     void PlacedResource(D3D12_RESOURCE_STATES initialState, GpuResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
+    void PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, GpuResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
 
     inline UINT64 GetHeapSize() { return m_PlacedHeapDesc.SizeInBytes; }
 

@@ -1,10 +1,60 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
+#include "GpuPlacedHeap.h"
 
 #include "UploadBuffer.h"
 
+using namespace std;
 using namespace Graphics;
+
+struct UploadBufferPack
+{
+    UINT64 StartIndex;
+    UINT64 AlignmentSize;
+    unique_ptr<UploadBuffer> pUploadBuffer;
+};
+
+class UploadBufferManager
+{
+public:
+    UploadBufferManager()
+    {
+        const auto size =
+            D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT * 1024;
+            //4096ull * 4096ull * 4ull;
+        m_UploadPlacedHeap.Create(D3D12_HEAP_TYPE_UPLOAD, size, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS);
+
+    }
+
+    UploadBuffer& Request(UINT64 size)
+    {
+        // 计算对齐大小
+        size = UINT_UPPER(size, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+        ASSERT(size <= m_UploadPlacedHeap.GetHeapSize()); // 请求大小不能大于上传堆大小，否则需要使用一个更大的上传堆
+
+        if (m_AllocatedBuffers.empty())
+        {
+            m_AllocatedBuffers.push_back(UploadBufferPack());
+            auto& ubp = m_AllocatedBuffers.back();
+            ubp.StartIndex = 0;
+            ubp.AlignmentSize = UINT_UPPER(size, D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+            ubp.pUploadBuffer = unique_ptr<UploadBuffer>(new UploadBuffer());
+
+            // TODO 尝试修改放置堆可以乱序放入
+            //ubp.pUploadBuffer->Create(size);
+            ubp.pUploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(size));
+            //m_UploadPlacedHeap.PlacedResource()
+        }
+    }
+
+
+private:
+    GpuPlacedHeap m_UploadPlacedHeap;
+
+    vector<UploadBufferPack> m_AllocatedBuffers;
+};
+
 
 UploadBuffer::UploadBuffer()
 {
