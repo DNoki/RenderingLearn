@@ -26,6 +26,12 @@ public:
     inline static HRESULT CompileHSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
     inline static HRESULT CompileDSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
 
+    inline static HRESULT ReadVSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
+    inline static HRESULT ReadPSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
+    inline static HRESULT ReadGSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::GEOMETRY_SHADER, pFileName, ppCode); }
+    inline static HRESULT ReadHSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
+    inline static HRESULT ReadDSFromFile(LPCTSTR pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
+
 private:
     enum class ShaderType
     {
@@ -44,5 +50,6 @@ private:
      * @return
     */
     static HRESULT CompileFromFile(ShaderType type, LPCWSTR pFileName, ID3DBlob** ppCode);
+    static HRESULT ReadFromFile(ShaderType type, LPCWSTR pFileName, ID3DBlob** ppCode);
 
 };

@@ -21,6 +21,12 @@
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h" />
+    <ClInclude Include="..\Source\Shaders\Sample.shader">
+      <Filter>Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Shaders\SampleTexture.shader">
+      <Filter>Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -46,5 +52,30 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{12462131-592e-44c8-bf44-551ddae8a0ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\VS">
+      <UniqueIdentifier>{75cfa094-a591-4c2f-ac51-7f9064b28e49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\PS">
+      <UniqueIdentifier>{81cc8fe0-a220-4c15-befc-848fcab83552}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Source\Shaders\Sample_vs.hlsl">
+      <Filter>Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\SampleTexture_vs.hlsl">
+      <Filter>Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\Sample_ps.hlsl">
+      <Filter>Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\SampleTexture_ps.hlsl">
+      <Filter>Shaders\PS</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -89,9 +89,10 @@ namespace SampleResource
         // 编译Shader
         winrt::com_ptr<ID3DBlob> vertexShader;
         winrt::com_ptr<ID3DBlob> pixelShader;
-        auto shaderPath = Application::GetShaderPath().append("SampleTexture.hlsl");
-        ShaderUtility::CompileVSFromFile(shaderPath.c_str(), vertexShader.put());
-        ShaderUtility::CompilePSFromFile(shaderPath.c_str(), pixelShader.put());
+        Path vsShaderPath = Application::GetShaderPath().append("SampleTexture_vs.cso");
+        Path psShaderPath = Application::GetShaderPath().append("SampleTexture_ps.cso");
+        ShaderUtility::ReadVSFromFile(vsShaderPath.c_str(), vertexShader.put());
+        ShaderUtility::ReadPSFromFile(psShaderPath.c_str(), pixelShader.put());
 
 
         // 定义顶点输入层

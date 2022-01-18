@@ -20,6 +20,7 @@ namespace Application
     bool g_ExitFlag;
 
     Path g_AppFullPath; // 程序全路径
+    Path g_AppPath;     // 程序路径
     Path g_ProjectPath; // 项目路径 TODO 对应发布版本
     Path g_AssetPath;   // 资源路径
     Path g_ShaderPath;  // 着色器路径
@@ -139,7 +140,8 @@ namespace Application
             }
 
             g_AppFullPath = Path(path);
-            g_ProjectPath = g_AppFullPath.parent_path();
+            g_AppPath = g_AppFullPath.parent_path();
+            g_ProjectPath = g_AppFullPath;
             while (g_ProjectPath.filename() != "RenderingLearn")
             {
                 if (!g_ProjectPath.has_parent_path())
@@ -148,8 +150,10 @@ namespace Application
             }
             g_AssetPath = g_ProjectPath;
             g_AssetPath.append("Assets");
-            g_ShaderPath = g_ProjectPath;
-            g_ShaderPath.append("Source\\Shaders");
+            //g_ShaderPath = g_ProjectPath;
+            //g_ShaderPath.append("Source\\Shaders"); 
+            g_ShaderPath = g_AppPath;
+            g_ShaderPath.append("CompiledShaders");
         }
 
         CreateGameWindow(hInstance, WINDOW_TITLE, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);

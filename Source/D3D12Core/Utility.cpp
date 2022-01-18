@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include <fstream>
 #include <iostream>
 
 #include "GraphicsCore.h"
@@ -128,37 +129,56 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DB
 
     return compileResult;
 }
-//// 编译Shader，创建渲染管线状态对象接口
-//winrt::com_ptr<ID3DBlob> vertexShader;
-//winrt::com_ptr<ID3DBlob> pixelShader;
-//winrt::com_ptr<ID3DBlob> errorBlob;
-//
-//#ifdef _DEBUG
-//// 使用图形调试工具启用着色器调试
-//auto compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-//#else
-//auto compileFlags = 0;
-//#endif // _DEBUG
-//
-//HRESULT compileResult;
-//compileResult = D3DCompileFromFile(
-//    L"F:\\DxProject\\RenderingLearnProject\\RenderingLearn\\Source\\Shaders\\Sample.hlsl",
-//    nullptr, nullptr, "VSMain", "vs_5_0",
-//    compileFlags, 0,
-//    vertexShader.put(), errorBlob.put()
-//);
-//if (FAILED(compileResult) && errorBlob)
-//TRACE((char*)errorBlob->GetBufferPointer());
-//errorBlob = nullptr;
-//CHECK_HRESULT(compileResult);
-//
-//compileResult = D3DCompileFromFile(
-//    L"F:\\DxProject\\RenderingLearnProject\\RenderingLearn\\Source\\Shaders\\Sample.hlsl",
-//    nullptr, nullptr, "PSMain", "ps_5_0",
-//    compileFlags, 0,
-//    pixelShader.put(), errorBlob.put()
-//);
-//if (FAILED(compileResult) && errorBlob)
-//TRACE((char*)errorBlob->GetBufferPointer());
-//errorBlob = nullptr;
-//CHECK_HRESULT(compileResult);
+
+HRESULT ShaderUtility::ReadFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob** ppCode)
+{
+    // C++ 文件读写操作
+    //#include <ifstream> // 从文件读取
+    //#include <ofstream> // 从文件读取
+    //#include <fstream> // 打开文件供读写
+
+    // 文件流打开模式
+    // ios::in          只读
+    // ios::out         只写
+    // ios::app         从文件末尾开始写入
+    // ios::binary      二进制模式
+    // ios::nocreate    打开文件时若文件不存在，不创建文件
+    // ios::noreplace   打开文件时若文件不存在，则创建文件
+    // ios::trunc       打开文件并清空内容
+    // ios::ate         打开文件并移动到文件尾
+
+    // 状态标志服
+    // is_open() 文件是否正常打开
+    // bad() 读写过程中发生错误
+    // fail() 读写过程中发生错误 或格式错误
+    // eof() 读文件到达末尾
+    // good() 以上任何一个返回true，则返回false
+
+    // 文件流指针位置
+    // ios::beg         文件头
+    // ios::end         文件尾
+    // ios::cur         当前位置
+    
+    // 文件流指针
+    // tellg() 返回输入流指针的位置(类型为long)
+    // tellp() 返回输出流指针的位置(类型为long)
+    // seekg() 设置输入流指针位置，可偏移指定量
+    // seekp() 设置输出流指针位置，可偏移指定量
+
+    ifstream file;
+    file.open(pFileName, ios::binary);
+    ASSERT(file.good(), L"Shader文件打开失败。");
+    
+    file.seekg(0, ios_base::end);
+    auto size = file.tellg();
+    file.seekg(0, ios_base::beg);
+
+    auto hresult = D3DCreateBlob(size, ppCode);
+    CHECK_HRESULT(hresult);
+    
+    file.read(reinterpret_cast<char*>((*ppCode)->GetBufferPointer()), size);
+    file.close();
+
+    return hresult;
+}
+
