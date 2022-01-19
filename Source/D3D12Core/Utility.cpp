@@ -2,6 +2,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
+
 #include "GraphicsCore.h"
 
 #include "Utility.h"
@@ -56,6 +58,17 @@ namespace Utility
         vswprintf(buffer, 256, format, ap);
         va_end(ap);
         return buffer;
+    }
+
+    std::string wchar2string(const wchar_t* str)
+    {
+        USES_CONVERSION;
+        return W2A(str);
+    }
+    std::wstring char2wstring(const char* str)
+    {
+        USES_CONVERSION;
+        return A2W(str);
     }
 
     HRESULT CheckHresult(HRESULT hr)

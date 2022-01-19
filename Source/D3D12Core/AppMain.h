@@ -2,7 +2,7 @@
 
 namespace Application
 {
-    constexpr LPCWSTR WINDOW_TITLE = L"Rendering Learn";
+    constexpr const WCHAR* WINDOW_TITLE = L"Rendering Learn";
 
     constexpr UINT DEFAULT_SCREEN_WIDTH = 1280u; // 初始窗口宽度
     constexpr UINT DEFAULT_SCREEN_HEIGHT = 720u; // 初始窗口高度
@@ -11,7 +11,7 @@ namespace Application
 
 
     std::wstring GetWindowTitle();
-    void SetWindowTitle(LPCTSTR lpTitle);
+    void SetWindowTitle(const std::wstring& lpTitle);
 
     Path GetProjectPath();
     Path GetAssetPath();

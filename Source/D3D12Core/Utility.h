@@ -12,6 +12,9 @@ namespace Utility
     std::string Format(const char* format, ...);
     std::wstring Format(const wchar_t* format, ...);
 
+    std::string wchar2string(const wchar_t* str);
+    std::wstring char2wstring(const char* str);
+
     HRESULT CheckHresult(HRESULT hr);
 }
 

@@ -27,14 +27,15 @@ namespace Application
 
     wstring GetWindowTitle()
     {
-        TCHAR pszWndTitle[MAX_PATH] = {};
-        GetWindowText(g_Hwnd, pszWndTitle, MAX_PATH);
-        return pszWndTitle;
+        wstring title;
+        title.resize(MAX_PATH);
+        GetWindowText(g_Hwnd, title.data(), MAX_PATH);
+        return title;
     }
 
-    void SetWindowTitle(LPCTSTR lpTitle)
+    void SetWindowTitle(const wstring& lpTitle)
     {
-        SetWindowText(g_Hwnd, lpTitle);
+        SetWindowText(g_Hwnd, lpTitle.c_str());
     }
 
     Path GetProjectPath()
@@ -80,7 +81,7 @@ namespace Application
         return 0;
     }
 
-    void CreateGameWindow(HINSTANCE hInstance, LPCTSTR title, UINT width, UINT height)
+    void CreateGameWindow(HINSTANCE hInstance, const wstring& title, UINT width, UINT height)
     {
         // 第一个 Windows 程序
         // https://docs.microsoft.com/zh-cn/windows/win32/learnwin32/creating-a-window
@@ -101,7 +102,7 @@ namespace Application
         wcex.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH); // 防止背景重绘
         //wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
         wcex.lpszMenuName = nullptr;
-        wcex.lpszClassName = title;
+        wcex.lpszClassName = title.c_str();
         wcex.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
         ASSERT(0 != RegisterClassEx(&wcex), "Unable to register a window");
 
@@ -113,8 +114,8 @@ namespace Application
         // 创建窗口
         g_Hwnd = CreateWindowEx(
             0,                      // Optional window styles
-            title,                  // Window class
-            title,                  // Window text
+            title.c_str(),          // Window class
+            title.c_str(),          // Window text
             WS_OVERLAPPEDWINDOW,    // top-level window style
             CW_USEDEFAULT,          // default horizontal position 
             CW_USEDEFAULT,          // default vertical position 
@@ -131,8 +132,9 @@ namespace Application
     {
         // 程序路径
         {
-            TCHAR path[MAX_PATH + 1];
-            if (GetModuleFileName(NULL, path, MAX_PATH) == 0)
+            wstring path;
+            path.resize(MAX_PATH + 1);
+            if (GetModuleFileName(NULL, path.data(), MAX_PATH) == 0)
             {
                 auto errorHR = HRESULT_FROM_WIN32(GetLastError());
                 CHECK_HRESULT(errorHR);
@@ -200,7 +202,7 @@ namespace Application
 
 using namespace Application;
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPTCH /*lpCmdLine*/, _In_ int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ TCHAR* /*lpCmdLine*/, _In_ int nCmdShow)
 {
     wcout.imbue(locale("CHS"));
 

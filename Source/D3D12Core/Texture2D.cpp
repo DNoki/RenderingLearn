@@ -13,6 +13,7 @@
 #include "Texture2D.h"
 
 
+using namespace std;
 using namespace Graphics;
 
 
@@ -24,13 +25,14 @@ public:
     int Width;
     int Height;
 
-    TextureData(const char* path)
+    TextureData(const Path& path)
     {
         // 加载并生成纹理
         int nrChannels;
 
         stbi_set_flip_vertically_on_load(true);// 翻转纹理
-        Data = stbi_load(path, &Width, &Height, &nrChannels, 0);
+        auto string_path = Utility::wchar2string(path.c_str());
+        Data = stbi_load(string_path.c_str(), &Width, &Height, &nrChannels, 0);
 
         Format = DXGI_FORMAT_UNKNOWN;
         switch (nrChannels)
@@ -51,7 +53,7 @@ private:
 };
 
 
-void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHandle)
+void Texture2D::Create(const Path& path, const DescriptorHandle& pDescriptorHandle)
 {
     // 加载纹理
     auto texData = TextureData(path);
@@ -142,7 +144,7 @@ void Texture2D::Create(const char* path, const DescriptorHandle& pDescriptorHand
     Finalize(&pDescriptorHandle);
 }
 
-void Texture2D::Placed(const char* path, const DescriptorHandle& pDescriptorHandle, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
+void Texture2D::Placed(const Path& path, const DescriptorHandle& pDescriptorHandle, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
 {
     // 加载纹理
     auto texData = TextureData(path);
