@@ -35,4 +35,4 @@
 /.vs
 /obj
 /Packages
-/Project/*.user
+*.user

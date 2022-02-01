@@ -9,6 +9,7 @@
 #include "PipelineState.h"
 
 #include "Display.h"
+#include "Input.h"
 
 #include "SampleResource.h"
 
@@ -181,12 +182,28 @@ namespace SampleResource
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList)
     {
+        static DescriptorHandle* samplers[] =
+        {
+            &g_SamplerPointBorder,
+            &g_SamplerLinearBorder,
+            &g_SamplerPointClamp,
+            &g_SamplerLinearClamp,
+            &g_SamplerPointWarp,
+            &g_SamplerLinearWarp,
+            &g_SamplerPointMirror,
+            &g_SamplerLinearMirror,
+        };
+        static int useSamplerIndex = 0;
+        useSamplerIndex += Input::TestKeyDown(KeyCode::Space) ? 1 : 0;
+        if (useSamplerIndex >= 8) useSamplerIndex = 0;
+
+
         // 绑定描述符堆
         ID3D12DescriptorHeap* ppHeaps[] = { t_TexDH.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
         commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
         commandList->SetGraphicsRootDescriptorTable(0, *t_DefaultTexture.GetDescriptorHandle());
-        commandList->SetGraphicsRootDescriptorTable(1, g_SamplerLinearMirror);
+        commandList->SetGraphicsRootDescriptorTable(1, *samplers[useSamplerIndex]);
 
         //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());
