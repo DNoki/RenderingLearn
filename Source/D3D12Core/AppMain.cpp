@@ -1,9 +1,8 @@
 ﻿#include "pch.h"
 
-#include <iostream>
-
 #include "GraphicsCore.h"
 #include "Display.h"
+#include "Input.h"
 
 #include "AppMain.h"
 
@@ -56,7 +55,42 @@ namespace Application
         switch (message)
         {
         case WM_ACTIVATE: // 窗口正在激活或停用
+            Input::MouseProcessMessage(message, wParam, lParam);
             break;
+
+        case WM_ACTIVATEAPP: // 激活或失去激活
+            Input::KeyboardProcessMessage(message, wParam, lParam);
+            Input::MouseProcessMessage(message, wParam, lParam);
+            break;
+
+            // 按键消息
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+        case WM_SYSKEYDOWN:
+        case WM_SYSKEYUP:
+            Input::KeyboardProcessMessage(message, wParam, lParam);
+            break;
+
+            // 鼠标消息
+        case WM_INPUT:
+        case WM_MOUSEMOVE:
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_MOUSEWHEEL:
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONUP:
+        case WM_MOUSEHOVER:
+            Input::MouseProcessMessage(message, wParam, lParam);
+            break;
+
+            // 当单击激活窗口时，忽略该鼠标事件。
+        //case WM_MOUSEACTIVATE:
+        //    return MA_ACTIVATEANDEAT;
+
 
         case WM_SIZE: // 在窗口的大小更改后发送到窗口
         {
@@ -167,6 +201,7 @@ namespace Application
         }
 
         // --------------------------------------------------------------------------
+        Input::Initialize(g_Hwnd);
         Graphics::Initialize();
 
         // --------------------------------------------------------------------------
@@ -184,6 +219,7 @@ namespace Application
                     g_ExitFlag = true;
             }
 
+            Input::BeforeUpdate();
             Graphics::OnRender();
         }
 
@@ -194,6 +230,7 @@ namespace Application
         //    DispatchMessage(&msg);
         //}
 
+        // 终了处理
         Graphics::OnDestroy();
 
         return 0;

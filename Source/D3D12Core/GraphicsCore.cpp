@@ -51,7 +51,7 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 启用调试层
-#ifdef _DEBUG
+#ifdef DEBUG
         // 启用调试层（需要图形工具“可选功能”）。
         // 注意：在设备创建后启用调试层将使活动设备无效。
         com_ptr<ID3D12Debug3> pID3D12Debug3;
@@ -60,7 +60,7 @@ namespace Graphics
             pID3D12Debug3->EnableDebugLayer();
             nDXGIFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
-#endif // _DEBUG
+#endif // DEBUG
 
 
         // --------------------------------------------------------------------------
@@ -195,7 +195,7 @@ namespace Graphics
             g_GraphicCommandList->OMSetRenderTargets(1, currentRenderTarget.GetDescriptorHandle()->GetCpuHandle(), FALSE, nullptr);
 
             // 记录命令
-            const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+            const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
             g_GraphicCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
 
             SampleResource::SampleDraw(g_GraphicCommandList.GetD3D12CommandList());

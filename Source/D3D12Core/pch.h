@@ -3,7 +3,8 @@
 #include <functional>
 #include <queue>
 #include <filesystem>
-//#include <iostream>
+#include <fstream>
+#include <iostream>
 //#include <string>
 //#include <sstream>
 //#include <ostream>
@@ -24,14 +25,14 @@
 // --------------------------------------------------------------------------
 //#include <wrl.h>
 // 从 WRL 移动到 C++/WinRT https://docs.microsoft.com/zh-cn/windows/uwp/cpp-and-winrt-apis/move-to-winrt-from-wrl
-#include "winrt/base.h"
+#include <winrt/base.h>
 //#include <winrt/Windows.Foundation.h>
 
 // --------------------------------------------------------------------------
 // Direct3D https://docs.microsoft.com/zh-cn/windows/win32/direct3d
 // Direct3D 12 图形 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/direct3d-12-graphics
 #include <d3d12.h>
-#ifdef _DEBUG
+#ifdef DEBUG
 #include <dxgidebug.h>
 #endif
 // Direct3D 12 的帮助程序结构 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/helper-structures-for-d3d12
@@ -41,17 +42,25 @@
 // DXGI https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dx-graphics-dxgi
 #include <dxgi1_6.h>
 
+// --------------------------------------------------------------------------
+// DirectXTK12 工具包 https://github.com/Microsoft/DirectXTK12
+#include <SimpleMath.h> // 简单数学库封装
+#include <Keyboard.h>
+#include <Mouse.h>
 
 // --------------------------------------------------------------------------
+// 共通头文件
+#include "MathCommon.h"
 #include "Utility.h"
-
-
-typedef std::filesystem::path Path;
 
 
 #pragma region DEFINE
 
-#if _DEBUG
+typedef std::filesystem::path Path;
+
+#if DEBUG
+
+#pragma warning(disable:26812) // 禁用 Enum 警告
 
 // 输出调试信息
 #define TRACE(...) Utility::Trace(__VA_ARGS__);
@@ -68,15 +77,16 @@ typedef std::filesystem::path Path;
 
 #define CHECK_HRESULT(hr) Utility::CheckHresult(hr);
 
-// 边界对齐，B为2的指数倍
-#define UINT_UPPER(A, B) (((UINT)A + (UINT)B - 1u)&~((UINT)B - 1u))
-#define UINT64_UPPER(A, B) (((UINT64)A + (UINT64)B - 1u)&~((UINT64)B - 1u))
 #else
 
 #define TRACE(...)
 #define ASSERT(isFalse, ...)
 #define CHECK_HRESULT(hr)
 
-#endif // _DEBUG
+#endif // DEBUG
+
+// 边界对齐，B为2的指数倍
+#define UINT_UPPER(A, B) (((UINT)A + (UINT)B - 1u)&~((UINT)B - 1u))
+#define UINT64_UPPER(A, B) (((UINT64)A + (UINT64)B - 1u)&~((UINT64)B - 1u))
 
 #pragma endregion

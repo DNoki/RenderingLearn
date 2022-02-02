@@ -1,12 +1,45 @@
 ﻿#include "pch.h"
-#include <fstream>
-#include <iostream>
 
 #include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
 
 #include "GraphicsCore.h"
 
 #include "Utility.h"
+
+// --------------------------------------------------------------------------
+/*
+    字符串格式转换符、标识符、格式符
+        转换说明符
+            %a(%A)     浮点数、十六进制数字和p-(P-)记数法(C99)
+            %c         字符
+            %d         有符号十进制整数
+            %f         浮点数(包括float和doulbe)
+            %e(%E)     浮点数指数输出[e-(E-)记数法]
+            %g(%G)     浮点数不显无意义的零"0"
+            %i         有符号十进制整数(与%d相同)
+            %u         无符号十进制整数
+            %o         八进制整数
+            %x(%X)     十六进制整数0f(0F)   e.g.   0x1234
+            %p         指针
+            %s         字符串
+            %%         输出字符%
+        标志
+            左对齐："-"   比如："%-20s"
+            右对齐："+"   比如："%+20s"
+            空格：若符号为正，则显示空格，负则显示"-"  比如："% 6.2f"
+            #：对c,s,d,u类无影响；对o类，在输出时加前缀o；对x类，在输出时加前缀0x；对e,g,f 类当结果有小数时才给出小数点。
+
+        printf的格式控制的完整格式：
+            % - 0 m.n l或h 格式字符
+
+            ①%：表示格式说明的起始符号，不可缺少。
+            ②-：有-表示左对齐输出，如省略表示右对齐输出。
+            ③0：有0表示指定空位填0,如省略表示指定空位不填。
+            ④m.n：m指域宽，即对应的输出项在输出设备上所占的字符数。N指精度。用于说明输出的实型数的小数位数。未指定n时，隐含的精度为n=6位。
+            ⑤l或h:l对整型指long型，对实型指double型。h用于将整型的格式字符修正为short型。
+
+*/
+// --------------------------------------------------------------------------
 
 using namespace std;
 
@@ -85,7 +118,7 @@ namespace Utility
 
 
 
-
+#if DEBUG
 #include <d3dcompiler.h>
 
 using namespace winrt;
@@ -111,12 +144,12 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DB
     };
 
     // CompileFlags https://docs.microsoft.com/zh-cn/windows/win32/direct3dhlsl/d3dcompile-constants
-#ifdef _DEBUG
+#ifdef DEBUG
     // 使用图形调试工具启用着色器调试
     auto compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
     auto compileFlags = 0;
-#endif // _DEBUG
+#endif // DEBUG
 
     HRESULT compileResult;
     com_ptr<ID3DBlob> errorBlob;
@@ -194,4 +227,5 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob
 
     return hresult;
 }
+#endif
 

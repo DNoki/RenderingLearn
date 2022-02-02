@@ -59,9 +59,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;$(SolutionDir)Libraries\stb_image;..\Source\D3D12Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -90,9 +90,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RELEASE;CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;$(SolutionDir)Libraries\stb_image;..\Source\D3D12Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -102,13 +102,12 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <FixedBaseAddress>false</FixedBaseAddress>
     </Link>
     <FxCompile>
-      <ShaderModel>5.0</ShaderModel>
+      <ShaderModel>6.0</ShaderModel>
       <ObjectFileOutput>$(OutDir)CompiledShaders\%(Filename).cso</ObjectFileOutput>
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
@@ -127,6 +126,7 @@
     <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
     <ClInclude Include="..\Source\D3D12Core\Input.h" />
+    <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
@@ -152,7 +152,11 @@
     <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Input.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\pch.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
@@ -184,6 +188,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220131.2\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220131.2\build\native\Microsoft.Windows.CppWinRT.targets')" />
+    <Import Project="..\packages\directxtk12_desktop_2017.2021.11.8.1\build\native\directxtk12_desktop_2017.targets" Condition="Exists('..\packages\directxtk12_desktop_2017.2021.11.8.1\build\native\directxtk12_desktop_2017.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -191,5 +196,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220131.2\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220131.2\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220131.2\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220131.2\build\native\Microsoft.Windows.CppWinRT.targets'))" />
+    <Error Condition="!Exists('..\packages\directxtk12_desktop_2017.2021.11.8.1\build\native\directxtk12_desktop_2017.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk12_desktop_2017.2021.11.8.1\build\native\directxtk12_desktop_2017.targets'))" />
   </Target>
 </Project>

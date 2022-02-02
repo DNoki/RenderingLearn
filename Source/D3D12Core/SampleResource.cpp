@@ -152,9 +152,9 @@ namespace SampleResource
         // 创建顶点缓冲
         struct Vertex
         {
-            DirectX::XMFLOAT3 position;
-            DirectX::XMFLOAT4 color;
-            DirectX::XMFLOAT2 uv;
+            Vector3 position;
+            Vector4 color;
+            Vector2 uv;
         };
 
         auto m_aspectRatio = Display::GetScreenAspect();
@@ -194,7 +194,7 @@ namespace SampleResource
             &g_SamplerLinearMirror,
         };
         static int useSamplerIndex = 0;
-        useSamplerIndex += Input::TestKeyDown(KeyCode::Space) ? 1 : 0;
+        useSamplerIndex += Input::KeyDown(KeyCode::Space) ? 1 : 0;
         if (useSamplerIndex >= 8) useSamplerIndex = 0;
 
 
