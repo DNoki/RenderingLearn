@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
+//#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
 
 #include "GraphicsCore.h"
 
@@ -93,15 +93,25 @@ namespace Utility
         return buffer;
     }
 
-    std::string wchar2string(const wchar_t* str)
+    string wchar2string(const wchar_t* wstr)
     {
-        USES_CONVERSION;
-        return W2A(str);
+        int len = static_cast<int>(wcsnlen(wstr, MAX_PATH)) + 1;
+        string str;
+        str.resize(MAX_PATH);
+        int result = WideCharToMultiByte(CP_ACP, 0, wstr, len, str.data(), MAX_PATH, NULL, NULL);
+        return str;
+        //USES_CONVERSION;
+        //return W2A(str);
     }
-    std::wstring char2wstring(const char* str)
+    wstring char2wstring(const char* str)
     {
-        USES_CONVERSION;
-        return A2W(str);
+        int len = static_cast<int>(strnlen(str, MAX_PATH)) + 1;
+        std::wstring wstr;
+        wstr.resize(MAX_PATH);
+        int result = MultiByteToWideChar(CP_ACP, 0, str, len, wstr.data(), MAX_PATH);
+        return wstr;
+        //USES_CONVERSION;
+        //return A2W(str);
     }
 
     HRESULT CheckHresult(HRESULT hr)
@@ -204,7 +214,7 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob
     // ios::beg         文件头
     // ios::end         文件尾
     // ios::cur         当前位置
-    
+
     // 文件流指针
     // tellg() 返回输入流指针的位置(类型为long)
     // tellp() 返回输出流指针的位置(类型为long)
@@ -214,14 +224,14 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob
     ifstream file;
     file.open(pFileName, ios::binary);
     ASSERT(file.good(), L"Shader文件打开失败。");
-    
+
     file.seekg(0, ios_base::end);
     auto size = file.tellg();
     file.seekg(0, ios_base::beg);
 
     auto hresult = D3DCreateBlob(size, ppCode);
     CHECK_HRESULT(hresult);
-    
+
     file.read(reinterpret_cast<char*>((*ppCode)->GetBufferPointer()), size);
     file.close();
 
