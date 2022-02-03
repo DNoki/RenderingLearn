@@ -76,3 +76,10 @@ void UploadBuffer::Create(UINT64 size)
 
     Finalize();
 }
+
+void UploadBuffer::Finalize()
+{
+    // Resource必须创建以后才可以完成初始化
+    ASSERT(m_Resource != nullptr);
+    m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
+}

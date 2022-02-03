@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-#include "GpuResource.h"
+#include "GraphicsResource.h"
 
-// TODO 将贴图从 GpuResource 类解耦出来？
+// TODO 将贴图从 GraphicsResource 类解耦出来？
 
-class Texture : public GpuResource
+class Texture : public GraphicsResource
 {
 public:
 

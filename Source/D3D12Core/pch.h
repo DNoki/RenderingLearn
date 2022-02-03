@@ -97,3 +97,17 @@ typedef std::filesystem::path Path;
 #define CHECK_HRESULT(hr)
 
 #endif // DEBUG
+
+
+
+
+
+class IPlacedObject
+{
+public:
+    virtual const D3D12_RESOURCE_DESC& GetResourceDesc() = 0;
+    virtual ID3D12Resource1** PutD3D12Resource() = 0;
+
+private:
+
+};

@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "GpuResource.h"
+#include "GraphicsResource.h"
 
 
 // --------------------------------------------------------------------------
@@ -61,24 +61,27 @@
 */
 // --------------------------------------------------------------------------
 
+// --------------------------------------------------------------------------
+/*
+    GraphicsResource 提供了以下三种资源的创建
+        ・着色器资源视图（SRV）：2D纹理
+        ・无序访问视图（UAV）
+        ・常量缓冲区视图（CBV）：常量数据、变换矩阵
+    创建资源时，需要由描述符堆提供描述符句柄
+*/
+// --------------------------------------------------------------------------
 
-int III = 0;
-void GpuResource::Finalize(const DescriptorHandle* descriptorHandle)
+
+//int III = 0;
+void GraphicsResource::Finalize(const DescriptorHandle* descriptorHandle)
 {
-    if (descriptorHandle == nullptr)
-    {
-        // Resource必须创建以后才可以完成初始化
-        ASSERT(m_Resource != nullptr);
-        m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
-    }
-    else m_DescriptorHandle = *descriptorHandle;
-
+    m_DescriptorHandle = *descriptorHandle;
 
     // D3D12错误调查
-    std::wstringstream str;
-    str << "Name_name_" << III++;
-    auto name = str.str();
-    auto nameW = name.c_str();
+    //std::wstringstream str;
+    //str << "Name_name_" << III++;
+    //auto name = str.str();
+    //auto nameW = name.c_str();
 
-    m_Resource->SetName(nameW);
+    //m_Resource->SetName(nameW);
 }

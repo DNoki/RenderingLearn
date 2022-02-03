@@ -2,7 +2,7 @@
 
 #include "AppMain.h"
 #include "DescriptorHeap.h"
-#include "GpuBuffer.h"
+#include "GraphicsBuffer.h"
 #include "Texture2D.h"
 #include "GpuPlacedHeap.h"
 #include "GraphicsCommon.h"
@@ -23,8 +23,7 @@ namespace SampleResource
     GraphicsPipelineState g_PipelineState;
 
 
-    UploadBuffer g_UploadSampleVBV;
-    GpuBuffer g_SampleVBV;
+    GraphicsBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
     Texture2D t_DefaultTexture;
@@ -66,9 +65,9 @@ namespace SampleResource
 
         // 使用动态采样器
         {
-            g_RootSignature.Reset(2, 0);
+            g_RootSignature.Reset(3, 0);
 
-            CD3DX12_DESCRIPTOR_RANGE1 ranges[2]{};
+            CD3DX12_DESCRIPTOR_RANGE1 ranges[3]{};
             ranges[0].Init(
                 D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
                 1,
@@ -76,8 +75,10 @@ namespace SampleResource
                 0,
                 D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
             ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+            ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
             g_RootSignature[0].InitAsDescriptorTable(1, &ranges[0]);
             g_RootSignature[1].InitAsDescriptorTable(1, &ranges[1]);
+            g_RootSignature[2].InitAsDescriptorTable(1, &ranges[2]);
         }
 
         g_RootSignature.Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -173,7 +174,7 @@ namespace SampleResource
         };
         const UINT vertexBufferSize = sizeof(vertices);
 
-        g_SampleVBV = GpuBuffer();
+        g_SampleVBV = GraphicsBuffer();
         //g_SampleVBV.CreateVertexBuffer(sizeof(Vertex), _countof(vertices), vertices);
 
         // 使用定位方式创建顶点缓冲

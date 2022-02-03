@@ -2,7 +2,7 @@
 
 class RootSignature;
 class GraphicsPipelineState;
-class GpuBuffer;
+class GraphicsBuffer;
 class DescriptorHeap;
 class Texture2D;
 class GpuPlacedHeap;
@@ -13,7 +13,7 @@ namespace SampleResource
     extern GraphicsPipelineState g_PipelineState;
 
 
-    extern GpuBuffer g_SampleVBV;
+    extern GraphicsBuffer g_SampleVBV;
 
     extern DescriptorHeap t_TexDH;
     extern Texture2D t_DefaultTexture;

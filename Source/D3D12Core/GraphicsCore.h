@@ -17,3 +17,14 @@ namespace Graphics
 
     void OnDestroy();
 }
+
+class GraphicManager
+{
+public:
+    static GraphicManager& GetInstance();
+
+private:
+    GraphicManager() {}
+
+
+};

@@ -5,14 +5,24 @@
 #include "CommandQueue.h"
 #include "CommandList.h"
 
-#include "GpuBuffer.h"
+#include "GraphicsBuffer.h"
+
+
+// --------------------------------------------------------------------------
+/*
+    GraphicsBuffer 提供了以下三种资源的创建
+        ・顶点缓冲视图（VBV）：顶点数据
+        ・索引缓冲视图（IBV）：索引数据
+        ・流输出视图（SOV）？
+*/
+// --------------------------------------------------------------------------
 
 using namespace Graphics;
 
 
-GpuBuffer::GpuBuffer() : m_Type(BufferType::UNCREATED), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
+GraphicsBuffer::GraphicsBuffer() : m_Resource(nullptr), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_Type(BufferType::UNCREATED), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
 
-void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
+void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
 {
     // 说明：上传缓冲区对 CPU 和 GPU 都是可见的，但由于内存是写合并的，因此应避免使用 CPU 读取数据。 上传缓冲区用于将数据移动到默认 GPU 缓冲区。 您可以将文件直接读入上传缓冲区，而不是读入常规缓存内存，将其复制到上传缓冲区，然后将其复制到 GPU。
 
@@ -27,7 +37,7 @@ void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void
         &m_ResourceDesc, // 描述资源
         D3D12_RESOURCE_STATE_GENERIC_READ, // 资源的初始状态
         nullptr, // 清除操作最优化的值
-        IID_PPV_ARGS(PutD3D12Resource())));
+        IID_PPV_ARGS(m_Resource.put())));
 
 
     // 将三角形数据复制到顶点缓冲区
@@ -51,7 +61,7 @@ void GpuBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void
     m_Type = BufferType::VERTEX;
 }
 
-void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
+void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
 {
     auto bufferSize = strideSize * vertexCount;
 
@@ -90,4 +100,13 @@ void GpuBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void
             m_GpuVirtualAddress,
             bufferSize,
             strideSize });
+
+    m_Type = BufferType::VERTEX;
+}
+
+void GraphicsBuffer::Finalize()
+{
+    // Resource必须创建以后才可以完成初始化
+    ASSERT(m_Resource != nullptr);
+    m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
 }
