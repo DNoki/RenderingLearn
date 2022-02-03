@@ -31,7 +31,7 @@ public:
         int nrChannels;
 
         stbi_set_flip_vertically_on_load(true);// 翻转纹理
-        auto string_path = Utility::wchar2string(path.c_str());
+        auto string_path = Utility::ToUtf8(path.c_str());
         Data = stbi_load(string_path.c_str(), &Width, &Height, &nrChannels, 0);
 
         Format = DXGI_FORMAT_UNKNOWN;

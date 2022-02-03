@@ -241,7 +241,9 @@ using namespace Application;
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ TCHAR* /*lpCmdLine*/, _In_ int nCmdShow)
 {
-    wcout.imbue(locale("CHS"));
+    cout.imbue(locale(".utf8"));
+    wcout.imbue(locale(".utf8"));
+    system("chcp 65001");
 
     auto result = RunApplication(hInstance, nCmdShow);
 

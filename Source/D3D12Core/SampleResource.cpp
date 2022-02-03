@@ -92,8 +92,8 @@ namespace SampleResource
         winrt::com_ptr<ID3DBlob> pixelShader;
         Path vsShaderPath = Application::GetShaderPath().append("SampleTexture_vs.cso");
         Path psShaderPath = Application::GetShaderPath().append("SampleTexture_ps.cso");
-        ShaderUtility::ReadVSFromFile(vsShaderPath.c_str(), vertexShader.put());
-        ShaderUtility::ReadPSFromFile(psShaderPath.c_str(), pixelShader.put());
+        ShaderUtility::ReadVSFromFile(vsShaderPath, vertexShader.put());
+        ShaderUtility::ReadPSFromFile(psShaderPath, pixelShader.put());
 
 
         // 定义顶点输入层

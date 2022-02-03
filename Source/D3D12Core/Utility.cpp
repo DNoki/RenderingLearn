@@ -93,26 +93,69 @@ namespace Utility
         return buffer;
     }
 
-    string wchar2string(const wchar_t* wstr)
+#pragma region CodePage Convert
+    /**
+     * @brief 多字节字符串转宽字节字符串
+     * @param codePage
+     * @param src
+     * @param dest
+     * @return
+    */
+    static inline int MB2WC_Impl(UINT codePage, const char* src, wchar_t* dest)
     {
-        int len = static_cast<int>(wcsnlen(wstr, MAX_PATH)) + 1;
-        string str;
-        str.resize(MAX_PATH);
-        int result = WideCharToMultiByte(CP_ACP, 0, wstr, len, str.data(), MAX_PATH, NULL, NULL);
-        return str;
-        //USES_CONVERSION;
-        //return W2A(str);
+        auto len = static_cast<int>(strnlen(src, MAX_PATH)) + 1;
+        return MultiByteToWideChar(codePage, 0, src, len, dest, MAX_PATH);
     }
-    wstring char2wstring(const char* str)
+    /**
+     * @brief 宽字节字符串转多字节字符串
+     * @param codePage
+     * @param src
+     * @param dest
+     * @return
+    */
+    static inline int WC2MB_Impl(UINT codePage, const wchar_t* src, char* dest)
     {
-        int len = static_cast<int>(strnlen(str, MAX_PATH)) + 1;
-        std::wstring wstr;
-        wstr.resize(MAX_PATH);
-        int result = MultiByteToWideChar(CP_ACP, 0, str, len, wstr.data(), MAX_PATH);
-        return wstr;
-        //USES_CONVERSION;
-        //return A2W(str);
+        auto len = static_cast<int>(wcsnlen(src, MAX_PATH)) + 1;
+        return WideCharToMultiByte(codePage, 0, src, len, dest, MAX_PATH, NULL, NULL);
     }
+
+    std::string ToAnsi(const char* str)
+    {
+        wchar_t result[MAX_PATH]{};
+        MB2WC_Impl(CP_UTF8, RP_CHAR(str), result);
+        return ToAnsi(result);
+    }
+    string ToAnsi(const char8_t* str)
+    {
+        return ToAnsi(RP_CHAR(str));
+    }
+    string ToAnsi(const wchar_t* str)
+    {
+        char result[MAX_PATH]{};
+        WC2MB_Impl(CP_ACP, str, result);
+        return result;
+    }
+
+    string ToUtf8(const char* str)
+    {
+        wchar_t result[MAX_PATH]{};
+        MB2WC_Impl(CP_ACP, RP_CHAR(str), result);
+        return ToUtf8(result);
+    }
+    string ToUtf8(const wchar_t* str)
+    {
+        char result[MAX_PATH]{};
+        WC2MB_Impl(CP_UTF8, str, result);
+        return result;
+    }
+
+    std::wstring ToUnicode(const char* str, UINT codePage)
+    {
+        wchar_t result[MAX_PATH]{};
+        MB2WC_Impl(codePage, str, result);
+        return result;
+    }
+#pragma endregion
 
     HRESULT CheckHresult(HRESULT hr)
     {
@@ -134,9 +177,10 @@ namespace Utility
 using namespace winrt;
 
 
-HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob** ppCode)
+HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode)
 {
-    const LPCSTR entryPoints[] =
+    static const string ShaderModel = "5_1";
+    static const string entryPoints[] =
     {
         "VSMain",
         "PSMain",
@@ -144,13 +188,13 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DB
         "HSMain",
         "DSMain",
     };
-    const LPCSTR compileTarget[] =
+    static const string compileTarget[] =
     {
-        "vs_5_0",
-        "ps_5_0",
-        "gs_5_0",
-        "hs_5_0",
-        "ds_5_0",
+        Utility::Format("vs_%s", ShaderModel),
+        Utility::Format("ps_%s", ShaderModel),
+        Utility::Format("gs_%s", ShaderModel),
+        Utility::Format("hs_%s", ShaderModel),
+        Utility::Format("ds_%s", ShaderModel),
     };
 
     // CompileFlags https://docs.microsoft.com/zh-cn/windows/win32/direct3dhlsl/d3dcompile-constants
@@ -168,11 +212,11 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DB
     // D3D_COMPILE_STANDARD_FILE_INCLUDE 可以在任何 API 中为 pInclude 传递，并指示应该使用简单的默认包含处理程序。 包含处理程序将包含与当前目录相关的文件和与初始源文件目录相关的文件。 当与 D3DCompile 之类的 API 一起使用时，pSourceName 必须是文件名，并且初始相对目录将从它派生。
 
     compileResult = D3DCompileFromFile(
-        pFileName,                              // HLSL文件路径
+        pFileName.c_str(),                              // HLSL文件路径
         nullptr,                                // 定义着色器宏
         D3D_COMPILE_STANDARD_FILE_INCLUDE,      // 默认包含处理
-        entryPoints[static_cast<int>(type)],    // 着色器入口函数
-        compileTarget[static_cast<int>(type)],  // 着色器目标
+        entryPoints[static_cast<int>(type)].c_str(),    // 着色器入口函数
+        compileTarget[static_cast<int>(type)].c_str(),  // 着色器目标
         compileFlags,                           // 着色器编译选项
         0,                                      // 效果编译选项
         ppCode,                                 // 接收已编译的代码
@@ -186,7 +230,7 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, LPCTSTR pFileName, ID3DB
     return compileResult;
 }
 
-HRESULT ShaderUtility::ReadFromFile(ShaderType type, LPCTSTR pFileName, ID3DBlob** ppCode)
+HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode)
 {
     // C++ 文件读写操作
     //#include <ifstream> // 从文件读取

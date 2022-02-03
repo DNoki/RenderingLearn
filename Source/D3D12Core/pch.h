@@ -48,15 +48,28 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 
+
+
+#pragma region DEFINE
+// 重新解释为char字符串
+#define RP_CHAR(str) reinterpret_cast<const char*>(str)
+// 重新解释为char8_t字符串
+#define RP_CHAR8(str) reinterpret_cast<const char8_t*>(str)
+
+// 边界对齐，B为2的指数倍
+#define UINT_UPPER(A, B) (((UINT)A + (UINT)B - 1u)&~((UINT)B - 1u))
+#define UINT64_UPPER(A, B) (((UINT64)A + (UINT64)B - 1u)&~((UINT64)B - 1u))
+
+typedef std::filesystem::path Path;
+
+#pragma endregion
+
+
 // --------------------------------------------------------------------------
 // 共通头文件
 #include "MathCommon.h"
 #include "Utility.h"
 
-
-#pragma region DEFINE
-
-typedef std::filesystem::path Path;
 
 #if DEBUG
 
@@ -84,9 +97,3 @@ typedef std::filesystem::path Path;
 #define CHECK_HRESULT(hr)
 
 #endif // DEBUG
-
-// 边界对齐，B为2的指数倍
-#define UINT_UPPER(A, B) (((UINT)A + (UINT)B - 1u)&~((UINT)B - 1u))
-#define UINT64_UPPER(A, B) (((UINT64)A + (UINT64)B - 1u)&~((UINT64)B - 1u))
-
-#pragma endregion
