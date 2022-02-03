@@ -20,7 +20,7 @@
 using namespace Graphics;
 
 
-GraphicsBuffer::GraphicsBuffer() : m_Resource(nullptr), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_Type(BufferType::UNCREATED), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
+GraphicsBuffer::GraphicsBuffer() : m_Resource(nullptr), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_Type(BufferType::UnCreat), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
 
 void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
 {
@@ -58,7 +58,7 @@ void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const
             bufferSize,
             strideSize });
 
-    m_Type = BufferType::VERTEX;
+    m_Type = BufferType::Vertex;
 }
 
 void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
@@ -101,7 +101,7 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
             bufferSize,
             strideSize });
 
-    m_Type = BufferType::VERTEX;
+    m_Type = BufferType::Vertex;
 }
 
 void GraphicsBuffer::Finalize()

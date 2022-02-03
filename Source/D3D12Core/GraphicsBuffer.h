@@ -7,9 +7,9 @@ class GpuPlacedHeap;
 
 enum class BufferType
 {
-    UNCREATED,
-    VERTEX,
-    //INDEX,
+    UnCreat,    // 未创建
+    Vertex,     // 顶点缓冲
+    Index,      // 索引缓冲
 };
 
 class GraphicsBuffer : public IPlacedObject
@@ -28,11 +28,15 @@ public:
 
     inline ID3D12Resource1** PutD3D12Resource() override { return m_Resource.put(); }
     inline const D3D12_RESOURCE_DESC& GetResourceDesc() override { return m_ResourceDesc; }
+
     /**
-     * @brief 获取 D3D12 顶点缓冲视图
-     * @return
+     * @brief 视为顶点缓冲视图
     */
-    inline D3D12_VERTEX_BUFFER_VIEW* GetD3D12VBV() const { return m_VertexBufferView.get(); }
+    inline operator const D3D12_VERTEX_BUFFER_VIEW* ()
+    {
+        ASSERT(m_Type == BufferType::Vertex);
+        return m_VertexBufferView.get();
+    }
 
 private:
     // 资源对象

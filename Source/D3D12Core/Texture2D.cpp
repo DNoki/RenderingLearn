@@ -187,7 +187,8 @@ void Texture2D::Placed(const Path& path, const DescriptorHandle& pDescriptorHand
 
     // 创建 GPU 上传缓冲
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-    m_UploadBuffer->Create(uploadBufferSize);
+    //m_UploadBuffer->Create(uploadBufferSize);
+    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize));
     pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
 
 

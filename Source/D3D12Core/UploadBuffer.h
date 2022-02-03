@@ -11,17 +11,25 @@ public:
 
     UploadBuffer();
 
+    /**
+     * @brief 创建一个上传堆并为其分配内存
+     * @param size
+    */
     void Create(UINT64 size);
+    void Placed(UINT64 size);
+
+    inline HRESULT Map(UINT Subresource, const D3D12_RANGE* pReadRange, void** ppData) { return m_Resource->Map(Subresource, pReadRange, ppData); }
+    inline void UnMap(UINT Subresource, const D3D12_RANGE* pWrittenRange) { m_Resource->Unmap(Subresource, pWrittenRange); }
 
     inline const D3D12_RESOURCE_DESC& GetResourceDesc() override { return m_ResourceDesc; }
     inline void SetResourceDesc(const D3D12_RESOURCE_DESC& desc) { m_ResourceDesc = desc; }
     inline void SetResourceDesc(const D3D12_RESOURCE_DESC&& desc) { m_ResourceDesc = desc; }
 
+    inline UINT64 GetBufferSize() { return m_ResourceDesc.Width; }
+
     void Finalize();
 
 private:
-    //UINT64 m_Size;
-
     // 资源对象
     winrt::com_ptr<ID3D12Resource1> m_Resource;
     // 资源描述

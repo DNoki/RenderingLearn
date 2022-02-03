@@ -212,7 +212,7 @@ namespace SampleResource
 
         // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
         commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());
+        commandList->IASetVertexBuffers(0, 1, g_SampleVBV);
         commandList->DrawInstanced(4, 1, 0, 0);
     }
 }

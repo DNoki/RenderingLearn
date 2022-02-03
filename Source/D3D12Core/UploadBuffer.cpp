@@ -5,6 +5,14 @@
 
 #include "UploadBuffer.h"
 
+// --------------------------------------------------------------------------
+/*
+    上传堆缓冲
+        对于GPU来说为只读，对于CPU来说可读可写（通常为只写）
+*/
+// --------------------------------------------------------------------------
+
+
 using namespace std;
 using namespace Graphics;
 
@@ -20,9 +28,8 @@ class UploadBufferManager
 public:
     UploadBufferManager()
     {
-        const auto size =
-            D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT * 1024;
-            //4096ull * 4096ull * 4ull;
+        const auto size = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT * 1024;
+        //4096ull * 4096ull * 4ull;
         m_UploadPlacedHeap.Create(D3D12_HEAP_TYPE_UPLOAD, size, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS);
 
     }
@@ -64,7 +71,6 @@ void UploadBuffer::Create(UINT64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
-    // TODO 当使用放置堆时，需要生成隐式堆吗
     auto uploadHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     CHECK_HRESULT(g_Device->CreateCommittedResource(
         &uploadHeapProperties,
