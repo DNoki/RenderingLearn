@@ -97,3 +97,4 @@ typedef std::filesystem::path Path;
 #define CHECK_HRESULT(hr)
 
 #endif // DEBUG
+

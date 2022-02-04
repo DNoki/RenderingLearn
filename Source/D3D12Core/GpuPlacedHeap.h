@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class GpuResource;
+class IResource;
 
 /**
  * @brief 放置堆
@@ -12,10 +12,12 @@ public:
 
     void Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags);
 
-    void PlacedResource(D3D12_RESOURCE_STATES initialState, GpuResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
-    void PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, GpuResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
+    void PlacedResource(D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
+    void PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
 
-    inline UINT64 GetHeapSize() { return m_PlacedHeapDesc.SizeInBytes; }
+
+    inline const CD3DX12_HEAP_DESC* GetHeapDesc() const { return &m_PlacedHeapDesc; }
+    inline UINT64 GetHeapSize() const { return m_PlacedHeapDesc.SizeInBytes; }
 
     inline ID3D12Heap* GetPlacedHeap() const { return m_PlacedHeap.get(); }
 
@@ -25,5 +27,13 @@ private:
 
     bool m_IsMsaaAlignmentType; // 是否是 MSAA 资源大小对齐
 
-    std::vector<GpuResource*> m_PlacedResources;
+    std::vector<IResource*> m_PlacedResources;
+};
+
+class SharedGraphicsMemory
+{
+public:
+
+private:
+
 };

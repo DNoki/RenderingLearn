@@ -123,12 +123,13 @@
     <ClInclude Include="..\Source\D3D12Core\DescriptorHeap.h" />
     <ClInclude Include="..\Source\D3D12Core\Display.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h" />
-    <ClInclude Include="..\Source\D3D12Core\GpuBuffer.h" />
+    <ClInclude Include="..\Source\D3D12Core\GraphicsBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
-    <ClInclude Include="..\Source\D3D12Core\GpuResource.h" />
+    <ClInclude Include="..\Source\D3D12Core\GraphicsResource.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
     <ClInclude Include="..\Source\D3D12Core\Input.h" />
+    <ClInclude Include="..\Source\D3D12Core\IResource.h" />
     <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
@@ -149,12 +150,13 @@
     <ClCompile Include="..\Source\D3D12Core\DescriptorHeap.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Display.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GpuBuffer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GraphicsBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GpuResource.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GraphicsResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Input.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\IResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

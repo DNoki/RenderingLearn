@@ -2,10 +2,11 @@
 
 #include "AppMain.h"
 #include "DescriptorHeap.h"
-#include "GpuBuffer.h"
+#include "GraphicsBuffer.h"
 #include "Texture2D.h"
 #include "GpuPlacedHeap.h"
 #include "GraphicsCommon.h"
+#include "GraphicsCore.h"
 #include "PipelineState.h"
 
 #include "Display.h"
@@ -23,8 +24,7 @@ namespace SampleResource
     GraphicsPipelineState g_PipelineState;
 
 
-    UploadBuffer g_UploadSampleVBV;
-    GpuBuffer g_SampleVBV;
+    GraphicsBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
     Texture2D t_DefaultTexture;
@@ -66,9 +66,9 @@ namespace SampleResource
 
         // 使用动态采样器
         {
-            g_RootSignature.Reset(2, 0);
+            g_RootSignature.Reset(3, 0);
 
-            CD3DX12_DESCRIPTOR_RANGE1 ranges[2]{};
+            CD3DX12_DESCRIPTOR_RANGE1 ranges[3]{};
             ranges[0].Init(
                 D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
                 1,
@@ -76,8 +76,10 @@ namespace SampleResource
                 0,
                 D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
             ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+            ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
             g_RootSignature[0].InitAsDescriptorTable(1, &ranges[0]);
             g_RootSignature[1].InitAsDescriptorTable(1, &ranges[1]);
+            g_RootSignature[2].InitAsDescriptorTable(1, &ranges[2]);
         }
 
         g_RootSignature.Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -141,7 +143,7 @@ namespace SampleResource
         //t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
 
         // 使用注册方式创建贴图
-        //t_DefaultTexture.Create(texPath, t_TexDH.GetDescriptorHandle(0));
+        //t_DefaultTexture.DirectCreate(texPath, t_TexDH.GetDescriptorHandle(0));
 
         // 使用定位方式创建贴图
         t_DefaultTexture.Placed(texPath, t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
@@ -173,11 +175,10 @@ namespace SampleResource
         };
         const UINT vertexBufferSize = sizeof(vertices);
 
-        g_SampleVBV = GpuBuffer();
-        //g_SampleVBV.CreateVertexBuffer(sizeof(Vertex), _countof(vertices), vertices);
-
-        // 使用定位方式创建顶点缓冲
-        g_SampleVBV.PlacedVertexBuffer(sizeof(Vertex), _countof(vertices), vertices, g_VertexPlacedHeap, g_UploadPlacedHeap);
+        g_SampleVBV = GraphicsBuffer();
+        //g_SampleVBV.DirectCreate(vertexBufferSize);
+        g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
+        g_SampleVBV.DispatchCopyVertexBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
     }
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList)
@@ -211,7 +212,7 @@ namespace SampleResource
 
         // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
         commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());
+        commandList->IASetVertexBuffers(0, 1, g_SampleVBV);
         commandList->DrawInstanced(4, 1, 0, 0);
     }
 }

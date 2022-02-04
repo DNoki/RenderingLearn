@@ -32,6 +32,9 @@ namespace Display
         ASSERT(g_Hwnd != nullptr);
         ASSERT(g_SwapChain == nullptr);
 
+        if (g_Hwnd == NULL)
+            throw L"ERROR::窗口句柄不能为0！";
+
         RECT clientRect;
         GetClientRect(g_Hwnd, &clientRect);
         g_DisplayWidth = clientRect.right - clientRect.left;
@@ -66,7 +69,7 @@ namespace Display
 
         //auto backColor = DXGI_RGBA{ 1.0f, 1.0f, 1.0f, 1.0f };
         //g_SwapChain->SetBackgroundColor(&backColor);
-        
+
         //auto currentBackBufferIndex = pIDXGISwapChain4->GetCurrentBackBufferIndex(); // 当前被绘制的后缓冲序号
     }
 
@@ -92,7 +95,7 @@ namespace Display
         g_DisplayWidth = width;
         g_DisplayHeight = height;
 
-        g_RenderTargets.clear();
+        g_RenderTargets.clear(); // 清除现有的渲染目标贴图
 
         // 重置交换链缓冲大小
         CHECK_HRESULT(g_SwapChain->ResizeBuffers(
@@ -100,11 +103,6 @@ namespace Display
             g_DisplayWidth, g_DisplayHeight,
             SC_RENDER_TARGET_FORMAT,
             0));
-
-        // 重新创建描述符堆
-        //g_RTVDescriptorHeap = nullptr;
-        //g_RTVDescriptorHeap = unique_ptr<DescriptorHeap>(new DescriptorHeap());
-        //g_RTVDescriptorHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, SWAP_FRAME_BACK_BUFFER_COUNT);
 
         for (UINT i = 0; i < SWAP_FRAME_BACK_BUFFER_COUNT; i++)
         {
