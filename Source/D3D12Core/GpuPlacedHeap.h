@@ -1,8 +1,5 @@
 ﻿#pragma once
 
-class GraphicsResource;
-class GraphicsBuffer;
-
 /**
  * @brief 放置堆
 */
@@ -17,7 +14,8 @@ public:
     void PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IPlacedObject& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr);
 
 
-    inline UINT64 GetHeapSize() { return m_PlacedHeapDesc.SizeInBytes; }
+    inline const CD3DX12_HEAP_DESC* GetHeapDesc() const { return &m_PlacedHeapDesc; }
+    inline UINT64 GetHeapSize() const { return m_PlacedHeapDesc.SizeInBytes; }
 
     inline ID3D12Heap* GetPlacedHeap() const { return m_PlacedHeap.get(); }
 

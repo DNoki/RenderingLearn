@@ -23,6 +23,7 @@ using namespace Graphics;
             ・无序访问视图（UAV）
             ・常量缓冲区视图（CBV）
             ・取样器（Sampler）
+                创建取样器不需要实际分配内存（不需要创建 ID3D12Resource）
         非着色器可见描述符：
             ・呈现目标视图（RTV）
             ・深度模板视图（DSV）

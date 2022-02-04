@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#include "DescriptorHandle.h"
 #include "GraphicsCore.h"
 #include "GpuPlacedHeap.h"
 #include "CommandQueue.h"
@@ -10,18 +11,87 @@
 
 // --------------------------------------------------------------------------
 /*
-    GraphicsBuffer 提供了以下三种资源的创建
+    GPU 缓冲是存储于 GPU （默认堆）上的缓冲，提供了以下两种资源的创建
         ・顶点缓冲视图（VBV）：顶点数据
         ・索引缓冲视图（IBV）：索引数据
-        ・流输出视图（SOV）？
+
+    使用 GPU 内存虚拟地址来绑定资源
 */
 // --------------------------------------------------------------------------
 
 using namespace Graphics;
 
 
-GraphicsBuffer::GraphicsBuffer() : m_Resource(nullptr), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_Type(BufferType::UnCreat), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
+GraphicsBuffer::GraphicsBuffer() : m_Resource(nullptr), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
 
+void GraphicsBuffer::DirectCreate(UINT64 size)
+{
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+
+    auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    CHECK_HRESULT(g_Device->CreateCommittedResource(
+        &heapType,
+        D3D12_HEAP_FLAG_NONE,
+        &m_ResourceDesc,
+        D3D12_RESOURCE_STATE_COPY_DEST, // 初始状态为拷贝目标
+        nullptr,
+        IID_PPV_ARGS(PutD3D12Resource())
+    ));
+
+    Finalize();
+}
+
+void GraphicsBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
+{
+    m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+
+    // 要放入的放置堆类型必须是默认堆
+    ASSERT(pPlacedHeap.GetHeapDesc()->Properties.Type == D3D12_HEAP_TYPE_DEFAULT);
+
+    pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_COPY_DEST, *this);
+
+    Finalize();
+}
+
+void GraphicsBuffer::CopyVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
+{
+    ASSERT(m_Resource != nullptr);
+    auto bufferSize = m_ResourceDesc.Width;
+
+    // 创建上传缓冲
+    m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+    m_UploadBuffer->DirectCreate(bufferSize);
+
+    // 添加拷贝命令到命令队列
+    {
+        // 使用 UpdateSubresources 拷贝资源
+        D3D12_SUBRESOURCE_DATA srcData = {};
+        srcData.pData = vertices;
+        srcData.RowPitch = bufferSize;
+        srcData.SlicePitch = bufferSize;
+        UpdateSubresources(
+            g_GraphicCommandList.GetD3D12CommandList(),
+            m_Resource.get(),
+            m_UploadBuffer->GetD3D12Resource(),
+            0, 0, 1,
+            &srcData);
+
+        // 等待拷贝完成
+        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
+            m_Resource.get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+        g_GraphicCommandList->ResourceBarrier(1, &barriers);
+    }
+
+    // 创建顶点缓冲视图
+    m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+            m_GpuVirtualAddress,
+            static_cast<UINT>(bufferSize),
+            strideSize });
+}
+
+#if 0
 void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
 {
     // 说明：上传缓冲区对 CPU 和 GPU 都是可见的，但由于内存是写合并的，因此应避免使用 CPU 读取数据。 上传缓冲区用于将数据移动到默认 GPU 缓冲区。 您可以将文件直接读入上传缓冲区，而不是读入常规缓存内存，将其复制到上传缓冲区，然后将其复制到 GPU。
@@ -57,8 +127,6 @@ void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const
             m_GpuVirtualAddress,
             bufferSize,
             strideSize });
-
-    m_Type = BufferType::Vertex;
 }
 
 void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
@@ -70,10 +138,7 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
 
 
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-    //m_UploadBuffer->Create(bufferSize);
-    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(bufferSize));
-    pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
-    m_UploadBuffer->Finalize();
+    m_UploadBuffer->PlacedCreate(bufferSize, pUploadPlacedHeap);
 
     D3D12_SUBRESOURCE_DATA srcData = {};
     srcData.pData = vertices;
@@ -100,9 +165,8 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
             m_GpuVirtualAddress,
             bufferSize,
             strideSize });
-
-    m_Type = BufferType::Vertex;
 }
+#endif
 
 void GraphicsBuffer::Finalize()
 {

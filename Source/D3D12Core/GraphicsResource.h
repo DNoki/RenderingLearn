@@ -3,7 +3,7 @@
 #include "DescriptorHandle.h"
 
 /**
- * @brief GPU资源
+ * @brief GPU 资源
 */
 class GraphicsResource : public IPlacedObject
 {

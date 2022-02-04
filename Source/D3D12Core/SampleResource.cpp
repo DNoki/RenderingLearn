@@ -142,7 +142,7 @@ namespace SampleResource
         //t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
 
         // 使用注册方式创建贴图
-        //t_DefaultTexture.Create(texPath, t_TexDH.GetDescriptorHandle(0));
+        //t_DefaultTexture.DirectCreate(texPath, t_TexDH.GetDescriptorHandle(0));
 
         // 使用定位方式创建贴图
         t_DefaultTexture.Placed(texPath, t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
@@ -175,10 +175,9 @@ namespace SampleResource
         const UINT vertexBufferSize = sizeof(vertices);
 
         g_SampleVBV = GraphicsBuffer();
-        //g_SampleVBV.CreateVertexBuffer(sizeof(Vertex), _countof(vertices), vertices);
-
-        // 使用定位方式创建顶点缓冲
-        g_SampleVBV.PlacedVertexBuffer(sizeof(Vertex), _countof(vertices), vertices, g_VertexPlacedHeap, g_UploadPlacedHeap);
+        //g_SampleVBV.DirectCreate(vertexBufferSize);
+        g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
+        g_SampleVBV.CopyVertexBuffer(sizeof(Vertex), _countof(vertices), vertices);
     }
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList)

@@ -102,7 +102,7 @@ void Texture2D::Create(const Path& path, const DescriptorHandle& pDescriptorHand
 
     // 创建 GPU 上传缓冲
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-    m_UploadBuffer->Create(uploadBufferSize);
+    m_UploadBuffer->DirectCreate(uploadBufferSize);
 
     // 通过 UpdateSubresources 函数直接通过中间资源将数据拷贝到默认堆
     D3D12_SUBRESOURCE_DATA textureData = {};
@@ -187,10 +187,7 @@ void Texture2D::Placed(const Path& path, const DescriptorHandle& pDescriptorHand
 
     // 创建 GPU 上传缓冲
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-    //m_UploadBuffer->Create(uploadBufferSize);
-    m_UploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize));
-    pUploadPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *m_UploadBuffer);
-
+    m_UploadBuffer->PlacedCreate(uploadBufferSize, pUploadPlacedHeap);
 
     // 通过 UpdateSubresources 函数直接通过中间资源将数据拷贝到默认堆
     D3D12_SUBRESOURCE_DATA textureData = {};
@@ -292,7 +289,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
 
     // 创建 GPU 上传缓冲
     m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-    m_UploadBuffer->Create(uploadBufferSize);
+    m_UploadBuffer->DirectCreate(uploadBufferSize);
 
     // 生成 Checker 贴图
     std::vector<UINT8> texture;
