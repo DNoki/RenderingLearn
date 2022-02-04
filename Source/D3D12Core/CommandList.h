@@ -13,8 +13,8 @@ public:
     void Reset(const PipelineState* pso);
 
     inline bool IsLocked() { return m_IsLocked; }
-    inline void SetLocked() 
-    { 
+    inline void SetLocked()
+    {
         m_IsLocked = true;
         m_CommandAllocator = nullptr; // 命令列表在执行后可以立即重置，这里取消引用之前的分配器
     }

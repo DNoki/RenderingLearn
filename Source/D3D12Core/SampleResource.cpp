@@ -6,6 +6,7 @@
 #include "Texture2D.h"
 #include "GpuPlacedHeap.h"
 #include "GraphicsCommon.h"
+#include "GraphicsCore.h"
 #include "PipelineState.h"
 
 #include "Display.h"
@@ -177,7 +178,7 @@ namespace SampleResource
         g_SampleVBV = GraphicsBuffer();
         //g_SampleVBV.DirectCreate(vertexBufferSize);
         g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
-        g_SampleVBV.CopyVertexBuffer(sizeof(Vertex), _countof(vertices), vertices);
+        g_SampleVBV.DispatchCopyVertexBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
     }
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList)

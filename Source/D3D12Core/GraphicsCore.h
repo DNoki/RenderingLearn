@@ -9,7 +9,7 @@ namespace Graphics
     extern winrt::com_ptr<ID3D12Device6> g_Device;
     extern CommandQueue g_GraphicsCommandQueue;
 
-    extern CommandList g_GraphicCommandList;
+    extern CommandList g_GraphicsCommandList;
 
     void Initialize();
 

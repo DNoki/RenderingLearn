@@ -35,7 +35,7 @@ namespace Graphics
     CommandQueue g_ComputeCommandQueue;
     CommandQueue g_CopyCommandQueue;
 
-    CommandList g_GraphicCommandList;
+    CommandList g_GraphicsCommandList;
 
     UINT64 g_FrameCount; // 已渲染帧数量
 
@@ -115,10 +115,10 @@ namespace Graphics
         // --------------------------------------------------------------------------
         // 创建指令列表
         //g_GraphicsCommandQueue->CreateCommandList(&SampleResource::g_PipelineState);
-        g_GraphicCommandList.Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        g_GraphicsCommandList.Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
         // 重置命令列表以其便能够帮助初始化资源复制命令
-        g_GraphicCommandList.Reset(nullptr);
+        g_GraphicsCommandList.Reset(nullptr);
 
 
         // --------------------------------------------------------------------------
@@ -158,7 +158,7 @@ namespace Graphics
         // --------------------------------------------------------------------------
         // 由于初始化贴图时需要执行复制命令
         // 执行命令列表
-        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicCommandList);
+        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);
 
 
         // 等待命令列表执行。 我们在主循环中重用相同的命令列表，但现在，我们只想等待设置完成后再继续。
@@ -176,36 +176,36 @@ namespace Graphics
             g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
 
             // 重置命令列表
-            g_GraphicCommandList.Reset(&SampleResource::g_PipelineState);
+            g_GraphicsCommandList.Reset(&SampleResource::g_PipelineState);
 
 
             // 设置必要的状态。
-            g_GraphicCommandList->SetGraphicsRootSignature(SampleResource::g_PipelineState.GetD3D12RootSignature());
+            g_GraphicsCommandList->SetGraphicsRootSignature(SampleResource::g_PipelineState.GetD3D12RootSignature());
             auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(Display::GetScreenWidth()), static_cast<float>(Display::GetScreenHeight()));
-            g_GraphicCommandList->RSSetViewports(1, &viewport);
+            g_GraphicsCommandList->RSSetViewports(1, &viewport);
             auto scissorRect = CD3DX12_RECT(0, 0, Display::GetScreenWidth(), Display::GetScreenHeight());
-            g_GraphicCommandList->RSSetScissorRects(1, &scissorRect);
+            g_GraphicsCommandList->RSSetScissorRects(1, &scissorRect);
 
             // 指示后台缓冲区将用作渲染目标。
             auto& currentRenderTarget = *(g_RenderTargets[g_CurrentBackBufferIndex].get());
             auto barriers1 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            g_GraphicCommandList->ResourceBarrier(1, &barriers1);
+            g_GraphicsCommandList->ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            g_GraphicCommandList->OMSetRenderTargets(1, currentRenderTarget.GetDescriptorHandle()->GetCpuHandle(), FALSE, nullptr);
+            g_GraphicsCommandList->OMSetRenderTargets(1, currentRenderTarget.GetDescriptorHandle()->GetCpuHandle(), FALSE, nullptr);
 
             // 记录命令
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-            g_GraphicCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
+            g_GraphicsCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
 
-            SampleResource::SampleDraw(g_GraphicCommandList.GetD3D12CommandList());
+            SampleResource::SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
 
             // 指示现在将使用后台缓冲区来呈现。
             auto barriers2 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-            g_GraphicCommandList->ResourceBarrier(1, &barriers2);
+            g_GraphicsCommandList->ResourceBarrier(1, &barriers2);
         }
         // 执行命令列表
-        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicCommandList);
+        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);
 
         // 呈现帧。
         CHECK_HRESULT(g_SwapChain->Present(1, 0));

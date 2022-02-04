@@ -1,8 +1,7 @@
 ﻿#include "pch.h"
 
+#include "IResource.h"
 #include "GraphicsCore.h"
-#include "GraphicsResource.h"
-#include "GraphicsBuffer.h"
 
 #include "GpuPlacedHeap.h"
 
@@ -39,7 +38,7 @@ void GpuPlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS f
     CHECK_HRESULT(g_Device->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
 }
 
-void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IPlacedObject& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
 {
     auto index = m_PlacedResources.size();
     auto size = static_cast<UINT>(index + 1);
@@ -71,7 +70,7 @@ void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IPlacedOb
         IID_PPV_ARGS(resource.PutD3D12Resource()))); // 要放置的资源
 }
 
-void GpuPlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IPlacedObject& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+void GpuPlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
 {
     // TODO 能否用Map来管理放置堆？
 }

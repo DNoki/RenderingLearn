@@ -112,7 +112,7 @@ void Texture2D::Create(const Path& path, const DescriptorHandle& pDescriptorHand
 
     // 使用堆分配实现更新子资源。无需考虑内存对齐
     UpdateSubresources(
-        g_GraphicCommandList.GetD3D12CommandList(),  // 命令列表
+        g_GraphicsCommandList.GetD3D12CommandList(),  // 命令列表
         m_Resource.get(),                               // 目标资源
         m_UploadBuffer->GetD3D12Resource(),             // 中间资源
         0,                                              // 中间资源的偏移量
@@ -129,7 +129,7 @@ void Texture2D::Create(const Path& path, const DescriptorHandle& pDescriptorHand
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
         | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
     );
-    g_GraphicCommandList->ResourceBarrier(1, &barriers);
+    g_GraphicsCommandList->ResourceBarrier(1, &barriers);
 
 
     // 描述并创建纹理的 SRV
@@ -197,7 +197,7 @@ void Texture2D::Placed(const Path& path, const DescriptorHandle& pDescriptorHand
 
     // 使用堆分配实现更新子资源。无需考虑内存对齐
     UpdateSubresources(
-        g_GraphicCommandList.GetD3D12CommandList(),  // 命令列表
+        g_GraphicsCommandList.GetD3D12CommandList(),  // 命令列表
         m_Resource.get(),                               // 目标资源
         m_UploadBuffer->GetD3D12Resource(), // 中间资源，需要注意中间资源的生命周期应当在复制完成之后再释放
         0,                                              // 中间资源的偏移量
@@ -214,7 +214,7 @@ void Texture2D::Placed(const Path& path, const DescriptorHandle& pDescriptorHand
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
         | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
     );
-    g_GraphicCommandList->ResourceBarrier(1, &barriers);
+    g_GraphicsCommandList->ResourceBarrier(1, &barriers);
 
 
     // 描述并创建纹理的 SRV
@@ -357,7 +357,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
         //stSrc.PlacedFootprint = stTxtLayouts[0];
 
         //// 添加复制命令到队列
-        //g_GraphicCommandList.GetD3D12CommandList()->CopyTextureRegion(&stDst, 0, 0, 0, &stSrc, nullptr);
+        //g_GraphicsCommandList.GetD3D12CommandList()->CopyTextureRegion(&stDst, 0, 0, 0, &stSrc, nullptr);
     }
 
     // 通过 UpdateSubresources 函数直接通过中间资源将数据拷贝到默认堆
@@ -369,7 +369,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
 
         // 使用堆分配实现更新子资源。无需考虑内存对齐
         UpdateSubresources(
-            g_GraphicCommandList.GetD3D12CommandList(),  // 命令列表
+            g_GraphicsCommandList.GetD3D12CommandList(),  // 命令列表
             m_Resource.get(),                               // 目标资源
             m_UploadBuffer->GetD3D12Resource(), // 中间资源，需要注意中间资源的生命周期应当在复制完成之后再释放
             0,                                              // 中间资源的偏移量
@@ -388,7 +388,7 @@ void Texture2D::GenerateChecker(const DescriptorHandle& pDescriptorHandle, UINT 
         D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
         | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
     );
-    g_GraphicCommandList->ResourceBarrier(1, &barriers);
+    g_GraphicsCommandList->ResourceBarrier(1, &barriers);
 
 
     // 描述并创建纹理的 SRV

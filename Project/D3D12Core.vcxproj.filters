@@ -29,6 +29,7 @@
     </ClInclude>
     <ClInclude Include="..\Source\D3D12Core\Input.h" />
     <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
+    <ClInclude Include="..\Source\D3D12Core\IResource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -53,6 +54,7 @@
     <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Input.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\IResource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

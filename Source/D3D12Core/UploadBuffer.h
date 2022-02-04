@@ -1,25 +1,19 @@
 ﻿#pragma once
 
+#include "IResource.h"
+
 class GpuPlacedHeap;
 
 /**
  * @brief 上传堆缓冲
 */
-class UploadBuffer : public IPlacedObject
+class UploadBuffer : public IResource
 {
 public:
     // --------------------------------------------------------------------------
     UploadBuffer();
 
     // --------------------------------------------------------------------------
-    //static UploadBuffer* Request(UINT64 size);
-    inline ID3D12Resource1* GetD3D12Resource() const { return m_Resource.get(); }
-    inline ID3D12Resource1** PutD3D12Resource() override { return m_Resource.put(); }
-
-    inline const D3D12_RESOURCE_DESC& GetResourceDesc() override { return m_ResourceDesc; }
-    inline void SetResourceDesc(const D3D12_RESOURCE_DESC& desc) { m_ResourceDesc = desc; }
-    inline void SetResourceDesc(const D3D12_RESOURCE_DESC&& desc) { m_ResourceDesc = desc; }
-
     /**
      * @brief 获取缓冲大小
      * @return
@@ -32,9 +26,20 @@ public:
      * @param size
     */
     void DirectCreate(UINT64 size);
+    /**
+     * @brief 使用定位方式创建一个上传堆
+     * @param size
+     * @param pPlacedHeap
+    */
     void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap);
 
-    void WriteToVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices);
+    /**
+     * @brief 向上传堆拷贝顶点缓冲（立即）
+     * @param strideSize
+     * @param vertexCount
+     * @param vertices
+    */
+    void CopyVertexBuffer(UINT strideSize, const void* vertices);
 
     /**
      * @brief 获取资源中指定子资源的 CPU 指针
@@ -65,12 +70,8 @@ public:
     }
 
 private:
-    static const CD3DX12_RANGE c_ZeroReadRange; // 映射时指示 CPU 不可读取上传堆资源
-
-    // 资源对象
-    winrt::com_ptr<ID3D12Resource1> m_Resource;
-    // 资源描述
-    D3D12_RESOURCE_DESC m_ResourceDesc;
+    // Map 时指示 CPU 不可读取上传堆资源
+    static const CD3DX12_RANGE c_ZeroReadRange;
 
     // GPU 内存中的虚拟地址
     // IBV、VBV 等直接调用资源类型时使用

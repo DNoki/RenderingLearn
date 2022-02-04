@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 
 #include "DescriptorHandle.h"
+#include "UploadBuffer.h"
 #include "GraphicsCore.h"
 #include "GpuPlacedHeap.h"
 #include "CommandQueue.h"
@@ -22,7 +23,7 @@
 using namespace Graphics;
 
 
-GraphicsBuffer::GraphicsBuffer() : m_Resource(nullptr), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
+GraphicsBuffer::GraphicsBuffer() : m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
 
 void GraphicsBuffer::DirectCreate(UINT64 size)
 {
@@ -53,7 +54,7 @@ void GraphicsBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
     Finalize();
 }
 
-void GraphicsBuffer::CopyVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
+void GraphicsBuffer::DispatchCopyVertexBuffer(const CommandList& commandList, UINT strideSize, const void* vertices)
 {
     ASSERT(m_Resource != nullptr);
     auto bufferSize = m_ResourceDesc.Width;
@@ -70,7 +71,7 @@ void GraphicsBuffer::CopyVertexBuffer(UINT strideSize, UINT vertexCount, const v
         srcData.RowPitch = bufferSize;
         srcData.SlicePitch = bufferSize;
         UpdateSubresources(
-            g_GraphicCommandList.GetD3D12CommandList(),
+            commandList.GetD3D12CommandList(),
             m_Resource.get(),
             m_UploadBuffer->GetD3D12Resource(),
             0, 0, 1,
@@ -81,7 +82,7 @@ void GraphicsBuffer::CopyVertexBuffer(UINT strideSize, UINT vertexCount, const v
             m_Resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
-        g_GraphicCommandList->ResourceBarrier(1, &barriers);
+        commandList->ResourceBarrier(1, &barriers);
     }
 
     // 创建顶点缓冲视图
@@ -145,7 +146,7 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
     srcData.RowPitch = bufferSize;
     srcData.SlicePitch = bufferSize;
     UpdateSubresources(
-        g_GraphicCommandList.GetD3D12CommandList(),
+        g_GraphicsCommandList.GetD3D12CommandList(),
         m_Resource.get(),
         m_UploadBuffer->GetD3D12Resource(),
         0, 0, 1,
@@ -155,7 +156,7 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
         m_Resource.get(),
         D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
-    g_GraphicCommandList->ResourceBarrier(1, &barriers);
+    g_GraphicsCommandList->ResourceBarrier(1, &barriers);
 
 
     Finalize();

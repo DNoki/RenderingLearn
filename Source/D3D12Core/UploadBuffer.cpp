@@ -16,6 +16,7 @@
 using namespace std;
 using namespace Graphics;
 
+#if 0
 struct UploadBufferPack
 {
     UINT64 StartIndex;
@@ -50,7 +51,7 @@ public:
 
             // TODO 尝试修改放置堆可以乱序放入
             //ubp.pUploadBuffer->DirectCreate(size);
-            ubp.pUploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(size));
+            //ubp.pUploadBuffer->SetResourceDesc(CD3DX12_RESOURCE_DESC::Buffer(size));
             //m_UploadPlacedHeap.PlacedResource()
         }
     }
@@ -61,6 +62,7 @@ private:
 
     vector<UploadBufferPack> m_AllocatedBuffers;
 };
+#endif
 
 
 const CD3DX12_RANGE UploadBuffer::c_ZeroReadRange = CD3DX12_RANGE(0, 0);
@@ -98,7 +100,7 @@ void UploadBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
     Finalize();
 }
 
-void UploadBuffer::WriteToVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
+void UploadBuffer::CopyVertexBuffer(UINT strideSize, const void* vertices)
 {
     ASSERT(m_Resource != nullptr);
     auto bufferSize = m_ResourceDesc.Width;
