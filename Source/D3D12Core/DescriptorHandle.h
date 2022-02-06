@@ -1,11 +1,5 @@
 ﻿#pragma once
 
-// 空描述符地址
-constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_NULL = 0;
-// 未知描述符地址
-constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
-
-
 /**
  * @brief 描述符句柄
 */

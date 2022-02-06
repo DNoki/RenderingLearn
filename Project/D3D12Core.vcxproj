@@ -140,6 +140,7 @@
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
+    <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\Utility.h" />
     <ClInclude Include="..\Source\Shaders\Sample.shader" />
@@ -170,6 +171,7 @@
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Utility.cpp" />
   </ItemGroup>

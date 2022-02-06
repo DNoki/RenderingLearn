@@ -3,6 +3,7 @@
 #include "AppMain.h"
 #include "DescriptorHeap.h"
 #include "GraphicsBuffer.h"
+#include "TextureLoader.h"
 #include "Texture2D.h"
 #include "GpuPlacedHeap.h"
 #include "GraphicsCommon.h"
@@ -27,11 +28,19 @@ namespace SampleResource
     GraphicsBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
-    Texture2D t_DefaultTexture;
+    Texture2D t_DefaultTexture[2];
 
     GpuPlacedHeap g_TexPlacedHeap;
     GpuPlacedHeap g_VertexPlacedHeap;
     GpuPlacedHeap g_UploadPlacedHeap; // TODO 上传堆可以改成全局管理分配模式，按需索取
+
+    UploadBuffer g_MvpBufferRes[2];
+
+    struct MVPBuffer
+    {
+        DirectX::XMFLOAT4X4 m_MVP;
+    };
+    MVPBuffer* g_MVPBuffer[2];
 
 
     void InitRootSignature()
@@ -75,11 +84,11 @@ namespace SampleResource
                 0,
                 0,
                 D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
-            ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
-            ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-            g_RootSignature[0].InitAsDescriptorTable(1, &ranges[0]);
-            g_RootSignature[1].InitAsDescriptorTable(1, &ranges[1]);
-            g_RootSignature[2].InitAsDescriptorTable(1, &ranges[2]);
+            ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+            ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
+
+            for (int i = 0; i < _countof(ranges); i++)
+                g_RootSignature[i].InitAsDescriptorTable(1, &ranges[i]);
         }
 
         g_RootSignature.Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -134,7 +143,7 @@ namespace SampleResource
     void InitTexture2D()
     {
         t_TexDH = DescriptorHeap();
-        t_TexDH.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1);
+        t_TexDH.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
 
         auto texPath = Application::GetAssetPath();
         texPath.append("Shimarin.png");
@@ -142,12 +151,58 @@ namespace SampleResource
         // 创建Checker贴图
         //t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
 
-        // 使用注册方式创建贴图
-        //t_DefaultTexture.DirectCreate(texPath, t_TexDH.GetDescriptorHandle(0));
+        TextureLoader texData;
+        texData.LoadTexture2D(texPath);
 
-        // 使用定位方式创建贴图
-        t_DefaultTexture.Placed(texPath, t_TexDH.GetDescriptorHandle(0), g_TexPlacedHeap, g_UploadPlacedHeap);
+        auto& t1 = t_DefaultTexture[0];
+        //g_TestTex2D.DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t1.PlacedCreate(g_TexPlacedHeap, texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t1.CopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
+        texPath = Application::GetAssetPath();
+        texPath.append(L"云堇.jpg");
+        texData.LoadTexture2D(texPath);
+
+        t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t_DefaultTexture[1].CopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+
+        t_TexDH.BindShaderResourceView(0, t_DefaultTexture[1]);
+
+
+        auto mat = Matrix4x4::Identity;
+        mat._11 = cos(30.0f * 3.1415926f / 180.0f);
+        mat._12 = sin(30.0f * 3.1415926f / 180.0f);
+        mat._21 = -sin(30.0f * 3.1415926f / 180.0f);
+        mat._22 = cos(30.0f * 3.1415926f / 180.0f);
+        auto mvp = MVPBuffer
+        {
+            mat,
+        };
+
+        auto mat2 = mat;
+        mat2._11 = cos(-30.0f * 3.1415926f / 180.0f);
+        mat2._12 = sin(-30.0f * 3.1415926f / 180.0f);
+        mat2._21 = -sin(-30.0f * 3.1415926f / 180.0f);
+        mat2._22 = cos(-30.0f * 3.1415926f / 180.0f);
+        auto mvp2 = MVPBuffer
+        {
+            mat2,
+        };
+
+        auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        //auto constantBufferSize = sizeof(MVPBuffer);
+        {
+            g_MvpBufferRes[0].DirectCreate(constantBufferSize);
+            g_MvpBufferRes[0].Map(0, reinterpret_cast<void**>(&g_MVPBuffer[0]));
+            g_MVPBuffer[0]->m_MVP = mat;
+            //g_MvpBufferRes[0].DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
+            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes[0]);
+
+            g_MvpBufferRes[1].DirectCreate(constantBufferSize);
+            g_MvpBufferRes[1].Map(0, reinterpret_cast<void**>(&g_MVPBuffer[1]));
+            g_MVPBuffer[1]->m_MVP = mat2;
+            //g_MvpBufferRes[1].DispatchCopyBuffer(g_GraphicsCommandList, &mvp2);
+        }
     }
     void InitMesh()
     {
@@ -198,13 +253,25 @@ namespace SampleResource
         useSamplerIndex += Input::KeyDown(KeyCode::Space) ? 1 : 0;
         if (useSamplerIndex >= 8) useSamplerIndex = 0;
 
+        {
+            static int index = 0;
+            index += Input::KeyDown(KeyCode::Enter) ? 1 : 0;
+            if (index > 1) index = 0;
+            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes[index]);
+
+            t_TexDH.BindShaderResourceView(0, t_DefaultTexture[index]);
+        }
 
         // 绑定描述符堆
-        ID3D12DescriptorHeap* ppHeaps[] = { t_TexDH.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
-        commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+        {
+            ID3D12DescriptorHeap* ppHeaps[] = { t_TexDH.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
+            commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-        commandList->SetGraphicsRootDescriptorTable(0, *t_DefaultTexture.GetDescriptorHandle());
-        commandList->SetGraphicsRootDescriptorTable(1, *samplers[useSamplerIndex]);
+            auto rootPrarmIndex = 0;
+            for (UINT i = 0; i < t_TexDH.GetDescriptorsCount(); i++)
+                commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, t_TexDH.GetDescriptorHandle(i));
+            commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, *samplers[useSamplerIndex]);
+        }
 
         //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());

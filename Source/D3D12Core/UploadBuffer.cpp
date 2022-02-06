@@ -67,10 +67,7 @@ private:
 
 const CD3DX12_RANGE UploadBuffer::c_ZeroReadRange = CD3DX12_RANGE(0, 0);
 
-UploadBuffer::UploadBuffer()
-{
-    // TODO
-}
+UploadBuffer::UploadBuffer() : m_VertexBufferView(nullptr) {}
 
 void UploadBuffer::DirectCreate(UINT64 size)
 {
@@ -108,7 +105,7 @@ void UploadBuffer::CopyVertexBuffer(UINT strideSize, const void* vertices)
     UINT8* pVertexDataBegin = nullptr;
     Map(0, reinterpret_cast<void**>(&pVertexDataBegin));
     memcpy(pVertexDataBegin, vertices, bufferSize);
-    UnMap(0);
+    Unmap(0);
 
     // 创建顶点缓冲视图
     m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
@@ -117,12 +114,4 @@ void UploadBuffer::CopyVertexBuffer(UINT strideSize, const void* vertices)
             strideSize });
 
     TRACE(L"WARNING::正在使用上传堆顶点缓冲。");
-}
-
-void UploadBuffer::Finalize()
-{
-    // Resource必须创建以后才可以完成初始化
-    ASSERT(m_Resource != nullptr);
-    m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
-
 }

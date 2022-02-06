@@ -163,6 +163,7 @@ namespace Utility
         if (hr == 0x887a0005)
         {
             auto error = Graphics::g_Device->GetDeviceRemovedReason();
+            // 在即时窗口窗口查看设备移除原因
             ASSERT(0);
         }
         return winrt::check_hresult(hr);
