@@ -81,7 +81,7 @@ void GraphicsBuffer::DispatchCopyBuffer(const CommandList& commandList, const vo
         auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
             m_Resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
         commandList->ResourceBarrier(1, &barriers);
     }
 }
@@ -113,7 +113,7 @@ void GraphicsBuffer::DispatchCopyVertexBuffer(const CommandList& commandList, UI
         auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
             m_Resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
         commandList->ResourceBarrier(1, &barriers);
     }
 

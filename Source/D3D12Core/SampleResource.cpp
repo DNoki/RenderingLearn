@@ -157,14 +157,14 @@ namespace SampleResource
         auto& t1 = t_DefaultTexture[0];
         //g_TestTex2D.DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t1.PlacedCreate(g_TexPlacedHeap, texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t1.CopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+        t1.DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
         texPath = Application::GetAssetPath();
         texPath.append(L"云堇.jpg");
         texData.LoadTexture2D(texPath);
 
         t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t_DefaultTexture[1].CopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+        t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
         t_TexDH.BindShaderResourceView(0, t_DefaultTexture[1]);
 

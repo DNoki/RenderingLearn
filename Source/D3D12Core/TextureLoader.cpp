@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 
 #define STB_IMAGE_IMPLEMENTATION //通过定义STB_IMAGE_IMPLEMENTATION，预处理器会修改头文件，让其只包含相关的函数定义源码，等于是将这个头文件变为一个 .cpp 文件了。
+#define STBI_WINDOWS_UTF8 // STBI 文件路径字符串格式为 UTF8
 #include <stb_image.h>
 
 //#include <wincodec.h> // TODO WIC库加载图片
@@ -21,7 +22,7 @@ void TextureLoader::LoadTexture2D(const Path& path)
     int nrChannels;
 
     stbi_set_flip_vertically_on_load(true);// 翻转纹理
-    auto string_path = Utility::ToAnsi(path.c_str());
+    auto string_path = Utility::ToUtf8(path.c_str());
     UINT8* data = stbi_load(string_path.c_str(), &m_Width, &m_Height, &nrChannels, 0);
     int pixilCount = m_Width * m_Height;
 
