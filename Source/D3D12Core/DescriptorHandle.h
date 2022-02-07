@@ -1,11 +1,5 @@
 ﻿#pragma once
 
-// 空描述符地址
-constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_NULL = 0;
-// 未知描述符地址
-constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
-
-
 /**
  * @brief 描述符句柄
 */
@@ -40,11 +34,10 @@ public:
             m_GpuHandle.ptr += OffsetScaledByDescriptorSize;
     }
 
-    operator D3D12_CPU_DESCRIPTOR_HANDLE() const { return m_CpuHandle; }
-    operator D3D12_GPU_DESCRIPTOR_HANDLE() const { return m_GpuHandle; }
-
-    inline const D3D12_CPU_DESCRIPTOR_HANDLE* GetCpuHandle() const { return &m_CpuHandle; }
-    inline const D3D12_GPU_DESCRIPTOR_HANDLE* GetGpuHandle() const { return &m_GpuHandle; }
+    operator D3D12_CPU_DESCRIPTOR_HANDLE () const { return m_CpuHandle; }
+    operator D3D12_GPU_DESCRIPTOR_HANDLE () const { return m_GpuHandle; }
+    operator const D3D12_CPU_DESCRIPTOR_HANDLE* () const { return &m_CpuHandle; }
+    operator const D3D12_GPU_DESCRIPTOR_HANDLE* () const { return &m_GpuHandle;; }
 
     /**
      * @brief 是否是着色器可见描述符

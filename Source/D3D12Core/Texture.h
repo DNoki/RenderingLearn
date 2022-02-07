@@ -1,7 +1,9 @@
 ﻿#pragma once
 
-#include "GraphicsResource.h"
+#include "IResource.h"
 
+#if 0
+#include "GraphicsResource.h"
 // TODO 将贴图从 GraphicsResource 类解耦出来？
 
 class Texture : public GraphicsResource
@@ -27,6 +29,26 @@ public:
 
     void Create(const D3D12_RENDER_TARGET_VIEW_DESC* pDesc, const DescriptorHandle& pDescriptorHandle, UINT width, UINT height);
     void CreateFromSwapChain(UINT index, const D3D12_RENDER_TARGET_VIEW_DESC* pDesc, const DescriptorHandle& pDescriptorHandle);
+
+protected:
+    std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc;
+
+};
+#endif
+
+/**
+ * @brief 渲染贴图
+*/
+class RenderTexture : public ITexture
+{
+public:
+    RenderTexture() = default;
+
+    inline const D3D12_RENDER_TARGET_VIEW_DESC* GetRtvDesc() const { return m_RtvDesc.get(); }
+
+    void DirectCreate(); // TODO
+    void PlacedCreate(GpuPlacedHeap& pPlacedHeap); // TODO
+    void GetFromSwapChain(UINT index);
 
 protected:
     std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc;

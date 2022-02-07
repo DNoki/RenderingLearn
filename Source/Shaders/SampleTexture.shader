@@ -18,8 +18,8 @@ PSInput VSMain(float4 position : POSITION, float4 uv : TEXCOORD)
 {
     PSInput result;
 
-    result.position = position;
-    //result.position = mul(position, m_MVP);
+    //result.position = position;
+    result.position = mul(m_MVP, position);
     result.color = float(0.0f).xxxx;
     result.uv = uv;
 

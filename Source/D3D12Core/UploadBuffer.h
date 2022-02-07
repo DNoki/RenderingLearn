@@ -7,7 +7,7 @@ class GpuPlacedHeap;
 /**
  * @brief 上传堆缓冲
 */
-class UploadBuffer : public IResource
+class UploadBuffer : public IBufferResource
 {
 public:
     // --------------------------------------------------------------------------
@@ -18,24 +18,24 @@ public:
      * @brief 获取缓冲大小
      * @return
     */
-    inline UINT64 GetBufferSize() { return m_ResourceDesc.Width; }
+    inline UINT64 GetBufferSize() const { return m_ResourceDesc.Width; }
 
     // --------------------------------------------------------------------------
     /**
      * @brief 创建一个上传堆并为其分配内存
      * @param size
     */
-    void DirectCreate(UINT64 size);
+    void DirectCreate(UINT64 size) override;
     /**
      * @brief 使用定位方式创建一个上传堆
      * @param size
      * @param pPlacedHeap
     */
-    void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap);
+    void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap) override;
 
     /**
      * @brief 向上传堆拷贝顶点缓冲（立即）
-     * @param strideSize
+     * @param strideSize 单个顶点数据结构大小
      * @param vertexCount
      * @param vertices
     */
@@ -56,7 +56,7 @@ public:
      * @brief 使指向资源中指定子资源的 CPU 指针无效
      * @param Subresource 子资源的索引
     */
-    inline void UnMap(UINT Subresource) const { m_Resource->Unmap(Subresource, &c_ZeroReadRange); }
+    inline void Unmap(UINT Subresource) const { m_Resource->Unmap(Subresource, &c_ZeroReadRange); }
 
 
     // --------------------------------------------------------------------------
@@ -73,11 +73,5 @@ private:
     // Map 时指示 CPU 不可读取上传堆资源
     static const CD3DX12_RANGE c_ZeroReadRange;
 
-    // GPU 内存中的虚拟地址
-    // IBV、VBV 等直接调用资源类型时使用
-    D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress;
-
     std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferView;
-
-    void Finalize();
 };

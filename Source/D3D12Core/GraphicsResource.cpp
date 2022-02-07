@@ -80,6 +80,7 @@
 // --------------------------------------------------------------------------
 
 
+#if 0
 //int III = 0;
 void GraphicsResource::Finalize(const DescriptorHandle* descriptorHandle)
 {
@@ -93,3 +94,5 @@ void GraphicsResource::Finalize(const DescriptorHandle* descriptorHandle)
 
     //m_Resource->SetName(nameW);
 }
+
+#endif

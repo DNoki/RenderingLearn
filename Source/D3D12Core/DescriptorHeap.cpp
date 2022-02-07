@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 
+#include "IResource.h"
+#include "Texture.h"
 #include "GraphicsCore.h"
 
 #include "DescriptorHeap.h"
@@ -70,8 +72,40 @@ void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count)
     };
 }
 
-DescriptorHandle DescriptorHeap::GetDescriptorHandle(UINT index)
+DescriptorHandle DescriptorHeap::GetDescriptorHandle(UINT index) const
 {
     ASSERT(0 <= index || index < GetDescriptorsCount());
     return m_StartDescriptorHandle + index * m_DescriptorSize;
+}
+
+void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& resource)
+{
+    ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
+    cbvDesc.BufferLocation = resource.GetGpuVirtualAddress();
+    // 常量缓冲视图要求对齐到 256
+    cbvDesc.SizeInBytes = UINT_UPPER(resource.GetBufferSize(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+
+    ASSERT(resource.GetBufferSize() == cbvDesc.SizeInBytes, L"WARNING::常量缓冲资源大小未对齐到256。");
+
+    g_Device->CreateConstantBufferView(&cbvDesc, GetDescriptorHandle(index));
+}
+
+void DescriptorHeap::BindShaderResourceView(int index, const ITexture& resource)
+{
+    ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Format = resource.GetResourceDesc().Format;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels = 1;
+
+    g_Device->CreateShaderResourceView(resource.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
+}
+
+void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& resource)
+{
+    g_Device->CreateRenderTargetView(resource.GetD3D12Resource(), resource.GetRtvDesc(), GetDescriptorHandle(index));
 }

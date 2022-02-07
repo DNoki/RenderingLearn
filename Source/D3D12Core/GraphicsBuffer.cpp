@@ -23,7 +23,7 @@
 using namespace Graphics;
 
 
-GraphicsBuffer::GraphicsBuffer() : m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL), m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
+GraphicsBuffer::GraphicsBuffer() : m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
 
 void GraphicsBuffer::DirectCreate(UINT64 size)
 {
@@ -54,6 +54,38 @@ void GraphicsBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
     Finalize();
 }
 
+void GraphicsBuffer::DispatchCopyBuffer(const CommandList& commandList, const void* data)
+{
+    ASSERT(m_Resource != nullptr);
+    auto bufferSize = m_ResourceDesc.Width;
+
+    // 创建上传缓冲
+    m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+    m_UploadBuffer->DirectCreate(bufferSize);
+
+    // 添加拷贝命令到命令队列
+    {
+        // 使用 UpdateSubresources 拷贝资源
+        D3D12_SUBRESOURCE_DATA srcData = {};
+        srcData.pData = data;
+        srcData.RowPitch = bufferSize;
+        srcData.SlicePitch = bufferSize;
+        UpdateSubresources(
+            commandList.GetD3D12CommandList(),
+            m_Resource.get(),
+            m_UploadBuffer->GetD3D12Resource(),
+            0, 0, 1,
+            &srcData);
+
+        // 等待拷贝完成
+        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
+            m_Resource.get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
+        commandList->ResourceBarrier(1, &barriers);
+    }
+}
+
 void GraphicsBuffer::DispatchCopyVertexBuffer(const CommandList& commandList, UINT strideSize, const void* vertices)
 {
     ASSERT(m_Resource != nullptr);
@@ -81,7 +113,7 @@ void GraphicsBuffer::DispatchCopyVertexBuffer(const CommandList& commandList, UI
         auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
             m_Resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
         commandList->ResourceBarrier(1, &barriers);
     }
 
@@ -168,10 +200,3 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
             strideSize });
 }
 #endif
-
-void GraphicsBuffer::Finalize()
-{
-    // Resource必须创建以后才可以完成初始化
-    ASSERT(m_Resource != nullptr);
-    m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
-}

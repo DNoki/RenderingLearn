@@ -2,7 +2,7 @@
 
 #include "IResource.h"
 #include "DescriptorHandle.h"
-
+#if 0
 /**
  * @brief GPU 资源
 */
@@ -26,3 +26,4 @@ protected:
     GraphicsResource() :m_DescriptorHandle() {}
 };
 
+#endif

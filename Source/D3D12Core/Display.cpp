@@ -107,8 +107,8 @@ namespace Display
         for (UINT i = 0; i < SWAP_FRAME_BACK_BUFFER_COUNT; i++)
         {
             g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
-            auto& rt = g_RenderTargets[i];
-            rt->CreateFromSwapChain(i, nullptr, g_RTVDescriptorHeap->GetDescriptorHandle(i));
+            g_RenderTargets[i]->GetFromSwapChain(i);
+            g_RTVDescriptorHeap->BindRenderTargetView(i, *g_RenderTargets[i]);
         }
 
         g_SwapChain->Present(1, 0); // 交换一次缓冲，使黑色填充屏幕

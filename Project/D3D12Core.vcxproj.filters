@@ -30,6 +30,7 @@
     <ClInclude Include="..\Source\D3D12Core\Input.h" />
     <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\IResource.h" />
+    <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -55,6 +56,7 @@
     <ClCompile Include="..\Source\D3D12Core\Input.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\IResource.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
