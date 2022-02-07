@@ -4,6 +4,7 @@
 
 class IBufferResource;
 class ITexture;
+class RenderTexture;
 
 /**
  * @brief 描述符堆
@@ -52,16 +53,18 @@ public:
 
     /**
      * @brief 绑定常量缓冲资源
-     * @param index 
-     * @param resource 
+     * @param index
+     * @param resource
     */
     void BindConstantBufferView(int index, const IBufferResource& resource);
     /**
      * @brief 绑定纹理资源
-     * @param index 
-     * @param resource 
+     * @param index
+     * @param resource
     */
     void BindShaderResourceView(int index, const ITexture& resource);
+
+    void BindRenderTargetView(int index, const RenderTexture& resource);
 
 private:
     winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap;        // 描述符堆

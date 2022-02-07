@@ -134,8 +134,8 @@ namespace Graphics
         for (UINT i = 0; i < Display::SWAP_FRAME_BACK_BUFFER_COUNT; i++)
         {
             g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
-            auto& rt = g_RenderTargets[i];
-            rt->CreateFromSwapChain(i, nullptr, g_RTVDescriptorHeap->GetDescriptorHandle(i));
+            g_RenderTargets[i]->GetFromSwapChain(i);
+            g_RTVDescriptorHeap->BindRenderTargetView(i, *g_RenderTargets[i]);
         }
 
         // --------------------------------------------------------------------------
@@ -192,11 +192,11 @@ namespace Graphics
             g_GraphicsCommandList->ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            g_GraphicsCommandList->OMSetRenderTargets(1, currentRenderTarget.GetDescriptorHandle()->GetCpuHandle(), FALSE, nullptr);
+            g_GraphicsCommandList->OMSetRenderTargets(1, g_RTVDescriptorHeap->GetDescriptorHandle(g_CurrentBackBufferIndex), FALSE, nullptr);
 
             // 记录命令
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-            g_GraphicsCommandList->ClearRenderTargetView(*(currentRenderTarget.GetDescriptorHandle()), clearColor, 0, nullptr);
+            g_GraphicsCommandList->ClearRenderTargetView(g_RTVDescriptorHeap->GetDescriptorHandle(g_CurrentBackBufferIndex), clearColor, 0, nullptr);
 
             SampleResource::SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
 

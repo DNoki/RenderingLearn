@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 
 #include "IResource.h"
+#include "Texture.h"
 #include "GraphicsCore.h"
 
 #include "DescriptorHeap.h"
@@ -102,4 +103,9 @@ void DescriptorHeap::BindShaderResourceView(int index, const ITexture& resource)
     srvDesc.Texture2D.MipLevels = 1;
 
     g_Device->CreateShaderResourceView(resource.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
+}
+
+void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& resource)
+{
+    g_Device->CreateRenderTargetView(resource.GetD3D12Resource(), resource.GetRtvDesc(), GetDescriptorHandle(index));
 }

@@ -42,12 +42,13 @@ protected:
 class RenderTexture : public ITexture
 {
 public:
-    RenderTexture();
+    RenderTexture() = default;
+
+    inline const D3D12_RENDER_TARGET_VIEW_DESC* GetRtvDesc() const { return m_RtvDesc.get(); }
 
     void DirectCreate(); // TODO
     void PlacedCreate(GpuPlacedHeap& pPlacedHeap); // TODO
-    //void Create(const D3D12_RENDER_TARGET_VIEW_DESC* pDesc, const DescriptorHandle& pDescriptorHandle, UINT width, UINT height);
-    void CreateFromSwapChain(UINT index, const D3D12_RENDER_TARGET_VIEW_DESC* pDesc);
+    void GetFromSwapChain(UINT index);
 
 protected:
     std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc;

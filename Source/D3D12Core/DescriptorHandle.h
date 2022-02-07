@@ -34,11 +34,10 @@ public:
             m_GpuHandle.ptr += OffsetScaledByDescriptorSize;
     }
 
-    operator D3D12_CPU_DESCRIPTOR_HANDLE() const { return m_CpuHandle; }
-    operator D3D12_GPU_DESCRIPTOR_HANDLE() const { return m_GpuHandle; }
-
-    inline const D3D12_CPU_DESCRIPTOR_HANDLE* GetCpuHandle() const { return &m_CpuHandle; }
-    inline const D3D12_GPU_DESCRIPTOR_HANDLE* GetGpuHandle() const { return &m_GpuHandle; }
+    operator D3D12_CPU_DESCRIPTOR_HANDLE () const { return m_CpuHandle; }
+    operator D3D12_GPU_DESCRIPTOR_HANDLE () const { return m_GpuHandle; }
+    operator const D3D12_CPU_DESCRIPTOR_HANDLE* () const { return &m_CpuHandle; }
+    operator const D3D12_GPU_DESCRIPTOR_HANDLE* () const { return &m_GpuHandle;; }
 
     /**
      * @brief 是否是着色器可见描述符
