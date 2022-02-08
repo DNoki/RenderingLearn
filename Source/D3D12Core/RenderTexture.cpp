@@ -47,12 +47,12 @@ void RenderTexture::CreateFromSwapChain(UINT index, const D3D12_RENDER_TARGET_VI
 
 #endif
 
-void RenderTexture::GetFromSwapChain(UINT index)
+void RenderTexture::GetFromSwapChain(const SwapChain& swapChain, UINT index)
 {
     ASSERT(m_Resource == nullptr);
 
     m_RtvDesc = nullptr;
-    CHECK_HRESULT(g_SwapChain->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
+    CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
 
     m_ResourceDesc = m_Resource->GetDesc();
 }

@@ -214,7 +214,7 @@ namespace SampleResource
             Vector2 uv;
         };
 
-        auto m_aspectRatio = Display::GetScreenAspect();
+        auto m_aspectRatio = g_SwapChain.GetScreenAspect();
         auto meshSize = 0.5f;
         Vertex vertices[] =
         {

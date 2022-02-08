@@ -78,7 +78,7 @@ DescriptorHandle DescriptorHeap::GetDescriptorHandle(UINT index) const
     return m_StartDescriptorHandle + index * m_DescriptorSize;
 }
 
-void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& buffer)
+void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& buffer) const
 {
     ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
@@ -92,7 +92,7 @@ void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& bu
     g_Device->CreateConstantBufferView(&cbvDesc, GetDescriptorHandle(index));
 }
 
-void DescriptorHeap::BindShaderResourceView(int index, const ITexture& tex)
+void DescriptorHeap::BindShaderResourceView(int index, const ITexture& tex) const
 {
     ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
@@ -105,7 +105,7 @@ void DescriptorHeap::BindShaderResourceView(int index, const ITexture& tex)
     g_Device->CreateShaderResourceView(tex.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
 }
 
-void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& renderTex)
+void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& renderTex) const
 {
     g_Device->CreateRenderTargetView(renderTex.GetD3D12Resource(), renderTex.GetRtvDesc(), GetDescriptorHandle(index));
 }

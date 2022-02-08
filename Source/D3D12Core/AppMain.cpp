@@ -96,7 +96,7 @@ namespace Application
         {
             UINT width = LOWORD(lParam);
             UINT height = HIWORD(lParam);
-            Display::Resize(width, height); // TODO 不应该再实时窗口改变时重置窗口大小，考虑放到每帧开始渲染时修改
+            Graphics::g_SwapChain.Resize(width, height); // TODO 不应该再实时窗口改变时重置窗口大小，考虑放到每帧开始渲染时修改
         }
         break;
 
