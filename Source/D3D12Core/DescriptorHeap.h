@@ -56,15 +56,15 @@ public:
      * @param index
      * @param resource
     */
-    void BindConstantBufferView(int index, const IBufferResource& resource);
+    void BindConstantBufferView(int index, const IBufferResource& buffer);
     /**
      * @brief 绑定纹理资源
      * @param index
      * @param resource
     */
-    void BindShaderResourceView(int index, const ITexture& resource);
+    void BindShaderResourceView(int index, const ITexture& tex);
 
-    void BindRenderTargetView(int index, const RenderTexture& resource);
+    void BindRenderTargetView(int index, const RenderTexture& renderTex);
 
 private:
     winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap;        // 描述符堆

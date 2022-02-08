@@ -3,7 +3,7 @@
 #include "GraphicsCore.h"
 #include "Display.h"
 
-#include "Texture.h"
+#include "RenderTexture.h"
 
 
 

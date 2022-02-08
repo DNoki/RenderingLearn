@@ -2,6 +2,7 @@
 
 #include "DescriptorHeap.h"
 #include "Texture2D.h"
+#include "RenderTexture.h"
 #include "GraphicsCommon.h"
 
 #include "PipelineState.h"
