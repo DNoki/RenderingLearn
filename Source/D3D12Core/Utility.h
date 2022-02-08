@@ -52,11 +52,13 @@ namespace Utility
 class ShaderUtility
 {
 public:
+#if DEBUG
     inline static HRESULT CompileVSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
     inline static HRESULT CompilePSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
     inline static HRESULT CompileGSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::GEOMETRY_SHADER, pFileName, ppCode); }
     inline static HRESULT CompileHSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
     inline static HRESULT CompileDSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
+#endif
 
     inline static HRESULT ReadVSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
     inline static HRESULT ReadPSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
@@ -74,6 +76,7 @@ private:
         DOMAIN_SHADER,
     };
 
+#if DEBUG
     /**
      * @brief 运行期编译着色器代码
      * @param type
@@ -82,6 +85,7 @@ private:
      * @return
     */
     static HRESULT CompileFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode);
+#endif
     static HRESULT ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode);
 
 };

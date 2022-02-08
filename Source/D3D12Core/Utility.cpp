@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#include <d3dcompiler.h>
 //#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
 
 #include "GraphicsCore.h"
@@ -171,13 +172,7 @@ namespace Utility
 }
 
 
-
 #if DEBUG
-#include <d3dcompiler.h>
-
-using namespace winrt;
-
-
 HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode)
 {
     static const string ShaderModel = "5_1";
@@ -207,7 +202,7 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlo
 #endif // DEBUG
 
     HRESULT compileResult;
-    com_ptr<ID3DBlob> errorBlob;
+    winrt::com_ptr<ID3DBlob> errorBlob;
 
     // #define D3D_COMPILE_STANDARD_FILE_INCLUDE ((ID3DInclude*)(UINT_PTR)1)
     // D3D_COMPILE_STANDARD_FILE_INCLUDE 可以在任何 API 中为 pInclude 传递，并指示应该使用简单的默认包含处理程序。 包含处理程序将包含与当前目录相关的文件和与初始源文件目录相关的文件。 当与 D3DCompile 之类的 API 一起使用时，pSourceName 必须是文件名，并且初始相对目录将从它派生。
@@ -230,6 +225,7 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlo
 
     return compileResult;
 }
+#endif
 
 HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode)
 {
@@ -273,7 +269,7 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob**
     file.seekg(0, ios_base::end);
     auto size = file.tellg();
     file.seekg(0, ios_base::beg);
-
+    
     auto hresult = D3DCreateBlob(size, ppCode);
     CHECK_HRESULT(hresult);
 
@@ -282,5 +278,4 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob**
 
     return hresult;
 }
-#endif
 
