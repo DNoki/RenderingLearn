@@ -3,7 +3,7 @@
 /**
  * @brief 描述符句柄
 */
-struct DescriptorHandle
+class DescriptorHandle
 {
 public:
     /**

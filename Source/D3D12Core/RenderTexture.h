@@ -2,6 +2,8 @@
 
 #include "IResource.h"
 
+class SwapChain;
+
 #if 0
 #include "GraphicsResource.h"
 // TODO 将贴图从 GraphicsResource 类解耦出来？
@@ -48,7 +50,7 @@ public:
 
     void DirectCreate(); // TODO
     void PlacedCreate(GpuPlacedHeap& pPlacedHeap); // TODO
-    void GetFromSwapChain(UINT index);
+    void GetFromSwapChain(const SwapChain& swapChain, UINT index);
 
 protected:
     std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc;

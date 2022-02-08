@@ -2,6 +2,7 @@
 
 #include "DescriptorHeap.h"
 #include "Texture2D.h"
+#include "RenderTexture.h"
 #include "GraphicsCommon.h"
 
 #include "PipelineState.h"
@@ -18,7 +19,6 @@
 
 using namespace winrt;
 using namespace std;
-using namespace Display;
 
 
 namespace Graphics
@@ -26,10 +26,7 @@ namespace Graphics
     com_ptr<IDXGIFactory7> g_Factory;
     com_ptr<IDXGIAdapter4> g_Adapter;
     com_ptr<ID3D12Device6> g_Device;
-    com_ptr<IDXGISwapChain4> g_SwapChain;
-
-    unique_ptr<DescriptorHeap> g_RTVDescriptorHeap;
-    vector<unique_ptr<RenderTexture>> g_RenderTargets;
+    SwapChain g_SwapChain;
 
     CommandQueue g_GraphicsCommandQueue;
     CommandQueue g_ComputeCommandQueue;
@@ -123,20 +120,8 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 初始化交换链
-        Display::Initialize();
-        // --------------------------------------------------------------------------
-        // 创建描述符堆
-        g_RTVDescriptorHeap = unique_ptr<DescriptorHeap>(new DescriptorHeap());
-        g_RTVDescriptorHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, Display::SWAP_FRAME_BACK_BUFFER_COUNT);
-        // --------------------------------------------------------------------------
-        // 创建RTV描述符  RTV（渲染目标视图）
-        g_RenderTargets.clear();
-        for (UINT i = 0; i < Display::SWAP_FRAME_BACK_BUFFER_COUNT; i++)
-        {
-            g_RenderTargets.push_back(unique_ptr<RenderTexture>(new RenderTexture()));
-            g_RenderTargets[i]->GetFromSwapChain(i);
-            g_RTVDescriptorHeap->BindRenderTargetView(i, *g_RenderTargets[i]);
-        }
+        g_SwapChain.CreateForHwnd(Application::g_Hwnd, SWAP_FRAME_BACK_BUFFER_COUNT, SWAP_CHAIN_RENDER_TARGET_FORMAT);
+
 
         // --------------------------------------------------------------------------
         // 初始化共通动态采样器
@@ -173,7 +158,7 @@ namespace Graphics
         // 填充命令列表
         {
             // 获取当前后台缓冲索引
-            g_CurrentBackBufferIndex = g_SwapChain->GetCurrentBackBufferIndex();
+            auto cbbi = g_SwapChain.GetCurrentBackBufferIndex();
 
             // 重置命令列表
             g_GraphicsCommandList.Reset(&SampleResource::g_PipelineState);
@@ -181,22 +166,22 @@ namespace Graphics
 
             // 设置必要的状态。
             g_GraphicsCommandList->SetGraphicsRootSignature(SampleResource::g_PipelineState.GetD3D12RootSignature());
-            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(Display::GetScreenWidth()), static_cast<float>(Display::GetScreenHeight()));
+            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(g_SwapChain.GetWidth()), static_cast<float>(g_SwapChain.GetHeight()));
             g_GraphicsCommandList->RSSetViewports(1, &viewport);
-            auto scissorRect = CD3DX12_RECT(0, 0, Display::GetScreenWidth(), Display::GetScreenHeight());
+            auto scissorRect = CD3DX12_RECT(0, 0, g_SwapChain.GetWidth(), g_SwapChain.GetHeight());
             g_GraphicsCommandList->RSSetScissorRects(1, &scissorRect);
 
             // 指示后台缓冲区将用作渲染目标。
-            auto& currentRenderTarget = *(g_RenderTargets[g_CurrentBackBufferIndex].get());
+            auto& currentRenderTarget = g_SwapChain.GetBackBuffer(cbbi);
             auto barriers1 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
             g_GraphicsCommandList->ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            g_GraphicsCommandList->OMSetRenderTargets(1, g_RTVDescriptorHeap->GetDescriptorHandle(g_CurrentBackBufferIndex), FALSE, nullptr);
+            g_GraphicsCommandList->OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, nullptr); // TODO 实现多目标渲染
 
             // 记录命令
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-            g_GraphicsCommandList->ClearRenderTargetView(g_RTVDescriptorHeap->GetDescriptorHandle(g_CurrentBackBufferIndex), clearColor, 0, nullptr);
+            g_GraphicsCommandList->ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
 
             SampleResource::SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
 
@@ -208,7 +193,7 @@ namespace Graphics
         g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);
 
         // 呈现帧。
-        CHECK_HRESULT(g_SwapChain->Present(1, 0));
+        CHECK_HRESULT(g_SwapChain.GetD3D12SwapChain()->Present(1, 0));
 
         g_GraphicsCommandQueue.WaitForQueueCompleted();
 

@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include "Texture.h"
 #include "UploadBuffer.h"
 
 class CommandList;

@@ -10,11 +10,10 @@
     <ClInclude Include="..\Source\D3D12Core\RootSignature.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h" />
-    <ClInclude Include="..\Source\D3D12Core\GraphicsResource.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
-    <ClInclude Include="..\Source\D3D12Core\Texture.h" />
+    <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
     <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
@@ -42,11 +41,10 @@
     <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GraphicsResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Texture.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />

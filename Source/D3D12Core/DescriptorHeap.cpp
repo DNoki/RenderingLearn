@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 
 #include "IResource.h"
-#include "Texture.h"
+#include "RenderTexture.h"
 #include "GraphicsCore.h"
 
 #include "DescriptorHeap.h"
@@ -78,34 +78,34 @@ DescriptorHandle DescriptorHeap::GetDescriptorHandle(UINT index) const
     return m_StartDescriptorHandle + index * m_DescriptorSize;
 }
 
-void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& resource)
+void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& buffer) const
 {
     ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc{};
-    cbvDesc.BufferLocation = resource.GetGpuVirtualAddress();
+    cbvDesc.BufferLocation = buffer.GetGpuVirtualAddress();
     // 常量缓冲视图要求对齐到 256
-    cbvDesc.SizeInBytes = UINT_UPPER(resource.GetBufferSize(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+    cbvDesc.SizeInBytes = UINT_UPPER(buffer.GetBufferSize(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-    ASSERT(resource.GetBufferSize() == cbvDesc.SizeInBytes, L"WARNING::常量缓冲资源大小未对齐到256。");
+    ASSERT(buffer.GetBufferSize() == cbvDesc.SizeInBytes, L"WARNING::常量缓冲资源大小未对齐到256。");
 
     g_Device->CreateConstantBufferView(&cbvDesc, GetDescriptorHandle(index));
 }
 
-void DescriptorHeap::BindShaderResourceView(int index, const ITexture& resource)
+void DescriptorHeap::BindShaderResourceView(int index, const ITexture& tex) const
 {
     ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.Format = resource.GetResourceDesc().Format;
+    srvDesc.Format = tex.GetResourceDesc().Format;
     srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels = 1;
 
-    g_Device->CreateShaderResourceView(resource.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
+    g_Device->CreateShaderResourceView(tex.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
 }
 
-void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& resource)
+void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& renderTex) const
 {
-    g_Device->CreateRenderTargetView(resource.GetD3D12Resource(), resource.GetRtvDesc(), GetDescriptorHandle(index));
+    g_Device->CreateRenderTargetView(renderTex.GetD3D12Resource(), renderTex.GetRtvDesc(), GetDescriptorHandle(index));
 }
