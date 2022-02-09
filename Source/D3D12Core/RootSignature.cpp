@@ -74,5 +74,9 @@ void RootSignature::Finalize(D3D12_ROOT_SIGNATURE_FLAGS Flags)
         pSignature.put(),
         pErrorSignature.put()
     ));
+
+    if (pErrorSignature)
+        TRACE((char*)pErrorSignature->GetBufferPointer());
+
     CHECK_HRESULT(g_Device->CreateRootSignature(1, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
 }

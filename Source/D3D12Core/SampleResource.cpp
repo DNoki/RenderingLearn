@@ -74,10 +74,10 @@ namespace SampleResource
         //}
 
         // 使用动态采样器
+        CD3DX12_DESCRIPTOR_RANGE1 ranges[3]{};
         {
             g_RootSignature.Reset(3, 0);
 
-            CD3DX12_DESCRIPTOR_RANGE1 ranges[3]{};
             ranges[0].Init(
                 D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
                 1,

@@ -35,12 +35,17 @@
 #ifdef DEBUG
 #include <dxgidebug.h>
 #endif
-// Direct3D 12 的帮助程序结构 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/helper-structures-for-d3d12
-#include <d3dx12.h> 
 
 // --------------------------------------------------------------------------
 // DXGI https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dx-graphics-dxgi
 #include <dxgi1_6.h>
+
+// --------------------------------------------------------------------------
+// Direct3D 12 的帮助程序结构 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/helper-structures-for-d3d12
+#define D3DX12_NO_STATE_OBJECT_HELPERS
+#define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
+#include <d3dx12.h> 
+
 
 // --------------------------------------------------------------------------
 // DirectXTK12 工具包 https://github.com/Microsoft/DirectXTK12
