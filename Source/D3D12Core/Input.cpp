@@ -75,5 +75,5 @@ void Input::BeforeUpdate()
 
     auto mousePos = GetMousePosition();
     if (Input::MouseButtonState(MouseButtonType::LeftButton))
-        TRACE("%f, %f\n", mousePos.x, mousePos.y);
+        TRACE(L"%f, %f\n", mousePos.x, mousePos.y);
 }

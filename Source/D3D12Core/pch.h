@@ -33,7 +33,8 @@
 // Direct3D 12 图形 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/direct3d-12-graphics
 #include <d3d12.h>
 #ifdef DEBUG
-#include <dxgidebug.h>
+#include <atltrace.h>   // 用于向VC窗口输出调试信息
+#include <dxgidebug.h>  // DXGI 调试库
 #endif
 
 // --------------------------------------------------------------------------
@@ -85,26 +86,32 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 
 #pragma warning(disable:26812) // 禁用 Enum 警告
 
-// 输出调试信息
-#define TRACE(...) Utility::Trace(__VA_ARGS__);
-//#define TRACE_FORMAT(msg, ...) Utility::TraceFormat(msg, ...);
+// 输出调试信息到控制台
+#define TRACE(...) Utility::Trace(__VA_ARGS__)
+// 输出调试信息到 VC 输出面板
+#define TRACE_VC(...) ATLTRACE(__VA_ARGS__)
 
 // 当表达式为 False 时阻断程序
+#if 0
+#define ASSERT(isFalse, ...) assert(isFalse);
+#else
 #define ASSERT(isFalse, ...) \
         if (!(bool)(isFalse)) { \
-            TRACE(L"\'" #isFalse "\' is false \n"); \
+            TRACE(L"ERROR::\'" #isFalse "\' is false."); \
             TRACE(__VA_ARGS__); \
             TRACE(L"\n"); \
             DebugBreak(); \
         }
+#endif
 
+// 检查 HR 返回代码
 #define CHECK_HRESULT(hr) Utility::CheckHresult(hr);
 
 #else
 
-#define TRACE(...)
-#define ASSERT(isFalse, ...)
-#define CHECK_HRESULT(hr)
+#define TRACE(...) ((void)0)
+#define ASSERT(isFalse, ...) ((void)0)
+#define CHECK_HRESULT(hr) hr
 
 #endif // DEBUG
 

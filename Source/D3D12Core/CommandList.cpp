@@ -30,7 +30,7 @@ CommandList::CommandList() : m_Type(), m_CommandAllocator(), m_CommandList(), m_
 
 void CommandList::Create(D3D12_COMMAND_LIST_TYPE type)
 {
-    ASSERT(type != D3D12_COMMAND_LIST_TYPE_BUNDLE, L"命令列表暂不支持指定类型。");
+    ASSERT(type != D3D12_COMMAND_LIST_TYPE_BUNDLE, L"ERROR::命令列表暂不支持指定类型。");
     m_Type = type;
 
     // 创建命令列表

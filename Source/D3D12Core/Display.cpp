@@ -91,7 +91,7 @@ void SwapChain::Resize(UINT width, UINT height)
     // TODO 需要在这里等待指令队列完成
     g_GraphicsCommandQueue.WaitForQueueCompleted();
 
-    TRACE("Changing display resolution to %ux%u", m_SwapChainDesc.Width, m_SwapChainDesc.Height);
+    TRACE(L"Changing display resolution to %ux%u", m_SwapChainDesc.Width, m_SwapChainDesc.Height);
 }
 
 void SwapChain::RebuildRenderTargets()

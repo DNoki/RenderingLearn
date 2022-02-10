@@ -138,7 +138,9 @@ namespace Application
         wcex.lpszMenuName = nullptr;
         wcex.lpszClassName = title.c_str();
         wcex.hIconSm = LoadIcon(hInstance, IDI_APPLICATION);
-        ASSERT(0 != RegisterClassEx(&wcex), "Unable to register a window");
+
+        ATOM registerResult = RegisterClassEx(&wcex);
+        ASSERT(0 != registerResult, L"ERROR::Unable to register a window");
 
         // --------------------------------------------------------------------------
         // 调整窗口大小
@@ -181,7 +183,7 @@ namespace Application
             while (g_ProjectPath.filename() != "RenderingLearn")
             {
                 if (!g_ProjectPath.has_parent_path())
-                    ASSERT(0, L"未能找到项目路径");
+                    ASSERT(0, L"ERROR::未能找到项目路径");
                 g_ProjectPath = g_ProjectPath.parent_path();
             }
             g_AssetPath = g_ProjectPath;
@@ -241,9 +243,11 @@ using namespace Application;
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ TCHAR* /*lpCmdLine*/, _In_ int nCmdShow)
 {
+#if DEBUG
     cout.imbue(locale(".utf8"));
     wcout.imbue(locale(".utf8"));
     system("chcp 65001");
+#endif
 
     auto result = RunApplication(hInstance, nCmdShow);
 

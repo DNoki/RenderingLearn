@@ -57,7 +57,7 @@ public:
             queqe = &m_CopyIdleQueue;
             break;
         default:
-            ASSERT(0, L"不支持的命令分配器类型");
+            ASSERT(0, L"ERROR::不支持的命令分配器类型");
             return result;
         }
 
@@ -95,7 +95,7 @@ public:
         case D3D12_COMMAND_LIST_TYPE_COPY:
             queqe = &m_CopyIdleQueue;
             break;
-        default: ASSERT(0, L"不支持的命令分配器类型"); break;
+        default: ASSERT(0, L"ERROR::不支持的命令分配器类型"); break;
         }
 
         queqe->push(ca);

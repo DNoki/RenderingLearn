@@ -92,7 +92,7 @@ namespace Graphics
         }
         if (MaxSize > 0)
             g_Device = move(pDevice);
-        ASSERT(g_Device != nullptr, L"D3D12设备对象创建失败");
+        ASSERT(g_Device != nullptr, L"ERROR::D3D12设备对象创建失败");
 
         DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{}; // TODO 描述当前的GPU内存预算参数
         CHECK_HRESULT(g_Adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));

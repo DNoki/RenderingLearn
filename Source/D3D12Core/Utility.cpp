@@ -46,6 +46,7 @@ using namespace std;
 
 namespace Utility
 {
+#if DEBUG
     void Print(const char* msg)
     {
         //OutputDebugStringA(msg); 
@@ -74,6 +75,7 @@ namespace Utility
         va_end(ap);
         Print(buffer);
     }
+#endif
 
     string Format(const char* format, ...)
     {
@@ -264,7 +266,7 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob**
 
     ifstream file;
     file.open(pFileName, ios::binary);
-    ASSERT(file.good(), L"Shader文件打开失败。");
+    ASSERT(file.good(), L"ERROR::Shader文件打开失败。");
 
     file.seekg(0, ios_base::end);
     auto size = file.tellg();

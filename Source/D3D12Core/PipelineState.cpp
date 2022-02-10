@@ -49,7 +49,7 @@ void GraphicsPipelineState::SetSampleMask(UINT sampleMask)
 
 void GraphicsPipelineState::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType)
 {
-    ASSERT(topologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, "Can't draw with undefined topology");
+    ASSERT(topologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, L"WARNING::Can't draw with undefined topology");
     m_PSODesc.PrimitiveTopologyType = topologyType;
 }
 
@@ -78,7 +78,7 @@ void GraphicsPipelineState::SetDepthTargetFormat(DXGI_FORMAT dsvFormat, UINT msa
 */
 void GraphicsPipelineState::SetRenderTargetFormats(UINT numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
 {
-    ASSERT(numRTVs == 0 || rtvFormats != nullptr, "Null format array conflicts with non-zero length");
+    ASSERT(numRTVs == 0 || rtvFormats != nullptr, L"WARNING::Null format array conflicts with non-zero length");
 
     ZeroMemory(m_PSODesc.RTVFormats, sizeof(m_PSODesc.RTVFormats));
     for (UINT i = 0; i < numRTVs; i++)

@@ -60,7 +60,7 @@ void TextureLoader::LoadTexture2D(const Path& path)
         m_Data.resize(4 * pixilCount);
         memcpy(m_Data.data(), data, m_Data.size());
         break;
-    default: ASSERT(0, L"未定义格式"); break;
+    default: ASSERT(0, L"ERROR::未定义格式"); break;
     }
 
     // 释放资源

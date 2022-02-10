@@ -2,12 +2,14 @@
 
 namespace Utility
 {
+#if DEBUG
     void Print(const char* msg);
     void Print(const wchar_t* msg);
 
     void Trace(const char* format, ...);
     void Trace(const wchar_t* format, ...);
     inline void Trace(void) {}
+#endif
 
     std::string Format(const char* format, ...);
     std::wstring Format(const wchar_t* format, ...);
