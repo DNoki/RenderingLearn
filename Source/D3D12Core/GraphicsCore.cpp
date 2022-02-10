@@ -11,6 +11,7 @@
 #include "CommandQueue.h"
 #include "CommandList.h"
 
+#include "GameTime.h"
 #include "SampleResource.h"
 #include "AppMain.h"
 
@@ -34,8 +35,6 @@ namespace Graphics
 
     CommandList g_GraphicsCommandList;
 
-    UINT64 g_FrameCount; // 已渲染帧数量
-
 
     void InitializeCommonSampler();
 
@@ -44,7 +43,6 @@ namespace Graphics
         ASSERT(g_Factory == nullptr);
         ASSERT(g_Device == nullptr);
         UINT nDXGIFactoryFlags = 0U;
-        g_FrameCount = 0u;
 
         // --------------------------------------------------------------------------
         // 启用调试层
@@ -197,7 +195,8 @@ namespace Graphics
 
         g_GraphicsCommandQueue.WaitForQueueCompleted();
 
-        g_FrameCount++;
+        TimeSystem::AddFrameCompleted();
+        TimeSystem::AddSwapFrameCompleted();
     }
 
     void OnDestroy()

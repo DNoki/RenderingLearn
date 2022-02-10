@@ -51,7 +51,7 @@ namespace SampleResource
         // 使用静态采样器
         //{
         //    g_RootSignature.Reset(1, 1);
-
+        //
         //    // 创建一块描述符表
         //    CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
         //    ranges[0].Init(
@@ -61,7 +61,7 @@ namespace SampleResource
         //        0, // 寄存器空间，通常可以为 0
         //        D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC); // 指定描述符和它们引用的数据的易失性
         //    g_RootSignature[0].InitAsDescriptorTable(1, ranges);
-
+        //
         //    // 静态采样器将直接写入根签名
         //    g_RootSignature.GetStaticSamplerDesc(0).Init(
         //        0, // 指定着色器注册位置

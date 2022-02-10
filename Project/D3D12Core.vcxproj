@@ -142,6 +142,7 @@
     <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
     <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
+    <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\Utility.h" />
     <ClInclude Include="..\Source\Shaders\Sample.shader" />
@@ -172,6 +173,7 @@
     <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
     <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />
     <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Utility.cpp" />
   </ItemGroup>

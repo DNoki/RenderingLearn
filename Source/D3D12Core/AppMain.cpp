@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#include "GameTime.h"
 #include "GraphicsCore.h"
 #include "Display.h"
 #include "Input.h"
@@ -203,6 +204,7 @@ namespace Application
         }
 
         // --------------------------------------------------------------------------
+        TimeSystem::InitTimeSystem();
         Input::Initialize(g_Hwnd);
         Graphics::Initialize();
 
@@ -223,6 +225,8 @@ namespace Application
 
             Input::BeforeUpdate();
             Graphics::OnRender();
+
+            TimeSystem::UpdateTimeSystem();
         }
 
         // 一般向程序消息循环

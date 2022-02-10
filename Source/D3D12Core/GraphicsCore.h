@@ -13,8 +13,6 @@ namespace Graphics
 
     extern CommandList g_GraphicsCommandList;
 
-    extern UINT64 g_FrameCount;
-
     void Initialize();
 
     void OnRender();
