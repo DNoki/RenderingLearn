@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace DirectX;
+using namespace Game;
 
 static bool g_KeyDownFlag;
 

@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <bitset>
 //#include <string>
 //#include <sstream>
 //#include <ostream>
@@ -87,7 +88,7 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 #pragma warning(disable:26812) // 禁用 Enum 警告
 
 // 输出调试信息到控制台
-#define TRACE(...) Utility::Trace(__VA_ARGS__)
+#define TRACE(...) Application::Trace(__VA_ARGS__)
 // 输出调试信息到 VC 输出面板
 #define TRACE_VC(...) ATLTRACE(__VA_ARGS__)
 
@@ -105,7 +106,7 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 #endif
 
 // 检查 HR 返回代码
-#define CHECK_HRESULT(hr) Utility::CheckHresult(hr);
+#define CHECK_HRESULT(hr) Application::CheckHresult(hr);
 
 #else
 

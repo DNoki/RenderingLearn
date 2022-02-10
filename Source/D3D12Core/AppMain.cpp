@@ -12,12 +12,21 @@
 #pragma comment(lib, "dxguid.lib")
 
 using namespace std;
+using namespace Game;
 
 
 namespace Application
 {
+    enum EventFlag
+    {
+        Exit,       // 请求终止应用程序
+        AdjWindow,  // 窗口进入移动或大小调整模式循环
+
+        Count,
+    };
+
     HWND g_Hwnd; // 当前程序窗口句柄
-    bool g_ExitFlag;
+    bitset<EventFlag::Count> g_AppEvent; // 应用程序事件集
 
     Path g_AppFullPath; // 程序全路径
     Path g_AppPath;     // 程序路径
@@ -36,6 +45,11 @@ namespace Application
     void SetWindowTitle(const wstring& lpTitle)
     {
         SetWindowText(g_Hwnd, lpTitle.c_str());
+    }
+
+    void CloseWindow()
+    {
+        DestroyWindow(g_Hwnd);
     }
 
     Path GetProjectPath()
@@ -62,9 +76,28 @@ namespace Application
         case WM_ACTIVATEAPP: // 激活或失去激活
             Input::KeyboardProcessMessage(message, wParam, lParam);
             Input::MouseProcessMessage(message, wParam, lParam);
+            TimeSystem::ProcessMsg(message, wParam, lParam);
             break;
 
-            // 按键消息
+        case WM_ENTERSIZEMOVE: // 窗口进入调整模式（位置，大小）
+        {
+            g_AppEvent.set(EventFlag::AdjWindow);
+            Graphics::g_SwapChain.Resize(8, 8); // TODO 使窗口黑屏
+            TimeSystem::ProcessMsg(message, wParam, lParam);
+        }
+        break;
+        case WM_EXITSIZEMOVE: // 窗口退出调整模式（位置，大小）
+        {
+            g_AppEvent.reset(EventFlag::AdjWindow);
+            RECT clientRect;
+            GetClientRect(g_Hwnd, &clientRect);
+            Graphics::g_SwapChain.Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top); // 调整窗口大小
+
+            TimeSystem::ProcessMsg(message, wParam, lParam);
+        }
+        break;
+
+        // 按键消息
         case WM_KEYDOWN:
         case WM_KEYUP:
         case WM_SYSKEYDOWN:
@@ -97,7 +130,18 @@ namespace Application
         {
             UINT width = LOWORD(lParam);
             UINT height = HIWORD(lParam);
-            Graphics::g_SwapChain.Resize(width, height); // TODO 不应该再实时窗口改变时重置窗口大小，考虑放到每帧开始渲染时修改
+            switch (wParam)
+            {
+            case SIZE_MAXIMIZED:    // 窗口已最大化
+            case SIZE_MAXSHOW:      // 当某个其他窗口恢复到以前的大小时，消息会发送到所有弹出窗口
+            case SIZE_MAXHIDE:      // 当某个其他窗口最大化时，消息会发送到所有弹出窗口
+            case SIZE_RESTORED:     // 窗口已调整大小，但SIZE_MINIMIZED和SIZE_MAXIMIZED值均不适用
+                if (!g_AppEvent.test(EventFlag::AdjWindow)) // 正在调整窗口时忽略
+                    Graphics::g_SwapChain.Resize(width, height); // 调整窗口大小
+                break;
+            case SIZE_MINIMIZED:    // 窗口已最小化
+            default: break;
+            }
         }
         break;
 
@@ -212,7 +256,7 @@ namespace Application
         ShowWindow(g_Hwnd, nCmdShow);
 
         MSG msg;
-        while (!g_ExitFlag)
+        while (!g_AppEvent.test(EventFlag::Exit))
         {
             while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
             {
@@ -220,13 +264,19 @@ namespace Application
                 DispatchMessage(&msg);
 
                 if (msg.message == WM_QUIT)
-                    g_ExitFlag = true;
+                    g_AppEvent.set(EventFlag::Exit);
             }
 
             Input::BeforeUpdate();
             Graphics::OnRender();
 
             TimeSystem::UpdateTimeSystem();
+
+            // TODO ALT+F4 关闭窗口
+            if (Input::KeyState(KeyCode::LeftAlt) && Input::KeyState(KeyCode::F4))
+            {
+                CloseWindow();
+            }
         }
 
         // 一般向程序消息循环

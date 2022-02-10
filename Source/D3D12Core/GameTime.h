@@ -12,6 +12,7 @@ namespace TimeSystem
     void UpdateTimeSystem();
     inline void AddFrameCompleted() { FrameCount++; }
     inline void AddSwapFrameCompleted() { SwapFrameCount++; }
+    void ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam);
 }
 
 namespace Game

@@ -10,59 +10,62 @@
 
 #include "TextureLoader.h"
 
-TextureLoader::~TextureLoader()
+namespace Application
 {
-}
-
-void TextureLoader::LoadTexture2D(const Path& path)
-{
-    m_Data.clear();
-
-    // 加载并生成纹理
-    int nrChannels;
-
-    stbi_set_flip_vertically_on_load(true);// 翻转纹理
-    auto string_path = Utility::ToUtf8(path.c_str());
-    UINT8* data = stbi_load(string_path.c_str(), &m_Width, &m_Height, &nrChannels, 0);
-    int pixilCount = m_Width * m_Height;
-
-    m_Format = DXGI_FORMAT_UNKNOWN;
-    switch (nrChannels)
+    TextureLoader::~TextureLoader()
     {
-    case 1:
-        m_Format = DXGI_FORMAT_R8_UNORM;
-        m_Data.resize(1 * pixilCount);
-        memcpy(m_Data.data(), data, m_Data.size());
-        break;
-    case 2:
-        m_Format = DXGI_FORMAT_R8G8_UNORM;
-        m_Data.resize(2 * pixilCount);
-        memcpy(m_Data.data(), data, m_Data.size());
-        break;
-    case 3:
+    }
+
+    void TextureLoader::LoadTexture2D(const Path& path)
     {
-        m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        m_Data.resize(4 * pixilCount);
-        size_t srcIndex = 0;
-        for (size_t i = 0; i < m_Data.size(); i++)
+        m_Data.clear();
+
+        // 加载并生成纹理
+        int nrChannels;
+
+        stbi_set_flip_vertically_on_load(true);// 翻转纹理
+        auto string_path = Application::ToUtf8(path.c_str());
+        UINT8* data = stbi_load(string_path.c_str(), &m_Width, &m_Height, &nrChannels, 0);
+        int pixilCount = m_Width * m_Height;
+
+        m_Format = DXGI_FORMAT_UNKNOWN;
+        switch (nrChannels)
         {
-            if (i % 4 == 3)
+        case 1:
+            m_Format = DXGI_FORMAT_R8_UNORM;
+            m_Data.resize(1 * pixilCount);
+            memcpy(m_Data.data(), data, m_Data.size());
+            break;
+        case 2:
+            m_Format = DXGI_FORMAT_R8G8_UNORM;
+            m_Data.resize(2 * pixilCount);
+            memcpy(m_Data.data(), data, m_Data.size());
+            break;
+        case 3:
+        {
+            m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            m_Data.resize(4 * pixilCount);
+            size_t srcIndex = 0;
+            for (size_t i = 0; i < m_Data.size(); i++)
             {
-                m_Data[i] = 0xFFu;
-                continue;
+                if (i % 4 == 3)
+                {
+                    m_Data[i] = 0xFFu;
+                    continue;
+                }
+                m_Data[i] = data[srcIndex++];
             }
-            m_Data[i] = data[srcIndex++];
         }
-    }
-    break;
-    case 4:
-        m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        m_Data.resize(4 * pixilCount);
-        memcpy(m_Data.data(), data, m_Data.size());
         break;
-    default: ASSERT(0, L"ERROR::未定义格式"); break;
-    }
+        case 4:
+            m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+            m_Data.resize(4 * pixilCount);
+            memcpy(m_Data.data(), data, m_Data.size());
+            break;
+        default: ASSERT(0, L"ERROR::未定义格式"); break;
+        }
 
-    // 释放资源
-    stbi_image_free(data);
+        // 释放资源
+        stbi_image_free(data);
+    }
 }

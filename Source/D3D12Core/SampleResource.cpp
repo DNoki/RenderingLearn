@@ -17,9 +17,10 @@
 
 using namespace std;
 using namespace winrt;
-using namespace Graphics;
+using namespace Game;
+using namespace Application;
 
-namespace SampleResource
+namespace Graphics
 {
     RootSignature g_RootSignature;
     GraphicsPipelineState g_PipelineState;
@@ -282,4 +283,5 @@ namespace SampleResource
         commandList->IASetVertexBuffers(0, 1, g_SampleVBV);
         commandList->DrawInstanced(4, 1, 0, 0);
     }
+
 }

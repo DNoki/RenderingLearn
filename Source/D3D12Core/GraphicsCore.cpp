@@ -98,7 +98,7 @@ namespace Graphics
             auto title = Application::GetWindowTitle();
             DXGI_ADAPTER_DESC3 desc;
             g_Adapter->GetDesc3(&desc);
-            Application::SetWindowTitle(Utility::Format(L"%s  GPU(%s)", title.c_str(), desc.Description).c_str());
+            Application::SetWindowTitle(Application::Format(L"%s  GPU(%s)", title.c_str(), desc.Description).c_str());
         }
 
         // --------------------------------------------------------------------------
@@ -109,7 +109,7 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 创建指令列表
-        //g_GraphicsCommandQueue->CreateCommandList(&SampleResource::g_PipelineState);
+        //g_GraphicsCommandQueue->CreateCommandList(&g_PipelineState);
         g_GraphicsCommandList.Create(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
         // 重置命令列表以其便能够帮助初始化资源复制命令
@@ -128,15 +128,15 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 创建示例PSO
-        SampleResource::InitRootSignature();
-        SampleResource::InitPipelineState();
+        InitRootSignature();
+        InitPipelineState();
 
 
         // --------------------------------------------------------------------------
         // 创建示例资源
-        SampleResource::InitPlacedHeap();
-        SampleResource::InitMesh();
-        SampleResource::InitTexture2D();
+        InitPlacedHeap();
+        InitMesh();
+        InitTexture2D();
 
         // --------------------------------------------------------------------------
         // 由于初始化贴图时需要执行复制命令
@@ -159,11 +159,11 @@ namespace Graphics
             auto cbbi = g_SwapChain.GetCurrentBackBufferIndex();
 
             // 重置命令列表
-            g_GraphicsCommandList.Reset(&SampleResource::g_PipelineState);
+            g_GraphicsCommandList.Reset(&g_PipelineState);
 
 
             // 设置必要的状态。
-            g_GraphicsCommandList->SetGraphicsRootSignature(SampleResource::g_PipelineState.GetD3D12RootSignature());
+            g_GraphicsCommandList->SetGraphicsRootSignature(g_PipelineState.GetD3D12RootSignature());
             auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(g_SwapChain.GetWidth()), static_cast<float>(g_SwapChain.GetHeight()));
             g_GraphicsCommandList->RSSetViewports(1, &viewport);
             auto scissorRect = CD3DX12_RECT(0, 0, g_SwapChain.GetWidth(), g_SwapChain.GetHeight());
@@ -181,7 +181,7 @@ namespace Graphics
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
             g_GraphicsCommandList->ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
 
-            SampleResource::SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
+            SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
 
             // 指示现在将使用后台缓冲区来呈现。
             auto barriers2 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);

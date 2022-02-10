@@ -1,13 +1,13 @@
 ﻿#pragma once
 
-class RootSignature;
-class GraphicsPipelineState;
-class GraphicsBuffer;
-class DescriptorHeap;
-class GpuPlacedHeap;
-
-namespace SampleResource
+namespace Graphics
 {
+    class RootSignature;
+    class GraphicsPipelineState;
+    class GraphicsBuffer;
+    class DescriptorHeap;
+    class GpuPlacedHeap;
+
     extern RootSignature g_RootSignature;
     extern GraphicsPipelineState g_PipelineState;
 

@@ -5,6 +5,7 @@
 
 #include "GraphicsCommon.h"
 
+
 namespace Graphics
 {
     DescriptorHeap g_CommonSamplersDescriptorHeap;
@@ -106,12 +107,5 @@ namespace Graphics
         g_Device->CreateSampler(&sampler, g_SamplerLinearMirror);
 
     }
-
-
-
-
-
-
-
-
 }
+

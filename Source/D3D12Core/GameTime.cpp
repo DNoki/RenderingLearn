@@ -25,6 +25,8 @@ public:
     }
     inline void Start()
     {
+        if (m_StartTime.QuadPart != 0)
+            Stop();
         QueryPerformanceCounter(&m_StartTime);
     }
     inline void Stop()
@@ -71,11 +73,23 @@ namespace TimeSystem
 
     void UpdateTimeSystem()
     {
-        //auto* frameCount = const_cast<UINT64*>(&Time::FrameCount);
-        //frameCount++;
-
         float nowTime = g_RunTimer.GetElapsedSecond();
         DeltaTime = nowTime - RunTime;
         RunTime = nowTime;
+    }
+    void ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam)
+    {
+        switch (msg)
+        {
+        case WM_ACTIVATEAPP:
+            break;
+        case WM_ENTERSIZEMOVE: // 窗口进入调整模式（位置，大小）
+            g_RunTimer.Stop();
+            break;
+        case WM_EXITSIZEMOVE: // 窗口退出调整模式（位置，大小）
+            g_RunTimer.Start();
+            break;
+        default: break;
+        }
     }
 }

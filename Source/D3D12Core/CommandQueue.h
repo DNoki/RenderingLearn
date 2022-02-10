@@ -1,51 +1,53 @@
 ﻿#pragma once
 
-class PipelineState;
-class CommandAllocator;
-class CommandList;
-
-/**
- * @brief 指令队列
-*/
-class CommandQueue
+namespace Graphics
 {
-public:
-    CommandQueue();
+    class PipelineState;
+    class CommandAllocator;
+    class CommandList;
 
     /**
-     * @brief 创建指令队列
-     * @param type 指令列表类型
+     * @brief 指令队列
     */
-    void Create(D3D12_COMMAND_LIST_TYPE type);
+    class CommandQueue
+    {
+    public:
+        CommandQueue();
 
-    void ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists = 1);
+        /**
+         * @brief 创建指令队列
+         * @param type 指令列表类型
+        */
+        void Create(D3D12_COMMAND_LIST_TYPE type);
 
-    /**
-     * @brief 等待队列完成
-    */
-    void WaitForQueueCompleted();
+        void ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists = 1);
 
-    /**
-     * @brief 关闭指令队列并释放资源
-    */
-    void CloseQueue();
+        /**
+         * @brief 等待队列完成
+        */
+        void WaitForQueueCompleted();
 
-    inline ID3D12CommandQueue* GetD3D12CommandQueue() const { return m_CommandQueue.get(); }
+        /**
+         * @brief 关闭指令队列并释放资源
+        */
+        void CloseQueue();
 
-private:
-    winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue;
+        inline ID3D12CommandQueue* GetD3D12CommandQueue() const { return m_CommandQueue.get(); }
 
-    D3D12_COMMAND_LIST_TYPE m_Type;
+    private:
+        winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue;
 
-    std::vector<CommandAllocator*> m_Allocators; // 执行中的命令分配器
+        D3D12_COMMAND_LIST_TYPE m_Type;
 
-    winrt::com_ptr<ID3D12Fence1> m_Fence;   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
-    UINT64 m_FenceValue;                    // 围栏值
-    HANDLE m_FenceEvent;
+        std::vector<CommandAllocator*> m_Allocators; // 执行中的命令分配器
 
-    bool m_IsClose;
-};
+        winrt::com_ptr<ID3D12Fence1> m_Fence;   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
+        UINT64 m_FenceValue;                    // 围栏值
+        HANDLE m_FenceEvent;
 
+        bool m_IsClose;
+    };
+}
 
 namespace Graphics
 {

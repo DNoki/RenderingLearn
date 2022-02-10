@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-namespace Utility
+namespace Application
 {
 #if DEBUG
     void Print(const char* msg);

@@ -19,64 +19,67 @@
 // --------------------------------------------------------------------------
 
 using namespace winrt;
-using namespace Graphics;
 
-RootSignature::RootSignature(UINT numRootParams, UINT numStaticSamplers)
+namespace Graphics
 {
-    Reset(numRootParams, numStaticSamplers);
-}
 
-void RootSignature::Reset(UINT numRootParams, UINT numStaticSamplers)
-{
-    m_IsFinalized = false;
-    m_NumRootParams = numRootParams;
-    m_NumStaticSamplers = numStaticSamplers;
-    m_RootSignature = nullptr;
-
-    m_ParamArray.clear();
-    for (UINT i = 0; i < m_NumRootParams; i++)
+    RootSignature::RootSignature(UINT numRootParams, UINT numStaticSamplers)
     {
-        m_ParamArray.push_back(CD3DX12_ROOT_PARAMETER1{});
+        Reset(numRootParams, numStaticSamplers);
     }
 
-    m_SamplerArray.clear();
-    for (UINT i = 0; i < m_NumStaticSamplers; i++)
+    void RootSignature::Reset(UINT numRootParams, UINT numStaticSamplers)
     {
-        m_SamplerArray.push_back(CD3DX12_STATIC_SAMPLER_DESC{});
+        m_IsFinalized = false;
+        m_NumRootParams = numRootParams;
+        m_NumStaticSamplers = numStaticSamplers;
+        m_RootSignature = nullptr;
+
+        m_ParamArray.clear();
+        for (UINT i = 0; i < m_NumRootParams; i++)
+        {
+            m_ParamArray.push_back(CD3DX12_ROOT_PARAMETER1{});
+        }
+
+        m_SamplerArray.clear();
+        for (UINT i = 0; i < m_NumStaticSamplers; i++)
+        {
+            m_SamplerArray.push_back(CD3DX12_STATIC_SAMPLER_DESC{});
+        }
     }
-}
 
-void RootSignature::Finalize(D3D12_ROOT_SIGNATURE_FLAGS Flags)
-{
-    if (m_IsFinalized) return;
-    m_IsFinalized = true;
-    ASSERT(m_RootSignature == nullptr);
+    void RootSignature::Finalize(D3D12_ROOT_SIGNATURE_FLAGS Flags)
+    {
+        if (m_IsFinalized) return;
+        m_IsFinalized = true;
+        ASSERT(m_RootSignature == nullptr);
 
-    // 检测是否支持 V1.1 版本的根签名
-    D3D12_FEATURE_DATA_ROOT_SIGNATURE rsFeatureData{};
-    rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
-    if (FAILED(g_Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &rsFeatureData, sizeof(rsFeatureData))))
-        rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
+        // 检测是否支持 V1.1 版本的根签名
+        D3D12_FEATURE_DATA_ROOT_SIGNATURE rsFeatureData{};
+        rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
+        if (FAILED(g_Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &rsFeatureData, sizeof(rsFeatureData))))
+            rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 
-    // 初始化根签名描述
-    CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC verRootSignDesc{};
-    verRootSignDesc.Init_1_1(
-        m_NumRootParams, m_NumRootParams > 0 ? m_ParamArray.data() : nullptr,
-        m_NumStaticSamplers, m_NumStaticSamplers > 0 ? m_SamplerArray.data() : nullptr,
-        Flags);
+        // 初始化根签名描述
+        CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC verRootSignDesc{};
+        verRootSignDesc.Init_1_1(
+            m_NumRootParams, m_NumRootParams > 0 ? m_ParamArray.data() : nullptr,
+            m_NumStaticSamplers, m_NumStaticSamplers > 0 ? m_SamplerArray.data() : nullptr,
+            Flags);
 
-    com_ptr<ID3DBlob> pSignature;
-    com_ptr<ID3DBlob> pErrorSignature;
+        com_ptr<ID3DBlob> pSignature;
+        com_ptr<ID3DBlob> pErrorSignature;
 
-    CHECK_HRESULT(D3DX12SerializeVersionedRootSignature(
-        &verRootSignDesc,
-        rsFeatureData.HighestVersion,
-        pSignature.put(),
-        pErrorSignature.put()
-    ));
+        CHECK_HRESULT(D3DX12SerializeVersionedRootSignature(
+            &verRootSignDesc,
+            rsFeatureData.HighestVersion,
+            pSignature.put(),
+            pErrorSignature.put()
+        ));
 
-    if (pErrorSignature)
-        TRACE((char*)pErrorSignature->GetBufferPointer());
+        if (pErrorSignature)
+            TRACE((char*)pErrorSignature->GetBufferPointer());
 
-    CHECK_HRESULT(g_Device->CreateRootSignature(1, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
+        CHECK_HRESULT(g_Device->CreateRootSignature(1, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
+    }
 }

@@ -44,7 +44,7 @@
 
 using namespace std;
 
-namespace Utility
+namespace Application
 {
 #if DEBUG
     void Print(const char* msg)
@@ -188,11 +188,11 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlo
     };
     static const string compileTarget[] =
     {
-        Utility::Format("vs_%s", ShaderModel),
-        Utility::Format("ps_%s", ShaderModel),
-        Utility::Format("gs_%s", ShaderModel),
-        Utility::Format("hs_%s", ShaderModel),
-        Utility::Format("ds_%s", ShaderModel),
+        Application::Format("vs_%s", ShaderModel),
+        Application::Format("ps_%s", ShaderModel),
+        Application::Format("gs_%s", ShaderModel),
+        Application::Format("hs_%s", ShaderModel),
+        Application::Format("ds_%s", ShaderModel),
     };
 
     // CompileFlags https://docs.microsoft.com/zh-cn/windows/win32/direct3dhlsl/d3dcompile-constants

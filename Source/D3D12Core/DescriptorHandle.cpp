@@ -63,9 +63,11 @@
 */
 // --------------------------------------------------------------------------
 
-
-const DescriptorHandle DescriptorHandle::DESCRIPTOR_HANDLE_NULL = DescriptorHandle
+namespace Graphics
 {
-    D3D12_CPU_DESCRIPTOR_HANDLE{D3D12_GPU_VIRTUAL_ADDRESS_NULL},
-    D3D12_GPU_DESCRIPTOR_HANDLE{D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN}
-};
+    const DescriptorHandle DescriptorHandle::DESCRIPTOR_HANDLE_NULL = DescriptorHandle
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE{D3D12_GPU_VIRTUAL_ADDRESS_NULL},
+        D3D12_GPU_DESCRIPTOR_HANDLE{D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN}
+    };
+}
