@@ -295,6 +295,15 @@ namespace Application
 
 using namespace Application;
 
+void OutputMatrix4x4(const Matrix4x4&& m)
+{
+    TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._11, m._12, m._13, m._14);
+    TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._21, m._22, m._23, m._24);
+    TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._31, m._32, m._33, m._34);
+    TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._41, m._42, m._43, m._44);
+    TRACE();
+}
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ TCHAR* /*lpCmdLine*/, _In_ int nCmdShow)
 {
 #if DEBUG
@@ -302,6 +311,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance
     wcout.imbue(locale(".utf8"));
     system("chcp 65001");
 #endif
+
+    DirectX::SimpleMath::Matrix A{};
+
+    //A.Translation(Vector3(1, 2, 3));
+    Vector4 V = Vector4(1, 2, 3, 1);
+
+    //DirectX::XMFLOAT4X4 R;
+    //DirectX::XMStoreFloat4x4(&R, DirectX::XMMatrixPerspectiveFovLH(Math::PI * 0.25f, 1.777777777f, 0.01f, 1000.0f));
+    //return R;
+
+    //A = Matrix4x4::CreatePerspectiveFieldOfView(Math::PI * 0.25f, 1.777777777f, 0.01f, 1000.0f);;
+    OutputMatrix4x4(A * V);
 
     auto result = RunApplication(hInstance, nCmdShow);
 

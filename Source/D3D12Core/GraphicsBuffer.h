@@ -19,6 +19,26 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         /**
+         * @brief 获取顶点缓冲视图
+         * @return
+        */
+        inline const D3D12_VERTEX_BUFFER_VIEW* GetVBV() const
+        {
+            ASSERT(m_VertexBufferView != nullptr);
+            return m_VertexBufferView.get();
+        }
+        /**
+         * @brief 获取索引缓冲视图
+         * @return
+        */
+        inline const D3D12_INDEX_BUFFER_VIEW* GetIBV() const
+        {
+            ASSERT(m_IndexBufferView != nullptr);
+            return m_IndexBufferView.get();
+        }
+
+        // --------------------------------------------------------------------------
+        /**
          * @brief 创建指定大小的默认堆
          * @param size
         */
@@ -37,21 +57,12 @@ namespace Graphics
          * @param strideSize 单个顶点数据结构大小
          * @param vertices
         */
-        void DispatchCopyVertexBuffer(const CommandList& commandList, UINT strideSize, const void* vertices);
+        void DispatchCopyBuffer(const CommandList& commandList, UINT strideSize, const void* data);
 
-
-        // --------------------------------------------------------------------------
-        /**
-         * @brief 视为顶点缓冲视图
-        */
-        inline operator const D3D12_VERTEX_BUFFER_VIEW* ()
-        {
-            ASSERT(m_VertexBufferView != nullptr);
-            return m_VertexBufferView.get();
-        }
 
     private:
         std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferView;
+        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> m_IndexBufferView;
 
         std::unique_ptr<UploadBuffer> m_UploadBuffer;
     };

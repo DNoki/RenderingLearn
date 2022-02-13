@@ -88,42 +88,20 @@ namespace Graphics
         }
     }
 
-    void GraphicsBuffer::DispatchCopyVertexBuffer(const CommandList& commandList, UINT strideSize, const void* vertices)
+    void GraphicsBuffer::DispatchCopyBuffer(const CommandList& commandList, UINT strideSize, const void* data)
     {
-        ASSERT(m_Resource != nullptr);
-        auto bufferSize = m_ResourceDesc.Width;
-
-        // 创建上传缓冲
-        m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
-        m_UploadBuffer->DirectCreate(bufferSize);
-
-        // 添加拷贝命令到命令队列
-        {
-            // 使用 UpdateSubresources 拷贝资源
-            D3D12_SUBRESOURCE_DATA srcData = {};
-            srcData.pData = vertices;
-            srcData.RowPitch = bufferSize;
-            srcData.SlicePitch = bufferSize;
-            UpdateSubresources(
-                commandList.GetD3D12CommandList(),
-                m_Resource.get(),
-                m_UploadBuffer->GetD3D12Resource(),
-                0, 0, 1,
-                &srcData);
-
-            // 等待拷贝完成
-            auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
-                m_Resource.get(),
-                D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-                D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
-            commandList->ResourceBarrier(1, &barriers);
-        }
+        DispatchCopyBuffer(commandList, data);
 
         // 创建顶点缓冲视图
         m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
                 m_GpuVirtualAddress,
-                static_cast<UINT>(bufferSize),
+                static_cast<UINT>(m_ResourceDesc.Width),
                 strideSize });
+
+        m_IndexBufferView = std::unique_ptr<D3D12_INDEX_BUFFER_VIEW>(new D3D12_INDEX_BUFFER_VIEW{
+                m_GpuVirtualAddress,
+                static_cast<UINT>(m_ResourceDesc.Width),
+                DXGI_FORMAT_R16_UINT });
     }
 
 #if 0

@@ -117,10 +117,11 @@
       <ObjectFileOutput>$(OutDir)CompiledShaders\%(Filename).cso</ObjectFileOutput>
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
-      <AdditionalOptions>/Zpc %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\D3D12Core\Camera.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="..\Source\Shaders\SampleTexture.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\D3D12Core\Camera.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />

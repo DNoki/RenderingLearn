@@ -12,6 +12,8 @@
 
 #include "Display.h"
 #include "Input.h"
+#include "GameTime.h"
+#include "Camera.h"
 
 #include "SampleResource.h"
 
@@ -25,7 +27,7 @@ namespace Graphics
     RootSignature g_RootSignature;
     GraphicsPipelineState g_PipelineState;
 
-
+    Mesh g_SampleMesh;
     GraphicsBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
@@ -35,13 +37,20 @@ namespace Graphics
     GpuPlacedHeap g_VertexPlacedHeap;
     GpuPlacedHeap g_UploadPlacedHeap; // TODO 上传堆可以改成全局管理分配模式，按需索取
 
-    UploadBuffer g_MvpBufferRes[2];
+    UploadBuffer g_MvpBufferRes;
 
     struct MVPBuffer
     {
+        DirectX::XMFLOAT4X4 m_P;
+        DirectX::XMFLOAT4X4 m_V;
+        DirectX::XMFLOAT4X4 m_M;
         DirectX::XMFLOAT4X4 m_MVP;
     };
-    MVPBuffer* g_MVPBuffer[2];
+    MVPBuffer* g_MVPBuffer;
+
+
+    Transform g_CameraTrans;
+    Transform g_ModelTrans;
 
 
     void InitRootSignature()
@@ -170,39 +179,15 @@ namespace Graphics
         t_TexDH.BindShaderResourceView(0, t_DefaultTexture[1]);
 
 
-        auto mat = Matrix4x4::Identity;
-        mat._11 = cos(30.0f * 3.1415926f / 180.0f);
-        mat._12 = sin(30.0f * 3.1415926f / 180.0f);
-        mat._21 = -sin(30.0f * 3.1415926f / 180.0f);
-        mat._22 = cos(30.0f * 3.1415926f / 180.0f);
-        auto mvp = MVPBuffer
-        {
-            mat,
-        };
-
-        auto mat2 = mat;
-        mat2._11 = cos(-30.0f * 3.1415926f / 180.0f);
-        mat2._12 = sin(-30.0f * 3.1415926f / 180.0f);
-        mat2._21 = -sin(-30.0f * 3.1415926f / 180.0f);
-        mat2._22 = cos(-30.0f * 3.1415926f / 180.0f);
-        auto mvp2 = MVPBuffer
-        {
-            mat2,
-        };
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         //auto constantBufferSize = sizeof(MVPBuffer);
         {
-            g_MvpBufferRes[0].DirectCreate(constantBufferSize);
-            g_MvpBufferRes[0].Map(0, reinterpret_cast<void**>(&g_MVPBuffer[0]));
-            g_MVPBuffer[0]->m_MVP = mat;
-            //g_MvpBufferRes[0].DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes[0]);
-
-            g_MvpBufferRes[1].DirectCreate(constantBufferSize);
-            g_MvpBufferRes[1].Map(0, reinterpret_cast<void**>(&g_MVPBuffer[1]));
-            g_MVPBuffer[1]->m_MVP = mat2;
-            //g_MvpBufferRes[1].DispatchCopyBuffer(g_GraphicsCommandList, &mvp2);
+            g_MvpBufferRes.DirectCreate(constantBufferSize);
+            g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
+            g_MVPBuffer->m_MVP = Matrix4x4::Identity;
+            //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
+            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
@@ -234,7 +219,14 @@ namespace Graphics
         g_SampleVBV = GraphicsBuffer();
         //g_SampleVBV.DirectCreate(vertexBufferSize);
         g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
-        g_SampleVBV.DispatchCopyVertexBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+        g_SampleVBV.DispatchCopyBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+
+        g_SampleMesh = Mesh::CreateCube();
+
+        g_ModelTrans = Transform();
+        g_CameraTrans = Transform();
+        g_CameraTrans.LocalPosition = Vector3::One * -10.0f;
+        g_CameraTrans.LocalEulerAngles = -Vector3(45.0f * Math::Deg2Rad, -45.0f * Math::Deg2Rad, 45.0f * Math::Deg2Rad);
     }
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList)
@@ -255,12 +247,40 @@ namespace Graphics
         if (useSamplerIndex >= 8) useSamplerIndex = 0;
 
         {
-            static int index = 0;
-            index += Input::KeyDown(KeyCode::Enter) ? 1 : 0;
-            if (index > 1) index = 0;
-            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes[index]);
+            Matrix4x4 pers;
+            DirectX::XMStoreFloat4x4(&pers, DirectX::XMMatrixPerspectiveFovLH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f));
+            Matrix4x4 view;
+            {
+                DirectX::XMVECTOR eyev = Vector3(0.0f, 0.0f, -10.0f * (Input::KeyState(KeyCode::Q) ? -1.0f : 1.0f));
+                DirectX::XMVECTOR targetv = Vector3::Zero;
+                DirectX::XMVECTOR upv = Vector3::Up;
+                DirectX::XMStoreFloat4x4(&view, DirectX::XMMatrixLookAtLH(eyev, targetv, upv));
+            }
 
-            t_TexDH.BindShaderResourceView(0, t_DefaultTexture[index]);
+            auto model = Matrix4x4::CreateRotationY(Time::GetRunTime() * Math::Deg2Rad * 90.0f);
+            //model.Translation(Vector3(1.0f, 2.0f, 3.0f));
+
+            if (Input::KeyState(KeyCode::W))
+            {
+                g_MVPBuffer->m_P = pers;
+                g_MVPBuffer->m_V = view;
+                g_MVPBuffer->m_M = model;
+            }
+            else
+            {
+                g_MVPBuffer->m_P = pers.Transpose();
+                g_MVPBuffer->m_V = view.Transpose();
+                g_MVPBuffer->m_M = model.Transpose();
+            }
+            //g_MVPBuffer->m_M = g_ModelTrans.GetTransformMatrix();
+            //g_MVPBuffer->m_MVP = model * view * pers;
+            g_MVPBuffer->m_MVP = view * model;
+            g_MVPBuffer->m_MVP = model * view;
+
+
+            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
+
+            t_TexDH.BindShaderResourceView(0, t_DefaultTexture[0]);
         }
 
         // 绑定描述符堆
@@ -279,9 +299,13 @@ namespace Graphics
         //commandList->DrawInstanced(3, 1, 0, 0);
 
         // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
-        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        commandList->IASetVertexBuffers(0, 1, g_SampleVBV);
-        commandList->DrawInstanced(4, 1, 0, 0);
+        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        auto vbv = static_cast<const GraphicsBuffer*>(g_SampleMesh.GetVertexBuffer())->GetVBV();
+        commandList->IASetVertexBuffers(0, 1, vbv);
+        commandList->IASetIndexBuffer(static_cast<const GraphicsBuffer*>(g_SampleMesh.GetIndexBuffer())->GetIBV());
+        //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
+        commandList->DrawIndexedInstanced(g_SampleMesh.GetIndexCount(), 1, 0, 0, 0);
+        //commandList->DrawInstanced(g_SampleMesh.GetVertexCount(), 1, 0, 0);
     }
 
 }

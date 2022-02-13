@@ -31,6 +31,7 @@
     <ClInclude Include="..\Source\D3D12Core\IResource.h" />
     <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
     <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
+    <ClInclude Include="..\Source\D3D12Core\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -57,6 +58,7 @@
     <ClCompile Include="..\Source\D3D12Core\IResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
