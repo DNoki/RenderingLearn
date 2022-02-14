@@ -17,7 +17,8 @@ namespace Game
         // 获取变换矩阵
         inline Matrix4x4 GetTransformMatrix() const
         {
-            return Matrix4x4::CreateFromTransform(LocalPosition, LocalEulerAngles, LocalScale);
+            //return Matrix4x4::CreateFromTransform(LocalPosition, LocalEulerAngles, LocalScale);
+            return Matrix4x4();
         }
 
     private:

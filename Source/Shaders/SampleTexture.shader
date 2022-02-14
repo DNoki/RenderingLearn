@@ -27,6 +27,7 @@ PSInput VSMain(float4 position : POSITION, float4 uv : TEXCOORD)
     //result.position = mul(m_MVP, position);
     //result.position = mul(mul(mul(position, m_M), m_V), m_P);
     //result.position = mul(m_P, mul(m_V, mul(m_M, position)));
+    //result.worldPos = position;
     result.worldPos = mul(position, m_M);
     //result.worldPos = mul(m_M, position);
     result.color = float(0.0f).xxxx;
@@ -37,7 +38,7 @@ PSInput VSMain(float4 position : POSITION, float4 uv : TEXCOORD)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    // return float4(input.uv.xy, 0.0f, 1.0f);
+     //return float4(input.uv.xy, 0.0f, 1.0f);
      return float4(input.worldPos.xyz, 1.0f);
-//return g_texture.Sample(g_sampler, input.uv.xy);
+    //return g_texture.Sample(g_sampler, input.uv.xy);
 }

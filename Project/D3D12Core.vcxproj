@@ -117,7 +117,7 @@
       <ObjectFileOutput>$(OutDir)CompiledShaders\%(Filename).cso</ObjectFileOutput>
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
-      <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zpc %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

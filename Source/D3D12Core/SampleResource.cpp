@@ -247,18 +247,17 @@ namespace Graphics
         if (useSamplerIndex >= 8) useSamplerIndex = 0;
 
         {
-            Matrix4x4 pers;
-            DirectX::XMStoreFloat4x4(&pers, DirectX::XMMatrixPerspectiveFovLH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f));
+            Matrix4x4 pers = DirectX::XMMatrixPerspectiveFovRH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f);
             Matrix4x4 view;
             {
                 DirectX::XMVECTOR eyev = Vector3(0.0f, 0.0f, -10.0f * (Input::KeyState(KeyCode::Q) ? -1.0f : 1.0f));
                 DirectX::XMVECTOR targetv = Vector3::Zero;
                 DirectX::XMVECTOR upv = Vector3::Up;
-                DirectX::XMStoreFloat4x4(&view, DirectX::XMMatrixLookAtLH(eyev, targetv, upv));
+                DirectX::XMStoreFloat4x4(&view, DirectX::XMMatrixLookAtRH(eyev, targetv, upv));
             }
 
-            auto model = Matrix4x4::CreateRotationY(Time::GetRunTime() * Math::Deg2Rad * 90.0f);
-            //model.Translation(Vector3(1.0f, 2.0f, 3.0f));
+            Matrix4x4 model = DirectX::XMMatrixRotationY(Time::GetRunTime() * Math::Deg2Rad * 90.0f);
+            model.Translation(Vector3(0.0f, -2.0f, 0.0f));
 
             if (Input::KeyState(KeyCode::W))
             {
@@ -273,9 +272,7 @@ namespace Graphics
                 g_MVPBuffer->m_M = model.Transpose();
             }
             //g_MVPBuffer->m_M = g_ModelTrans.GetTransformMatrix();
-            //g_MVPBuffer->m_MVP = model * view * pers;
-            g_MVPBuffer->m_MVP = view * model;
-            g_MVPBuffer->m_MVP = model * view;
+            g_MVPBuffer->m_MVP = (model * view * pers).Transpose();
 
 
             t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
