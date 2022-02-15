@@ -225,10 +225,18 @@ namespace Graphics
 
         g_ModelTrans = Transform();
         g_CameraTrans = Transform();
-        g_CameraTrans.LocalPosition = Vector3::One * -10.0f;
-        g_CameraTrans.LocalEulerAngles = -Vector3(45.0f * Math::Deg2Rad, -45.0f * Math::Deg2Rad, 45.0f * Math::Deg2Rad);
+        g_CameraTrans.LocalPosition = Vector3(0.0f, 0.0f, 10.0f);
+        g_CameraTrans.LocalEulerAngles = Vector3(0.0f, 3.0f, 0.0f);
+        //g_CameraTrans.LocalEulerAngles = Vector3(30.0f * Math::Deg2Rad, 20.0f * Math::Deg2Rad, 0.0f);
     }
 
+    void OutputMatrix4x4(const Matrix4x4& m)
+    {
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._11, m._12, m._13, m._14);
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._21, m._22, m._23, m._24);
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._31, m._32, m._33, m._34);
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._41, m._42, m._43, m._44);
+    }
     void SampleDraw(ID3D12GraphicsCommandList* commandList)
     {
         static DescriptorHandle* samplers[] =
@@ -247,32 +255,66 @@ namespace Graphics
         if (useSamplerIndex >= 8) useSamplerIndex = 0;
 
         {
-            Matrix4x4 pers = DirectX::XMMatrixPerspectiveFovRH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f);
+            {
+                Vector3 pos{};
+                if (Input::KeyState(KeyCode::W))
+                    pos.y += 1.0f;
+                if (Input::KeyState(KeyCode::S))
+                    pos.y -= 1.0f;
+                if (Input::KeyState(KeyCode::A))
+                    pos.x -= 1.0f;
+                if (Input::KeyState(KeyCode::D))
+                    pos.x += 1.0f;
+                g_CameraTrans.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
+
+                Vector3 rot{};
+                if (Input::KeyState(KeyCode::Q))
+                    rot.y -= 1.0f;
+                if (Input::KeyState(KeyCode::E))
+                    rot.y += 1.0f;
+                if (Input::KeyState(KeyCode::R))
+                    rot.x -= 1.0f;
+                if (Input::KeyState(KeyCode::F))
+                    rot.x += 1.0f;
+                g_CameraTrans.LocalEulerAngles += rot * Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
+            }
+
+            Matrix4x4 zInverse = Matrix4x4::Identity;
+            zInverse._33 = -1.0f;
+
+            Matrix4x4 pers = DirectX::XMMatrixPerspectiveFovLH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f);
+
             Matrix4x4 view;
-            {
-                DirectX::XMVECTOR eyev = Vector3(0.0f, 0.0f, -10.0f * (Input::KeyState(KeyCode::Q) ? -1.0f : 1.0f));
-                DirectX::XMVECTOR targetv = Vector3::Zero;
-                DirectX::XMVECTOR upv = Vector3::Up;
-                DirectX::XMStoreFloat4x4(&view, DirectX::XMMatrixLookAtRH(eyev, targetv, upv));
-            }
+            //{
+            //    DirectX::XMVECTOR eyev = Vector3(0.0f, 10.0f, -10.0f);
+            //    DirectX::XMVECTOR targetv = Vector3(0.0f, 0.0f, 0.0f);
+            //    DirectX::XMVECTOR upv = Vector3::Up;
+            //    DirectX::XMStoreFloat4x4(&view, DirectX::XMMatrixLookAtRH(eyev, targetv, upv));
+            //    view = DirectX::XMMatrixRotationX(45.0f * Math::Deg2Rad) * DirectX::XMMatrixTranslation(0.0f, -10.0f, 10.0);
+            //    TRACE("");
+            //    OutputMatrix4x4(view);
+            //}
+            view = g_CameraTrans.GetViewMatrix();
+            //view = zInverse * view * zInverse;
+            TRACE("");
+            TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalPosition.x, g_CameraTrans.LocalPosition.y, g_CameraTrans.LocalPosition.z);
+            TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y, g_CameraTrans.LocalEulerAngles.z);
+            //OutputMatrix4x4(view);
 
-            Matrix4x4 model = DirectX::XMMatrixRotationY(Time::GetRunTime() * Math::Deg2Rad * 90.0f);
-            model.Translation(Vector3(0.0f, -2.0f, 0.0f));
+            Matrix4x4 model{};
+            //model.SetTranslation(Vector3(0.0f, -2.0f, 0.0f));
 
-            if (Input::KeyState(KeyCode::W))
-            {
-                g_MVPBuffer->m_P = pers;
-                g_MVPBuffer->m_V = view;
-                g_MVPBuffer->m_M = model;
-            }
-            else
-            {
-                g_MVPBuffer->m_P = pers.Transpose();
-                g_MVPBuffer->m_V = view.Transpose();
-                g_MVPBuffer->m_M = model.Transpose();
-            }
+            model.SetTRS(
+                Vector3(0.0f, 0.0f, 0.0f),
+                Quaternion(),
+                //Quaternion(DirectX::XMQuaternionRotationAxis(Vector3(0.0f, 1.0f, 0.0f), Time::GetRunTime() * Math::Deg2Rad * 90.0f)),
+                Vector3(2.0f, 2.0f, 2.0f));
+
+            g_MVPBuffer->m_P = pers;
+            g_MVPBuffer->m_V = view;
+            g_MVPBuffer->m_M = model;
+            g_MVPBuffer->m_MVP = model * view * pers;
             //g_MVPBuffer->m_M = g_ModelTrans.GetTransformMatrix();
-            g_MVPBuffer->m_MVP = (model * view * pers).Transpose();
 
 
             t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);

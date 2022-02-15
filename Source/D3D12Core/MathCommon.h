@@ -11,6 +11,9 @@ typedef DirectX::SimpleMath::Ray            Ray;
 typedef DirectX::SimpleMath::Viewport       Viewport;
 typedef DirectX::SimpleMath::Color          Color;
 
+class Matrix4x4;
+class Quaternion;
+
 
 class Math
 {
@@ -25,6 +28,49 @@ public:
 
 private:
     Math() {}
+
+};
+
+class Quaternion : public DirectX::XMFLOAT4
+{
+public:
+    Quaternion() : DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) {}
+    Quaternion(const Quaternion&) = default;
+    Quaternion(Quaternion&&) = default;
+
+    Quaternion(const DirectX::XMFLOAT4& q) noexcept { memcpy(this, &q, sizeof(Quaternion)); }
+    Quaternion(const DirectX::XMFLOAT4&& q) noexcept { memcpy(this, &q, sizeof(Quaternion)); }
+    Quaternion(const DirectX::XMVECTOR& q) noexcept { DirectX::XMStoreFloat4(this, q); }
+    Quaternion(const DirectX::XMVECTOR&& q) noexcept { DirectX::XMStoreFloat4(this, q); }
+
+    Quaternion& operator =(const Quaternion&) = default;
+    Quaternion& operator =(Quaternion&&) = default;
+
+    inline operator DirectX::XMFLOAT4& () noexcept { return *this; }
+    inline operator DirectX::XMVECTOR() const noexcept { return XMLoadFloat4(this); }
+
+    inline constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
+
+    inline Vector3 GetEulerAngles() const noexcept
+    {
+        using namespace DirectX;
+        // TODO
+        return Vector3();
+    }
+
+    inline static Quaternion EulerAngles(float p, float y, float r)
+    {
+        using namespace DirectX;
+        // XM标准为 ZXY
+        return XMQuaternionRotationRollPitchYaw(p, y, r);
+    }
+    inline static Quaternion EulerAngles(Vector3 eulerAngles)
+    {
+        using namespace DirectX;
+        return EulerAngles(eulerAngles.x, eulerAngles.y, eulerAngles.z);
+    }
+
+private:
 
 };
 
@@ -47,8 +93,8 @@ public:
     Matrix4x4& operator =(const Matrix4x4&) = default;
     Matrix4x4& operator =(Matrix4x4&&) = default;
 
-    operator DirectX::XMFLOAT4X4& () noexcept { return (*this); }
-    operator DirectX::XMMATRIX() const noexcept { return DirectX::XMLoadFloat4x4(this); }
+    inline operator DirectX::XMFLOAT4X4& () noexcept { return (*this); }
+    inline operator DirectX::XMMATRIX() const noexcept { return DirectX::XMLoadFloat4x4(this); }
 
     inline constexpr Matrix4x4(
         float m00, float m01, float m02, float m03,
@@ -61,39 +107,29 @@ public:
             m30, m31, m32, m33) {}
 
 
-    inline Matrix4x4 Transpose() noexcept
+    inline Matrix4x4 Transpose() const noexcept
     {
         using namespace DirectX;
         return XMMatrixTranspose(*this);
     }
-
-    inline void Translation(float x, float y, float z) noexcept
+    inline Matrix4x4 Invert() const noexcept
     {
-        Translation(Vector3(x, y, z));
+        using namespace DirectX;
+        return XMMatrixInverse(nullptr, *this);
     }
-    inline void Translation(const Vector3& v) noexcept
+    inline float Determinant() const noexcept
     {
-        _41 = v.x; _42 = v.y; _43 = v.z;
+        using namespace DirectX;
+        return XMVectorGetX(XMMatrixDeterminant(*this));
     }
 
+    void SetTRS(const Vector3& p, const Vector3& r, const Vector3& s) noexcept;
+    inline void SetTRS(const Vector3& p, const Quaternion& q, const Vector3& s) noexcept
+    {
+        using namespace DirectX;
+        *this = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(q) * XMMatrixTranslationFromVector(p);
+    }
 
-    //inline static Matrix4x4 CreateFromEulerAngles(const Vector3& eulerAngles) { return CreateFromEulerAngles(eulerAngles.x, eulerAngles.y, eulerAngles.z); }
-    //inline static Matrix4x4 CreateFromEulerAngles(float x, float y, float z)
-    //{
-    //    using namespace DirectX;
-    //    Matrix R;
-    //    XMStoreFloat4x4(&R, XMMatrixRotationRollPitchYaw(x, y, z));
-    //    return R;
-    //    //return CreateFromYawPitchRoll(y, x, z);
-    //}
-    //inline static Matrix4x4 CreateFromTransform(const Vector3& pos, const Vector3& rot, const Vector3& scale)
-    //{
-    //    using namespace DirectX;
-    //    Matrix4x4 R;
-    //    R = XMMatrixMultiply(XMMatrixRotationRollPitchYawFromVector(rot), XMMatrixScalingFromVector(scale));
-    //    R.Translation(pos);
-    //    return R;
-    //}
 
 public:
     static const Matrix4x4 Identity;
@@ -118,23 +154,3 @@ inline Vector4 operator * (const Vector4& v, const Matrix4x4& m) noexcept
     return XMVector4Transform(v, m);
 }
 
-
-class Quaternion : public DirectX::SimpleMath::Quaternion
-{
-public:
-    Quaternion() : DirectX::SimpleMath::Quaternion() {}
-    Quaternion(const DirectX::SimpleMath::Quaternion& q) noexcept { memcpy(this, &q, sizeof(DirectX::XMFLOAT4)); }
-    Quaternion(const DirectX::SimpleMath::Quaternion&& q) noexcept { memcpy(this, &q, sizeof(DirectX::XMFLOAT4)); }
-    Quaternion(const DirectX::XMVECTOR& q) noexcept { DirectX::XMStoreFloat4(this, q); }
-    Quaternion(const DirectX::XMVECTOR&& q) noexcept { DirectX::XMStoreFloat4(this, q); }
-
-    inline operator DirectX::SimpleMath::Quaternion& () noexcept { return *this; }
-
-    //inline Vector3 GetEulerAngles() const noexcept
-    //{
-
-    //}
-
-private:
-
-};
