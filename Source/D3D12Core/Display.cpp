@@ -102,7 +102,7 @@ namespace Graphics
 
         for (int i = 0; i < m_RenderTargets.size(); i++)
         {
-            m_RenderTargets[i].GetFromSwapChain(*this, i);
+            m_RenderTargets[i].GetRtvFromSwapChain(*this, i);
             m_RtvDescriptorHeap.BindRenderTargetView(i, m_RenderTargets[i]);
         }
     }

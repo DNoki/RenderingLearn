@@ -129,7 +129,8 @@ namespace Graphics
         g_PipelineState.SetRootSignature(&g_RootSignature);
         g_PipelineState.SetVertexShader(vertexShader.get());
         g_PipelineState.SetPixelShader(pixelShader.get());
-        g_PipelineState.GetDepthStencilState().DepthEnable = FALSE;
+        //g_PipelineState.GetDepthStencilState().DepthEnable = FALSE;
+        g_PipelineState.GetRasterizerState().FrontCounterClockwise = TRUE; // TRUE:逆时针为正，FALSE:顺时针为正
         g_PipelineState.SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_UNKNOWN);
 
         g_PipelineState.Finalize();
@@ -342,9 +343,11 @@ namespace Graphics
         auto vbv = static_cast<const GraphicsBuffer*>(g_SampleMesh.GetVertexBuffer())->GetVBV();
         commandList->IASetVertexBuffers(0, 1, vbv);
         commandList->IASetIndexBuffer(static_cast<const GraphicsBuffer*>(g_SampleMesh.GetIndexBuffer())->GetIBV());
-        //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
         commandList->DrawIndexedInstanced(g_SampleMesh.GetIndexCount(), 1, 0, 0, 0);
-        //commandList->DrawInstanced(g_SampleMesh.GetVertexCount(), 1, 0, 0);
+
+        //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
+        //commandList->DrawInstanced(4, 1, 0, 0);
     }
 
 }

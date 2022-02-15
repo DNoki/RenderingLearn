@@ -35,6 +35,9 @@ namespace Graphics
 
     CommandList g_GraphicsCommandList;
 
+    RenderTexture g_DsvResource;
+    DescriptorHeap g_DsvDescriptorHeap;
+
 
     void InitializeCommonSampler();
 
@@ -122,6 +125,13 @@ namespace Graphics
 
 
         // --------------------------------------------------------------------------
+        // 创建深度模板渲染贴图
+        g_DsvResource.DirectCreateDSV(DXGI_FORMAT_D32_FLOAT, g_SwapChain.GetWidth(), g_SwapChain.GetHeight());
+        g_DsvDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+        g_DsvDescriptorHeap.BindDepthStencilView(0, g_DsvResource);
+
+
+        // --------------------------------------------------------------------------
         // 初始化共通动态采样器
         InitializeCommonSampler();
 
@@ -175,11 +185,12 @@ namespace Graphics
             g_GraphicsCommandList->ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            g_GraphicsCommandList->OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, nullptr); // TODO 实现多目标渲染
+            g_GraphicsCommandList->OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_DsvDescriptorHeap.GetDescriptorHandle(0)); // TODO 实现多目标渲染
 
             // 记录命令
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
             g_GraphicsCommandList->ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
+            g_GraphicsCommandList->ClearDepthStencilView(g_DsvDescriptorHeap.GetDescriptorHandle(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
             SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
 
