@@ -83,9 +83,4 @@ void Input::BeforeUpdate()
 
     m_MouseDeltaPos = GetMousePosition() - m_MouseDeltaPos;
     m_MouseDeltaScrollWheel = ((float)m_LastMouseState.scrollWheelValue - m_MouseDeltaScrollWheel) * MIN_MOUSE_SCROLL_WHEEL_DELTA;
-
-    //if (Input::MouseButtonState(MouseButtonType::LeftButton))
-    //    TRACE(L"%f, %f\n", m_MouseDeltaPos.x, m_MouseDeltaPos.y);
-    if (m_MouseDeltaScrollWheel != 0.0f)
-        TRACE("%d\t%.2f", m_LastMouseState.scrollWheelValue, m_MouseDeltaScrollWheel);
 }

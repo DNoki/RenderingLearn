@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
-    <ClInclude Include="..\Source\D3D12Core\Utility.h" />
+    <ClInclude Include="..\Source\D3D12Core\GlobalUtility.h" />
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
     <ClInclude Include="..\Source\D3D12Core\Display.h" />
@@ -35,7 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Utility.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GlobalUtility.cpp" />
     <ClCompile Include="..\Source\D3D12Core\pch.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Display.cpp" />

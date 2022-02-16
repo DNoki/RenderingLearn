@@ -20,10 +20,15 @@
 
 using namespace winrt;
 using namespace std;
+using namespace Application;
+using namespace Game;
 
 
 namespace Graphics
 {
+    wstring g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
+    wstring g_TitleGPU;
+
     com_ptr<IDXGIFactory7> g_Factory;
     com_ptr<IDXGIAdapter4> g_Adapter;
     com_ptr<ID3D12Device6> g_Device;
@@ -101,7 +106,7 @@ namespace Graphics
             auto title = Application::GetWindowTitle();
             DXGI_ADAPTER_DESC3 desc;
             g_Adapter->GetDesc3(&desc);
-            Application::SetWindowTitle(Application::Format(L"%s  GPU(%s)", title.c_str(), desc.Description).c_str());
+            g_TitleGPU = desc.Description;
         }
 
         // --------------------------------------------------------------------------
@@ -208,6 +213,8 @@ namespace Graphics
 
         TimeSystem::AddFrameCompleted();
         TimeSystem::AddSwapFrameCompleted();
+
+        SetWindowTitle(Format(g_TitleFormat.c_str(), WINDOW_TITLE, g_TitleGPU.c_str(), Time::GetFPS()));
     }
 
     void OnDestroy()

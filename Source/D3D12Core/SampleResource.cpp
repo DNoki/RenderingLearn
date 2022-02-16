@@ -253,7 +253,7 @@ namespace Graphics
         };
         static int useSamplerIndex = 0;
         useSamplerIndex += Input::KeyDown(KeyCode::Space) ? 1 : 0;
-        if (useSamplerIndex >= 8) useSamplerIndex = 0;
+        useSamplerIndex = Math::Repeat(useSamplerIndex, 0, _countof(samplers));
 
         {
             {

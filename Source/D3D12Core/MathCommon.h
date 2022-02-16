@@ -24,6 +24,14 @@ public:
     static const float Rad2Deg; // 弧度转角度
 
     inline static float Abs(float x) noexcept { return abs(x); }
+    /**
+     * @brief 比较两个浮点数是否近似
+     * @param a
+     * @param b
+     * @param epsilon 容许值
+     * @return
+    */
+    inline static bool Approximately(float a, float b, float epsilon = Epsilon) { return DirectX::XMScalarNearEqual(a, b, epsilon); }
 
     inline static float Sin(float x) noexcept { return DirectX::XMScalarSin(x); }
     inline static float Cos(float x) noexcept { return DirectX::XMScalarCos(x); }
@@ -35,6 +43,29 @@ public:
 
     inline static float Clamp(float value, float min, float max) { return std::clamp(value, min, max); }
     inline static float Clamp01(float value, float min, float max) { return Clamp(value, 0.0f, 1.0f); }
+
+    /**
+     * @brief 将输入值按指定范围大小步进直至进入该范围
+     * @param value 输入值
+     * @param min 最小值
+     * @param max 最大值（不包含）
+     * @return
+    */
+    inline static int Repeat(int value, int min, int max)
+    {
+        if (min > max)
+        {
+            int temp = max;
+            max = min;
+            min = temp;
+        }
+        int range = max - min;
+        if (range == 0) return min;
+        value -= min;
+        if (value < 0)
+            value = range - (abs(value) % range);
+        return (value % range) + min;
+    }
 
 private:
     Math() {}
