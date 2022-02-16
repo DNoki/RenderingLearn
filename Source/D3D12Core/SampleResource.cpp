@@ -226,8 +226,8 @@ namespace Graphics
 
         g_ModelTrans = Transform();
         g_CameraTrans = Transform();
-        g_CameraTrans.LocalPosition = Vector3(0.0f, 0.0f, 10.0f);
-        g_CameraTrans.LocalEulerAngles = Vector3(0.0f, 3.0f, 0.0f);
+        g_CameraTrans.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+        g_CameraTrans.LocalEulerAngles = Vector3(0.0f, 0.0f, 0.0f);
         //g_CameraTrans.LocalEulerAngles = Vector3(30.0f * Math::Deg2Rad, 20.0f * Math::Deg2Rad, 0.0f);
     }
 
@@ -266,18 +266,19 @@ namespace Graphics
                     pos.x -= 1.0f;
                 if (Input::KeyState(KeyCode::D))
                     pos.x += 1.0f;
+                pos.z += Input::GetMouseDeltaScrollWheel() * 10.0f;
                 g_CameraTrans.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
 
                 Vector3 rot{};
-                if (Input::KeyState(KeyCode::Q))
-                    rot.y -= 1.0f;
-                if (Input::KeyState(KeyCode::E))
-                    rot.y += 1.0f;
-                if (Input::KeyState(KeyCode::R))
-                    rot.x -= 1.0f;
-                if (Input::KeyState(KeyCode::F))
-                    rot.x += 1.0f;
-                g_CameraTrans.LocalEulerAngles += rot * Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
+                if (Input::MouseButtonState(MouseButtonType::LeftButton))
+                {
+                    Vector2 deltaPos = Input::GetMouseDeltaPos();
+                    rot.y = deltaPos.x;
+                    rot.x = -deltaPos.y;
+                    rot.y *= -1.0f;
+                }
+                g_CameraTrans.LocalEulerAngles += rot * 10.0f * Time::GetDeltaTime() * Math::Deg2Rad;
+                //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
             }
 
             Matrix4x4 zInverse = Matrix4x4::Identity;
@@ -297,9 +298,9 @@ namespace Graphics
             //}
             view = g_CameraTrans.GetViewMatrix();
             //view = zInverse * view * zInverse;
-            TRACE("");
-            TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalPosition.x, g_CameraTrans.LocalPosition.y, g_CameraTrans.LocalPosition.z);
-            TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y, g_CameraTrans.LocalEulerAngles.z);
+            //TRACE("");
+            //TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalPosition.x, g_CameraTrans.LocalPosition.y, g_CameraTrans.LocalPosition.z);
+            //TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y, g_CameraTrans.LocalEulerAngles.z);
             //OutputMatrix4x4(view);
 
             Matrix4x4 model{};

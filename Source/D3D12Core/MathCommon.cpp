@@ -32,10 +32,59 @@
 */
 // --------------------------------------------------------------------------
 
+using namespace std;
+
+
 const float Math::Deg2Rad = 0.01745329251994329576923690768489f;
 const float Math::Epsilon = std::numeric_limits<float>::epsilon();
-const float Math::PI = 3.14159265358979323846264338327950288f;
+const float Math::PI = DirectX::XM_PI;
 const float Math::Rad2Deg = 57.295779513082320876798154814105f;
+
+
+Vector3 Quaternion::GetEulerAngles() const noexcept
+{
+    // https://zhuanlan.zhihu.com/p/45404840?from=groupmessage
+    using namespace DirectX;
+    const Quaternion& q = *this;
+    float pitch, yaw, roll;
+#if 0
+    // GLM 标准 XYZ ?
+    // z
+    roll = (Math::Atan2(2.0f * (q.x * q.y + q.w * q.z), q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z));
+    // x
+    pitch;
+    {
+        float _y = 2.0f * (q.y * q.z + q.w * q.x);
+        float _x = q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z;
+
+        if (!(Math::Abs(_x - _y) > Math::Epsilon)) //avoid atan2(0,0) - handle singularity - Matiis
+            pitch = 2.0f * Math::Atan2(q.x, q.w);
+        else pitch = Math::Atan2(_y, _x);
+    }
+    // y
+    yaw = Math::Asin(Math::Clamp(-2.0f * (q.x * q.z - q.w * q.y), -1.0f, 1.0f));
+#endif
+    //Matrix4x4 rotMatrix = XMMatrixRotationQuaternion(*this);
+
+    //roll = Math::Atan2(rotMatrix._12, rotMatrix._22);
+    //roll = Math::Atan2(2.0f * (q.x * q.y + q.w * q.z), 1.0f - 2.0f * (q.x * q.x + q.z * q.z));
+    roll = Math::Atan2(2.0f * (q.x * q.y + q.w * q.z), q.w * q.w + q.y * q.y - q.x * q.x - q.z * q.z);
+
+    //pitch = Math::Asin(-rotMatrix._32);
+    pitch = Math::Asin(Math::Clamp(2.0f * (q.w * q.x - q.y * q.z), -1.0f, 1.0f));
+
+    //yaw = Math::Atan2(rotMatrix._31, rotMatrix._33);
+    //yaw = Math::Atan2(2.0f * (q.x * q.z + q.y * q.w), 1.0f - 2.0f * (q.x * q.x + q.y * q.y));
+    {
+        float _y = 2.0f * (q.x * q.z + q.y * q.w);
+        float _x = q.w * q.w + q.z * q.z - q.x * q.x - q.y * q.y;
+        if (!(Math::Abs(_x - _y) > Math::Epsilon)) //avoid atan2(0,0) - handle singularity - Matiis
+            yaw = 2.0f * Math::Atan2(q.y, q.w);
+        else yaw = Math::Atan2(_y, _x);
+    }
+
+    return Vector3(pitch, yaw, roll);
+}
 
 
 const Matrix4x4 Matrix4x4::Identity = Matrix4x4();
@@ -44,4 +93,16 @@ void Matrix4x4::SetTRS(const Vector3& p, const Vector3& r, const Vector3& s) noe
 {
     using namespace DirectX;
     *this = XMMatrixScalingFromVector(s) * XMMatrixRotationRollPitchYawFromVector(r) * XMMatrixTranslationFromVector(p);
+}
+
+bool Matrix4x4::GetTRS(OUT Vector3& t, OUT Quaternion& r, OUT Vector3& s) const noexcept
+{
+    using namespace DirectX;
+    XMVECTOR _t, _r, _s;
+    bool result = XMMatrixDecompose(&_t, &_r, &_s, *this);
+    if (result)
+    {
+        t = _t; r = _r; s = _s;
+    }
+    return result;
 }

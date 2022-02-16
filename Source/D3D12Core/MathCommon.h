@@ -22,9 +22,19 @@ public:
     static const float PI;
     static const float Deg2Rad; // 角度转弧度
     static const float Rad2Deg; // 弧度转角度
-    //inline static float Dot(const Vector2& v1, const Vector2& v2) { return v1.Dot(v2); }
-    //inline static float Dot(const Vector3& v1, const Vector3& v2) { return v1.Dot(v2); }
-    //inline static float Dot(const Vector4& v1, const Vector4& v2) { return v1.Dot(v2); }
+
+    inline static float Abs(float x) noexcept { return abs(x); }
+
+    inline static float Sin(float x) noexcept { return DirectX::XMScalarSin(x); }
+    inline static float Cos(float x) noexcept { return DirectX::XMScalarCos(x); }
+    inline static float Tan(float x) noexcept { return tan(x); }
+    inline static float Asin(float x) noexcept { return DirectX::XMScalarASin(x); }
+    inline static float Acos(float x) noexcept { return DirectX::XMScalarACos(x); }
+    inline static float Atan(float x) noexcept { return atan(x); }
+    inline static float Atan2(float y, float x) noexcept { return atan2(y, x); }
+
+    inline static float Clamp(float value, float min, float max) { return std::clamp(value, min, max); }
+    inline static float Clamp01(float value, float min, float max) { return Clamp(value, 0.0f, 1.0f); }
 
 private:
     Math() {}
@@ -51,17 +61,12 @@ public:
 
     inline constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
 
-    inline Vector3 GetEulerAngles() const noexcept
-    {
-        using namespace DirectX;
-        // TODO
-        return Vector3();
-    }
+    Vector3 GetEulerAngles() const noexcept;
 
     inline static Quaternion EulerAngles(float p, float y, float r)
     {
         using namespace DirectX;
-        // XM标准为 ZXY
+        // XM标准为 YXZ
         return XMQuaternionRotationRollPitchYaw(p, y, r);
     }
     inline static Quaternion EulerAngles(Vector3 eulerAngles)
@@ -129,6 +134,8 @@ public:
         using namespace DirectX;
         *this = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(q) * XMMatrixTranslationFromVector(p);
     }
+
+    bool GetTRS(OUT Vector3& t, OUT Quaternion& r, OUT Vector3& s) const noexcept;
 
 
 public:
