@@ -41,6 +41,8 @@ const float Math::PI = DirectX::XM_PI;
 const float Math::Rad2Deg = 57.295779513082320876798154814105f;
 
 
+const Quaternion Quaternion::Identity = Quaternion();
+
 Vector3 Quaternion::GetEulerAngles() const noexcept
 {
     // https://zhuanlan.zhihu.com/p/45404840?from=groupmessage

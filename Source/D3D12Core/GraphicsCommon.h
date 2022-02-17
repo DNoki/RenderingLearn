@@ -35,7 +35,7 @@ namespace Graphics
         inline const IBufferResource* GetVertexBuffer() const { return m_VertexBuffer.get(); }
         inline const IBufferResource* GetIndexBuffer() const { return m_IndexBuffer.get(); }
 
-        static Mesh CreateCube(float size = 1, bool rhcoords = true);
+        static Mesh CreateCube(float size = 1, bool rhcoords = false);
 
     private:
         std::vector<VertexPositionNormalTexture> m_Vertices;

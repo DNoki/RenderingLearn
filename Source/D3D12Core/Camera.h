@@ -8,7 +8,7 @@ namespace Game
         // 本地坐标位置
         Vector3 LocalPosition;
         // 本地坐标旋转
-        Vector3 LocalEulerAngles;
+        Vector3 LocalEulerAngles; // TODO 使用四元数存储旋转
         // 本地坐标缩放
         Vector3 LocalScale;
 
@@ -24,25 +24,14 @@ namespace Game
         inline Matrix4x4 GetWorldToLocalMatrix() const { return GetLocalToWorldMatrix().Invert(); }
         inline Matrix4x4 GetViewMatrix() const
         {
-            using namespace DirectX;
-            Matrix4x4 m;
-            Matrix4x4 t;
-            Matrix4x4 r;
-            auto pos = -LocalPosition;
-            //pos.x *= -1.0f;
-            //pos.y *= -1.0f;
-            //pos.z *= -1.0f;
-            //m.SetTRS(pos, LocalEulerAngles, LocalScale);
-
-            t = XMMatrixTranslationFromVector(pos);
-
-            r = XMMatrixRotationRollPitchYawFromVector(LocalEulerAngles);
-
-            //m = t * r.Transpose();
-            m = r.Transpose() * t;
-            //m = m.Invert();
-
-            return m;
+            // 返回世界到相机的矩阵
+            auto t = Matrix4x4::CreateFromTranslation(-LocalPosition);
+            auto r = Matrix4x4::CreateFromRotation(LocalEulerAngles);
+#ifdef USE_COLUMN_MAJOR
+            return r.Transpose() * t;
+#else
+            return t * r.Transpose();
+#endif // USE_COLUMN_MAJOR
         }
 
     private:
