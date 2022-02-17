@@ -75,6 +75,7 @@ private:
 class Quaternion : public DirectX::XMFLOAT4
 {
 public:
+    // --------------------------------------------------------------------------
     Quaternion() : DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) {}
     Quaternion(const Quaternion&) = default;
     Quaternion(Quaternion&&) = default;
@@ -92,27 +93,56 @@ public:
 
     inline constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
 
+    // --------------------------------------------------------------------------
+    /**
+     * @brief 获取欧拉角 （顺序规则为 YXZ）
+     * @return
+    */
     Vector3 GetEulerAngles() const noexcept;
 
-    inline static Quaternion EulerAngles(float p, float y, float r)
-    {
-        using namespace DirectX;
-        // XM标准为 YXZ
-        return XMQuaternionRotationRollPitchYaw(p, y, r);
-    }
-    inline static Quaternion EulerAngles(Vector3 eulerAngles)
-    {
-        using namespace DirectX;
-        return EulerAngles(eulerAngles.x, eulerAngles.y, eulerAngles.z);
-    }
+    /**
+     * @brief 四元数的逆
+     * @return
+    */
+    Quaternion Inverse() const noexcept { return DirectX::XMQuaternionInverse(*this); }
+    /**
+     * @brief 四元数的共轭
+     * @return
+    */
+    Quaternion Conjugate() const noexcept { return DirectX::XMQuaternionConjugate(*this); }
+
+
+    inline static Quaternion CreateFromEulerAngles(float p, float y, float r) { return CreateFromEulerAngles(Vector3(p, y, r)); }
+    inline static Quaternion CreateFromEulerAngles(Vector3 eulerAngles) { return DirectX::XMQuaternionRotationRollPitchYawFromVector(eulerAngles); }
+    inline static Quaternion CreateFromAxisAngle(const Vector3& axis, float angle) noexcept { return DirectX::XMQuaternionRotationAxis(axis, angle); }
 
 private:
 
 };
 
+inline Quaternion operator * (const Quaternion& q1, const Quaternion& q2)
+{
+#ifdef USE_COLUMN_MAJOR
+    return DirectX::XMQuaternionMultiply(q2, q1);
+#else
+    return DirectX::XMQuaternionMultiply(q1, q2);
+#endif // USE_COLUMN_MAJOR
+}
+inline Quaternion operator * (const Vector3& v, const Quaternion& q)
+{
+#ifdef USE_COLUMN_MAJOR
+    return DirectX::XMVector3InverseRotate(v, q);
+#else
+    return DirectX::XMVector3Rotate(v, q);
+#endif // USE_COLUMN_MAJOR
+}
+inline Quaternion operator * (const Quaternion& q, const Vector3& v) { return v * q.Inverse(); }
+
+
 class Matrix4x4 : public DirectX::XMFLOAT4X4
 {
 public:
+    // --------------------------------------------------------------------------
     Matrix4x4() : DirectX::XMFLOAT4X4(
         1.f, 0, 0, 0,
         0, 1.f, 0, 0,
@@ -143,27 +173,20 @@ public:
             m30, m31, m32, m33) {}
 
 
-    inline Matrix4x4 Transpose() const noexcept
-    {
-        using namespace DirectX;
-        return XMMatrixTranspose(*this);
-    }
-    inline Matrix4x4 Invert() const noexcept
-    {
-        using namespace DirectX;
-        return XMMatrixInverse(nullptr, *this);
-    }
-    inline float Determinant() const noexcept
-    {
-        using namespace DirectX;
-        return XMVectorGetX(XMMatrixDeterminant(*this));
-    }
+    // --------------------------------------------------------------------------
+    inline Matrix4x4 Transpose() const noexcept { return DirectX::XMMatrixTranspose(*this); }
+    inline Matrix4x4 Invert() const noexcept { return DirectX::XMMatrixInverse(nullptr, *this); }
+    inline float Determinant() const noexcept { return DirectX::XMVectorGetX(XMMatrixDeterminant(*this)); }
 
-    void SetTRS(const Vector3& p, const Vector3& r, const Vector3& s) noexcept;
+    inline void SetTRS(const Vector3& p, const Vector3& r, const Vector3& s) noexcept { SetTRS(p, Quaternion::CreateFromEulerAngles(r), s); }
     inline void SetTRS(const Vector3& p, const Quaternion& q, const Vector3& s) noexcept
     {
         using namespace DirectX;
-        *this = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(q) * XMMatrixTranslationFromVector(p);
+#ifdef USE_COLUMN_MAJOR
+        * this = XMMatrixTranslationFromVector(p) * XMMatrixRotationQuaternion(q) * XMMatrixScalingFromVector(s);
+#else
+        * this = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(q) * XMMatrixTranslationFromVector(p);
+#endif // USE_COLUMN_MAJOR
     }
 
     bool GetTRS(OUT Vector3& t, OUT Quaternion& r, OUT Vector3& s) const noexcept;
@@ -178,17 +201,26 @@ private:
 
 inline Matrix4x4 operator * (const Matrix4x4& m1, const Matrix4x4& m2) noexcept
 {
-    using namespace DirectX;
-    return XMMatrixMultiply(m1, m2);
+#ifdef USE_COLUMN_MAJOR
+    return DirectX::XMMatrixMultiply(m2, m1);
+#else
+    return DirectX::XMMatrixMultiply(m1, m2);
+#endif // USE_COLUMN_MAJOR
 }
 inline Vector4 operator * (const Matrix4x4& m, const Vector4& v) noexcept
 {
-    using namespace DirectX;
-    return XMVector4Transform(v, XMMatrixTranspose(m));
+#ifdef USE_COLUMN_MAJOR
+    return DirectX::XMVector4Transform(v, m);
+#else
+    return DirectX::XMVector4Transform(v, m.Transpose());
+#endif // USE_COLUMN_MAJOR
 }
 inline Vector4 operator * (const Vector4& v, const Matrix4x4& m) noexcept
 {
-    using namespace DirectX;
-    return XMVector4Transform(v, m);
+#ifdef USE_COLUMN_MAJOR
+    return DirectX::XMVector4Transform(v, m.Transpose());
+#else
+    return DirectX::XMVector4Transform(v, m);
+#endif // USE_COLUMN_MAJOR
 }
 

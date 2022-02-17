@@ -112,11 +112,6 @@ Vector3 Quaternion::GetEulerAngles() const noexcept
 
 const Matrix4x4 Matrix4x4::Identity = Matrix4x4();
 
-void Matrix4x4::SetTRS(const Vector3& p, const Vector3& r, const Vector3& s) noexcept
-{
-    using namespace DirectX;
-    *this = XMMatrixScalingFromVector(s) * XMMatrixRotationRollPitchYawFromVector(r) * XMMatrixTranslationFromVector(p);
-}
 
 bool Matrix4x4::GetTRS(OUT Vector3& t, OUT Quaternion& r, OUT Vector3& s) const noexcept
 {

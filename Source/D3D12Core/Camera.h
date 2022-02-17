@@ -21,6 +21,7 @@ namespace Game
             m.SetTRS(LocalPosition, LocalEulerAngles, LocalScale);
             return m;
         }
+        inline Matrix4x4 GetWorldToLocalMatrix() const { return GetLocalToWorldMatrix().Invert(); }
         inline Matrix4x4 GetViewMatrix() const
         {
             using namespace DirectX;
@@ -37,7 +38,8 @@ namespace Game
 
             r = XMMatrixRotationRollPitchYawFromVector(LocalEulerAngles);
 
-            m = t * r.Transpose();
+            //m = t * r.Transpose();
+            m = r.Transpose() * t;
             //m = m.Invert();
 
             return m;

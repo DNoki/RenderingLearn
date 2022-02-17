@@ -131,7 +131,7 @@ namespace Graphics
         g_PipelineState.SetPixelShader(pixelShader.get());
         //g_PipelineState.GetDepthStencilState().DepthEnable = FALSE;
         g_PipelineState.GetRasterizerState().FrontCounterClockwise = TRUE; // TRUE:逆时针为正，FALSE:顺时针为正
-        g_PipelineState.SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_UNKNOWN);
+        g_PipelineState.SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
 
         g_PipelineState.Finalize();
     }
@@ -287,21 +287,15 @@ namespace Graphics
             Matrix4x4 pers = DirectX::XMMatrixPerspectiveFovLH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f);
 
             Matrix4x4 view;
-            //{
-            //    DirectX::XMVECTOR eyev = Vector3(0.0f, 10.0f, -10.0f);
-            //    DirectX::XMVECTOR targetv = Vector3(0.0f, 0.0f, 0.0f);
-            //    DirectX::XMVECTOR upv = Vector3::Up;
-            //    DirectX::XMStoreFloat4x4(&view, DirectX::XMMatrixLookAtRH(eyev, targetv, upv));
-            //    view = DirectX::XMMatrixRotationX(45.0f * Math::Deg2Rad) * DirectX::XMMatrixTranslation(0.0f, -10.0f, 10.0);
-            //    TRACE("");
-            //    OutputMatrix4x4(view);
-            //}
+            TRACE("g_CameraTrans.GetLocalToWorldMatrix()");
+            OutputMatrix4x4(g_CameraTrans.GetLocalToWorldMatrix());
+            TRACE("g_CameraTrans.GetWorldToLocalMatrix()");
+            OutputMatrix4x4(g_CameraTrans.GetWorldToLocalMatrix());
+            TRACE("g_CameraTrans.GetViewMatrix()");
+            OutputMatrix4x4(g_CameraTrans.GetViewMatrix());
+            TRACE("");
+            //view = g_CameraTrans.GetWorldToLocalMatrix();
             view = g_CameraTrans.GetViewMatrix();
-            //view = zInverse * view * zInverse;
-            //TRACE("");
-            //TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalPosition.x, g_CameraTrans.LocalPosition.y, g_CameraTrans.LocalPosition.z);
-            //TRACE("%.2f, %.2f, %.2f", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y, g_CameraTrans.LocalEulerAngles.z);
-            //OutputMatrix4x4(view);
 
             Matrix4x4 model{};
             //model.SetTranslation(Vector3(0.0f, -2.0f, 0.0f));
@@ -315,7 +309,8 @@ namespace Graphics
             g_MVPBuffer->m_P = pers;
             g_MVPBuffer->m_V = view;
             g_MVPBuffer->m_M = model;
-            g_MVPBuffer->m_MVP = model * view * pers;
+            g_MVPBuffer->m_MVP = pers * view * model;
+            //g_MVPBuffer->m_MVP = model * view * pers;
             //g_MVPBuffer->m_M = g_ModelTrans.GetTransformMatrix();
 
 
