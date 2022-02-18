@@ -109,4 +109,8 @@ namespace Graphics
     {
         g_Device->CreateRenderTargetView(renderTex.GetD3D12Resource(), renderTex.GetRtvDesc(), GetDescriptorHandle(index));
     }
+    void DescriptorHeap::BindDepthStencilView(int index, const RenderTexture& renderTex) const
+    {
+        g_Device->CreateDepthStencilView(renderTex.GetD3D12Resource(), renderTex.GetDsvDesc(), GetDescriptorHandle(index));
+    }
 }

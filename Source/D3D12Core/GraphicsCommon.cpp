@@ -2,8 +2,12 @@
 
 #include "GraphicsCore.h"
 #include "DescriptorHeap.h"
+#include "GraphicsBuffer.h"
 
 #include "GraphicsCommon.h"
+
+using namespace std;
+using namespace DirectX;
 
 
 namespace Graphics
@@ -105,7 +109,25 @@ namespace Graphics
         sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
         sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         g_Device->CreateSampler(&sampler, g_SamplerLinearMirror);
-
     }
+
+    Mesh Mesh::CreateCube(float size, bool rhcoords)
+    {
+        Mesh mesh;
+        GeometricPrimitive::CreateCube(mesh.m_Vertices, mesh.m_Indexes, size, rhcoords);
+
+        auto vertexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
+        vertexBuffer->DirectCreate(mesh.GetVertexBufferSize());
+        vertexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, sizeof(VertexPositionNormalTexture), mesh.GetVertexData());
+        mesh.m_VertexBuffer = move(vertexBuffer);
+
+        auto indexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
+        indexBuffer->DirectCreate(mesh.GetIndexBufferSize());
+        indexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, sizeof(UINT16), mesh.GetIndexData());
+        mesh.m_IndexBuffer = move(indexBuffer);
+
+        return mesh;
+    }
+
 }
 

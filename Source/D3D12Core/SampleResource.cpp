@@ -12,6 +12,8 @@
 
 #include "Display.h"
 #include "Input.h"
+#include "GameTime.h"
+#include "Camera.h"
 
 #include "SampleResource.h"
 
@@ -25,7 +27,7 @@ namespace Graphics
     RootSignature g_RootSignature;
     GraphicsPipelineState g_PipelineState;
 
-
+    Mesh g_SampleMesh;
     GraphicsBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
@@ -35,13 +37,20 @@ namespace Graphics
     GpuPlacedHeap g_VertexPlacedHeap;
     GpuPlacedHeap g_UploadPlacedHeap; // TODO 上传堆可以改成全局管理分配模式，按需索取
 
-    UploadBuffer g_MvpBufferRes[2];
+    UploadBuffer g_MvpBufferRes;
 
     struct MVPBuffer
     {
+        DirectX::XMFLOAT4X4 m_P;
+        DirectX::XMFLOAT4X4 m_V;
+        DirectX::XMFLOAT4X4 m_M;
         DirectX::XMFLOAT4X4 m_MVP;
     };
-    MVPBuffer* g_MVPBuffer[2];
+    MVPBuffer* g_MVPBuffer;
+
+
+    Camera g_Camera;
+    Transform g_ModelTrans;
 
 
     void InitRootSignature()
@@ -120,8 +129,9 @@ namespace Graphics
         g_PipelineState.SetRootSignature(&g_RootSignature);
         g_PipelineState.SetVertexShader(vertexShader.get());
         g_PipelineState.SetPixelShader(pixelShader.get());
-        g_PipelineState.GetDepthStencilState().DepthEnable = FALSE;
-        g_PipelineState.SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_UNKNOWN);
+        //g_PipelineState.GetDepthStencilState().DepthEnable = FALSE;
+        g_PipelineState.GetRasterizerState().FrontCounterClockwise = FALSE; // TRUE:逆时针为正，FALSE:顺时针为正
+        g_PipelineState.SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
 
         g_PipelineState.Finalize();
     }
@@ -170,39 +180,15 @@ namespace Graphics
         t_TexDH.BindShaderResourceView(0, t_DefaultTexture[1]);
 
 
-        auto mat = Matrix4x4::Identity;
-        mat._11 = cos(30.0f * 3.1415926f / 180.0f);
-        mat._12 = sin(30.0f * 3.1415926f / 180.0f);
-        mat._21 = -sin(30.0f * 3.1415926f / 180.0f);
-        mat._22 = cos(30.0f * 3.1415926f / 180.0f);
-        auto mvp = MVPBuffer
-        {
-            mat,
-        };
-
-        auto mat2 = mat;
-        mat2._11 = cos(-30.0f * 3.1415926f / 180.0f);
-        mat2._12 = sin(-30.0f * 3.1415926f / 180.0f);
-        mat2._21 = -sin(-30.0f * 3.1415926f / 180.0f);
-        mat2._22 = cos(-30.0f * 3.1415926f / 180.0f);
-        auto mvp2 = MVPBuffer
-        {
-            mat2,
-        };
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         //auto constantBufferSize = sizeof(MVPBuffer);
         {
-            g_MvpBufferRes[0].DirectCreate(constantBufferSize);
-            g_MvpBufferRes[0].Map(0, reinterpret_cast<void**>(&g_MVPBuffer[0]));
-            g_MVPBuffer[0]->m_MVP = mat;
-            //g_MvpBufferRes[0].DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes[0]);
-
-            g_MvpBufferRes[1].DirectCreate(constantBufferSize);
-            g_MvpBufferRes[1].Map(0, reinterpret_cast<void**>(&g_MVPBuffer[1]));
-            g_MVPBuffer[1]->m_MVP = mat2;
-            //g_MvpBufferRes[1].DispatchCopyBuffer(g_GraphicsCommandList, &mvp2);
+            g_MvpBufferRes.DirectCreate(constantBufferSize);
+            g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
+            g_MVPBuffer->m_MVP = Matrix4x4::Identity;
+            //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
+            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
@@ -234,9 +220,26 @@ namespace Graphics
         g_SampleVBV = GraphicsBuffer();
         //g_SampleVBV.DirectCreate(vertexBufferSize);
         g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
-        g_SampleVBV.DispatchCopyVertexBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+        g_SampleVBV.DispatchCopyBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+
+        g_SampleMesh = Mesh::CreateCube();
+
+        g_ModelTrans = Transform();
+        g_ModelTrans.LocalScale = Vector3::One * 2.0f;
+
+        g_Camera = Camera();
+        g_Camera.m_ProjectionMode = ProjectionMode::Orthographic;
+        g_Camera.m_Transform.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+        g_Camera.m_Transform.LocalEulerAngles = Vector3(0.0f, 0.0f, 0.0f) * Math::Deg2Rad;
     }
 
+    void OutputMatrix4x4(const Matrix4x4& m)
+    {
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._11, m._12, m._13, m._14);
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._21, m._22, m._23, m._24);
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._31, m._32, m._33, m._34);
+        TRACE("%.2f\t%.2f\t%.2f\t%.2f", m._41, m._42, m._43, m._44);
+    }
     void SampleDraw(ID3D12GraphicsCommandList* commandList)
     {
         static DescriptorHandle* samplers[] =
@@ -252,15 +255,69 @@ namespace Graphics
         };
         static int useSamplerIndex = 0;
         useSamplerIndex += Input::KeyDown(KeyCode::Space) ? 1 : 0;
-        if (useSamplerIndex >= 8) useSamplerIndex = 0;
+        useSamplerIndex = Math::Repeat(useSamplerIndex, 0, _countof(samplers));
 
         {
-            static int index = 0;
-            index += Input::KeyDown(KeyCode::Enter) ? 1 : 0;
-            if (index > 1) index = 0;
-            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes[index]);
+            {
+                Vector3 pos{};
+                if (Input::KeyState(KeyCode::W))
+                    pos.y += 1.0f;
+                if (Input::KeyState(KeyCode::S))
+                    pos.y -= 1.0f;
+                if (Input::KeyState(KeyCode::A))
+                    pos.x -= 1.0f;
+                if (Input::KeyState(KeyCode::D))
+                    pos.x += 1.0f;
+                pos.z += Input::GetMouseDeltaScrollWheel() * 10.0f;
+                g_Camera.m_Transform.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
 
-            t_TexDH.BindShaderResourceView(0, t_DefaultTexture[index]);
+                Vector3 rot{};
+                if (Input::MouseButtonState(MouseButtonType::LeftButton))
+                {
+                    Vector2 deltaPos = Input::GetMouseDeltaPos();
+                    rot.y = deltaPos.x;
+                    rot.x = -deltaPos.y;
+                    rot.y *= -1.0f;
+                }
+                g_Camera.m_Transform.LocalEulerAngles += rot * 10.0f * Time::GetDeltaTime() * Math::Deg2Rad;
+                //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
+
+                if (Input::KeyDown(KeyCode::R))
+                {
+                    g_Camera.m_Transform.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+                    g_Camera.m_Transform.LocalEulerAngles = Vector3::Zero;
+                    g_Camera.m_Transform.LocalScale = Vector3::One;
+                }
+            }
+
+            g_Camera.m_ProjectionMode = Input::KeyState(KeyCode::Enter) ? ProjectionMode::Orthographic : ProjectionMode::Perspective;
+            Matrix4x4 pers = g_Camera.GetProjectionMatrix();
+
+            Matrix4x4 view = g_Camera.GetViewMatrix();
+
+            Matrix4x4 model = g_ModelTrans.GetLocalToWorldMatrix();
+
+            g_MVPBuffer->m_P = pers;
+            g_MVPBuffer->m_V = view;
+            g_MVPBuffer->m_M = model;
+#ifdef USE_COLUMN_MAJOR
+            g_MVPBuffer->m_MVP = pers * view * model;
+#else
+            g_MVPBuffer->m_MVP = model * view * pers;
+#endif // USE_COLUMN_MAJOR
+
+            //TRACE("pers");
+            //OutputMatrix4x4(pers);
+            //TRACE("view");
+            //OutputMatrix4x4(view);
+            //TRACE("model");
+            //OutputMatrix4x4(model);
+            //TRACE("pers * view * model");
+            //OutputMatrix4x4(g_MVPBuffer->m_MVP);
+
+            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
+
+            t_TexDH.BindShaderResourceView(0, t_DefaultTexture[0]);
         }
 
         // 绑定描述符堆
@@ -279,9 +336,15 @@ namespace Graphics
         //commandList->DrawInstanced(3, 1, 0, 0);
 
         // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
-        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        commandList->IASetVertexBuffers(0, 1, g_SampleVBV);
-        commandList->DrawInstanced(4, 1, 0, 0);
+        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        auto vbv = static_cast<const GraphicsBuffer*>(g_SampleMesh.GetVertexBuffer())->GetVBV();
+        commandList->IASetVertexBuffers(0, 1, vbv);
+        commandList->IASetIndexBuffer(static_cast<const GraphicsBuffer*>(g_SampleMesh.GetIndexBuffer())->GetIBV());
+        commandList->DrawIndexedInstanced(g_SampleMesh.GetIndexCount(), 1, 0, 0, 0);
+
+        //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
+        //commandList->DrawInstanced(4, 1, 0, 0);
     }
 
 }

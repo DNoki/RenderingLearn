@@ -83,7 +83,7 @@
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
       <PreprocessorDefinitions>D3DCOMPILE_DEBUG;D3DCOMPILE_DEBUG_NAME_FOR_BINARY</PreprocessorDefinitions>
-      <AdditionalOptions>/Zpc %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -117,10 +117,11 @@
       <ObjectFileOutput>$(OutDir)CompiledShaders\%(Filename).cso</ObjectFileOutput>
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
-      <AdditionalOptions>/Zpc %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\D3D12Core\Camera.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
@@ -144,11 +145,12 @@
     <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
     <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
-    <ClInclude Include="..\Source\D3D12Core\Utility.h" />
+    <ClInclude Include="..\Source\D3D12Core\GlobalUtility.h" />
     <ClInclude Include="..\Source\Shaders\Sample.shader" />
     <ClInclude Include="..\Source\Shaders\SampleTexture.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\D3D12Core\Camera.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />
@@ -175,7 +177,7 @@
     <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />
     <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Utility.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GlobalUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Source\Shaders\SampleTexture_ps.hlsl" />

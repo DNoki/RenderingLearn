@@ -18,7 +18,6 @@ using namespace std;
 using namespace DirectX;
 using namespace Game;
 
-static bool g_KeyDownFlag;
 
 unique_ptr<Keyboard>                        Input::m_Keyboard;
 unique_ptr<Keyboard::KeyboardStateTracker>  Input::m_KbdTracker;
@@ -26,6 +25,10 @@ unique_ptr<Mouse>                           Input::m_Mouse;
 unique_ptr<Mouse::ButtonStateTracker>       Input::m_MouseTracker;
 std::vector<const DirectX::Mouse::ButtonStateTracker::ButtonState*> Input::m_MouseButtonsState;
 DirectX::Mouse::State                       Input::m_LastMouseState;
+Vector2                                     Input::m_MouseDeltaPos;
+float                                       Input::m_MouseDeltaScrollWheel;
+
+constexpr float MIN_MOUSE_SCROLL_WHEEL_DELTA = 1.0f / 120.0f; // 鼠标滚轮最小变化量归一化系数
 
 Input::Input()
 {
@@ -71,10 +74,13 @@ void Input::BeforeUpdate()
     auto kbdState = m_Keyboard->GetState();
     m_KbdTracker->Update(kbdState);
 
+    // 存储用于计算微变量
+    m_MouseDeltaPos = GetMousePosition();
+    m_MouseDeltaScrollWheel = (float)m_LastMouseState.scrollWheelValue;
+
     m_LastMouseState = m_Mouse->GetState();
     m_MouseTracker->Update(m_LastMouseState);
 
-    auto mousePos = GetMousePosition();
-    if (Input::MouseButtonState(MouseButtonType::LeftButton))
-        TRACE(L"%f, %f\n", mousePos.x, mousePos.y);
+    m_MouseDeltaPos = GetMousePosition() - m_MouseDeltaPos;
+    m_MouseDeltaScrollWheel = ((float)m_LastMouseState.scrollWheelValue - m_MouseDeltaScrollWheel) * MIN_MOUSE_SCROLL_WHEEL_DELTA;
 }

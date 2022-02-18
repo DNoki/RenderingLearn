@@ -35,7 +35,8 @@ namespace Game
         inline static bool MouseButtonUp(MouseButtonType button) { return *m_MouseButtonsState[static_cast<int>(button)] == DirectX::Mouse::ButtonStateTracker::RELEASED; };
 
         inline static Vector2 GetMousePosition() { return Vector2((float)m_LastMouseState.x, (float)m_LastMouseState.y); };
-        inline static float GetMouseScrollWheel() { return (float)m_LastMouseState.scrollWheelValue; }
+        inline static Vector2 GetMouseDeltaPos() { return m_MouseDeltaPos; }
+        inline static float GetMouseDeltaScrollWheel() { return m_MouseDeltaScrollWheel; }
 
 
     private:
@@ -48,5 +49,7 @@ namespace Game
         static std::unique_ptr<DirectX::Mouse::ButtonStateTracker> m_MouseTracker; // 鼠标消息追踪
         static std::vector<const DirectX::Mouse::ButtonStateTracker::ButtonState*> m_MouseButtonsState;
         static DirectX::Mouse::State m_LastMouseState; // 鼠标最后状态
+        static Vector2 m_MouseDeltaPos;
+        static float m_MouseDeltaScrollWheel;
     };
 }

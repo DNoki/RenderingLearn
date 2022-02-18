@@ -55,6 +55,8 @@
 #include <Keyboard.h>
 #include <Mouse.h>
 
+#include <GeometricPrimitive.h> // 用于创建预置模型
+
 
 
 #pragma region DEFINE
@@ -79,8 +81,9 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 
 // --------------------------------------------------------------------------
 // 共通头文件
+#include "GlobalUtility.h"
+#define USE_COLUMN_MAJOR
 #include "MathCommon.h"
-#include "Utility.h"
 
 
 #if DEBUG

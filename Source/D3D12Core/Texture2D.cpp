@@ -14,7 +14,7 @@ namespace Graphics
 
     void Texture2D::DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
     {
-        m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, 1, 1);
+        m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, arraySize, mipLevels);
 
         // 纹理资源的存储堆类型必须为 默认堆
         // 无法在 D3D12_HEAP_TYPE_UPLOAD 或 D3D12_HEAP_TYPE_READBACK 堆上创建纹理资源。
@@ -31,7 +31,7 @@ namespace Graphics
 
     void Texture2D::PlacedCreate(GpuPlacedHeap& pPlacedHeap, DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
     {
-        m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, 1, 1);
+        m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, arraySize, mipLevels);
 
         // 要放入的放置堆类型必须是上传堆
         ASSERT(pPlacedHeap.GetHeapDesc()->Properties.Type == D3D12_HEAP_TYPE_DEFAULT);

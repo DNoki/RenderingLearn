@@ -67,6 +67,7 @@ namespace Graphics
         void BindShaderResourceView(int index, const ITexture& tex) const;
 
         void BindRenderTargetView(int index, const RenderTexture& renderTex) const;
+        void BindDepthStencilView(int index, const RenderTexture& renderTex) const;
 
     private:
         winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap;        // 描述符堆

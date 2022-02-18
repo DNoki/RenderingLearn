@@ -20,10 +20,15 @@
 
 using namespace winrt;
 using namespace std;
+using namespace Application;
+using namespace Game;
 
 
 namespace Graphics
 {
+    wstring g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
+    wstring g_TitleGPU;
+
     com_ptr<IDXGIFactory7> g_Factory;
     com_ptr<IDXGIAdapter4> g_Adapter;
     com_ptr<ID3D12Device6> g_Device;
@@ -34,6 +39,9 @@ namespace Graphics
     CommandQueue g_CopyCommandQueue;
 
     CommandList g_GraphicsCommandList;
+
+    RenderTexture g_DsvResource;
+    DescriptorHeap g_DsvDescriptorHeap;
 
 
     void InitializeCommonSampler();
@@ -98,7 +106,7 @@ namespace Graphics
             auto title = Application::GetWindowTitle();
             DXGI_ADAPTER_DESC3 desc;
             g_Adapter->GetDesc3(&desc);
-            Application::SetWindowTitle(Application::Format(L"%s  GPU(%s)", title.c_str(), desc.Description).c_str());
+            g_TitleGPU = desc.Description;
         }
 
         // --------------------------------------------------------------------------
@@ -119,6 +127,13 @@ namespace Graphics
         // --------------------------------------------------------------------------
         // 初始化交换链
         g_SwapChain.CreateForHwnd(Application::g_Hwnd, SWAP_FRAME_BACK_BUFFER_COUNT, SWAP_CHAIN_RENDER_TARGET_FORMAT);
+
+
+        // --------------------------------------------------------------------------
+        // 创建深度模板渲染贴图
+        g_DsvResource.DirectCreateDSV(DXGI_FORMAT_D32_FLOAT, g_SwapChain.GetWidth(), g_SwapChain.GetHeight());
+        g_DsvDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+        g_DsvDescriptorHeap.BindDepthStencilView(0, g_DsvResource);
 
 
         // --------------------------------------------------------------------------
@@ -175,11 +190,12 @@ namespace Graphics
             g_GraphicsCommandList->ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            g_GraphicsCommandList->OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, nullptr); // TODO 实现多目标渲染
+            g_GraphicsCommandList->OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_DsvDescriptorHeap.GetDescriptorHandle(0)); // TODO 实现多目标渲染
 
             // 记录命令
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
             g_GraphicsCommandList->ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
+            g_GraphicsCommandList->ClearDepthStencilView(g_DsvDescriptorHeap.GetDescriptorHandle(0), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
             SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
 
@@ -197,6 +213,8 @@ namespace Graphics
 
         TimeSystem::AddFrameCompleted();
         TimeSystem::AddSwapFrameCompleted();
+
+        SetWindowTitle(Format(g_TitleFormat.c_str(), WINDOW_TITLE, g_TitleGPU.c_str(), Time::GetFPS()));
     }
 
     void OnDestroy()

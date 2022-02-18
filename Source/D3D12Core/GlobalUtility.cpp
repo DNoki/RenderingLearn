@@ -5,7 +5,7 @@
 
 #include "GraphicsCore.h"
 
-#include "Utility.h"
+#include "GlobalUtility.h"
 
 // --------------------------------------------------------------------------
 /*
