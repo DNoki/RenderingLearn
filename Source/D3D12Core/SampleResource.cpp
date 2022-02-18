@@ -49,7 +49,7 @@ namespace Graphics
     MVPBuffer* g_MVPBuffer;
 
 
-    Transform g_CameraTrans;
+    Camera g_Camera;
     Transform g_ModelTrans;
 
 
@@ -225,9 +225,12 @@ namespace Graphics
         g_SampleMesh = Mesh::CreateCube();
 
         g_ModelTrans = Transform();
-        g_CameraTrans = Transform();
-        g_CameraTrans.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
-        g_CameraTrans.LocalEulerAngles = Vector3(0.0f, 0.0f, 0.0f) * Math::Deg2Rad;
+        g_ModelTrans.LocalScale = Vector3::One * 2.0f;
+
+        g_Camera = Camera();
+        g_Camera.m_ProjectionMode = ProjectionMode::Orthographic;
+        g_Camera.m_Transform.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+        g_Camera.m_Transform.LocalEulerAngles = Vector3(0.0f, 0.0f, 0.0f) * Math::Deg2Rad;
     }
 
     void OutputMatrix4x4(const Matrix4x4& m)
@@ -266,7 +269,7 @@ namespace Graphics
                 if (Input::KeyState(KeyCode::D))
                     pos.x += 1.0f;
                 pos.z += Input::GetMouseDeltaScrollWheel() * 10.0f;
-                g_CameraTrans.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
+                g_Camera.m_Transform.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
 
                 Vector3 rot{};
                 if (Input::MouseButtonState(MouseButtonType::LeftButton))
@@ -276,31 +279,23 @@ namespace Graphics
                     rot.x = -deltaPos.y;
                     rot.y *= -1.0f;
                 }
-                g_CameraTrans.LocalEulerAngles += rot * 10.0f * Time::GetDeltaTime() * Math::Deg2Rad;
+                g_Camera.m_Transform.LocalEulerAngles += rot * 10.0f * Time::GetDeltaTime() * Math::Deg2Rad;
                 //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
 
                 if (Input::KeyDown(KeyCode::R))
                 {
-                    g_CameraTrans.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
-                    g_CameraTrans.LocalEulerAngles = Vector3::Zero;
-                    g_CameraTrans.LocalScale = Vector3::One;
+                    g_Camera.m_Transform.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+                    g_Camera.m_Transform.LocalEulerAngles = Vector3::Zero;
+                    g_Camera.m_Transform.LocalScale = Vector3::One;
                 }
             }
 
-            Matrix4x4 zInverse = Matrix4x4::Identity;
-            zInverse._33 = -1.0f;
+            g_Camera.m_ProjectionMode = Input::KeyState(KeyCode::Enter) ? ProjectionMode::Orthographic : ProjectionMode::Perspective;
+            Matrix4x4 pers = g_Camera.GetProjectionMatrix();
 
-            Matrix4x4 pers = DirectX::XMMatrixPerspectiveFovLH(Math::PI * 0.25f, g_SwapChain.GetScreenAspect(), 0.01f, 1000.0f);
+            Matrix4x4 view = g_Camera.GetViewMatrix();
 
-            Matrix4x4 view;
-            view = g_CameraTrans.GetViewMatrix();
-
-            Matrix4x4 model{};
-            model.SetTRS(
-                Vector3(0.0f, 0.0f, 0.0f),
-                Quaternion(),
-                //Quaternion(DirectX::XMQuaternionRotationAxis(Vector3(0.0f, 1.0f, 0.0f), Time::GetRunTime() * Math::Deg2Rad * 90.0f)),
-                Vector3(2.0f, 2.0f, 2.0f));
+            Matrix4x4 model = g_ModelTrans.GetLocalToWorldMatrix();
 
             g_MVPBuffer->m_P = pers;
             g_MVPBuffer->m_V = view;
@@ -310,7 +305,6 @@ namespace Graphics
 #else
             g_MVPBuffer->m_MVP = model * view * pers;
 #endif // USE_COLUMN_MAJOR
-            //g_MVPBuffer->m_M = g_ModelTrans.GetTransformMatrix();
 
             //TRACE("pers");
             //OutputMatrix4x4(pers);
