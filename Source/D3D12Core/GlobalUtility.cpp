@@ -271,7 +271,7 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob**
     file.seekg(0, ios_base::end);
     auto size = file.tellg();
     file.seekg(0, ios_base::beg);
-    
+
     auto hresult = D3DCreateBlob(size, ppCode);
     CHECK_HRESULT(hresult);
 

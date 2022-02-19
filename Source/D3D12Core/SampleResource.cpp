@@ -14,6 +14,7 @@
 #include "Input.h"
 #include "GameTime.h"
 #include "Camera.h"
+#include "Mesh.h"
 
 #include "SampleResource.h"
 
@@ -27,7 +28,7 @@ namespace Graphics
     RootSignature g_RootSignature;
     GraphicsPipelineState g_PipelineState;
 
-    Mesh g_SampleMesh;
+    vector<Mesh> g_SampleMeshs;
     GraphicsBuffer g_SampleVBV;
 
     DescriptorHeap t_TexDH;
@@ -131,6 +132,7 @@ namespace Graphics
         g_PipelineState.SetPixelShader(pixelShader.get());
         //g_PipelineState.GetDepthStencilState().DepthEnable = FALSE;
         g_PipelineState.GetRasterizerState().FrontCounterClockwise = FALSE; // TRUE:逆时针为正，FALSE:顺时针为正
+        //g_PipelineState.GetRasterizerState().FillMode = D3D12_FILL_MODE::D3D12_FILL_MODE_WIREFRAME;
         g_PipelineState.SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
 
         g_PipelineState.Finalize();
@@ -221,14 +223,27 @@ namespace Graphics
         //g_SampleVBV.DirectCreate(vertexBufferSize);
         g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
         g_SampleVBV.DispatchCopyBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+        //g_SampleMeshs.push_back(Mesh());
+        //g_SampleMeshs[g_SampleMeshs.size() - 1].DirectCreate((UINT)_countof(vertices), vertices);
 
-        g_SampleMesh = Mesh::CreateCube();
+        //g_SampleMesh = Mesh::CreateCube();
+        //g_SampleMesh = Mesh::CreateSphere();
+        //g_SampleMesh = Mesh::CreateGeoSphere();
+        //g_SampleMesh = Mesh::CreateCylinder();
+        //g_SampleMesh = Mesh::CreateCone();
+        //g_SampleMesh = Mesh::CreateTorus();
+        //g_SampleMesh = Mesh::CreateTetrahedron();
+        //g_SampleMesh = Mesh::CreateOctahedron();
+        //g_SampleMesh = Mesh::CreateDodecahedron();
+        //g_SampleMesh = Mesh::CreateIcosahedron();
+        g_SampleMeshs.push_back(Mesh::CreateTeapot());
 
         g_ModelTrans = Transform();
         g_ModelTrans.LocalScale = Vector3::One * 2.0f;
 
         g_Camera = Camera();
         g_Camera.m_ProjectionMode = ProjectionMode::Orthographic;
+        g_Camera.m_FieldOfView = 60.0f;
         g_Camera.m_Transform.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
         g_Camera.m_Transform.LocalEulerAngles = Vector3(0.0f, 0.0f, 0.0f) * Math::Deg2Rad;
     }
@@ -288,6 +303,8 @@ namespace Graphics
                     g_Camera.m_Transform.LocalEulerAngles = Vector3::Zero;
                     g_Camera.m_Transform.LocalScale = Vector3::One;
                 }
+
+                g_ModelTrans.LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
             }
 
             g_Camera.m_ProjectionMode = Input::KeyState(KeyCode::Enter) ? ProjectionMode::Orthographic : ProjectionMode::Perspective;
@@ -335,16 +352,20 @@ namespace Graphics
         //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());
         //commandList->DrawInstanced(3, 1, 0, 0);
 
-        // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
-        commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        auto vbv = static_cast<const GraphicsBuffer*>(g_SampleMesh.GetVertexBuffer())->GetVBV();
-        commandList->IASetVertexBuffers(0, 1, vbv);
-        commandList->IASetIndexBuffer(static_cast<const GraphicsBuffer*>(g_SampleMesh.GetIndexBuffer())->GetIBV());
-        commandList->DrawIndexedInstanced(g_SampleMesh.GetIndexCount(), 1, 0, 0, 0);
+        for (int i = 0; i < g_SampleMeshs.size(); i++)
+        {
+            commandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            commandList->IASetVertexBuffers(0, 1, g_SampleMeshs[i].GetVertexBuffer()->GetVBV());
+            commandList->IASetIndexBuffer(g_SampleMeshs[i].GetIndexBuffer()->GetIBV());
+            commandList->DrawIndexedInstanced(g_SampleMeshs[i].GetIndexCount(), 1, 0, 0, 0);
+        }
 
-        //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
-        //commandList->DrawInstanced(4, 1, 0, 0);
+        // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
+        //{
+        //    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        //    commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
+        //    commandList->DrawInstanced(4, 1, 0, 0);
+        //}
     }
 
 }

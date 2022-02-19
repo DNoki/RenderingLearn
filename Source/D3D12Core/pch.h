@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <bitset>
+#include <typeinfo>
 //#include <string>
 //#include <sstream>
 //#include <ostream>

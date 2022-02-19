@@ -54,10 +54,13 @@ namespace Graphics
          * @brief 获取渲染目标贴图
          * @return
         */
-        inline const RenderTexture& GetBackBuffer(UINT index) const
+        inline const RenderTexture& GetRenderTarget(UINT index) const
         {
             return m_RenderTargets[index];
         }
+
+        inline DescriptorHandle GetDsvDescHandle() const { return m_DsvDescriptorHeap.GetDescriptorHandle(0); }
+        inline const RenderTexture& GetDepthStencil() const { return *m_DepthStencils; }
 
         // --------------------------------------------------------------------------
         /**
@@ -84,6 +87,9 @@ namespace Graphics
 
         DescriptorHeap m_RtvDescriptorHeap; // 渲染目标描述符堆
         std::vector<RenderTexture> m_RenderTargets; // 渲染目标贴图列表
+
+        DescriptorHeap m_DsvDescriptorHeap;
+        std::unique_ptr<RenderTexture> m_DepthStencils; // 渲染目标贴图列表
 
         /**
          * @brief 重新生成渲染目标贴图
