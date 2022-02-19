@@ -14,7 +14,7 @@ namespace Graphics
 
     extern GraphicsBuffer g_SampleVBV;
 
-    extern DescriptorHeap t_TexDH;
+    extern DescriptorHeap t_SampleResDescHeap;
     extern GpuPlacedHeap g_TexPlacedHeap;
     extern GpuPlacedHeap g_UploadPlacedHeap;
 
@@ -24,6 +24,7 @@ namespace Graphics
     void InitMesh();
     void InitPlacedHeap();
     void InitTexture2D();
+    void InitCommandListBundle();
 
     void SampleDraw(ID3D12GraphicsCommandList* commandList);
 }

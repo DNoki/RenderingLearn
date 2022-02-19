@@ -9,6 +9,7 @@
 #include "GraphicsCommon.h"
 #include "GraphicsCore.h"
 #include "PipelineState.h"
+#include "CommandList.h"
 
 #include "Display.h"
 #include "Input.h"
@@ -31,7 +32,7 @@ namespace Graphics
     vector<Mesh> g_SampleMeshs;
     GraphicsBuffer g_SampleVBV;
 
-    DescriptorHeap t_TexDH;
+    DescriptorHeap t_SampleResDescHeap;
     Texture2D t_DefaultTexture[2];
 
     GpuPlacedHeap g_TexPlacedHeap;
@@ -53,6 +54,9 @@ namespace Graphics
     Camera g_Camera;
     Transform g_ModelTrans;
 
+    CommandList g_BundleCommandList;
+    //com_ptr<ID3D12CommandAllocator> g_SampleBundleCommandAllocator;
+    //com_ptr<ID3D12GraphicsCommandList5> g_SampleBundleGraphicsCommandList;
 
     void InitRootSignature()
     {
@@ -155,14 +159,14 @@ namespace Graphics
     }
     void InitTexture2D()
     {
-        t_TexDH = DescriptorHeap();
-        t_TexDH.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
+        t_SampleResDescHeap = DescriptorHeap();
+        t_SampleResDescHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
 
         auto texPath = Application::GetAssetPath();
         texPath.append("Shimarin.png");
 
         // 创建Checker贴图
-        //t_DefaultTexture.GenerateChecker(t_TexDH.GetDescriptorHandle(0), 256, 256);
+        //t_DefaultTexture.GenerateChecker(t_SampleResDescHeap.GetDescriptorHandle(0), 256, 256);
 
         TextureLoader texData;
         texData.LoadTexture2D(texPath);
@@ -179,7 +183,7 @@ namespace Graphics
         t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
-        t_TexDH.BindShaderResourceView(0, t_DefaultTexture[1]);
+        t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[1]);
 
 
 
@@ -190,7 +194,7 @@ namespace Graphics
             g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
+            t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
@@ -246,6 +250,39 @@ namespace Graphics
         g_Camera.m_FieldOfView = 60.0f;
         g_Camera.m_Transform.LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
         g_Camera.m_Transform.LocalEulerAngles = Vector3(0.0f, 0.0f, 0.0f) * Math::Deg2Rad;
+    }
+
+    void InitCommandListBundle()
+    {
+        g_BundleCommandList.Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
+        auto* bundleCommandList = g_BundleCommandList.GetD3D12CommandList();
+
+
+        // 设置根签名
+        bundleCommandList->SetGraphicsRootSignature(g_PipelineState.GetD3D12RootSignature());
+        // 管线状态
+        bundleCommandList->SetPipelineState(g_PipelineState.GetD3D12PSO());
+
+        // 绑定描述符堆
+        {
+            ID3D12DescriptorHeap* ppHeaps[] = { t_SampleResDescHeap.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
+            bundleCommandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+            auto rootPrarmIndex = 0;
+            for (UINT i = 0; i < t_SampleResDescHeap.GetDescriptorsCount(); i++)
+                bundleCommandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, t_SampleResDescHeap.GetDescriptorHandle(i));
+            bundleCommandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, g_SamplerLinearClamp);
+        }
+
+        // 设置顶点缓冲、索引缓冲
+        bundleCommandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        bundleCommandList->IASetVertexBuffers(0, 1, g_SampleMeshs[0].GetVertexBuffer()->GetVBV());
+        bundleCommandList->IASetIndexBuffer(g_SampleMeshs[0].GetIndexBuffer()->GetIBV());
+
+        // DrawCall
+        bundleCommandList->DrawIndexedInstanced(g_SampleMeshs[0].GetIndexCount(), 1, 0, 0, 0);
+
+        g_BundleCommandList.Close();
     }
 
     void OutputMatrix4x4(const Matrix4x4& m)
@@ -332,33 +369,33 @@ namespace Graphics
             //TRACE("pers * view * model");
             //OutputMatrix4x4(g_MVPBuffer->m_MVP);
 
-            t_TexDH.BindConstantBufferView(1, g_MvpBufferRes);
+            //t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
 
-            t_TexDH.BindShaderResourceView(0, t_DefaultTexture[0]);
+            //t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[0]);
         }
 
         // 绑定描述符堆
-        {
-            ID3D12DescriptorHeap* ppHeaps[] = { t_TexDH.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
-            commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+        //{
+        //    ID3D12DescriptorHeap* ppHeaps[] = { t_SampleResDescHeap.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
+        //    commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
 
-            auto rootPrarmIndex = 0;
-            for (UINT i = 0; i < t_TexDH.GetDescriptorsCount(); i++)
-                commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, t_TexDH.GetDescriptorHandle(i));
-            commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, *samplers[useSamplerIndex]);
-        }
+        //    auto rootPrarmIndex = 0;
+        //    for (UINT i = 0; i < t_SampleResDescHeap.GetDescriptorsCount(); i++)
+        //        commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, t_SampleResDescHeap.GetDescriptorHandle(i));
+        //    commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, *samplers[useSamplerIndex]);
+        //}
 
         //commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         //commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetD3D12VBV());
         //commandList->DrawInstanced(3, 1, 0, 0);
 
-        for (int i = 0; i < g_SampleMeshs.size(); i++)
-        {
-            commandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            commandList->IASetVertexBuffers(0, 1, g_SampleMeshs[i].GetVertexBuffer()->GetVBV());
-            commandList->IASetIndexBuffer(g_SampleMeshs[i].GetIndexBuffer()->GetIBV());
-            commandList->DrawIndexedInstanced(g_SampleMeshs[i].GetIndexCount(), 1, 0, 0, 0);
-        }
+        //for (int i = 0; i < g_SampleMeshs.size(); i++)
+        //{
+        //    commandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        //    commandList->IASetVertexBuffers(0, 1, g_SampleMeshs[i].GetVertexBuffer()->GetVBV());
+        //    commandList->IASetIndexBuffer(g_SampleMeshs[i].GetIndexBuffer()->GetIBV());
+        //    commandList->DrawIndexedInstanced(g_SampleMeshs[i].GetIndexCount(), 1, 0, 0, 0);
+        //}
 
         // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
         //{
@@ -366,6 +403,10 @@ namespace Graphics
         //    commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
         //    commandList->DrawInstanced(4, 1, 0, 0);
         //}
+
+        ID3D12DescriptorHeap* ppHeaps[] = { t_SampleResDescHeap.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
+        commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+        commandList->ExecuteBundle(g_BundleCommandList.GetD3D12CommandList());
     }
 
 }

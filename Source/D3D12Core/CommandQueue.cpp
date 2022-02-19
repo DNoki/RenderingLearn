@@ -48,8 +48,9 @@ namespace Graphics
         queueDesc.Type = m_Type; // 命令队列类型
         queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL; // 命令队列的优先级
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // 命令队列选项
-        queueDesc.NodeMask = 1; // 节点标识
+        queueDesc.NodeMask = NODEMASK; // 节点标识
         CHECK_HRESULT(g_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
+        SET_DEBUGNAME(m_CommandQueue.get(), _T("CommandQueue"));
 
 
         // 创建同步对象 Fence， 用于等待渲染完成
@@ -83,10 +84,12 @@ namespace Graphics
 
         for (UINT i = 0; i < numCommandLists; i++)
         {
-            commandLists[0]->Close(); // 关闭列表以执行命令
-            m_Allocators.push_back(commandLists[0].GetCommandAllocator()); // 添加分配器到使用中
-            commandLists[0].SetLocked();
-            ppCommandLists[i] = commandLists[0].GetD3D12CommandList();
+            ASSERT(m_Type == commandLists[i].GetType(), L"ERROR::命令列表类型与队列类型不一致。");
+            ASSERT(!commandLists[i].IsLocked()); // 设只允许队列来关闭命令列表
+
+            m_Allocators.push_back(commandLists[i].GetCommandAllocator()); // 添加分配器到使用中
+            commandLists[i].Close(); // 关闭列表以执行命令
+            ppCommandLists[i] = commandLists[i].GetD3D12CommandList();
         }
         m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
     }
@@ -113,7 +116,7 @@ namespace Graphics
         // 将所有使用的分配器释放
         for (auto allocator : m_Allocators)
         {
-            allocator->Restore();
+            CommandAllocatorPool::Restore(allocator);
         }
         m_Allocators.clear();
     }

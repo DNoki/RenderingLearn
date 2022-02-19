@@ -56,11 +56,12 @@ namespace Graphics
         m_DescriptorHeapDesc.NumDescriptors = count;
         m_DescriptorHeapDesc.Type = type;
         m_DescriptorHeapDesc.Flags = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        m_DescriptorHeapDesc.NodeMask = 1;
+        m_DescriptorHeapDesc.NodeMask = NODEMASK;
 
 
         // 创建描述符堆
         CHECK_HRESULT(g_Device->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
+        SET_DEBUGNAME(m_DescriptorHeap.get(), _T("DescriptorHeap"));
 
         // 单个描述符大小
         m_DescriptorSize = g_Device->GetDescriptorHandleIncrementSize(type);

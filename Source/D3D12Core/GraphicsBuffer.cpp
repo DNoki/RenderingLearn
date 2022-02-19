@@ -40,6 +40,7 @@ namespace Graphics
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())
         ));
+        SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
 
         Finalize();
     }
@@ -84,7 +85,7 @@ namespace Graphics
                 m_Resource.get(),
                 D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
-            commandList->ResourceBarrier(1, &barriers);
+            commandList.GetD3D12CommandList()->ResourceBarrier(1, &barriers);
         }
     }
 

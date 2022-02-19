@@ -49,6 +49,7 @@ namespace Graphics
             m_FullScreenDesc.get(), // 全屏交换链描述
             nullptr, // 限制内容的输出，为 NULL 时不限制
             (IDXGISwapChain1**)m_SwapChain.put()));
+        SET_DEBUGNAME(m_SwapChain.get(), _T("SwapChain"));
 
         // 获取交换链描述
         m_SwapChain->GetDesc1(&m_SwapChainDesc);

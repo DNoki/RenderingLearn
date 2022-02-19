@@ -112,6 +112,9 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 // 检查 HR 返回代码
 #define CHECK_HRESULT(hr) Application::CheckHresult(hr);
 
+// 添加调试名称
+#define SET_DEBUGNAME(obj, name) Application::SetDebugName(obj, name)
+
 #else
 
 #define TRACE(...) ((void)0)

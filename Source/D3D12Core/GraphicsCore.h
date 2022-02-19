@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+constexpr UINT NODEMASK = 0; // TODO 多适配器系统 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/multi-engine
+
 namespace Graphics
 {
     class SwapChain;

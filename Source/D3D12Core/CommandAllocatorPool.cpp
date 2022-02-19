@@ -49,6 +49,10 @@ namespace Graphics
                 list = &m_GraphicsCommandAllocators;
                 queqe = &m_GraphicsIdleQueue;
                 break;
+            case D3D12_COMMAND_LIST_TYPE_BUNDLE:
+                list = &m_BundleCommandAllocators;
+                queqe = &m_BundleIdleQueue;
+                break;
             case D3D12_COMMAND_LIST_TYPE_COMPUTE:
                 list = &m_ComputeCommandAllocators;
                 queqe = &m_ComputeIdleQueue;
@@ -66,13 +70,13 @@ namespace Graphics
             {
                 list->push_back(CommandAllocator(type));
                 result = &list->back();
-                result->GetD3D12Allocator()->Reset();
+                result->Reset();
             }
             else
             {
                 result = queqe->front();
                 queqe->pop();
-                result->GetD3D12Allocator()->Reset();
+                result->Reset();
             }
             return result;
         }
@@ -90,6 +94,9 @@ namespace Graphics
             case D3D12_COMMAND_LIST_TYPE_DIRECT:
                 queqe = &m_GraphicsIdleQueue;
                 break;
+            case D3D12_COMMAND_LIST_TYPE_BUNDLE:
+                queqe = &m_BundleIdleQueue;
+                break;
             case D3D12_COMMAND_LIST_TYPE_COMPUTE:
                 queqe = &m_ComputeIdleQueue;
                 break;
@@ -103,13 +110,15 @@ namespace Graphics
         }
 
     private:
-        vector<CommandAllocator> m_GraphicsCommandAllocators;
-        vector<CommandAllocator> m_ComputeCommandAllocators;
-        vector<CommandAllocator> m_CopyCommandAllocators;
+        vector<CommandAllocator> m_GraphicsCommandAllocators;   // 图形命令分配器
+        vector<CommandAllocator> m_BundleCommandAllocators;     // 命令捆绑包分配器
+        vector<CommandAllocator> m_ComputeCommandAllocators;    // 计算命令分配器
+        vector<CommandAllocator> m_CopyCommandAllocators;       // 拷贝命令分配器
 
-        queue<CommandAllocator*> m_GraphicsIdleQueue;
-        queue<CommandAllocator*> m_ComputeIdleQueue;
-        queue<CommandAllocator*> m_CopyIdleQueue;
+        queue<CommandAllocator*> m_GraphicsIdleQueue;   // 图形分配器等待队列
+        queue<CommandAllocator*> m_BundleIdleQueue;     // 捆绑包分配器等待队列
+        queue<CommandAllocator*> m_ComputeIdleQueue;    // 计算分配器等待队列
+        queue<CommandAllocator*> m_CopyIdleQueue;       // 拷贝分配器等待队列
 
 
     } g_CommandAllocatorPoolImpl;
@@ -119,18 +128,18 @@ namespace Graphics
     {
         // 创建命令列表分配器
         CHECK_HRESULT(g_Device->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));
-    }
-
-    void CommandAllocator::Restore()
-    {
-        // 回收此命令分配器，必须保证该分配器已执行完毕
-        // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。
-        g_CommandAllocatorPoolImpl.RestoreAllocator(this);
+        SET_DEBUGNAME(m_CommandAllocator.get(), _T("CommandAllocator"));
     }
 
 
     CommandAllocator* CommandAllocatorPool::Request(D3D12_COMMAND_LIST_TYPE type)
     {
         return g_CommandAllocatorPoolImpl.RequestAllocator(type);
+    }
+    void CommandAllocatorPool::Restore(CommandAllocator* type)
+    {
+        // 回收此命令分配器，必须保证该分配器已执行完毕
+        // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。
+        g_CommandAllocatorPoolImpl.RestoreAllocator(type);
     }
 }

@@ -28,35 +28,73 @@ namespace Graphics
     {
     }
 
-    void CommandList::Create(D3D12_COMMAND_LIST_TYPE type)
+    CommandList::~CommandList()
     {
-        ASSERT(type != D3D12_COMMAND_LIST_TYPE_BUNDLE, L"ERROR::命令列表暂不支持指定类型。");
+        if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
+        {
+            // 回收捆绑包使用的分配器
+            ASSERT(m_CommandAllocator);
+            CommandAllocatorPool::Restore(m_CommandAllocator);
+        }
+    }
+
+    void CommandList::Create(D3D12_COMMAND_LIST_TYPE type, bool isAllocate, const PipelineState* pso)
+    {
         m_Type = type;
 
-        // 创建命令列表
-        // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
-        CHECK_HRESULT(g_Device->CreateCommandList1(1,
-            m_Type,
-            D3D12_COMMAND_LIST_FLAG_NONE,
-            IID_PPV_ARGS(m_CommandList.put())));
-        //CHECK_HRESULT(g_Device->CreateCommandList(1,
-        //    m_Type,                     // 命令列表类型
-        //    m_CommandAllocator.get(),   // 命令列表分配器
-        //    nullptr,                    // 初始管线状态为NULL
-        //    IID_PPV_ARGS(m_CommandList.put())));
+        if (isAllocate)
+        {
+            // 返回一个命令分配器
+            m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
 
+            CHECK_HRESULT(g_Device->CreateCommandList(
+                NODEMASK,
+                m_Type,                     // 命令列表类型
+                m_CommandAllocator->GetD3D12Allocator(),    // 命令列表分配器
+                pso ? pso->GetD3D12PSO() : nullptr,         // 初始管线状态为NULL
+                IID_PPV_ARGS(m_CommandList.put())));
 
-        // 指示列表可以写入命令
+            // 指示列表可以写入命令
+            m_IsLocked = false;
+        }
+        else
+        {
+            // 创建命令列表
+            // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
+            CHECK_HRESULT(g_Device->CreateCommandList1(
+                NODEMASK,
+                m_Type,
+                D3D12_COMMAND_LIST_FLAG_NONE,
+                IID_PPV_ARGS(m_CommandList.put())));
+
+            // 指示列表处于关闭状态
+            m_IsLocked = true;
+            m_CommandAllocator = nullptr;
+        }
+        SET_DEBUGNAME(m_CommandList.get(), _T("CommandList"));
+    }
+
+    void CommandList::Close()
+    {
+        ASSERT(!m_IsLocked);
+        CHECK_HRESULT(m_CommandList->Close());
         m_IsLocked = true;
+
+        // 命令写入分配器之后，解除之前绑定的分配器
+        // 对于捆绑包来说，一般不会对其重置，所以使用保持对分配器的引用
+        if (m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE)
+            m_CommandAllocator = nullptr;
     }
 
     void CommandList::Reset(const PipelineState* pso)
     {
         // 在应用程序调用Reset之前，命令列表必须处于“关闭”状态。
         ASSERT(m_IsLocked);
+        ASSERT(!m_CommandAllocator); // 已分配分配器
 
         // 返回一个命令分配器
-        m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+        if (!m_CommandAllocator)
+            m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
 
         // 将命令列表重置回其初始状态
         // TODO 通过使用Reset，您可以重用命令列表跟踪结构而无需任何分配。与ID3D12CommandAllocator::Reset不同，您可以在命令列表仍在执行时调用Reset。一个典型的模式是提交一个命令列表，然后立即重置它以将分配的内存重新用于另一个命令列表。

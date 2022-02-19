@@ -27,6 +27,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_COPY_DEST, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())));
+        SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
     }
 
     void Texture2D::PlacedCreate(GpuPlacedHeap& pPlacedHeap, DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
@@ -136,7 +137,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
             | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
         );
-        commandList->ResourceBarrier(1, &barriers);
+        commandList.GetD3D12CommandList()->ResourceBarrier(1, &barriers);
     }
 
     void Texture2D::GenerateChecker(const CommandList& commandList)

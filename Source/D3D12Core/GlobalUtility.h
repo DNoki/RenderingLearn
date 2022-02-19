@@ -47,6 +47,10 @@ namespace Application
 #pragma endregion
 
     HRESULT CheckHresult(HRESULT hr);
+    void SetDebugName(ID3D12Object* pObj, std::wstring name);
+    std::wstring GetDebugName(ID3D12Object* pObj);
+    void SetDebugName(IDXGIObject* pObj, std::wstring name);
+    std::wstring GetDebugName(IDXGIObject* pObj);
 }
 
 

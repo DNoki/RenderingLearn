@@ -36,6 +36,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_DEPTH_WRITE, // 允许深度模板缓冲写入
             &depthOptimizedClearValue,
             IID_PPV_ARGS(PutD3D12Resource())));
+        SET_DEBUGNAME(m_Resource.get(), _T("RenderTexture"));
 
         // 深度模板视图描述
         m_DsvDesc = unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC>(new D3D12_DEPTH_STENCIL_VIEW_DESC());
@@ -50,6 +51,7 @@ namespace Graphics
 
         m_RtvDesc = nullptr;
         CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
+        SET_DEBUGNAME(m_Resource.get(), _T("RenderTexture"));
 
         m_ResourceDesc = m_Resource->GetDesc();
     }

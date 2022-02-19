@@ -122,7 +122,7 @@ namespace Application
         return WideCharToMultiByte(codePage, 0, src, len, dest, MAX_PATH, NULL, NULL);
     }
 
-    std::string ToAnsi(const char* str)
+    string ToAnsi(const char* str)
     {
         wchar_t result[MAX_PATH]{};
         MB2WC_Impl(CP_UTF8, RP_CHAR(str), result);
@@ -152,7 +152,7 @@ namespace Application
         return result;
     }
 
-    std::wstring ToUnicode(const char* str, UINT codePage)
+    wstring ToUnicode(const char* str, UINT codePage)
     {
         wchar_t result[MAX_PATH]{};
         MB2WC_Impl(codePage, str, result);
@@ -170,6 +170,34 @@ namespace Application
             ASSERT(0);
         }
         return winrt::check_hresult(hr);
+    }
+
+    int g_GlobalDebugIndex = 0;
+    void SetDebugName(ID3D12Object* pObj, wstring name)
+    {
+        wstring indexedName = Format(_T("%s_%06d"), name.c_str(), g_GlobalDebugIndex++);
+        CheckHresult(pObj->SetName(indexedName.c_str()));
+    }
+    wstring GetDebugName(ID3D12Object* pObj)
+    {
+        UINT size = MAX_PATH;
+        wstring text;
+        text.resize(MAX_PATH);
+        pObj->GetPrivateData(WKPDID_D3DDebugObjectNameW, &size, text.data());
+        return text;
+    }
+    void SetDebugName(IDXGIObject* pObj, wstring name)
+    {
+        wstring indexedName = Format(_T("%s_%06d"), name.c_str(), g_GlobalDebugIndex++);
+        CheckHresult(pObj->SetPrivateData(WKPDID_D3DDebugObjectNameW, static_cast<UINT>((indexedName.size() + 1) * sizeof(wchar_t)), indexedName.c_str()));
+    }
+    wstring GetDebugName(IDXGIObject* pObj)
+    {
+        UINT size = MAX_PATH;
+        wstring text;
+        text.resize(MAX_PATH);
+        pObj->GetPrivateData(WKPDID_D3DDebugObjectNameW, &size, text.data());
+        return text;
     }
 }
 

@@ -80,6 +80,7 @@ namespace Graphics
         if (pErrorSignature)
             TRACE((char*)pErrorSignature->GetBufferPointer());
 
-        CHECK_HRESULT(g_Device->CreateRootSignature(1, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
+        CHECK_HRESULT(g_Device->CreateRootSignature(NODEMASK, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
+        SET_DEBUGNAME(m_RootSignature.get(), _T("RootSignature"));
     }
 }

@@ -10,9 +10,12 @@ namespace Graphics
     public:
         CommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
-        void Restore();
+        /**
+         * @brief 指示重新使用与命令分配器关联的内存。
+        */
+        inline void Reset() const { m_CommandAllocator->Reset(); }
 
-        inline D3D12_COMMAND_LIST_TYPE GetType() { return m_Type; }
+        inline D3D12_COMMAND_LIST_TYPE GetType() const { return m_Type; }
         inline ID3D12CommandAllocator* GetD3D12Allocator() { return m_CommandAllocator.get(); }
 
     private:
@@ -28,5 +31,6 @@ namespace Graphics
     {
     public:
         static CommandAllocator* Request(D3D12_COMMAND_LIST_TYPE type);
+        static void Restore(CommandAllocator* type);
     };
 }

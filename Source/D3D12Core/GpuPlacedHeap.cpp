@@ -36,6 +36,7 @@ namespace Graphics
             flags); // 放置堆选项，例如堆是否可以包含纹理
 
         CHECK_HRESULT(g_Device->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
+        SET_DEBUGNAME(m_PlacedHeap.get(), _T("Heap"));
     }
 
     void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
@@ -68,6 +69,7 @@ namespace Graphics
             initialState,           // 资源的初始状态
             pOptimizedClearValue,   // 描述用于优化特定资源的清除操作的值
             IID_PPV_ARGS(resource.PutD3D12Resource()))); // 要放置的资源
+        SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));
     }
 
     void GpuPlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)

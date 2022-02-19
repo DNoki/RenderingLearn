@@ -147,6 +147,7 @@ namespace Graphics
 
         m_PSO = nullptr;
         CHECK_HRESULT(Graphics::g_Device->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(m_PSO.put())));
+        SET_DEBUGNAME(m_PSO.get(), _T("PipelineState"));
 
     }
 }

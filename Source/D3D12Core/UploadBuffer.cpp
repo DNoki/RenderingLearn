@@ -83,6 +83,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_GENERIC_READ, // 上传堆的初始状态必须此项，且不能更改
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())));// 注意：上传资源的生命周期必须等待GPU复制完成之后才能释放
+        SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
 
         Finalize();
     }
