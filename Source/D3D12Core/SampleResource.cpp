@@ -16,6 +16,7 @@
 #include "GameTime.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Shader.h"
 
 #include "SampleResource.h"
 
@@ -26,13 +27,14 @@ using namespace Application;
 
 namespace Graphics
 {
-    RootSignature g_RootSignature;
-    GraphicsPipelineState g_PipelineState;
+    //RootSignature g_RootSignature;
+    //GraphicsPipelineState g_PipelineState;
+    Shader g_SampleShader;
 
     vector<Mesh> g_SampleMeshs;
     GraphicsBuffer g_SampleVBV;
 
-    DescriptorHeap t_SampleResDescHeap;
+    //DescriptorHeap t_SampleResDescHeap;
     Texture2D t_DefaultTexture[2];
 
     GpuPlacedHeap g_TexPlacedHeap;
@@ -58,6 +60,7 @@ namespace Graphics
     //com_ptr<ID3D12CommandAllocator> g_SampleBundleCommandAllocator;
     //com_ptr<ID3D12GraphicsCommandList5> g_SampleBundleGraphicsCommandList;
 
+#if 0
     void InitRootSignature()
     {
         // 创建根签名
@@ -141,6 +144,11 @@ namespace Graphics
 
         g_PipelineState.Finalize();
     }
+#endif
+    void InitShader()
+    {
+        g_SampleShader.Create();
+    }
     void InitPlacedHeap()
     {
         const UINT64 sampleSize = 65536ull * 100u;
@@ -159,8 +167,8 @@ namespace Graphics
     }
     void InitTexture2D()
     {
-        t_SampleResDescHeap = DescriptorHeap();
-        t_SampleResDescHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
+        //t_SampleResDescHeap = DescriptorHeap();
+        //t_SampleResDescHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
 
         auto texPath = Application::GetAssetPath();
         texPath.append("Shimarin.png");
@@ -183,8 +191,8 @@ namespace Graphics
         t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
-        t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[1]);
-
+        //t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[1]);
+        g_SampleShader.GetResourceDescHeap()->BindShaderResourceView(0, t_DefaultTexture[1]);
 
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
@@ -194,7 +202,8 @@ namespace Graphics
             g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
+            //t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
+            g_SampleShader.GetResourceDescHeap()->BindConstantBufferView(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
@@ -257,7 +266,7 @@ namespace Graphics
         g_BundleCommandList.Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
         auto* bundleCommandList = g_BundleCommandList.GetD3D12CommandList();
 
-
+#if 0
         // 设置根签名
         bundleCommandList->SetGraphicsRootSignature(g_PipelineState.GetD3D12RootSignature());
         // 管线状态
@@ -281,7 +290,9 @@ namespace Graphics
 
         // DrawCall
         bundleCommandList->DrawIndexedInstanced(g_SampleMeshs[0].GetIndexCount(), 1, 0, 0, 0);
-
+#endif
+        g_SampleShader.ExecuteBindShader(&g_BundleCommandList);
+        g_SampleMeshs[0].ExecuteDraw(&g_BundleCommandList);
         g_BundleCommandList.Close();
     }
 
@@ -404,8 +415,8 @@ namespace Graphics
         //    commandList->DrawInstanced(4, 1, 0, 0);
         //}
 
-        ID3D12DescriptorHeap* ppHeaps[] = { t_SampleResDescHeap.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
-        commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+
+        g_SampleShader.ExecuteBindDescriptorHeap(&g_GraphicsCommandList);
         commandList->ExecuteBundle(g_BundleCommandList.GetD3D12CommandList());
     }
 

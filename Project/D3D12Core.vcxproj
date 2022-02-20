@@ -139,9 +139,11 @@
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
+    <ClInclude Include="..\Source\D3D12Core\Renderer.h" />
     <ClInclude Include="..\Source\D3D12Core\RootSignature.h" />
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
     <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
+    <ClInclude Include="..\Source\D3D12Core\Shader.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
     <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
     <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
@@ -172,9 +174,11 @@
     </ClCompile>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Renderer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Shader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
     <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />

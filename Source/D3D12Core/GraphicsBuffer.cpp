@@ -63,7 +63,7 @@ namespace Graphics
         auto bufferSize = m_ResourceDesc.Width;
 
         // 创建上传缓冲
-        m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+        m_UploadBuffer.reset(new UploadBuffer());
         m_UploadBuffer->DirectCreate(bufferSize);
 
         // 添加拷贝命令到命令队列
@@ -94,12 +94,12 @@ namespace Graphics
         DispatchCopyBuffer(commandList, data);
 
         // 创建顶点缓冲视图
-        m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+        m_VertexBufferView.reset(new D3D12_VERTEX_BUFFER_VIEW{
                 m_GpuVirtualAddress,
                 static_cast<UINT>(m_ResourceDesc.Width),
                 strideSize });
 
-        m_IndexBufferView = std::unique_ptr<D3D12_INDEX_BUFFER_VIEW>(new D3D12_INDEX_BUFFER_VIEW{
+        m_IndexBufferView.reset(new D3D12_INDEX_BUFFER_VIEW{
                 m_GpuVirtualAddress,
                 static_cast<UINT>(m_ResourceDesc.Width),
                 DXGI_FORMAT_R16_UINT });

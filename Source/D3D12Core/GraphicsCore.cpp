@@ -141,8 +141,9 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 创建示例PSO
-        InitRootSignature();
-        InitPipelineState();
+        //InitRootSignature();
+        //InitPipelineState();
+        InitShader();
 
 
         // --------------------------------------------------------------------------

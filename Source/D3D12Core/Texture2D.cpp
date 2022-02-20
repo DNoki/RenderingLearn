@@ -54,7 +54,7 @@ namespace Graphics
             // 返回要用于数据上传的缓冲区的所需大小
             UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_Resource.get(), 0, 1);
             // 创建 GPU 上传缓冲
-            m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+            m_UploadBuffer.reset(new UploadBuffer());
             m_UploadBuffer->DirectCreate(uploadBufferSize);
         }
 

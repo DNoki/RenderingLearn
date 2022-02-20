@@ -1,11 +1,17 @@
 ﻿#pragma once
 
 
-namespace Graphics
+namespace Game
 {
     typedef DirectX::VertexPositionNormalTexture VertexPositionNormalTexture;
 
     class IBufferResource;
+
+    enum class DrawType
+    {
+        VertexList,
+        Indexed,
+    };
 
     class Mesh
     {
@@ -15,21 +21,26 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         template <typename TVertex>
-        void DirectCreate(UINT vertexCount, const TVertex* vertices, UINT indexCount = 0, const UINT16* indices = nullptr)
+        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, const TVertex* vertices, UINT indexCount = 0, const UINT16* indices = nullptr)
         {
-            DirectCreate(vertexCount, sizeof(TVertex), vertices, indexCount, indices);
+            DirectCreate(primitiveTopology, vertexCount, sizeof(TVertex), vertices, indexCount, indices);
         }
-        void DirectCreate(UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
+        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
 
         // --------------------------------------------------------------------------
+        inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
+
         inline UINT GetVertexCount() const { return static_cast<UINT>(m_Vertices.size()); }
+        inline UINT GetVertexStrideSize() const { return m_VertexStrideSize; }
         inline const void* GetVertexData() const { return m_Vertices.data(); }
 
         inline UINT GetIndexCount() const { return static_cast<UINT>(m_Indices.size()); }
         inline const void* GetIndexData() const { return m_Indices.data(); }
 
-        inline const GraphicsBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
-        inline const GraphicsBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
+        inline const Graphics::GraphicsBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
+        inline const Graphics::GraphicsBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
+
+        void ExecuteDraw(Graphics::CommandList* commandList);
 
 
         // --------------------------------------------------------------------------
@@ -123,11 +134,13 @@ namespace Graphics
         static Mesh CreateTeapot(float size = 1, size_t tessellation = 8, bool rhcoords = false);
 
     private:
-        UINT m_VertexStrideSize; // 顶点输入结构大小
-        std::vector<BYTE> m_Vertices;
-        std::vector<UINT16> m_Indices;
+        D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology; // 定义管道如何解释和呈现顶点
 
-        std::unique_ptr<GraphicsBuffer> m_VertexBuffer;
-        std::unique_ptr<GraphicsBuffer> m_IndexBuffer;
+        UINT m_VertexStrideSize;        // 顶点输入结构大小
+        std::vector<BYTE> m_Vertices;   // 顶点数据列表
+        std::vector<UINT16> m_Indices;  // 索引列表
+
+        std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffer; // 顶点缓冲
+        std::unique_ptr<Graphics::GraphicsBuffer> m_IndexBuffer;  // 索引缓冲
     };
 }

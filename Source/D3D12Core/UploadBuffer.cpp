@@ -111,7 +111,7 @@ namespace Graphics
         Unmap(0);
 
         // 创建顶点缓冲视图
-        m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+        m_VertexBufferView.reset(new D3D12_VERTEX_BUFFER_VIEW{
                 m_GpuVirtualAddress,
                 static_cast<UINT>(bufferSize),
                 strideSize });

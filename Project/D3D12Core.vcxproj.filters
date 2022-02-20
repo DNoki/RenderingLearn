@@ -33,6 +33,8 @@
     <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
     <ClInclude Include="..\Source\D3D12Core\Camera.h" />
     <ClInclude Include="..\Source\D3D12Core\Mesh.h" />
+    <ClInclude Include="..\Source\D3D12Core\Renderer.h" />
+    <ClInclude Include="..\Source\D3D12Core\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -61,6 +63,8 @@
     <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Camera.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Mesh.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Renderer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

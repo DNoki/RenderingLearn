@@ -1,21 +1,31 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
-#include "DescriptorHeap.h"
 #include "GraphicsBuffer.h"
+#include "CommandList.h"
 
 #include "Mesh.h"
 
+
+// --------------------------------------------------------------------------
+/*
+    基元拓扑 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies
+*/
+// --------------------------------------------------------------------------
+
+
 using namespace std;
 using namespace DirectX;
+using namespace Graphics;
 
 
-namespace Graphics
+namespace Game
 {
 
-    void Mesh::DirectCreate(UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount, const UINT16* indices)
+    void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount, const UINT16* indices)
     {
         m_VertexStrideSize = strideSize;
+        m_PrimitiveTopology = primitiveTopology;
 
         auto vertexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
         vertexBuffer->DirectCreate(vertexCount * m_VertexStrideSize);
@@ -37,6 +47,26 @@ namespace Graphics
         }
     }
 
+    void Mesh::ExecuteDraw(Graphics::CommandList* commandList)
+    {
+        auto* d3d12CommandList = commandList->GetD3D12CommandList();
+
+        d3d12CommandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+
+        d3d12CommandList->IASetVertexBuffers(0, 1, m_VertexBuffer->GetVBV());
+        switch (GetDrawType())
+        {
+        case Game::DrawType::VertexList:
+            d3d12CommandList->DrawInstanced(GetVertexCount(), 1, 0, 0);
+            break;
+        case Game::DrawType::Indexed:
+            d3d12CommandList->IASetIndexBuffer(m_IndexBuffer->GetIBV());
+            d3d12CommandList->DrawIndexedInstanced(GetIndexCount(), 1, 0, 0, 0);
+            break;
+        default: break;
+        }
+    }
+
     Mesh Mesh::CreateCube(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -45,7 +75,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateCube(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -57,7 +87,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateSphere(vertices, indices, diameter, tessellation, rhcoords, invertn);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -69,7 +99,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateGeoSphere(vertices, indices, diameter, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -81,7 +111,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateCylinder(vertices, indices, height, diameter, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -93,7 +123,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateCone(vertices, indices, diameter, height, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -105,7 +135,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateTorus(vertices, indices, diameter, thickness, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -117,7 +147,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateTetrahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -129,7 +159,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateOctahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -141,7 +171,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateDodecahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -153,7 +183,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateIcosahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 
@@ -165,7 +195,7 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateTeapot(vertices, indices, size, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        mesh.DirectCreate(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST, (UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
         return mesh;
     }
 

@@ -43,13 +43,13 @@ void Input::Initialize(HWND hwnd)
     ASSERT(hwnd != NULL);
 
     // 键盘输入初始化
-    m_Keyboard = unique_ptr<Keyboard>(new  Keyboard());
-    m_KbdTracker = unique_ptr<Keyboard::KeyboardStateTracker>(new  Keyboard::KeyboardStateTracker());
+    m_Keyboard.reset(new  Keyboard());
+    m_KbdTracker.reset(new  Keyboard::KeyboardStateTracker());
 
     // 鼠标输入初始化
-    m_Mouse = unique_ptr<Mouse>(new Mouse());
+    m_Mouse.reset(new Mouse());
     m_Mouse->SetWindow(hwnd);
-    m_MouseTracker = unique_ptr<Mouse::ButtonStateTracker>(new Mouse::ButtonStateTracker());
+    m_MouseTracker.reset(new Mouse::ButtonStateTracker());
     m_MouseButtonsState =
     {
         &(m_MouseTracker->leftButton),
