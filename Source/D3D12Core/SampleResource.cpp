@@ -17,6 +17,8 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Shader.h"
+#include "Material.h"
+#include "Renderer.h"
 
 #include "SampleResource.h"
 
@@ -56,9 +58,11 @@ namespace Graphics
     Camera g_Camera;
     Transform g_ModelTrans;
 
-    CommandList g_BundleCommandList;
+    //CommandList g_BundleCommandList;
     //com_ptr<ID3D12CommandAllocator> g_SampleBundleCommandAllocator;
     //com_ptr<ID3D12GraphicsCommandList5> g_SampleBundleGraphicsCommandList;
+    Material g_SampleMaterial;
+    Renderer g_SampleRenderer;
 
 #if 0
     void InitRootSignature()
@@ -148,6 +152,7 @@ namespace Graphics
     void InitShader()
     {
         g_SampleShader.Create();
+        g_SampleMaterial.Create(&g_SampleShader);
     }
     void InitPlacedHeap()
     {
@@ -192,7 +197,7 @@ namespace Graphics
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
         //t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[1]);
-        g_SampleShader.GetResourceDescHeap()->BindShaderResourceView(0, t_DefaultTexture[1]);
+        g_SampleMaterial.GetResourceDescHeap()->BindShaderResourceView(0, t_DefaultTexture[1]);
 
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
@@ -203,7 +208,7 @@ namespace Graphics
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
             //t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
-            g_SampleShader.GetResourceDescHeap()->BindConstantBufferView(1, g_MvpBufferRes);
+            g_SampleMaterial.GetResourceDescHeap()->BindConstantBufferView(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
@@ -263,8 +268,8 @@ namespace Graphics
 
     void InitCommandListBundle()
     {
-        g_BundleCommandList.Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
-        auto* bundleCommandList = g_BundleCommandList.GetD3D12CommandList();
+        //g_BundleCommandList.Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
+        //auto* bundleCommandList = g_BundleCommandList.GetD3D12CommandList();
 
 #if 0
         // 设置根签名
@@ -291,9 +296,11 @@ namespace Graphics
         // DrawCall
         bundleCommandList->DrawIndexedInstanced(g_SampleMeshs[0].GetIndexCount(), 1, 0, 0, 0);
 #endif
-        g_SampleShader.ExecuteBindShader(&g_BundleCommandList);
-        g_SampleMeshs[0].ExecuteDraw(&g_BundleCommandList);
-        g_BundleCommandList.Close();
+        //g_SampleShader.ExecuteBindShader(&g_BundleCommandList);
+        //g_SampleMeshs[0].ExecuteDraw(&g_BundleCommandList);
+        //g_BundleCommandList.Close();
+
+        g_SampleRenderer.Create(&g_SampleMeshs[0], &g_SampleMaterial);
     }
 
     void OutputMatrix4x4(const Matrix4x4& m)
@@ -355,7 +362,7 @@ namespace Graphics
                 g_ModelTrans.LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
             }
 
-            g_Camera.m_ProjectionMode = Input::KeyState(KeyCode::Enter) ? ProjectionMode::Orthographic : ProjectionMode::Perspective;
+            g_Camera.m_ProjectionMode = ProjectionMode::Perspective;
             Matrix4x4 pers = g_Camera.GetProjectionMatrix();
 
             Matrix4x4 view = g_Camera.GetViewMatrix();
@@ -416,8 +423,16 @@ namespace Graphics
         //}
 
 
-        g_SampleShader.ExecuteBindDescriptorHeap(&g_GraphicsCommandList);
-        commandList->ExecuteBundle(g_BundleCommandList.GetD3D12CommandList());
+        //g_SampleShader.ExecuteBindDescriptorHeap(&g_GraphicsCommandList);
+        //commandList->ExecuteBundle(g_BundleCommandList.GetD3D12CommandList());
+
+        if (Input::KeyDown(KeyCode::Enter))
+        {
+            static int fillMode = 1;
+            g_SampleMaterial.SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
+        }
+
+        g_SampleRenderer.ExecuteDraw(&g_GraphicsCommandList);
     }
 
 }

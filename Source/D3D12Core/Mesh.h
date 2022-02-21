@@ -40,7 +40,7 @@ namespace Game
         inline const Graphics::GraphicsBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
         inline const Graphics::GraphicsBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
 
-        void ExecuteDraw(Graphics::CommandList* commandList);
+        void ExecuteDraw(const Graphics::CommandList* commandList) const;
 
 
         // --------------------------------------------------------------------------

@@ -134,6 +134,7 @@
     <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
     <ClInclude Include="..\Source\D3D12Core\Input.h" />
     <ClInclude Include="..\Source\D3D12Core\IResource.h" />
+    <ClInclude Include="..\Source\D3D12Core\Material.h" />
     <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\Mesh.h" />
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Input.cpp" />
     <ClCompile Include="..\Source\D3D12Core\IResource.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Material.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Mesh.cpp" />
     <ClCompile Include="..\Source\D3D12Core\pch.cpp">

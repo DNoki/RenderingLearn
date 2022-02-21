@@ -92,11 +92,15 @@ namespace Graphics
     {
         // 在应用程序调用Reset之前，命令列表必须处于“关闭”状态。
         ASSERT(m_IsLocked);
-        ASSERT(!m_CommandAllocator); // 已分配分配器
 
         // 返回一个命令分配器
         if (!m_CommandAllocator)
             m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+        else if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
+        {
+            CommandAllocatorPool::Restore(m_CommandAllocator);
+            m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+        }
 
         // 将命令列表重置回其初始状态
         // TODO 通过使用Reset，您可以重用命令列表跟踪结构而无需任何分配。与ID3D12CommandAllocator::Reset不同，您可以在命令列表仍在执行时调用Reset。一个典型的模式是提交一个命令列表，然后立即重置它以将分配的内存重新用于另一个命令列表。

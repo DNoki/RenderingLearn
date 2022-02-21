@@ -5,8 +5,6 @@
 #include "AppMain.h"
 #include "PipelineState.h"
 #include "CommandList.h"
-#include "DescriptorHeap.h"
-#include "GraphicsCommon.h"
 
 #include "Shader.h"
 
@@ -45,55 +43,6 @@ namespace Game
                     (*m_RootSignature)[i].InitAsDescriptorTable(1, &ranges[i]);
             }
             m_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-        }
-
-        {
-            m_PipelineState.reset(new GraphicsPipelineState());
-
-            // 定义顶点输入层
-            const D3D12_INPUT_ELEMENT_DESC sampleInputElementDescs[] =
-            {
-                {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-                {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
-            };
-
-            m_PipelineState->SetInputLayout(_countof(sampleInputElementDescs), sampleInputElementDescs);
-            m_PipelineState->SetRootSignature(m_RootSignature.get());
-            m_PipelineState->SetVertexShader(m_ShaderBlobs[static_cast<int>(ShaderType::VertexShader)].get());
-            m_PipelineState->SetPixelShader(m_ShaderBlobs[static_cast<int>(ShaderType::PixelShader)].get());
-            m_PipelineState->SetRenderTargetFormat(DXGI_FORMAT_R8G8B8A8_UNORM, DXGI_FORMAT_D32_FLOAT);
-            m_PipelineState->Finalize();
-        }
-        {
-            m_ResourceDescHeap.reset(new DescriptorHeap());
-            m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
-        }
-    }
-
-    void Shader::ExecuteBindDescriptorHeap(Graphics::CommandList* commandList) const
-    {
-        ID3D12DescriptorHeap* ppHeaps[] = { m_ResourceDescHeap->GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
-        commandList->GetD3D12CommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-    }
-
-    void Shader::ExecuteBindShader(Graphics::CommandList* commandList) const
-    {
-        auto* d3d12CommandList = commandList->GetD3D12CommandList();
-
-        // 设置根签名
-        d3d12CommandList->SetGraphicsRootSignature(m_PipelineState->GetD3D12RootSignature());
-        // 管线状态
-        d3d12CommandList->SetPipelineState(m_PipelineState->GetD3D12PSO());
-
-        // 绑定描述符堆
-        {
-            ExecuteBindDescriptorHeap(commandList);
-
-            auto rootPrarmIndex = 0;
-            for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
-                d3d12CommandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
-            d3d12CommandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, g_SamplerLinearClamp);
         }
     }
 

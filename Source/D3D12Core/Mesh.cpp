@@ -47,7 +47,7 @@ namespace Game
         }
     }
 
-    void Mesh::ExecuteDraw(Graphics::CommandList* commandList)
+    void Mesh::ExecuteDraw(const Graphics::CommandList* commandList) const
     {
         auto* d3d12CommandList = commandList->GetD3D12CommandList();
 
