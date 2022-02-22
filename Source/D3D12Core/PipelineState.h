@@ -35,9 +35,7 @@ namespace Graphics
         const RootSignature* m_RootSignature;       // 管线状态对象所使用的根签名
         winrt::com_ptr<ID3D12PipelineState> m_PSO;  // 管线状态对象
 
-        bool m_IsFinalized;
-
-        PipelineState() :m_RootSignature(nullptr), m_PSO(nullptr), m_IsFinalized(false) {}
+        PipelineState() :m_RootSignature(nullptr), m_PSO(nullptr) {}
 
         virtual void Finalize() = 0;
     };
@@ -56,6 +54,7 @@ namespace Graphics
          * @param pInputElementDescs 输入元素表
         */
         void SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs);
+        void SetInputLayout(D3D12_INPUT_LAYOUT_DESC inputLayout);
         /**
          * @brief 设置栅格化状态
          * @param rasterizerDesc
@@ -120,27 +119,27 @@ namespace Graphics
          * @brief 设置顶点着色器
          * @param vs
         */
-        void SetVertexShader(ID3DBlob* vs);
+        void SetVertexShader(const ID3DBlob* vs);
         /**
          * @brief 设置像素着色器
          * @param ps
         */
-        void SetPixelShader(ID3DBlob* ps);
+        void SetPixelShader(const ID3DBlob* ps);
         /**
          * @brief 设置几何着色器
          * @param gs
         */
-        void SetGeometryShader(ID3DBlob* gs);
+        void SetGeometryShader(const ID3DBlob* gs);
         /**
          * @brief 设置外壳着色器
          * @param hs
         */
-        void SetHullShader(ID3DBlob* hs);
+        void SetHullShader(const ID3DBlob* hs);
         /**
          * @brief 设置域着色器
          * @param ds
         */
-        void SetDomainShader(ID3DBlob* ds);
+        void SetDomainShader(const ID3DBlob* ds);
 
         /**
          * @brief 最终确认
@@ -150,7 +149,6 @@ namespace Graphics
     private:
         D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc; // 图形管线状态描述
 
-        std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts; // Shader 输入结构
     };
 
     class ComputePipelineState : public PipelineState

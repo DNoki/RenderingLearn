@@ -1,21 +1,31 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
-#include "DescriptorHeap.h"
 #include "GraphicsBuffer.h"
+#include "CommandList.h"
 
 #include "Mesh.h"
 
+
+// --------------------------------------------------------------------------
+/*
+    基元拓扑 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies
+*/
+// --------------------------------------------------------------------------
+
+
 using namespace std;
 using namespace DirectX;
+using namespace Graphics;
 
 
-namespace Graphics
+namespace Game
 {
-
-    void Mesh::DirectCreate(UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount, const UINT16* indices)
+#if 0
+    void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount, const UINT16* indices)
     {
         m_VertexStrideSize = strideSize;
+        m_PrimitiveTopology = primitiveTopology;
 
         auto vertexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
         vertexBuffer->DirectCreate(vertexCount * m_VertexStrideSize);
@@ -36,6 +46,83 @@ namespace Graphics
             CopyMemory(m_Indices.data(), indices, m_IndexBuffer->GetBufferSize());
         }
     }
+#endif
+    void Mesh::Finalize()
+    {
+        // 顶点数量
+        UINT64 vertexCount = m_Positions.size();
+        UINT64 vertexCountArray[] = { m_Positions.size(), m_Normals.size(), m_Tangents.size(), m_Colors.size(), m_UVs.size(), };
+        // 顶点语义数据类型
+        UINT vertexStrideArray[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector4), sizeof(Vector2), };
+        // 顶点语义数据
+        void* vertexDataArray[] = { m_Positions.data(), m_Normals.data(), m_Tangents.data(), m_Colors.data(), m_UVs.data(), };
+
+        // 创建需要使用的顶点缓冲
+        for (int i = 0; i < VertexSemanticCount; i++)
+        {
+            m_VertexBuffers[i] = nullptr;
+            m_VBVs[i] = nullptr;
+            if (vertexCountArray[i] != vertexCount)
+                continue;
+
+            m_VertexBuffers[i].reset(new GraphicsBuffer());
+            m_VertexBuffers[i]->DirectCreate(vertexStrideArray[i] * vertexCountArray[i]);
+            m_VertexBuffers[i]->DispatchCopyBuffer(g_GraphicsCommandList, vertexDataArray[i]);
+
+            m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
+                {
+                    m_VertexBuffers[i]->GetGpuVirtualAddress(),
+                    static_cast<UINT>(m_VertexBuffers[i]->GetBufferSize()),
+                    vertexStrideArray[i],
+                });
+        }
+
+        // 如果使用索引绘制，则创建索引缓冲
+        if (m_Indices.size() > 0)
+        {
+            m_IndexBuffer.reset(new GraphicsBuffer());
+            m_IndexBuffer->DirectCreate(m_Indices.size() * sizeof(UINT16));
+            m_IndexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, m_Indices.data());
+
+            m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW
+                {
+                    m_IndexBuffer->GetGpuVirtualAddress(),
+                    static_cast<UINT>(m_IndexBuffer->GetBufferSize()),
+                    DXGI_FORMAT_R16_UINT, // UINT16
+                });
+        }
+        else m_IndexBuffer = nullptr;
+    }
+
+    void Mesh::ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const
+    {
+        auto* d3d12CommandList = commandList->GetD3D12CommandList();
+
+        d3d12CommandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+
+        // 绑定顶点缓冲
+        for (int i = 0; i < VertexSemanticCount; i++)
+        {
+            if (bindSemanticFlag & (1 << i))
+            {
+                ASSERT(m_VertexBuffers[i], _T("ERROR::未设置要使用的顶点缓冲。"));
+                if (m_VertexBuffers[i])
+                    d3d12CommandList->IASetVertexBuffers(i, 1, m_VBVs[i].get());
+            }
+        }
+
+        switch (GetDrawType())
+        {
+        case Game::DrawType::VertexList:
+            d3d12CommandList->DrawInstanced(static_cast<UINT>(m_Positions.size()), 1, 0, 0);
+            break;
+        case Game::DrawType::Indexed:
+            d3d12CommandList->IASetIndexBuffer(m_IBV.get()); // 绑定索引缓冲
+            d3d12CommandList->DrawIndexedInstanced(static_cast<UINT>(m_Indices.size()), 1, 0, 0, 0);
+            break;
+        default: break;
+        }
+    }
 
     Mesh Mesh::CreateCube(float size, bool rhcoords)
     {
@@ -45,10 +132,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateCube(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateSphere(float diameter, size_t tessellation, bool rhcoords, bool invertn)
     {
         using namespace DirectX;
@@ -57,10 +143,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateSphere(vertices, indices, diameter, tessellation, rhcoords, invertn);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateGeoSphere(float diameter, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -69,10 +154,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateGeoSphere(vertices, indices, diameter, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateCylinder(float height, float diameter, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -81,10 +165,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateCylinder(vertices, indices, height, diameter, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateCone(float diameter, float height, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -93,10 +176,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateCone(vertices, indices, diameter, height, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateTorus(float diameter, float thickness, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -105,10 +187,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateTorus(vertices, indices, diameter, thickness, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateTetrahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -117,10 +198,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateTetrahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateOctahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -129,10 +209,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateOctahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateDodecahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -141,10 +220,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateDodecahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateIcosahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -153,10 +231,9 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateIcosahedron(vertices, indices, size, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateTeapot(float size, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -165,8 +242,29 @@ namespace Graphics
         GeometricPrimitive::IndexCollection indices;
         GeometricPrimitive::CreateTeapot(vertices, indices, size, tessellation, rhcoords);
 
-        mesh.DirectCreate((UINT)vertices.size(), vertices.data(), (UINT)indices.size(), indices.data());
+        ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
+    }
+
+    void Mesh::ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexCollection vertices, DirectX::GeometricPrimitive::IndexCollection indices)
+    {
+        mesh.m_Positions.clear();
+        mesh.m_Normals.clear();
+        mesh.m_Tangents.clear();
+        mesh.m_Colors.clear();
+        mesh.m_UVs.clear();
+
+        for (int i = 0; i < vertices.size(); i++)
+        {
+            mesh.m_Positions.push_back(vertices[i].position);
+            mesh.m_Normals.push_back(vertices[i].normal);
+            mesh.m_UVs.push_back(Vector2::One - vertices[i].textureCoordinate); // 翻转 UV 纵坐标
+        }
+
+        mesh.m_Indices.resize(indices.size());
+        CopyMemory(mesh.m_Indices.data(), indices.data(), indices.size() * sizeof(UINT16));
+        mesh.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        mesh.Finalize();
     }
 
 }

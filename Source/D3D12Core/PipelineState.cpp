@@ -4,6 +4,15 @@
 
 #include "PipelineState.h"
 
+// --------------------------------------------------------------------------
+/*
+    管道状态概述 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/managing-graphics-pipeline-state-in-direct3d-12
+
+    管道状态对象对应于图形处理单元 (GPU) 状态的重要部分。此状态包括所有当前设置的着色器和某些固定功能状态对象。
+    更改管道对象中包含的状态的唯一方法是更改当前绑定的管道对象。
+
+*/
+// --------------------------------------------------------------------------
 
 namespace Graphics
 {
@@ -23,10 +32,11 @@ namespace Graphics
 
     void GraphicsPipelineState::SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs)
     {
-        m_InputLayouts.clear();
-        for (UINT i = 0; i < numElements; i++)
-            m_InputLayouts.push_back(pInputElementDescs[i]);
         m_PSODesc.InputLayout = { pInputElementDescs, numElements };
+    }
+    void GraphicsPipelineState::SetInputLayout(D3D12_INPUT_LAYOUT_DESC inputLayout)
+    {
+        m_PSODesc.InputLayout = inputLayout;
     }
 
     void GraphicsPipelineState::SetRasterizerState(const D3D12_RASTERIZER_DESC& rasterizerDesc)
@@ -105,29 +115,29 @@ namespace Graphics
         //auto supportMsaaQuality = msLevels.NumQualityLevels;
     }
 
-    void GraphicsPipelineState::SetVertexShader(ID3DBlob* vs)
+    void GraphicsPipelineState::SetVertexShader(const ID3DBlob* vs)
     {
-        m_PSODesc.VS = CD3DX12_SHADER_BYTECODE(vs);
+        m_PSODesc.VS = CD3DX12_SHADER_BYTECODE(const_cast<ID3DBlob*>(vs));
     }
 
-    void GraphicsPipelineState::SetPixelShader(ID3DBlob* ps)
+    void GraphicsPipelineState::SetPixelShader(const ID3DBlob* ps)
     {
-        m_PSODesc.PS = CD3DX12_SHADER_BYTECODE(ps);
+        m_PSODesc.PS = CD3DX12_SHADER_BYTECODE(const_cast<ID3DBlob*>(ps));
     }
 
-    void GraphicsPipelineState::SetGeometryShader(ID3DBlob* gs)
+    void GraphicsPipelineState::SetGeometryShader(const ID3DBlob* gs)
     {
-        m_PSODesc.GS = CD3DX12_SHADER_BYTECODE(gs);
+        m_PSODesc.GS = CD3DX12_SHADER_BYTECODE(const_cast<ID3DBlob*>(gs));
     }
 
-    void GraphicsPipelineState::SetHullShader(ID3DBlob* hs)
+    void GraphicsPipelineState::SetHullShader(const ID3DBlob* hs)
     {
-        m_PSODesc.HS = CD3DX12_SHADER_BYTECODE(hs);
+        m_PSODesc.HS = CD3DX12_SHADER_BYTECODE(const_cast<ID3DBlob*>(hs));
     }
 
-    void GraphicsPipelineState::SetDomainShader(ID3DBlob* ds)
+    void GraphicsPipelineState::SetDomainShader(const ID3DBlob* ds)
     {
-        m_PSODesc.DS = CD3DX12_SHADER_BYTECODE(ds);
+        m_PSODesc.DS = CD3DX12_SHADER_BYTECODE(const_cast<ID3DBlob*>(ds));
     }
 
     /**
@@ -135,8 +145,21 @@ namespace Graphics
     */
     void GraphicsPipelineState::Finalize()
     {
-        if (m_IsFinalized) return;
-        m_IsFinalized = true;
+        /*
+            运行时验证：
+                ·着色器阶段之间的链接是否正确。
+                ·如果指定了HS和DS成员，则拓扑类型的PrimitiveTopologyType成员必须设置为D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH。
+                ·中心多采样抗锯齿 (MSAA) 模式是否允许采样频率执行。
+                ·中心 MSAA 模式是否不允许使用抗锯齿线。
+                ·如果RasterizerState指定的D3D12_RASTERIZER_DESC的ForcedSampleCount成员不为零：
+                    ·必须禁用深度/模板。
+                    ·像素着色器无法输出深度。
+                    ·像素着色器无法以采样频率运行。
+                    ·渲染目标样本数必须为 1。
+                ·混合状态是否与渲染目标格式兼容。
+                ·像素着色器输出类型是否与渲染目标格式兼容。
+                ·渲染目标/深度模板格式是否支持样本计数和质量。
+        */
 
         m_PSODesc.pRootSignature = m_RootSignature->GetD3D12RootSignature();
         ASSERT(m_PSODesc.pRootSignature != nullptr);

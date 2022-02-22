@@ -8,8 +8,8 @@ namespace Graphics
     class DescriptorHeap;
     class GpuPlacedHeap;
 
-    extern RootSignature g_RootSignature;
-    extern GraphicsPipelineState g_PipelineState;
+    //extern RootSignature g_RootSignature;
+    //extern GraphicsPipelineState g_PipelineState;
 
 
     extern GraphicsBuffer g_SampleVBV;
@@ -19,8 +19,9 @@ namespace Graphics
     extern GpuPlacedHeap g_UploadPlacedHeap;
 
 
-    void InitRootSignature();
-    void InitPipelineState();
+    //void InitRootSignature();
+    //void InitPipelineState();
+    void InitShader();
     void InitMesh();
     void InitPlacedHeap();
     void InitTexture2D();

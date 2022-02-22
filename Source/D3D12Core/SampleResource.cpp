@@ -16,6 +16,9 @@
 #include "GameTime.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "Shader.h"
+#include "Material.h"
+#include "Renderer.h"
 
 #include "SampleResource.h"
 
@@ -26,13 +29,14 @@ using namespace Application;
 
 namespace Graphics
 {
-    RootSignature g_RootSignature;
-    GraphicsPipelineState g_PipelineState;
+    //RootSignature g_RootSignature;
+    //GraphicsPipelineState g_PipelineState;
+    Shader g_SampleShader;
 
     vector<Mesh> g_SampleMeshs;
     GraphicsBuffer g_SampleVBV;
 
-    DescriptorHeap t_SampleResDescHeap;
+    //DescriptorHeap t_SampleResDescHeap;
     Texture2D t_DefaultTexture[2];
 
     GpuPlacedHeap g_TexPlacedHeap;
@@ -46,6 +50,7 @@ namespace Graphics
         DirectX::XMFLOAT4X4 m_P;
         DirectX::XMFLOAT4X4 m_V;
         DirectX::XMFLOAT4X4 m_M;
+        DirectX::XMFLOAT4X4 m_IT_M;
         DirectX::XMFLOAT4X4 m_MVP;
     };
     MVPBuffer* g_MVPBuffer;
@@ -54,10 +59,13 @@ namespace Graphics
     Camera g_Camera;
     Transform g_ModelTrans;
 
-    CommandList g_BundleCommandList;
+    //CommandList g_BundleCommandList;
     //com_ptr<ID3D12CommandAllocator> g_SampleBundleCommandAllocator;
     //com_ptr<ID3D12GraphicsCommandList5> g_SampleBundleGraphicsCommandList;
+    Material g_SampleMaterial;
+    Renderer g_SampleRenderer;
 
+#if 0
     void InitRootSignature()
     {
         // 创建根签名
@@ -141,6 +149,12 @@ namespace Graphics
 
         g_PipelineState.Finalize();
     }
+#endif
+    void InitShader()
+    {
+        g_SampleShader.Create();
+        g_SampleMaterial.Create(&g_SampleShader);
+    }
     void InitPlacedHeap()
     {
         const UINT64 sampleSize = 65536ull * 100u;
@@ -159,8 +173,8 @@ namespace Graphics
     }
     void InitTexture2D()
     {
-        t_SampleResDescHeap = DescriptorHeap();
-        t_SampleResDescHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
+        //t_SampleResDescHeap = DescriptorHeap();
+        //t_SampleResDescHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2);
 
         auto texPath = Application::GetAssetPath();
         texPath.append("Shimarin.png");
@@ -183,8 +197,8 @@ namespace Graphics
         t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
-        t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[1]);
-
+        //t_SampleResDescHeap.BindShaderResourceView(0, t_DefaultTexture[1]);
+        g_SampleMaterial.GetResourceDescHeap()->BindShaderResourceView(0, t_DefaultTexture[1]);
 
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
@@ -194,7 +208,8 @@ namespace Graphics
             g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
+            //t_SampleResDescHeap.BindConstantBufferView(1, g_MvpBufferRes);
+            g_SampleMaterial.GetResourceDescHeap()->BindConstantBufferView(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
@@ -223,24 +238,16 @@ namespace Graphics
         };
         const UINT vertexBufferSize = sizeof(vertices);
 
+#if 0
         g_SampleVBV = GraphicsBuffer();
         //g_SampleVBV.DirectCreate(vertexBufferSize);
         g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
         g_SampleVBV.DispatchCopyBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+#endif
         //g_SampleMeshs.push_back(Mesh());
         //g_SampleMeshs[g_SampleMeshs.size() - 1].DirectCreate((UINT)_countof(vertices), vertices);
 
-        //g_SampleMesh = Mesh::CreateCube();
-        //g_SampleMesh = Mesh::CreateSphere();
-        //g_SampleMesh = Mesh::CreateGeoSphere();
-        //g_SampleMesh = Mesh::CreateCylinder();
-        //g_SampleMesh = Mesh::CreateCone();
-        //g_SampleMesh = Mesh::CreateTorus();
-        //g_SampleMesh = Mesh::CreateTetrahedron();
-        //g_SampleMesh = Mesh::CreateOctahedron();
-        //g_SampleMesh = Mesh::CreateDodecahedron();
-        //g_SampleMesh = Mesh::CreateIcosahedron();
-        g_SampleMeshs.push_back(Mesh::CreateTeapot());
+        g_SampleMeshs.push_back(Mesh::CreateCube());
 
         g_ModelTrans = Transform();
         g_ModelTrans.LocalScale = Vector3::One * 2.0f;
@@ -254,10 +261,10 @@ namespace Graphics
 
     void InitCommandListBundle()
     {
-        g_BundleCommandList.Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
-        auto* bundleCommandList = g_BundleCommandList.GetD3D12CommandList();
+        //g_BundleCommandList.Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
+        //auto* bundleCommandList = g_BundleCommandList.GetD3D12CommandList();
 
-
+#if 0
         // 设置根签名
         bundleCommandList->SetGraphicsRootSignature(g_PipelineState.GetD3D12RootSignature());
         // 管线状态
@@ -281,8 +288,12 @@ namespace Graphics
 
         // DrawCall
         bundleCommandList->DrawIndexedInstanced(g_SampleMeshs[0].GetIndexCount(), 1, 0, 0, 0);
+#endif
+        //g_SampleShader.ExecuteBindShader(&g_BundleCommandList);
+        //g_SampleMeshs[0].ExecuteDraw(&g_BundleCommandList);
+        //g_BundleCommandList.Close();
 
-        g_BundleCommandList.Close();
+        g_SampleRenderer.Create(&g_SampleMeshs[0], &g_SampleMaterial);
     }
 
     void OutputMatrix4x4(const Matrix4x4& m)
@@ -344,7 +355,7 @@ namespace Graphics
                 g_ModelTrans.LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
             }
 
-            g_Camera.m_ProjectionMode = Input::KeyState(KeyCode::Enter) ? ProjectionMode::Orthographic : ProjectionMode::Perspective;
+            g_Camera.m_ProjectionMode = ProjectionMode::Perspective;
             Matrix4x4 pers = g_Camera.GetProjectionMatrix();
 
             Matrix4x4 view = g_Camera.GetViewMatrix();
@@ -354,6 +365,7 @@ namespace Graphics
             g_MVPBuffer->m_P = pers;
             g_MVPBuffer->m_V = view;
             g_MVPBuffer->m_M = model;
+            g_MVPBuffer->m_IT_M = model.Invert().Transpose();
 #ifdef USE_COLUMN_MAJOR
             g_MVPBuffer->m_MVP = pers * view * model;
 #else
@@ -404,9 +416,17 @@ namespace Graphics
         //    commandList->DrawInstanced(4, 1, 0, 0);
         //}
 
-        ID3D12DescriptorHeap* ppHeaps[] = { t_SampleResDescHeap.GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
-        commandList->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-        commandList->ExecuteBundle(g_BundleCommandList.GetD3D12CommandList());
+
+        //g_SampleShader.ExecuteBindDescriptorHeap(&g_GraphicsCommandList);
+        //commandList->ExecuteBundle(g_BundleCommandList.GetD3D12CommandList());
+
+        if (Input::KeyDown(KeyCode::Enter))
+        {
+            static int fillMode = 1;
+            g_SampleMaterial.SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
+        }
+
+        g_SampleRenderer.ExecuteDraw(&g_GraphicsCommandList);
     }
 
 }

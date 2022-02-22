@@ -25,7 +25,7 @@
 namespace Graphics
 {
 
-    GraphicsBuffer::GraphicsBuffer() : m_VertexBufferView(nullptr), m_UploadBuffer(nullptr) {}
+    GraphicsBuffer::GraphicsBuffer() : m_UploadBuffer(nullptr) {}
 
     void GraphicsBuffer::DirectCreate(UINT64 size)
     {
@@ -63,7 +63,7 @@ namespace Graphics
         auto bufferSize = m_ResourceDesc.Width;
 
         // 创建上传缓冲
-        m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+        m_UploadBuffer.reset(new UploadBuffer());
         m_UploadBuffer->DirectCreate(bufferSize);
 
         // 添加拷贝命令到命令队列
@@ -89,23 +89,27 @@ namespace Graphics
         }
     }
 
-    void GraphicsBuffer::DispatchCopyBuffer(const CommandList& commandList, UINT strideSize, const void* data)
+#if 0
+    void GraphicsBuffer::GenerateVertexOrIndexView(UINT strideSize)
     {
-        DispatchCopyBuffer(commandList, data);
-
         // 创建顶点缓冲视图
-        m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+        m_VertexBufferView.reset(new D3D12_VERTEX_BUFFER_VIEW{
                 m_GpuVirtualAddress,
                 static_cast<UINT>(m_ResourceDesc.Width),
                 strideSize });
 
-        m_IndexBufferView = std::unique_ptr<D3D12_INDEX_BUFFER_VIEW>(new D3D12_INDEX_BUFFER_VIEW{
+        DXGI_FORMAT ibvFormat = DXGI_FORMAT_R16_UINT;
+        switch (strideSize)
+        {
+            case sizeof(UINT16) : ibvFormat = DXGI_FORMAT_R16_UINT; break;
+            default: break;
+        }
+        m_IndexBufferView.reset(new D3D12_INDEX_BUFFER_VIEW{
                 m_GpuVirtualAddress,
                 static_cast<UINT>(m_ResourceDesc.Width),
-                DXGI_FORMAT_R16_UINT });
+                ibvFormat });
     }
 
-#if 0
     void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
     {
         // 说明：上传缓冲区对 CPU 和 GPU 都是可见的，但由于内存是写合并的，因此应避免使用 CPU 读取数据。 上传缓冲区用于将数据移动到默认 GPU 缓冲区。 您可以将文件直接读入上传缓冲区，而不是读入常规缓存内存，将其复制到上传缓冲区，然后将其复制到 GPU。

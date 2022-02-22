@@ -39,7 +39,7 @@ namespace Graphics
         SET_DEBUGNAME(m_Resource.get(), _T("RenderTexture"));
 
         // 深度模板视图描述
-        m_DsvDesc = unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC>(new D3D12_DEPTH_STENCIL_VIEW_DESC());
+        m_DsvDesc.reset(new D3D12_DEPTH_STENCIL_VIEW_DESC());
         m_DsvDesc->Format = format;
         m_DsvDesc->ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
         m_DsvDesc->Flags = D3D12_DSV_FLAG_NONE;

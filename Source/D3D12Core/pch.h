@@ -123,3 +123,14 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 
 #endif // DEBUG
 
+
+enum class VertexSemantic
+{
+    Position,
+    Normal,
+    Tangent,
+    Color,
+    Texcoord,
+
+    Count
+};

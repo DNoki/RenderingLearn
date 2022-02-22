@@ -1,35 +1,51 @@
 ﻿#pragma once
 
 
-namespace Graphics
+namespace Game
 {
     typedef DirectX::VertexPositionNormalTexture VertexPositionNormalTexture;
 
     class IBufferResource;
 
+    enum class DrawType
+    {
+        VertexList,
+        Indexed,
+    };
+
+    constexpr UINT VertexSemanticCount = (int)VertexSemantic::Count;
+
     class Mesh
     {
     public:
+        std::vector<Vector3> m_Positions;   // 位置
+        std::vector<Vector3> m_Normals;     // 法线
+        std::vector<Vector3> m_Tangents;    // 切线
+        std::vector<Vector4> m_Colors;      // 颜色
+        std::vector<Vector2> m_UVs;         // 纹理UV
+
+        std::vector<UINT16> m_Indices;  // 索引列表
+
         // --------------------------------------------------------------------------
         Mesh() = default;
 
         // --------------------------------------------------------------------------
+#if 0
         template <typename TVertex>
-        void DirectCreate(UINT vertexCount, const TVertex* vertices, UINT indexCount = 0, const UINT16* indices = nullptr)
+        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, const TVertex* vertices, UINT indexCount = 0, const UINT16* indices = nullptr)
         {
-            DirectCreate(vertexCount, sizeof(TVertex), vertices, indexCount, indices);
+            DirectCreate(primitiveTopology, vertexCount, sizeof(TVertex), vertices, indexCount, indices);
         }
-        void DirectCreate(UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
+        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
+#endif
+        inline void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology) { m_PrimitiveTopology = primitiveTopology; }
+        void Finalize();
 
         // --------------------------------------------------------------------------
-        inline UINT GetVertexCount() const { return static_cast<UINT>(m_Vertices.size()); }
-        inline const void* GetVertexData() const { return m_Vertices.data(); }
+        inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
 
-        inline UINT GetIndexCount() const { return static_cast<UINT>(m_Indices.size()); }
-        inline const void* GetIndexData() const { return m_Indices.data(); }
 
-        inline const GraphicsBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
-        inline const GraphicsBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
+        void ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const;
 
 
         // --------------------------------------------------------------------------
@@ -123,11 +139,19 @@ namespace Graphics
         static Mesh CreateTeapot(float size = 1, size_t tessellation = 8, bool rhcoords = false);
 
     private:
-        UINT m_VertexStrideSize; // 顶点输入结构大小
-        std::vector<BYTE> m_Vertices;
-        std::vector<UINT16> m_Indices;
+        D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology; // 定义管道如何解释和呈现顶点
 
-        std::unique_ptr<GraphicsBuffer> m_VertexBuffer;
-        std::unique_ptr<GraphicsBuffer> m_IndexBuffer;
+        std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffers[VertexSemanticCount]; // 顶点缓冲列表
+        std::unique_ptr<Graphics::GraphicsBuffer> m_IndexBuffer;  // 索引缓冲
+
+        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]; // 顶点缓冲视图
+        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> m_IBV; // 索引缓冲视图
+
+        bool m_Version; // TODO
+
+        /**
+         * @brief 处理预置网格
+        */
+        static void ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexCollection vertices, DirectX::GeometricPrimitive::IndexCollection indices);
     };
 }

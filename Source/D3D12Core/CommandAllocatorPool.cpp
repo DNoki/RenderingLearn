@@ -136,10 +136,10 @@ namespace Graphics
     {
         return g_CommandAllocatorPoolImpl.RequestAllocator(type);
     }
-    void CommandAllocatorPool::Restore(CommandAllocator* type)
+    void CommandAllocatorPool::Restore(CommandAllocator* allocator)
     {
         // 回收此命令分配器，必须保证该分配器已执行完毕
         // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。
-        g_CommandAllocatorPoolImpl.RestoreAllocator(type);
+        g_CommandAllocatorPoolImpl.RestoreAllocator(allocator);
     }
 }
