@@ -27,12 +27,17 @@ namespace Game
         if (m_UseBundle)
         {
             m_BundleCommandList.reset(new CommandList());
-            m_BundleCommandList->Create(D3D12_COMMAND_LIST_TYPE_BUNDLE, true);
+            m_BundleCommandList->Create(D3D12_COMMAND_LIST_TYPE_BUNDLE);
 
-            m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get());
-            m_BindedMesh->ExecuteDraw(m_BundleCommandList.get());
+            if (!m_BindedMaterial->IsChanged())
+            {
+                m_BundleCommandList->Reset(nullptr);
 
-            m_BundleCommandList->Close();
+                m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get());
+                m_BindedMesh->ExecuteDraw(m_BundleCommandList.get());
+
+                m_BundleCommandList->Close();
+            }
         }
     }
 

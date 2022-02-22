@@ -8,6 +8,12 @@
 
 #include "Shader.h"
 
+// --------------------------------------------------------------------------
+/*
+    HLSL 编译器 https://docs.microsoft.com/zh-cn/cpp/build/reference/hlsl-property-pages
+
+*/
+// --------------------------------------------------------------------------
 
 
 using namespace std;
@@ -43,6 +49,19 @@ namespace Game
                     (*m_RootSignature)[i].InitAsDescriptorTable(1, &ranges[i]);
             }
             m_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+        }
+        {
+            // 定义顶点输入层
+            const D3D12_INPUT_ELEMENT_DESC sampleInputElementDescs[] =
+            {
+                {"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
+                {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
+                {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
+                {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT4
+                {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT2
+            };
+            m_InputLayouts.resize(_countof(sampleInputElementDescs));
+            CopyMemory(m_InputLayouts.data(), sampleInputElementDescs, sizeof(sampleInputElementDescs));
         }
     }
 

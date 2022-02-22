@@ -54,6 +54,7 @@ namespace Graphics
          * @param pInputElementDescs 输入元素表
         */
         void SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs);
+        void SetInputLayout(D3D12_INPUT_LAYOUT_DESC inputLayout);
         /**
          * @brief 设置栅格化状态
          * @param rasterizerDesc
@@ -148,7 +149,6 @@ namespace Graphics
     private:
         D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc; // 图形管线状态描述
 
-        std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts; // Shader 输入结构
     };
 
     class ComputePipelineState : public PipelineState

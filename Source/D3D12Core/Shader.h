@@ -29,12 +29,14 @@ namespace Game
         void Create();
 
         inline const Graphics::RootSignature* GetRootSignature() const { return m_RootSignature.get(); }
+        inline D3D12_INPUT_LAYOUT_DESC GetInputLayout() const { return { m_InputLayouts.data(), static_cast<UINT>(m_InputLayouts.size()) }; }
         inline const ID3DBlob* GetShaderBuffer(ShaderType type) const { return m_ShaderBlobs[static_cast<int>(type)].get(); }
 
     private:
         winrt::com_ptr<ID3DBlob> m_ShaderBlobs[static_cast<int>(ShaderType::Count)]; // 着色器编译缓冲
 
-        std::unique_ptr<Graphics::RootSignature> m_RootSignature; // 根签名
+        std::unique_ptr<Graphics::RootSignature> m_RootSignature;   // 根签名
+        std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;       // 顶点输入结构
 
         void ReadFromFile(ShaderType type, const Path& filePath);
     };

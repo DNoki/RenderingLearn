@@ -50,6 +50,7 @@ namespace Graphics
         DirectX::XMFLOAT4X4 m_P;
         DirectX::XMFLOAT4X4 m_V;
         DirectX::XMFLOAT4X4 m_M;
+        DirectX::XMFLOAT4X4 m_IT_M;
         DirectX::XMFLOAT4X4 m_MVP;
     };
     MVPBuffer* g_MVPBuffer;
@@ -244,16 +245,6 @@ namespace Graphics
         //g_SampleMeshs.push_back(Mesh());
         //g_SampleMeshs[g_SampleMeshs.size() - 1].DirectCreate((UINT)_countof(vertices), vertices);
 
-        //g_SampleMesh = Mesh::CreateCube();
-        //g_SampleMesh = Mesh::CreateSphere();
-        //g_SampleMesh = Mesh::CreateGeoSphere();
-        //g_SampleMesh = Mesh::CreateCylinder();
-        //g_SampleMesh = Mesh::CreateCone();
-        //g_SampleMesh = Mesh::CreateTorus();
-        //g_SampleMesh = Mesh::CreateTetrahedron();
-        //g_SampleMesh = Mesh::CreateOctahedron();
-        //g_SampleMesh = Mesh::CreateDodecahedron();
-        //g_SampleMesh = Mesh::CreateIcosahedron();
         g_SampleMeshs.push_back(Mesh::CreateTeapot());
 
         g_ModelTrans = Transform();
@@ -372,6 +363,7 @@ namespace Graphics
             g_MVPBuffer->m_P = pers;
             g_MVPBuffer->m_V = view;
             g_MVPBuffer->m_M = model;
+            g_MVPBuffer->m_IT_M = model.Invert().Transpose();
 #ifdef USE_COLUMN_MAJOR
             g_MVPBuffer->m_MVP = pers * view * model;
 #else

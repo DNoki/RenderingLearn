@@ -16,22 +16,33 @@ namespace Game
     class Mesh
     {
     public:
+        std::vector<Vector3> m_Vertices;
+        std::vector<Vector3> m_Normals;
+        std::vector<Vector3> m_Tangents;
+        std::vector<Vector4> m_Colors;
+        std::vector<Vector2> m_UVs;
+
+        std::vector<UINT16> m_Indices;  // 索引列表
+
         // --------------------------------------------------------------------------
         Mesh() = default;
 
         // --------------------------------------------------------------------------
+#if 0
         template <typename TVertex>
         void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, const TVertex* vertices, UINT indexCount = 0, const UINT16* indices = nullptr)
         {
             DirectCreate(primitiveTopology, vertexCount, sizeof(TVertex), vertices, indexCount, indices);
         }
         void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
+#endif
+        void Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
 
         // --------------------------------------------------------------------------
         inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
 
         inline UINT GetVertexCount() const { return static_cast<UINT>(m_Vertices.size()); }
-        inline UINT GetVertexStrideSize() const { return m_VertexStrideSize; }
+        //inline UINT GetVertexStrideSize() const { return m_VertexStrideSize; }
         inline const void* GetVertexData() const { return m_Vertices.data(); }
 
         inline UINT GetIndexCount() const { return static_cast<UINT>(m_Indices.size()); }
@@ -136,11 +147,14 @@ namespace Game
     private:
         D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology; // 定义管道如何解释和呈现顶点
 
-        UINT m_VertexStrideSize;        // 顶点输入结构大小
-        std::vector<BYTE> m_Vertices;   // 顶点数据列表
-        std::vector<UINT16> m_Indices;  // 索引列表
+        //UINT m_VertexStrideSize;        // 顶点输入结构大小
+        //std::vector<BYTE> m_Vertices;   // 顶点数据列表
 
         std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffer; // 顶点缓冲
         std::unique_ptr<Graphics::GraphicsBuffer> m_IndexBuffer;  // 索引缓冲
+
+        bool m_Version; // TODO
+
+        static void ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexCollection vertices, DirectX::GeometricPrimitive::IndexCollection indices);
     };
 }
