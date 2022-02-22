@@ -30,6 +30,7 @@ namespace Game
 
         inline const Graphics::RootSignature* GetRootSignature() const { return m_RootSignature.get(); }
         inline D3D12_INPUT_LAYOUT_DESC GetInputLayout() const { return { m_InputLayouts.data(), static_cast<UINT>(m_InputLayouts.size()) }; }
+        inline int GetBindSemanticFlag() const { return m_BindSemanticFlag; }
         inline const ID3DBlob* GetShaderBuffer(ShaderType type) const { return m_ShaderBlobs[static_cast<int>(type)].get(); }
 
     private:
@@ -37,6 +38,7 @@ namespace Game
 
         std::unique_ptr<Graphics::RootSignature> m_RootSignature;   // 根签名
         std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;       // 顶点输入结构
+        int m_BindSemanticFlag; // 着色器使用语义
 
         void ReadFromFile(ShaderType type, const Path& filePath);
     };

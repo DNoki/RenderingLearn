@@ -30,6 +30,8 @@ namespace Game
         const Graphics::RenderTexture* m_RenderTarget;
         const Graphics::RenderTexture* m_DepthStencil;
 
+        void RefleshBundleCommandList();
+
     };
 
 }

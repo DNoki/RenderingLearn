@@ -69,7 +69,7 @@ namespace Graphics
 
     const CD3DX12_RANGE UploadBuffer::c_ZeroReadRange = CD3DX12_RANGE(0, 0);
 
-    UploadBuffer::UploadBuffer() : m_VertexBufferView(nullptr) {}
+    UploadBuffer::UploadBuffer() {}
 
     void UploadBuffer::DirectCreate(UINT64 size)
     {
@@ -100,6 +100,7 @@ namespace Graphics
         Finalize();
     }
 
+#if 0
     void UploadBuffer::CopyVertexBuffer(UINT strideSize, const void* vertices)
     {
         ASSERT(m_Resource != nullptr);
@@ -118,4 +119,5 @@ namespace Graphics
 
         TRACE(L"WARNING::正在使用上传堆顶点缓冲。");
     }
+#endif
 }

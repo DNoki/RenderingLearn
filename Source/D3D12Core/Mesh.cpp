@@ -47,84 +47,78 @@ namespace Game
         }
     }
 #endif
-    void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
+    void Mesh::Finalize()
     {
-        m_PrimitiveTopology = primitiveTopology;
+        // 顶点数量
+        UINT64 vertexCount = m_Positions.size();
+        UINT64 vertexCountArray[] = { m_Positions.size(), m_Normals.size(), m_Tangents.size(), m_Colors.size(), m_UVs.size(), };
+        // 顶点语义数据类型
+        UINT vertexStrideArray[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector4), sizeof(Vector2), };
+        // 顶点语义数据
+        void* vertexDataArray[] = { m_Positions.data(), m_Normals.data(), m_Tangents.data(), m_Colors.data(), m_UVs.data(), };
 
-        struct VertexInputLayout
+        // 创建需要使用的顶点缓冲
+        for (int i = 0; i < VertexSemanticCount; i++)
         {
-            Vector3 Position;
-            Vector3 Normal;
-            Vector3 Tangent;
-            Vector4 Color;
-            Vector2 UV;
-        };
+            m_VertexBuffers[i] = nullptr;
+            m_VBVs[i] = nullptr;
+            if (vertexCountArray[i] != vertexCount)
+                continue;
 
-        UINT vertexCount = static_cast<UINT>(m_Vertices.size());
-        UINT normalCount = static_cast<UINT>(m_Normals.size());
-        UINT tangentCount = static_cast<UINT>(m_Tangents.size());
-        UINT colorCount = static_cast<UINT>(m_Colors.size());
-        UINT uvCount = static_cast<UINT>(m_UVs.size());
+            m_VertexBuffers[i].reset(new GraphicsBuffer());
+            m_VertexBuffers[i]->DirectCreate(vertexStrideArray[i] * vertexCountArray[i]);
+            m_VertexBuffers[i]->DispatchCopyBuffer(g_GraphicsCommandList, vertexDataArray[i]);
 
-        if (normalCount != vertexCount)
-        {
-            normalCount = 0;
-            m_Normals.resize(vertexCount);
-        }
-        if (tangentCount != vertexCount)
-        {
-            tangentCount = 0;
-            m_Tangents.resize(vertexCount);
-        }
-        if (colorCount != vertexCount)
-        {
-            colorCount = 0;
-            m_Colors.resize(vertexCount);
-        }
-        if (uvCount != vertexCount)
-        {
-            uvCount = 0;
-            m_UVs.resize(vertexCount);
+            m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
+                {
+                    m_VertexBuffers[i]->GetGpuVirtualAddress(),
+                    static_cast<UINT>(m_VertexBuffers[i]->GetBufferSize()),
+                    vertexStrideArray[i],
+                });
         }
 
-        vector<VertexInputLayout> vertexArray;
-        vertexArray.resize(vertexCount);
-        for (UINT i = 0; i < vertexCount; i++)
-        {
-            vertexArray[i].Position = m_Vertices[i];
-            vertexArray[i].Normal = m_Normals[i];
-            vertexArray[i].Tangent = m_Tangents[i];
-            vertexArray[i].Color = m_Colors[i];
-            vertexArray[i].UV = m_UVs[i];
-        }
-
-        m_VertexBuffer.reset(new GraphicsBuffer());
-        m_VertexBuffer->DirectCreate(vertexCount * sizeof(VertexInputLayout));
-        m_VertexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, sizeof(VertexInputLayout), vertexArray.data());
-
+        // 如果使用索引绘制，则创建索引缓冲
         if (m_Indices.size() > 0)
         {
             m_IndexBuffer.reset(new GraphicsBuffer());
             m_IndexBuffer->DirectCreate(m_Indices.size() * sizeof(UINT16));
-            m_IndexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, sizeof(UINT16), m_Indices.data());
+            m_IndexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, m_Indices.data());
+
+            m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW
+                {
+                    m_IndexBuffer->GetGpuVirtualAddress(),
+                    static_cast<UINT>(m_IndexBuffer->GetBufferSize()),
+                    DXGI_FORMAT_R16_UINT, // UINT16
+                });
         }
+        else m_IndexBuffer = nullptr;
     }
 
-    void Mesh::ExecuteDraw(const Graphics::CommandList* commandList) const
+    void Mesh::ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const
     {
         auto* d3d12CommandList = commandList->GetD3D12CommandList();
 
         d3d12CommandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 
-        d3d12CommandList->IASetVertexBuffers(0, 1, m_VertexBuffer->GetVBV());
+        // 绑定顶点缓冲
+        for (int i = 0; i < VertexSemanticCount; i++)
+        {
+            if (bindSemanticFlag & (1 << i))
+            {
+                ASSERT(m_VertexBuffers[i], _T("ERROR::未设置要使用的顶点缓冲。"));
+                if (m_VertexBuffers[i])
+                    d3d12CommandList->IASetVertexBuffers(i, 1, m_VBVs[i].get());
+            }
+        }
+
         switch (GetDrawType())
         {
         case Game::DrawType::VertexList:
-            d3d12CommandList->DrawInstanced(GetVertexCount(), 1, 0, 0);
+            d3d12CommandList->DrawInstanced(static_cast<UINT>(m_Positions.size()), 1, 0, 0);
             break;
         case Game::DrawType::Indexed:
-            d3d12CommandList->IASetIndexBuffer(m_IndexBuffer->GetIBV());
-            d3d12CommandList->DrawIndexedInstanced(GetIndexCount(), 1, 0, 0, 0);
+            d3d12CommandList->IASetIndexBuffer(m_IBV.get()); // 绑定索引缓冲
+            d3d12CommandList->DrawIndexedInstanced(static_cast<UINT>(m_Indices.size()), 1, 0, 0, 0);
             break;
         default: break;
         }
@@ -141,7 +135,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateSphere(float diameter, size_t tessellation, bool rhcoords, bool invertn)
     {
         using namespace DirectX;
@@ -153,7 +146,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateGeoSphere(float diameter, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -165,7 +157,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateCylinder(float height, float diameter, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -177,7 +168,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateCone(float diameter, float height, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -189,7 +179,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateTorus(float diameter, float thickness, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -201,7 +190,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateTetrahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -213,7 +201,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateOctahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -225,7 +212,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateDodecahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -237,7 +223,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateIcosahedron(float size, bool rhcoords)
     {
         using namespace DirectX;
@@ -249,7 +234,6 @@ namespace Game
         ProcessPresetMesh(mesh, vertices, indices);
         return mesh;
     }
-
     Mesh Mesh::CreateTeapot(float size, size_t tessellation, bool rhcoords)
     {
         using namespace DirectX;
@@ -264,7 +248,7 @@ namespace Game
 
     void Mesh::ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexCollection vertices, DirectX::GeometricPrimitive::IndexCollection indices)
     {
-        mesh.m_Vertices.clear();
+        mesh.m_Positions.clear();
         mesh.m_Normals.clear();
         mesh.m_Tangents.clear();
         mesh.m_Colors.clear();
@@ -272,14 +256,15 @@ namespace Game
 
         for (int i = 0; i < vertices.size(); i++)
         {
-            mesh.m_Vertices.push_back(vertices[i].position);
+            mesh.m_Positions.push_back(vertices[i].position);
             mesh.m_Normals.push_back(vertices[i].normal);
-            mesh.m_UVs.push_back(vertices[i].textureCoordinate);
+            mesh.m_UVs.push_back(Vector2::One - vertices[i].textureCoordinate); // 翻转 UV 纵坐标
         }
 
         mesh.m_Indices.resize(indices.size());
         CopyMemory(mesh.m_Indices.data(), indices.data(), indices.size() * sizeof(UINT16));
-        mesh.Finalize(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        mesh.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        mesh.Finalize();
     }
 
 }

@@ -5,6 +5,7 @@
 #include "GraphicsBuffer.h"
 #include "CommandList.h"
 #include "PipelineState.h"
+#include "Shader.h"
 #include "Material.h"
 #include "Mesh.h"
 
@@ -31,12 +32,7 @@ namespace Game
 
             if (!m_BindedMaterial->IsChanged())
             {
-                m_BundleCommandList->Reset(nullptr);
-
-                m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get());
-                m_BindedMesh->ExecuteDraw(m_BundleCommandList.get());
-
-                m_BundleCommandList->Close();
+                RefleshBundleCommandList();
             }
         }
     }
@@ -48,15 +44,7 @@ namespace Game
             // 重新创建管线状态
             m_BindedMaterial->RefleshPipelineState(); // TODO 是否应该在两个不同 PSO 之间切换？而不是重新创建它
 
-            if (m_UseBundle)
-            {
-                m_BundleCommandList->Reset(nullptr);
-
-                m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get());
-                m_BindedMesh->ExecuteDraw(m_BundleCommandList.get());
-
-                m_BundleCommandList->Close();
-            }
+            RefleshBundleCommandList();
         }
 
         if (m_UseBundle)
@@ -69,7 +57,20 @@ namespace Game
         {
             // 不使用捆绑包，直接绘制
             m_BindedMaterial->ExecuteBindMaterial(commandList);
-            m_BindedMesh->ExecuteDraw(commandList);
+            m_BindedMesh->ExecuteDraw(commandList, m_BindedMaterial->GetShader()->GetBindSemanticFlag());
+        }
+    }
+
+    void Renderer::RefleshBundleCommandList()
+    {
+        if (m_UseBundle)
+        {
+            m_BundleCommandList->Reset(nullptr);
+
+            m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get());
+            m_BindedMesh->ExecuteDraw(m_BundleCommandList.get(), m_BindedMaterial->GetShader()->GetBindSemanticFlag());
+
+            m_BundleCommandList->Close();
         }
     }
 }

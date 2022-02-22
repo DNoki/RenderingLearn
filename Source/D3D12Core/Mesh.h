@@ -13,14 +13,16 @@ namespace Game
         Indexed,
     };
 
+    constexpr UINT VertexSemanticCount = (int)VertexSemantic::Count;
+
     class Mesh
     {
     public:
-        std::vector<Vector3> m_Vertices;
-        std::vector<Vector3> m_Normals;
-        std::vector<Vector3> m_Tangents;
-        std::vector<Vector4> m_Colors;
-        std::vector<Vector2> m_UVs;
+        std::vector<Vector3> m_Positions;   // 位置
+        std::vector<Vector3> m_Normals;     // 法线
+        std::vector<Vector3> m_Tangents;    // 切线
+        std::vector<Vector4> m_Colors;      // 颜色
+        std::vector<Vector2> m_UVs;         // 纹理UV
 
         std::vector<UINT16> m_Indices;  // 索引列表
 
@@ -36,22 +38,14 @@ namespace Game
         }
         void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
 #endif
-        void Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
+        inline void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology) { m_PrimitiveTopology = primitiveTopology; }
+        void Finalize();
 
         // --------------------------------------------------------------------------
         inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
 
-        inline UINT GetVertexCount() const { return static_cast<UINT>(m_Vertices.size()); }
-        //inline UINT GetVertexStrideSize() const { return m_VertexStrideSize; }
-        inline const void* GetVertexData() const { return m_Vertices.data(); }
 
-        inline UINT GetIndexCount() const { return static_cast<UINT>(m_Indices.size()); }
-        inline const void* GetIndexData() const { return m_Indices.data(); }
-
-        inline const Graphics::GraphicsBuffer* GetVertexBuffer() const { return m_VertexBuffer.get(); }
-        inline const Graphics::GraphicsBuffer* GetIndexBuffer() const { return m_IndexBuffer.get(); }
-
-        void ExecuteDraw(const Graphics::CommandList* commandList) const;
+        void ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const;
 
 
         // --------------------------------------------------------------------------
@@ -147,14 +141,17 @@ namespace Game
     private:
         D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology; // 定义管道如何解释和呈现顶点
 
-        //UINT m_VertexStrideSize;        // 顶点输入结构大小
-        //std::vector<BYTE> m_Vertices;   // 顶点数据列表
-
-        std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffer; // 顶点缓冲
+        std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffers[VertexSemanticCount]; // 顶点缓冲列表
         std::unique_ptr<Graphics::GraphicsBuffer> m_IndexBuffer;  // 索引缓冲
+
+        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]; // 顶点缓冲视图
+        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> m_IBV; // 索引缓冲视图
 
         bool m_Version; // TODO
 
+        /**
+         * @brief 处理预置网格
+        */
         static void ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexCollection vertices, DirectX::GeometricPrimitive::IndexCollection indices);
     };
 }

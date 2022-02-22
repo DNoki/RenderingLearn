@@ -15,12 +15,6 @@ namespace Graphics
         // --------------------------------------------------------------------------
         UploadBuffer();
 
-        // --------------------------------------------------------------------------
-        /**
-         * @brief 获取缓冲大小
-         * @return
-        */
-        inline UINT64 GetBufferSize() const { return m_ResourceDesc.Width; }
 
         // --------------------------------------------------------------------------
         /**
@@ -35,13 +29,6 @@ namespace Graphics
         */
         void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap) override;
 
-        /**
-         * @brief 向上传堆拷贝顶点缓冲（立即）
-         * @param strideSize 单个顶点数据结构大小
-         * @param vertexCount
-         * @param vertices
-        */
-        void CopyVertexBuffer(UINT strideSize, const void* vertices);
 
         /**
          * @brief 获取资源中指定子资源的 CPU 指针
@@ -61,20 +48,9 @@ namespace Graphics
         inline void Unmap(UINT Subresource) const { m_Resource->Unmap(Subresource, &c_ZeroReadRange); }
 
 
-        // --------------------------------------------------------------------------
-        /**
-         * @brief 视为顶点缓冲视图
-        */
-        inline operator const D3D12_VERTEX_BUFFER_VIEW* ()
-        {
-            ASSERT(m_VertexBufferView != nullptr);
-            return m_VertexBufferView.get();
-        }
-
     private:
         // Map 时指示 CPU 不可读取上传堆资源
         static const CD3DX12_RANGE c_ZeroReadRange;
 
-        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VertexBufferView;
     };
 }

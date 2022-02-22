@@ -238,14 +238,16 @@ namespace Graphics
         };
         const UINT vertexBufferSize = sizeof(vertices);
 
+#if 0
         g_SampleVBV = GraphicsBuffer();
         //g_SampleVBV.DirectCreate(vertexBufferSize);
         g_SampleVBV.PlacedCreate(vertexBufferSize, g_VertexPlacedHeap);
         g_SampleVBV.DispatchCopyBuffer(g_GraphicsCommandList, sizeof(Vertex), vertices);
+#endif
         //g_SampleMeshs.push_back(Mesh());
         //g_SampleMeshs[g_SampleMeshs.size() - 1].DirectCreate((UINT)_countof(vertices), vertices);
 
-        g_SampleMeshs.push_back(Mesh::CreateTeapot());
+        g_SampleMeshs.push_back(Mesh::CreateCube());
 
         g_ModelTrans = Transform();
         g_ModelTrans.LocalScale = Vector3::One * 2.0f;

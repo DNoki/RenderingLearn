@@ -16,7 +16,8 @@ namespace Game
 
         void Create(const Shader* shader);
 
-        inline Graphics::GraphicsPipelineState* GetPipelineState() const { return m_PipelineState.get(); }
+        inline const Shader* GetShader() const { return m_Shader; }
+        inline const Graphics::GraphicsPipelineState* GetPipelineState() const { return m_PipelineState.get(); }
         inline const Graphics::DescriptorHeap* GetResourceDescHeap() const { return m_ResourceDescHeap.get(); }
 
         inline bool IsChanged() const { return m_IsChanged; }
