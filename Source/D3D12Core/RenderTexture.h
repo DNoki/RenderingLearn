@@ -14,6 +14,7 @@ namespace Graphics
     public:
         RenderTexture() = default;
 
+        inline DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
         /**
          * @brief 获取 RTV 描述
          * @return

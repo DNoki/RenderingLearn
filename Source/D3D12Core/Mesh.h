@@ -38,8 +38,7 @@ namespace Game
         }
         void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
 #endif
-        inline void SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY primitiveTopology) { m_PrimitiveTopology = primitiveTopology; }
-        void Finalize();
+        void Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
 
         // --------------------------------------------------------------------------
         inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
@@ -49,7 +48,13 @@ namespace Game
 
 
         // --------------------------------------------------------------------------
-
+        /**
+         * @brief 创建面片
+         * @param size 
+         * @param rhcoords 
+         * @return 
+        */
+        static Mesh CreateQuad(float size = 1.0f, bool rhcoords = false);
         /**
          * @brief 创建立方体
          * @param size

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "MultiRenderTargets.h"
+
 namespace Graphics
 {
     class CommandAllocator;
@@ -30,6 +32,12 @@ namespace Graphics
         inline CommandAllocator* GetCommandAllocator() const { return m_CommandAllocator; }
         inline ID3D12GraphicsCommandList5* GetD3D12CommandList() const { return m_CommandList.get(); }
 
+        inline const MultiRenderTargets* GetRenderTargetInfos() const
+        {
+            ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+            return &m_CurrentRenderTargets;
+        }
+
 #pragma region 捆绑包命令列表不可用
         inline void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* pBarriers) const
         {
@@ -46,10 +54,18 @@ namespace Graphics
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
             m_CommandList->RSSetScissorRects(numRects, pRects);
         }
+#if 0
         inline void OMSetRenderTargets(UINT numRTV, const D3D12_CPU_DESCRIPTOR_HANDLE* pRTVs, bool rtsSingleHandleToDescriptorRange, const D3D12_CPU_DESCRIPTOR_HANDLE* pDSVs) const
         {
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
             m_CommandList->OMSetRenderTargets(numRTV, pRTVs, rtsSingleHandleToDescriptorRange, pDSVs);
+        }
+#endif
+        inline void OMSetRenderTargets(const MultiRenderTargets* mrt)
+        {
+            ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+            m_CurrentRenderTargets = *mrt;
+            m_CommandList->OMSetRenderTargets(m_CurrentRenderTargets.GetRenderTargetCount(), m_CurrentRenderTargets.GetRenderTargets(), FALSE, m_CurrentRenderTargets.GetDepthStencil());
         }
         inline void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE rtv, const Color& colorRGBA, UINT numRects, const D3D12_RECT* pRects) const
         {
@@ -105,5 +121,7 @@ namespace Graphics
         //winrt::com_ptr<ID3D12CommandList> m_CommandList;
 
         bool m_IsLocked; // 是否允许写入命令
+
+        MultiRenderTargets m_CurrentRenderTargets;
     };
 }

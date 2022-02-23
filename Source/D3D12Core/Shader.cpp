@@ -31,6 +31,8 @@ namespace Game
         ReadFromFile(ShaderType::VertexShader, vsShaderPath);
         ReadFromFile(ShaderType::PixelShader, psShaderPath);
 
+        m_BindResourceCount = 2;
+
         {
             m_RootSignature.reset(new RootSignature());
 

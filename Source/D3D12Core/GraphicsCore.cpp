@@ -43,6 +43,8 @@ namespace Graphics
 
     CommandList g_GraphicsCommandList;
 
+    MultiRenderTargets g_CurrentRenderTargets;
+
 
     void InitializeCommonSampler();
 
@@ -174,6 +176,9 @@ namespace Graphics
         {
             // 获取当前后台缓冲索引
             auto cbbi = g_SwapChain.GetCurrentBackBufferIndex();
+            g_CurrentRenderTargets = MultiRenderTargets{};
+            g_CurrentRenderTargets.SetRenderTarget(0, g_SwapChain.GetRtvDescHandle(cbbi), g_SwapChain.GetRenderTarget(cbbi).GetFormat());
+            g_CurrentRenderTargets.SetDepthStencil(g_SwapChain.GetDsvDescHandle(), g_SwapChain.GetDepthStencil().GetFormat());
 
             // 重置命令列表
             g_GraphicsCommandList.Reset();
@@ -190,7 +195,8 @@ namespace Graphics
             g_GraphicsCommandList.ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            g_GraphicsCommandList.OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_SwapChain.GetDsvDescHandle()); // TODO 实现多目标渲染
+            //g_GraphicsCommandList.OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_SwapChain.GetDsvDescHandle()); // TODO 实现多目标渲染
+            g_GraphicsCommandList.OMSetRenderTargets(&g_CurrentRenderTargets);
 
             // 清除渲染目标贴图
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);

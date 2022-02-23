@@ -100,7 +100,8 @@ namespace Graphics
         t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
-        g_SampleMaterial.GetResourceDescHeap()->BindShaderResourceView(0, t_DefaultTexture[1]);
+        g_SampleMaterial.BindTexture(0, t_DefaultTexture[1]);
+        g_SampleMaterial.BindSampler(&g_SamplerPointMirror);
 
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
@@ -110,7 +111,7 @@ namespace Graphics
             g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            g_SampleMaterial.GetResourceDescHeap()->BindConstantBufferView(1, g_MvpBufferRes);
+            g_SampleMaterial.BindBuffer(1, g_MvpBufferRes);
         }
     }
     void InitMesh()

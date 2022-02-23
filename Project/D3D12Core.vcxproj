@@ -137,6 +137,7 @@
     <ClInclude Include="..\Source\D3D12Core\Material.h" />
     <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\Mesh.h" />
+    <ClInclude Include="..\Source\D3D12Core\MultiRenderTargets.h" />
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="..\Source\D3D12Core\Material.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Mesh.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\MultiRenderTargets.cpp" />
     <ClCompile Include="..\Source\D3D12Core\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>

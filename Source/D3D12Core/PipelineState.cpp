@@ -71,15 +71,6 @@ namespace Graphics
         m_PSODesc.IBStripCutValue = ibProps;
     }
 
-    void GraphicsPipelineState::SetRenderTargetFormat(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
-    {
-        SetRenderTargetFormats(1, &rtvFormat, dsvFormat, msaaCount, msaaQuality);
-    }
-
-    void GraphicsPipelineState::SetDepthTargetFormat(DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
-    {
-        SetRenderTargetFormats(0, nullptr, dsvFormat, msaaCount, msaaQuality);
-    }
     /**
      * @brief 设置多渲染目标与深度模板格式
      * @param numRTVs 渲染目标数量
@@ -92,13 +83,8 @@ namespace Graphics
     {
         ASSERT(numRTVs == 0 || rtvFormats != nullptr, L"WARNING::Null format array conflicts with non-zero length");
 
-        ZeroMemory(m_PSODesc.RTVFormats, sizeof(m_PSODesc.RTVFormats));
-        for (UINT i = 0; i < numRTVs; i++)
-        {
-            ASSERT(rtvFormats[i] != DXGI_FORMAT_UNKNOWN);
-            m_PSODesc.RTVFormats[i] = rtvFormats[i]; // 渲染目标视图格式
-        }
         m_PSODesc.NumRenderTargets = numRTVs; // 渲染目标视图数量（最大为8）
+        CopyMemory(m_PSODesc.RTVFormats, rtvFormats, sizeof(DXGI_FORMAT) * numRTVs); // 渲染目标视图格式
         m_PSODesc.DSVFormat = dsvFormat; // 深度模板视图格式
 
         // 多采样抗锯齿样本与质量

@@ -48,6 +48,8 @@ namespace Graphics
     public:
         GraphicsPipelineState();
 
+        inline D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetPsoDesc() { return m_PSODesc; }
+
         /**
          * @brief 设置管线使用的输入结构
          * @param numElements 输入元素数量
@@ -90,21 +92,6 @@ namespace Graphics
         */
         void SetIBStripCutValue(D3D12_INDEX_BUFFER_STRIP_CUT_VALUE ibProps);
 
-        /**
-         * @brief 设置渲染目标格式
-         * @param rtvFormat 渲染目标格式
-         * @param dsvFormat 深度模板格式
-         * @param msaaCount 多采样抗锯齿样本
-         * @param msaaQuality 多采样抗锯齿质量
-        */
-        void SetRenderTargetFormat(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
-        /**
-         * @brief 设置深度模板目标格式
-         * @param dsvFormat 深度模板格式
-         * @param msaaCount 多采样抗锯齿样本
-         * @param msaaQuality 多采样抗锯齿质量
-        */
-        void SetDepthTargetFormat(DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
         /**
          * @brief 设置多渲染目标格式
          * @param numRTVs 渲染目标数量

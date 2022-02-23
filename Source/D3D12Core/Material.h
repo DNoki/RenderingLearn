@@ -1,8 +1,12 @@
 ﻿#pragma once
 namespace Graphics
 {
+    class DescriptorHandle;
+    class DescriptorHeap;
+    class IResource;
     class GraphicsPipelineState;
     class CommandList;
+    class MultiRenderTargets;
 }
 
 namespace Game
@@ -26,6 +30,15 @@ namespace Game
         void ExecuteBindDescriptorHeap(const Graphics::CommandList* commandList) const;
         void ExecuteBindMaterial(const Graphics::CommandList* commandList) const;
 
+        void BindBuffer(int slot, const Graphics::IBufferResource& buffer);
+        void BindTexture(int slot, const Graphics::ITexture& texture);
+        inline void BindSampler(const Graphics::DescriptorHandle* sampler)
+        {
+            m_SamplerDescriptorHandle = sampler;
+            m_IsChanged = true;
+        }
+
+        void SetRenderTargetsFormat(const Graphics::MultiRenderTargets* mrt);
 
         /**
          * @brief 设置填充模式
@@ -58,6 +71,7 @@ namespace Game
 
         std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState;   // 材质定义的管线状态
         std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap;       // 材质绑定的资源
+        const Graphics::DescriptorHandle* m_SamplerDescriptorHandle;
 
         bool m_IsChanged;
         bool m_Version; // TODO

@@ -39,6 +39,10 @@ namespace Game
 
     void Renderer::ExecuteDraw(const Graphics::CommandList* commandList)
     {
+        ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+        m_BindedMaterial->SetRenderTargetsFormat(commandList->GetRenderTargetInfos());
+
         if (m_BindedMaterial->IsChanged())
         {
             // 重新创建管线状态
