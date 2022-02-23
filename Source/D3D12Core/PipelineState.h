@@ -20,10 +20,10 @@ namespace Graphics
         }
 
         /**
-         * @brief 获取D3D12根签名
+         * @brief 获取根签名
          * @return
         */
-        inline ID3D12RootSignature* GetD3D12RootSignature() const { return m_RootSignature->GetD3D12RootSignature(); }
+        inline const RootSignature* GetRootSignature() const { return m_RootSignature; }
 
         /**
          * @brief 获取D3D12管线状态对象

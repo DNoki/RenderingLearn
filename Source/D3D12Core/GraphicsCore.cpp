@@ -176,35 +176,32 @@ namespace Graphics
             auto cbbi = g_SwapChain.GetCurrentBackBufferIndex();
 
             // 重置命令列表
-            //g_GraphicsCommandList.Reset(&g_PipelineState);
-            g_GraphicsCommandList.Reset(nullptr);
-            auto* commandList = g_GraphicsCommandList.GetD3D12CommandList();
-
+            g_GraphicsCommandList.Reset();
 
             // 设置必要的状态。
             auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(g_SwapChain.GetWidth()), static_cast<float>(g_SwapChain.GetHeight()));
-            commandList->RSSetViewports(1, &viewport);
+            g_GraphicsCommandList.RSSetViewports(1, &viewport);
             auto scissorRect = CD3DX12_RECT(0, 0, g_SwapChain.GetWidth(), g_SwapChain.GetHeight());
-            commandList->RSSetScissorRects(1, &scissorRect);
+            g_GraphicsCommandList.RSSetScissorRects(1, &scissorRect);
 
             // 指示后台缓冲区将用作渲染目标。
             auto& currentRenderTarget = g_SwapChain.GetRenderTarget(cbbi);
             auto barriers1 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            commandList->ResourceBarrier(1, &barriers1);
+            g_GraphicsCommandList.ResourceBarrier(1, &barriers1);
 
             // 设置渲染目标
-            commandList->OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_SwapChain.GetDsvDescHandle()); // TODO 实现多目标渲染
+            g_GraphicsCommandList.OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_SwapChain.GetDsvDescHandle()); // TODO 实现多目标渲染
 
             // 清除渲染目标贴图
             const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-            commandList->ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
-            commandList->ClearDepthStencilView(g_SwapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            g_GraphicsCommandList.ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
+            g_GraphicsCommandList.ClearDepthStencilView(g_SwapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-            SampleDraw(g_GraphicsCommandList.GetD3D12CommandList());
+            SampleDraw();
 
             // 指示现在将使用后台缓冲区来呈现。
             auto barriers2 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-            commandList->ResourceBarrier(1, &barriers2);
+            g_GraphicsCommandList.ResourceBarrier(1, &barriers2);
         }
         // 执行命令列表
         g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);

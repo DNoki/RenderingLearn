@@ -51,7 +51,7 @@ namespace Game
         {
             // 使用捆绑包绘制
             m_BindedMaterial->ExecuteBindDescriptorHeap(commandList);
-            commandList->GetD3D12CommandList()->ExecuteBundle(m_BundleCommandList->GetD3D12CommandList());
+            commandList->ExecuteBundle(m_BundleCommandList.get());
         }
         else
         {
@@ -65,7 +65,7 @@ namespace Game
     {
         if (m_UseBundle)
         {
-            m_BundleCommandList->Reset(nullptr);
+            m_BundleCommandList->Reset();
 
             m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get());
             m_BindedMesh->ExecuteDraw(m_BundleCommandList.get(), m_BindedMaterial->GetShader()->GetBindSemanticFlag());

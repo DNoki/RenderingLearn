@@ -1,7 +1,9 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
+#include "RootSignature.h"
 #include "PipelineState.h"
+#include "DescriptorHeap.h"
 #include "CommandQueue.h"
 #include "CommandAllocatorPool.h"
 
@@ -108,5 +110,29 @@ namespace Graphics
 
         // 指示列表可以写入命令
         m_IsLocked = false;
+    }
+
+    void CommandList::SetGraphicsRootSignature(const RootSignature* pRootSignature) const
+    {
+        m_CommandList->SetGraphicsRootSignature(pRootSignature->GetD3D12RootSignature());
+    }
+    void CommandList::SetPipelineState(const PipelineState* pPipelineState) const
+    {
+        m_CommandList->SetPipelineState(pPipelineState->GetD3D12PSO());
+    }
+    void CommandList::SetDescriptorHeaps(const DescriptorHeap* pResourceDescHeap, const DescriptorHeap* pSamplerDescHeap) const
+    {
+        /*
+            命令列表只能绑定 CBV_SRV_UAV 或 SAMPLER 类型描述符堆
+            每种类型的描述符堆一次只能设置一个，即一次最多可以设置2个堆
+        */
+        std::vector<ID3D12DescriptorHeap*> descHeaps{};
+        if (pResourceDescHeap)
+            descHeaps.push_back(pResourceDescHeap->GetD3D12DescriptorHeap());
+        if (pSamplerDescHeap)
+            descHeaps.push_back(pSamplerDescHeap->GetD3D12DescriptorHeap());
+
+        ASSERT(descHeaps.size() > 0);
+        m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
     }
 }

@@ -137,7 +137,7 @@ namespace Graphics
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE // 该资源与像素着色器以外的着色器一起使用。
             | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
         );
-        commandList.GetD3D12CommandList()->ResourceBarrier(1, &barriers);
+        commandList.ResourceBarrier(1, &barriers);
     }
 
     void Texture2D::GenerateChecker(const CommandList& commandList)

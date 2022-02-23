@@ -96,9 +96,7 @@ namespace Game
 
     void Mesh::ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const
     {
-        auto* d3d12CommandList = commandList->GetD3D12CommandList();
-
-        d3d12CommandList->IASetPrimitiveTopology(m_PrimitiveTopology);
+        commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 
         // 绑定顶点缓冲
         for (int i = 0; i < VertexSemanticCount; i++)
@@ -107,18 +105,18 @@ namespace Game
             {
                 ASSERT(m_VertexBuffers[i], _T("ERROR::未设置要使用的顶点缓冲。"));
                 if (m_VertexBuffers[i])
-                    d3d12CommandList->IASetVertexBuffers(i, 1, m_VBVs[i].get());
+                    commandList->IASetVertexBuffers(i, 1, m_VBVs[i].get());
             }
         }
 
         switch (GetDrawType())
         {
         case Game::DrawType::VertexList:
-            d3d12CommandList->DrawInstanced(static_cast<UINT>(m_Positions.size()), 1, 0, 0);
+            commandList->DrawInstanced(static_cast<UINT>(m_Positions.size()), 1, 0, 0);
             break;
         case Game::DrawType::Indexed:
-            d3d12CommandList->IASetIndexBuffer(m_IBV.get()); // 绑定索引缓冲
-            d3d12CommandList->DrawIndexedInstanced(static_cast<UINT>(m_Indices.size()), 1, 0, 0, 0);
+            commandList->IASetIndexBuffer(m_IBV.get()); // 绑定索引缓冲
+            commandList->DrawIndexedInstanced(static_cast<UINT>(m_Indices.size()), 1, 0, 0, 0);
             break;
         default: break;
         }
@@ -258,7 +256,7 @@ namespace Game
         {
             mesh.m_Positions.push_back(vertices[i].position);
             mesh.m_Normals.push_back(vertices[i].normal);
-            mesh.m_UVs.push_back(Vector2::One - vertices[i].textureCoordinate); // 翻转 UV 纵坐标
+            mesh.m_UVs.push_back(Vector2(vertices[i].textureCoordinate.x, 1.0f - vertices[i].textureCoordinate.y)); // 翻转 UV 纵坐标
         }
 
         mesh.m_Indices.resize(indices.size());

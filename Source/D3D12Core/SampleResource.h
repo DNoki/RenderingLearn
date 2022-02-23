@@ -27,5 +27,5 @@ namespace Graphics
     void InitTexture2D();
     void InitCommandListBundle();
 
-    void SampleDraw(ID3D12GraphicsCommandList* commandList);
+    void SampleDraw();
 }

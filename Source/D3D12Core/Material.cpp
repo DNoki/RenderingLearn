@@ -42,20 +42,17 @@ namespace Game
         ASSERT(!m_IsChanged);
         if (m_IsChanged) return;
 
-        ID3D12DescriptorHeap* ppHeaps[] = { m_ResourceDescHeap->GetD3D12DescriptorHeap(), g_CommonSamplersDescriptorHeap.GetD3D12DescriptorHeap() };
-        commandList->GetD3D12CommandList()->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
+        commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
     }
     void Material::ExecuteBindMaterial(const CommandList* commandList) const
     {
         ASSERT(!m_IsChanged);
         if (m_IsChanged) return;
 
-        auto* d3d12CommandList = commandList->GetD3D12CommandList();
-
         // 设置根签名
-        d3d12CommandList->SetGraphicsRootSignature(m_PipelineState->GetD3D12RootSignature());
+        commandList->SetGraphicsRootSignature(m_PipelineState->GetRootSignature());
         // 管线状态
-        d3d12CommandList->SetPipelineState(m_PipelineState->GetD3D12PSO());
+        commandList->SetPipelineState(m_PipelineState.get());
 
         // 绑定描述符堆
         {
@@ -63,8 +60,8 @@ namespace Game
 
             auto rootPrarmIndex = 0;
             for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
-                d3d12CommandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
-            d3d12CommandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, g_SamplerLinearClamp);
+                commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
+            commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, g_SamplerLinearClamp);
         }
     }
 
