@@ -142,7 +142,7 @@
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineStateManager.h" />
-    <ClInclude Include="..\Source\D3D12Core\Renderer.h" />
+    <ClInclude Include="..\Source\D3D12Core\MeshRenderer.h" />
     <ClInclude Include="..\Source\D3D12Core\RootSignature.h" />
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
     <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
@@ -180,7 +180,7 @@
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineStateManager.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Renderer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\MeshRenderer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />

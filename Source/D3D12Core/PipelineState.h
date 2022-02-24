@@ -11,31 +11,15 @@ namespace Graphics
     {
     public:
         /**
-         * @brief 设置根签名
-         * @param rootSignature
-        */
-        inline void SetRootSignature(const RootSignature* rootSignature)
-        {
-            m_RootSignature = rootSignature;
-        }
-
-        /**
-         * @brief 获取根签名
-         * @return
-        */
-        inline const RootSignature* GetRootSignature() const { return m_RootSignature; }
-
-        /**
          * @brief 获取D3D12管线状态对象
          * @return
         */
         inline ID3D12PipelineState* GetD3D12PSO() const { return m_PSO; }
 
     protected:
-        const RootSignature* m_RootSignature;       // 管线状态对象所使用的根签名
         ID3D12PipelineState* m_PSO;  // 管线状态对象
 
-        PipelineState() :m_RootSignature(nullptr), m_PSO(nullptr) {}
+        PipelineState() : m_PSO(nullptr) {}
 
         virtual void Finalize() = 0;
     };
@@ -51,7 +35,7 @@ namespace Graphics
         inline D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetPsoDesc() { return m_PSODesc; }
         /**
          * @brief 检测是否已更改管线状态
-         * @return 
+         * @return
         */
         inline bool CheckStateChanged() const
         {
@@ -59,12 +43,20 @@ namespace Graphics
         }
 
         /**
+         * @brief 设置根签名
+         * @param rootSignature
+        */
+        inline void SetRootSignature(const RootSignature* rootSignature)
+        {
+            m_PSODesc.pRootSignature = rootSignature->GetD3D12RootSignature();
+        }
+        /**
          * @brief 设置管线使用的输入结构
          * @param numElements 输入元素数量
          * @param pInputElementDescs 输入元素表
         */
         void SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs);
-        void SetInputLayout(D3D12_INPUT_LAYOUT_DESC inputLayout);
+        void SetInputLayout(const D3D12_INPUT_LAYOUT_DESC& inputLayout);
         /**
          * @brief 设置栅格化状态
          * @param rasterizerDesc

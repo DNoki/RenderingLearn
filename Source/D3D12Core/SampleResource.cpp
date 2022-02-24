@@ -18,7 +18,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Material.h"
-#include "Renderer.h"
+#include "MeshRenderer.h"
 
 #include "SampleResource.h"
 
@@ -53,7 +53,7 @@ namespace Graphics
 
     Mesh g_SampleMesh;
     Material g_SampleMaterial;
-    Renderer g_SampleRenderer;
+    MeshRenderer g_SampleRenderer;
 
 
     void InitShader()

@@ -33,7 +33,7 @@
     <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
     <ClInclude Include="..\Source\D3D12Core\Camera.h" />
     <ClInclude Include="..\Source\D3D12Core\Mesh.h" />
-    <ClInclude Include="..\Source\D3D12Core\Renderer.h" />
+    <ClInclude Include="..\Source\D3D12Core\MeshRenderer.h" />
     <ClInclude Include="..\Source\D3D12Core\Shader.h" />
     <ClInclude Include="..\Source\D3D12Core\Material.h" />
     <ClInclude Include="..\Source\D3D12Core\MultiRenderTargets.h" />
@@ -66,7 +66,7 @@
     <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Camera.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Mesh.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Renderer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\MeshRenderer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Shader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Material.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MultiRenderTargets.cpp" />

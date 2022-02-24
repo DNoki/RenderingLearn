@@ -41,6 +41,7 @@ namespace Game
         std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;       // 顶点输入结构
         int m_BindSemanticFlag; // 着色器使用语义
         int m_BindResourceCount; // 着色器使用资源数量
+        // TODO 着色器使用采样器数量
 
         void ReadFromFile(ShaderType type, const Path& filePath);
     };

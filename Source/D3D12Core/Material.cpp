@@ -15,9 +15,11 @@ namespace Game
 {
     void Material::Create(const Shader* shader)
     {
+        ASSERT(shader != nullptr);
         m_Shader = shader;
         m_Version = 1;
 
+        // 创建管线状态对象
         {
             m_PipelineState.reset(new GraphicsPipelineState());
 
@@ -26,6 +28,8 @@ namespace Game
             m_PipelineState->SetVertexShader(m_Shader->GetShaderBuffer(ShaderType::VertexShader));
             m_PipelineState->SetPixelShader(m_Shader->GetShaderBuffer(ShaderType::PixelShader));
         }
+
+        // 创建资源描述符堆
         {
             m_ResourceDescHeap.reset(new DescriptorHeap());
             m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetBindResourceCount());
@@ -34,14 +38,19 @@ namespace Game
 
     void Material::ExecuteBindMaterial(const CommandList* commandList, bool isOnlyBindDescriptorHeap) const
     {
+        /*
+            允许 图形命令列表 或 捆绑包命令列表 执行绑定材质操作。
+            执行捆绑包时，要求描述符堆和主命令列表上的一致
+        */
         if (isOnlyBindDescriptorHeap)
         {
+            ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
             commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
         }
         else
         {
             // 设置根签名
-            commandList->SetGraphicsRootSignature(m_PipelineState->GetRootSignature());
+            commandList->SetGraphicsRootSignature(m_Shader->GetRootSignature());
             // 管线状态
             commandList->SetPipelineState(m_PipelineState.get());
 
@@ -70,8 +79,7 @@ namespace Game
         m_Version++;
     }
 
-
-    void Material::SetRenderTargetsFormat(const MultiRenderTargets* mrt)
+    void Material::SetRenderTargets(const MultiRenderTargets* mrt)
     {
         auto& pso = m_PipelineState->GetPsoDesc();
 
@@ -89,6 +97,7 @@ namespace Game
             pso.DSVFormat = *mrt->GetDepthStencilFormat();
         }
     }
+
 
     void Material::SetFillMode(D3D12_FILL_MODE fillMode)
     {

@@ -5,8 +5,6 @@ namespace Game
 {
     typedef DirectX::VertexPositionNormalTexture VertexPositionNormalTexture;
 
-    class IBufferResource;
-
     enum class DrawType
     {
         VertexList,

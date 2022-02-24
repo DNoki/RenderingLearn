@@ -9,6 +9,8 @@
 
 // --------------------------------------------------------------------------
 /*
+    输入汇编器 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/d3d10-graphics-programming-guide-input-assembler-stage-getting-started
+
     基元拓扑 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies
 */
 // --------------------------------------------------------------------------
