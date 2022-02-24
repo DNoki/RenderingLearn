@@ -16,7 +16,7 @@ namespace Game
     void Material::Create(const Shader* shader)
     {
         m_Shader = shader;
-        m_IsChanged = true;
+        m_Version = 1;
 
         {
             m_PipelineState.reset(new GraphicsPipelineState());
@@ -32,50 +32,42 @@ namespace Game
         }
     }
 
-    void Material::RefleshPipelineState()
+    void Material::ExecuteBindMaterial(const CommandList* commandList, bool isOnlyBindDescriptorHeap) const
     {
-        m_PipelineState->Finalize();
-        m_IsChanged = false;
-    }
-    void Material::ExecuteBindDescriptorHeap(const CommandList* commandList) const
-    {
-        ASSERT(!m_IsChanged);
-        if (m_IsChanged) return;
-
-        commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
-    }
-    void Material::ExecuteBindMaterial(const CommandList* commandList) const
-    {
-        ASSERT(!m_IsChanged);
-        if (m_IsChanged) return;
-
-        // 设置根签名
-        commandList->SetGraphicsRootSignature(m_PipelineState->GetRootSignature());
-        // 管线状态
-        commandList->SetPipelineState(m_PipelineState.get());
-
-        // 绑定描述符堆
+        if (isOnlyBindDescriptorHeap)
         {
-            ExecuteBindDescriptorHeap(commandList);
+            commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
+        }
+        else
+        {
+            // 设置根签名
+            commandList->SetGraphicsRootSignature(m_PipelineState->GetRootSignature());
+            // 管线状态
+            commandList->SetPipelineState(m_PipelineState.get());
 
-            auto rootPrarmIndex = 0;
-            for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
-                commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
+            // 绑定描述符堆
+            {
+                commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
 
-            if (m_SamplerDescriptorHandle)
-                commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, *m_SamplerDescriptorHandle);
+                auto rootPrarmIndex = 0;
+                for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
+                    commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
+
+                if (m_SamplerDescriptorHandle)
+                    commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, *m_SamplerDescriptorHandle);
+            }
         }
     }
 
     void Material::BindBuffer(int slot, const Graphics::IBufferResource& buffer)
     {
         m_ResourceDescHeap->BindConstantBufferView(slot, buffer);
-        m_IsChanged = true;
+        m_Version++;
     }
     void Material::BindTexture(int slot, const Graphics::ITexture& texture)
     {
         m_ResourceDescHeap->BindShaderResourceView(slot, texture);
-        m_IsChanged = true;
+        m_Version++;
     }
 
 
@@ -95,7 +87,6 @@ namespace Game
             pso.NumRenderTargets = mrt->GetRenderTargetCount();
             CopyMemory(pso.RTVFormats, mrt->GetRenderTargetsFormat(), sizeof(DXGI_FORMAT) * mrt->GetRenderTargetCount());
             pso.DSVFormat = *mrt->GetDepthStencilFormat();
-            m_IsChanged = true;
         }
     }
 
@@ -105,7 +96,6 @@ namespace Game
         if (psoFillMode != fillMode)
         {
             psoFillMode = fillMode;
-            m_IsChanged = true;
         }
     }
     D3D12_FILL_MODE Material::GetFillMode() const
@@ -118,7 +108,6 @@ namespace Game
         if (psoCullMode != cullMode)
         {
             psoCullMode = cullMode;
-            m_IsChanged = true;
         }
     }
     D3D12_CULL_MODE Material::GetCullMode() const
@@ -131,7 +120,6 @@ namespace Game
         if (psoFrontCounterClockwise != (isCounterClockwise ? TRUE : FALSE))
         {
             psoFrontCounterClockwise = isCounterClockwise;
-            m_IsChanged = true;
         }
     }
     bool Material::GetFrontCounterClockwise() const
@@ -145,7 +133,6 @@ namespace Game
         if (psoValue != (enable ? TRUE : FALSE))
         {
             psoValue = enable;
-            m_IsChanged = true;
         }
     }
     bool Material::GetDepthEnable() const
@@ -158,7 +145,6 @@ namespace Game
         if (psoValue != (enable ? TRUE : FALSE))
         {
             psoValue = enable ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
-            m_IsChanged = true;
         }
     }
     bool Material::GetDepthWriteEnable() const
@@ -171,7 +157,6 @@ namespace Game
         if (psoValue != func)
         {
             psoValue = func;
-            m_IsChanged = true;
         }
     }
     D3D12_COMPARISON_FUNC Material::GetDepthFunc() const

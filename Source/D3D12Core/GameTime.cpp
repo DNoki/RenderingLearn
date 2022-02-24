@@ -9,17 +9,19 @@ using namespace std;
 class RealTimer
 {
 public:
-    RealTimer()
+    RealTimer() : m_StartTime(), m_Counter()
     {
         LARGE_INTEGER frequency;
         auto result = QueryPerformanceFrequency(&frequency);
         ASSERT(result, L"ERROR::计时器初始化失败。");
 
+        m_RecFrequencyMilli = 1000.0 / static_cast<float>(frequency.QuadPart);
         m_RecFrequency = 1.0 / static_cast<float>(frequency.QuadPart);
     }
 
     inline void Restart()
     {
+        m_StartTime.QuadPart = 0;
         m_Counter.QuadPart = 0;
         Start();
     }
@@ -48,9 +50,21 @@ public:
             return static_cast<float>(static_cast<double>(currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequency);
         }
     }
+    inline float GetElapsedMillisecond()
+    {
+        if (m_StartTime.QuadPart == 0)
+            return static_cast<float>(static_cast<double>(m_Counter.QuadPart) * m_RecFrequencyMilli);
+        else
+        {
+            LARGE_INTEGER currTime;
+            QueryPerformanceCounter(&currTime);
+            return static_cast<float>(static_cast<double>(currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequencyMilli);
+        }
+    }
 
 
 private:
+    double m_RecFrequencyMilli; // 每毫秒运行次数的倒数
     double m_RecFrequency; // 每秒运行次数的倒数
 
     LARGE_INTEGER m_StartTime;  // 起始时间

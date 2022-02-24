@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#include "PipelineStateManager.h"
 #include "GraphicsCore.h"
 
 #include "PipelineState.h"
@@ -18,6 +19,7 @@ namespace Graphics
 {
     GraphicsPipelineState::GraphicsPipelineState()
     {
+        m_PsoDescHash = 0;
         ZeroMemory(&m_PSODesc, sizeof(m_PSODesc));
         m_PSODesc.NodeMask = 1;
         m_PSODesc.SampleMask = UINT_MAX;
@@ -97,7 +99,7 @@ namespace Graphics
         //msLevels.SampleCount = 4; // Replace with your sample count.
         //msLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 
-        //CHECK_HRESULT(Graphics::g_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels)));
+        //CHECK_HRESULT(g_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels)));
         //auto supportMsaaQuality = msLevels.NumQualityLevels;
     }
 
@@ -154,9 +156,16 @@ namespace Graphics
         //m_PSODesc.CachedPSO=
         //m_PSODesc.Flags=
 
-        m_PSO = nullptr;
-        CHECK_HRESULT(Graphics::g_Device->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(m_PSO.put())));
-        SET_DEBUGNAME(m_PSO.get(), _T("PipelineState"));
+        m_PsoDescHash = std::hash<D3D12_GRAPHICS_PIPELINE_STATE_DESC>::_Do_hash(m_PSODesc);
+        m_PSO = PipelineStateManager::GetPipelineState(m_PsoDescHash);
+        if (m_PSO == nullptr)
+        {
+            winrt::com_ptr<ID3D12PipelineState> pso;
+            CHECK_HRESULT(g_Device->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(pso.put())));
+            SET_DEBUGNAME(pso.get(), _T("PipelineState"));
 
+            m_PSO = pso.get();
+            PipelineStateManager::StorePipelineState(m_PsoDescHash, pso);
+        }
     }
 }

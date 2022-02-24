@@ -26,9 +26,7 @@ namespace Game
 
         const Mesh* m_BindedMesh;
         Material* m_BindedMaterial;
-
-        const Graphics::RenderTexture* m_RenderTarget;
-        const Graphics::RenderTexture* m_DepthStencil;
+        UINT64 m_BindedMaterialVersion;
 
         void RefleshBundleCommandList();
 

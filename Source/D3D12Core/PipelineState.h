@@ -29,11 +29,11 @@ namespace Graphics
          * @brief 获取D3D12管线状态对象
          * @return
         */
-        inline ID3D12PipelineState* GetD3D12PSO() const { return m_PSO.get(); }
+        inline ID3D12PipelineState* GetD3D12PSO() const { return m_PSO; }
 
     protected:
         const RootSignature* m_RootSignature;       // 管线状态对象所使用的根签名
-        winrt::com_ptr<ID3D12PipelineState> m_PSO;  // 管线状态对象
+        ID3D12PipelineState* m_PSO;  // 管线状态对象
 
         PipelineState() :m_RootSignature(nullptr), m_PSO(nullptr) {}
 
@@ -49,6 +49,14 @@ namespace Graphics
         GraphicsPipelineState();
 
         inline D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetPsoDesc() { return m_PSODesc; }
+        /**
+         * @brief 检测是否已更改管线状态
+         * @return 
+        */
+        inline bool CheckStateChanged() const
+        {
+            return m_PsoDescHash != std::hash<D3D12_GRAPHICS_PIPELINE_STATE_DESC>::_Do_hash(m_PSODesc);
+        }
 
         /**
          * @brief 设置管线使用的输入结构
@@ -134,6 +142,7 @@ namespace Graphics
         virtual void Finalize();
 
     private:
+        UINT64 m_PsoDescHash; // 已生成管线状态对象所使用的描述哈希值
         D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc; // 图形管线状态描述
 
     };

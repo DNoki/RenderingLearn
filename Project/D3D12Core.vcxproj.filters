@@ -37,6 +37,7 @@
     <ClInclude Include="..\Source\D3D12Core\Shader.h" />
     <ClInclude Include="..\Source\D3D12Core\Material.h" />
     <ClInclude Include="..\Source\D3D12Core\MultiRenderTargets.h" />
+    <ClInclude Include="..\Source\D3D12Core\PipelineStateManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -69,6 +70,7 @@
     <ClCompile Include="..\Source\D3D12Core\Shader.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Material.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MultiRenderTargets.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\PipelineStateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

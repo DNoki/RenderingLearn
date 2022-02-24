@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 namespace Graphics
 {
     class DescriptorHandle;
@@ -16,26 +17,27 @@ namespace Game
     class Material
     {
     public:
+        // --------------------------------------------------------------------------
         Material() = default;
 
         void Create(const Shader* shader);
 
+        // --------------------------------------------------------------------------
         inline const Shader* GetShader() const { return m_Shader; }
-        inline const Graphics::GraphicsPipelineState* GetPipelineState() const { return m_PipelineState.get(); }
+        inline Graphics::GraphicsPipelineState* GetPipelineState() const { return m_PipelineState.get(); }
         inline const Graphics::DescriptorHeap* GetResourceDescHeap() const { return m_ResourceDescHeap.get(); }
 
-        inline bool IsChanged() const { return m_IsChanged; }
-        void RefleshPipelineState();
+        inline UINT64 GetVersion() const { return m_Version; }
 
-        void ExecuteBindDescriptorHeap(const Graphics::CommandList* commandList) const;
-        void ExecuteBindMaterial(const Graphics::CommandList* commandList) const;
+        // --------------------------------------------------------------------------
+        void ExecuteBindMaterial(const Graphics::CommandList* commandList, bool isOnlyBindDescriptorHeap) const;
 
         void BindBuffer(int slot, const Graphics::IBufferResource& buffer);
         void BindTexture(int slot, const Graphics::ITexture& texture);
         inline void BindSampler(const Graphics::DescriptorHandle* sampler)
         {
             m_SamplerDescriptorHandle = sampler;
-            m_IsChanged = true;
+            m_Version++;
         }
 
         void SetRenderTargetsFormat(const Graphics::MultiRenderTargets* mrt);
@@ -71,10 +73,9 @@ namespace Game
 
         std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState;   // 材质定义的管线状态
         std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap;       // 材质绑定的资源
-        const Graphics::DescriptorHandle* m_SamplerDescriptorHandle;
+        const Graphics::DescriptorHandle* m_SamplerDescriptorHandle; // TODO 考虑多个采样器存在的情况
 
-        bool m_IsChanged;
-        bool m_Version; // TODO
+        UINT64 m_Version;
 
     };
 

@@ -141,6 +141,7 @@
     <ClInclude Include="..\Source\D3D12Core\pch.h" />
     <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
+    <ClInclude Include="..\Source\D3D12Core\PipelineStateManager.h" />
     <ClInclude Include="..\Source\D3D12Core\Renderer.h" />
     <ClInclude Include="..\Source\D3D12Core\RootSignature.h" />
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
@@ -178,6 +179,7 @@
     </ClCompile>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\PipelineStateManager.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Renderer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
