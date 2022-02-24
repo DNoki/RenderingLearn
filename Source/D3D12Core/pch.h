@@ -120,6 +120,7 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 #define TRACE(...) ((void)0)
 #define ASSERT(isFalse, ...) ((void)0)
 #define CHECK_HRESULT(hr) hr
+#define SET_DEBUGNAME(obj, name) ((void)0)
 
 #endif // DEBUG
 

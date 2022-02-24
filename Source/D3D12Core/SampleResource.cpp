@@ -18,7 +18,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Material.h"
-#include "Renderer.h"
+#include "MeshRenderer.h"
 
 #include "SampleResource.h"
 
@@ -53,7 +53,7 @@ namespace Graphics
 
     Mesh g_SampleMesh;
     Material g_SampleMaterial;
-    Renderer g_SampleRenderer;
+    MeshRenderer g_SampleRenderer;
 
 
     void InitShader()
@@ -100,7 +100,8 @@ namespace Graphics
         t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
-        g_SampleMaterial.GetResourceDescHeap()->BindShaderResourceView(0, t_DefaultTexture[1]);
+        g_SampleMaterial.BindTexture(0, t_DefaultTexture[1]);
+        g_SampleMaterial.BindSampler(&g_SamplerPointMirror);
 
 
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
@@ -110,36 +111,11 @@ namespace Graphics
             g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            g_SampleMaterial.GetResourceDescHeap()->BindConstantBufferView(1, g_MvpBufferRes);
+            g_SampleMaterial.BindBuffer(1, g_MvpBufferRes);
         }
     }
     void InitMesh()
     {
-        // 创建顶点缓冲
-        struct Vertex
-        {
-            Vector3 position;
-            Vector4 color;
-            Vector2 uv;
-        };
-
-        auto m_aspectRatio = g_SwapChain.GetScreenAspect();
-        auto meshSize = 0.5f;
-        Vertex vertices[] =
-        {
-            //{ { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { 0.5f, 1.0f } },
-            //{ { 0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }  },
-            //{ { -0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f }  }
-
-            // 定义三角形条带
-            { { -1.0f * meshSize, -1.0f * m_aspectRatio * meshSize, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f }, { -1.0f, -1.0f } }, // Bottom left.
-            { { -1.0f * meshSize, 1.0f * m_aspectRatio * meshSize, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f }, { -1.0f, 2.0f }  }, // Top left.
-            { { 1.0f * meshSize, -1.0f * m_aspectRatio * meshSize, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 2.0f, -1.0f }  }, // Bottom right.
-            { { 1.0f * meshSize, 1.0f * m_aspectRatio * meshSize, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 2.0f, 2.0f }  }, // Top right.
-        };
-        const UINT vertexBufferSize = sizeof(vertices);
-
-
         g_SampleMesh=(Mesh::CreateCube());
 
         g_ModelTrans = Transform();
@@ -172,8 +148,11 @@ namespace Graphics
             &g_SamplerLinearMirror,
         };
         static int useSamplerIndex = 0;
-        useSamplerIndex += Input::KeyDown(KeyCode::Space) ? 1 : 0;
-        useSamplerIndex = Math::Repeat(useSamplerIndex, 0, _countof(samplers));
+        if (Input::KeyDown(KeyCode::Space))
+        {
+            useSamplerIndex = Math::Repeat(useSamplerIndex + 1, 0, _countof(samplers));
+            g_SampleMaterial.BindSampler(samplers[useSamplerIndex]);
+        }
 
         {
             {
@@ -186,7 +165,7 @@ namespace Graphics
                     pos.x -= 1.0f;
                 if (Input::KeyState(KeyCode::D))
                     pos.x += 1.0f;
-                pos.z += Input::GetMouseDeltaScrollWheel() * 10.0f;
+                pos.z += Input::GetMouseDeltaScrollWheel();
                 g_Camera.m_Transform.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
 
                 Vector3 rot{};

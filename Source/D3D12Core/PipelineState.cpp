@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 
+#include "PipelineStateManager.h"
 #include "GraphicsCore.h"
 
 #include "PipelineState.h"
@@ -18,8 +19,9 @@ namespace Graphics
 {
     GraphicsPipelineState::GraphicsPipelineState()
     {
+        m_PsoDescHash = 0;
         ZeroMemory(&m_PSODesc, sizeof(m_PSODesc));
-        m_PSODesc.NodeMask = 1;
+        m_PSODesc.NodeMask = NODEMASK;
         m_PSODesc.SampleMask = UINT_MAX;
         m_PSODesc.SampleDesc.Count = 1;
         m_PSODesc.InputLayout = { nullptr, 0 };
@@ -34,7 +36,7 @@ namespace Graphics
     {
         m_PSODesc.InputLayout = { pInputElementDescs, numElements };
     }
-    void GraphicsPipelineState::SetInputLayout(D3D12_INPUT_LAYOUT_DESC inputLayout)
+    void GraphicsPipelineState::SetInputLayout(const D3D12_INPUT_LAYOUT_DESC& inputLayout)
     {
         m_PSODesc.InputLayout = inputLayout;
     }
@@ -61,6 +63,7 @@ namespace Graphics
 
     void GraphicsPipelineState::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType)
     {
+        // TODO 修改基元拓扑类型
         ASSERT(topologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, L"WARNING::Can't draw with undefined topology");
         m_PSODesc.PrimitiveTopologyType = topologyType;
     }
@@ -71,15 +74,6 @@ namespace Graphics
         m_PSODesc.IBStripCutValue = ibProps;
     }
 
-    void GraphicsPipelineState::SetRenderTargetFormat(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
-    {
-        SetRenderTargetFormats(1, &rtvFormat, dsvFormat, msaaCount, msaaQuality);
-    }
-
-    void GraphicsPipelineState::SetDepthTargetFormat(DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
-    {
-        SetRenderTargetFormats(0, nullptr, dsvFormat, msaaCount, msaaQuality);
-    }
     /**
      * @brief 设置多渲染目标与深度模板格式
      * @param numRTVs 渲染目标数量
@@ -92,13 +86,8 @@ namespace Graphics
     {
         ASSERT(numRTVs == 0 || rtvFormats != nullptr, L"WARNING::Null format array conflicts with non-zero length");
 
-        ZeroMemory(m_PSODesc.RTVFormats, sizeof(m_PSODesc.RTVFormats));
-        for (UINT i = 0; i < numRTVs; i++)
-        {
-            ASSERT(rtvFormats[i] != DXGI_FORMAT_UNKNOWN);
-            m_PSODesc.RTVFormats[i] = rtvFormats[i]; // 渲染目标视图格式
-        }
         m_PSODesc.NumRenderTargets = numRTVs; // 渲染目标视图数量（最大为8）
+        CopyMemory(m_PSODesc.RTVFormats, rtvFormats, sizeof(DXGI_FORMAT) * numRTVs); // 渲染目标视图格式
         m_PSODesc.DSVFormat = dsvFormat; // 深度模板视图格式
 
         // 多采样抗锯齿样本与质量
@@ -111,7 +100,7 @@ namespace Graphics
         //msLevels.SampleCount = 4; // Replace with your sample count.
         //msLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 
-        //CHECK_HRESULT(Graphics::g_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels)));
+        //CHECK_HRESULT(g_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels)));
         //auto supportMsaaQuality = msLevels.NumQualityLevels;
     }
 
@@ -161,16 +150,25 @@ namespace Graphics
                 ·渲染目标/深度模板格式是否支持样本计数和质量。
         */
 
-        m_PSODesc.pRootSignature = m_RootSignature->GetD3D12RootSignature();
         ASSERT(m_PSODesc.pRootSignature != nullptr);
+        ASSERT(m_PSODesc.InputLayout.NumElements > 0);
+        ASSERT(m_PSODesc.NumRenderTargets > 0);
         //m_PSODesc.StreamOutput=
-        //m_PSODesc.NodeMask=
         //m_PSODesc.CachedPSO=
         //m_PSODesc.Flags=
 
-        m_PSO = nullptr;
-        CHECK_HRESULT(Graphics::g_Device->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(m_PSO.put())));
-        SET_DEBUGNAME(m_PSO.get(), _T("PipelineState"));
+        // 根据管线状态描述生成哈希值，并在管理池中查询是否已经创建了相同的对象
+        m_PsoDescHash = std::hash<D3D12_GRAPHICS_PIPELINE_STATE_DESC>::_Do_hash(m_PSODesc);
+        m_PSO = PipelineStateManager::GetPipelineState(m_PsoDescHash);
+        if (m_PSO == nullptr)
+        {
+            // 创建一个新的管线状态对象
+            winrt::com_ptr<ID3D12PipelineState> pso;
+            CHECK_HRESULT(g_Device->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(pso.put())));
+            SET_DEBUGNAME(pso.get(), _T("PipelineState"));
 
+            m_PSO = pso.get();
+            PipelineStateManager::StorePipelineState(m_PsoDescHash, pso);
+        }
     }
 }

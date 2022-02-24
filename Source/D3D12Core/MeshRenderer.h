@@ -11,26 +11,22 @@ namespace Game
     class Mesh;
     class Material;
 
-    class Renderer
+    class MeshRenderer
     {
     public:
-        Renderer() = default;
+        MeshRenderer() = default;
 
         void Create(const Mesh* mesh, Material* material, bool useBundle = true);
 
         void ExecuteDraw(const Graphics::CommandList* commandList);
 
     private:
-        bool m_UseBundle;
+        bool m_UseBundle; // 是否使用捆绑包命令列表
         std::unique_ptr<Graphics::CommandList> m_BundleCommandList;
 
         const Mesh* m_BindedMesh;
         Material* m_BindedMaterial;
-
-        const Graphics::RenderTexture* m_RenderTarget;
-        const Graphics::RenderTexture* m_DepthStencil;
-
-        void RefleshBundleCommandList();
+        UINT64 m_BindedMaterialVersion;
 
     };
 

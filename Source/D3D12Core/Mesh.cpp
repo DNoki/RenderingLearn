@@ -9,13 +9,14 @@
 
 // --------------------------------------------------------------------------
 /*
+    输入汇编器 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/d3d10-graphics-programming-guide-input-assembler-stage-getting-started
+
     基元拓扑 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies
 */
 // --------------------------------------------------------------------------
 
 
 using namespace std;
-using namespace DirectX;
 using namespace Graphics;
 
 
@@ -47,8 +48,10 @@ namespace Game
         }
     }
 #endif
-    void Mesh::Finalize()
+    void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     {
+        m_PrimitiveTopology = primitiveTopology;
+
         // 顶点数量
         UINT64 vertexCount = m_Positions.size();
         UINT64 vertexCountArray[] = { m_Positions.size(), m_Normals.size(), m_Tangents.size(), m_Colors.size(), m_UVs.size(), };
@@ -120,6 +123,34 @@ namespace Game
             break;
         default: break;
         }
+    }
+
+    Mesh Mesh::CreateQuad(float size, bool rhcoords)
+    {
+        Mesh mesh{};
+        mesh.m_Positions =
+        {
+            Vector3(-0.5f, -0.5f, 0.0f), Vector3(-0.5f, 0.5f, 0.0f),
+            Vector3(0.5f, -0.5f, 0.0f), Vector3(0.5f, 0.5f, 0.0f),
+        };
+        for (auto& pos : mesh.m_Positions)
+            pos *= size;
+        mesh.m_Normals =
+        {
+            Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),
+            Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, -1.0f),
+        };
+        mesh.m_UVs =
+        {
+            Vector2(0.0f, 0.0f), Vector2(0.0f, 1.0f),
+            Vector2(1.0f, 0.0f), Vector2(1.0f, 1.0f),
+        };
+
+        if (rhcoords) mesh.m_Indices = { 0, 2, 1, 3 };
+        else mesh.m_Indices = { 0, 1, 2, 3 };
+
+        mesh.Finalize(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        return mesh;
     }
 
     Mesh Mesh::CreateCube(float size, bool rhcoords)
@@ -261,8 +292,7 @@ namespace Game
 
         mesh.m_Indices.resize(indices.size());
         CopyMemory(mesh.m_Indices.data(), indices.data(), indices.size() * sizeof(UINT16));
-        mesh.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        mesh.Finalize();
+        mesh.Finalize(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     }
 
 }
