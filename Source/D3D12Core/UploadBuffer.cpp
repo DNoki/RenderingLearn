@@ -88,14 +88,11 @@ namespace Graphics
         Finalize();
     }
 
-    void UploadBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
+    void UploadBuffer::PlacedCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
-        // 要放入的放置堆类型必须是上传堆
-        ASSERT(pPlacedHeap.GetHeapDesc()->Properties.Type == D3D12_HEAP_TYPE_UPLOAD);
-
-        pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *this);
+        GraphicsMemory::PlacedResource(*this);
 
         Finalize();
     }

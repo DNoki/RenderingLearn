@@ -33,9 +33,11 @@ namespace Graphics
 
     Texture2D t_DefaultTexture[2];
 
+#if 0
     GpuPlacedHeap g_TexPlacedHeap;
     GpuPlacedHeap g_VertexPlacedHeap;
     GpuPlacedHeap g_UploadPlacedHeap; // TODO 上传堆可以改成全局管理分配模式，按需索取
+#endif
 
     struct MVPBuffer
     {
@@ -65,6 +67,7 @@ namespace Graphics
     {
         const UINT64 sampleSize = 65536ull * 100u;
 
+#if 0
         // 纹理放置堆
         g_TexPlacedHeap = GpuPlacedHeap();
         g_TexPlacedHeap.Create(D3D12_HEAP_TYPE_DEFAULT, sampleSize, D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES | D3D12_HEAP_FLAG_DENY_BUFFERS);
@@ -76,6 +79,7 @@ namespace Graphics
         // 通用上传放置堆
         g_UploadPlacedHeap = GpuPlacedHeap();
         g_UploadPlacedHeap.Create(D3D12_HEAP_TYPE_UPLOAD, sampleSize, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS); // 上传堆允许存放任何类型数据
+#endif
     }
     void InitTexture2D()
     {
@@ -90,7 +94,7 @@ namespace Graphics
 
         auto& t1 = t_DefaultTexture[0];
         //g_TestTex2D.DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t1.PlacedCreate(g_TexPlacedHeap, texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t1.PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t1.DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
         texPath = Application::GetAssetPath();

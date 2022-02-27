@@ -29,7 +29,7 @@ namespace Graphics
          * @param size
          * @param pPlacedHeap
         */
-        void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap) override;
+        void PlacedCreate(UINT64 size) override;
 
         /**
          * @brief 添加拷贝缓冲命令

@@ -15,8 +15,10 @@ namespace Graphics
     extern GraphicsBuffer g_SampleVBV;
 
     extern DescriptorHeap t_SampleResDescHeap;
+#if 0
     extern GpuPlacedHeap g_TexPlacedHeap;
     extern GpuPlacedHeap g_UploadPlacedHeap;
+#endif
 
 
     //void InitRootSignature();

@@ -4,6 +4,33 @@ namespace Graphics
 {
     class GpuPlacedHeap;
 
+    class PlacedResourceDesc
+    {
+    public:
+        PlacedResourceDesc() = default;
+        ~PlacedResourceDesc()
+        {
+            // TODO
+        }
+
+        // 资源创建信息
+        D3D12_HEAP_TYPE m_HeapType;
+        D3D12_RESOURCE_STATES m_InitialState;
+        const D3D12_CLEAR_VALUE* m_OptimizedClearValue;
+
+        // 资源分配信息（从设备获取分配大小与对齐大小）
+        UINT64 m_AllocationSize;
+        UINT64 m_AllocationAlignment;
+
+        // 资源放置信息（由放置堆填充）
+        const GpuPlacedHeap* m_PlacedHeapPtr;
+        UINT m_PlacedHeapOffset;
+        UINT m_PlacedOrderIndex;
+
+    private:
+
+    };
+
     /**
      * @brief D3D12 资源接口
      * @return
@@ -12,7 +39,7 @@ namespace Graphics
     {
     public:
         // --------------------------------------------------------------------------
-        inline IResource() : m_Resource(), m_ResourceDesc(), m_GpuVirtualAddress(D3D12_GPU_VIRTUAL_ADDRESS_NULL) {}
+        IResource() = default;
         virtual ~IResource() = 0 {}
 
         // --------------------------------------------------------------------------
@@ -23,6 +50,10 @@ namespace Graphics
         inline ID3D12Resource1* GetD3D12Resource() const noexcept
         {
             return m_Resource.get();
+        }
+        inline PlacedResourceDesc* GetPlacedResourceDesc() noexcept
+        {
+            return &m_PlacedResourceDesc;
         }
 
         inline void SetResourceDesc(const D3D12_RESOURCE_DESC& desc) noexcept
@@ -48,6 +79,8 @@ namespace Graphics
         // GPU 内存中的虚拟地址
         // IBV、VBV 等直接调用资源类型时使用
         D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress;
+
+        PlacedResourceDesc m_PlacedResourceDesc;
     };
 
     class IBufferResource : public IResource
@@ -76,7 +109,7 @@ namespace Graphics
          * @param size
          * @param pPlacedHeap
         */
-        virtual void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap) = 0;
+        virtual void PlacedCreate(UINT64 size) = 0;
 
     protected:
 
