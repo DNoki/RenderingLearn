@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 
+#include "GraphicsMemory.h"
+
 #include "IResource.h"
 
 // --------------------------------------------------------------------------
@@ -67,3 +69,14 @@
         https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/subresources
 */
 // --------------------------------------------------------------------------
+
+namespace Graphics
+{
+    PlacedResourceDesc::~PlacedResourceDesc()
+    {
+        if (m_PlacedHeapPtr)
+        {
+            m_PlacedHeapPtr->ReleaseResource(m_PlacedOrder);
+        }
+    }
+}

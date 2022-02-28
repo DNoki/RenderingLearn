@@ -143,14 +143,11 @@ namespace Graphics
 
         // --------------------------------------------------------------------------
         // 创建示例PSO
-        //InitRootSignature();
-        //InitPipelineState();
         InitShader();
 
 
         // --------------------------------------------------------------------------
         // 创建示例资源
-        InitPlacedHeap();
         InitMesh();
         InitTexture2D();
 

@@ -3,7 +3,7 @@
 #include "DescriptorHandle.h"
 #include "UploadBuffer.h"
 #include "GraphicsCore.h"
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 #include "CommandQueue.h"
 #include "CommandList.h"
 
@@ -49,6 +49,9 @@ namespace Graphics
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
+        m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
+        m_PlacedResourceDesc.m_InitialState = D3D12_RESOURCE_STATE_COPY_DEST;
+        m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
         GraphicsMemory::PlacedResource(*this);
 
         Finalize();
@@ -61,7 +64,7 @@ namespace Graphics
 
         // 创建上传缓冲
         m_UploadBuffer.reset(new UploadBuffer());
-        m_UploadBuffer->DirectCreate(bufferSize);
+        m_UploadBuffer->PlacedCreate(bufferSize);
 
         // 添加拷贝命令到命令队列
         {

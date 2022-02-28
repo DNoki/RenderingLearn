@@ -3,7 +3,7 @@
 #include "IResource.h"
 #include "GraphicsCore.h"
 
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 
 // --------------------------------------------------------------------------
 /*
@@ -24,13 +24,7 @@ using namespace std;
 
 namespace Graphics
 {
-    // 最小可分配内存块大小
-    constexpr UINT MIN_BLOCK_SIZE = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
-
-
-    GpuPlacedHeap::GpuPlacedHeap() : m_PlacedHeap(nullptr), m_PlacedHeapDesc(), m_MinBlockSize(), m_PlacedResources()
-    {
-    }
+    constexpr UINT64 DEFAULT_HEAP_SIZE = 1000 * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
     void GpuPlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags)
     {
@@ -39,18 +33,17 @@ namespace Graphics
         m_PlacedHeapDesc = CD3DX12_HEAP_DESC(
             UINT_UPPER(size, m_MinBlockSize), // 计算边界对齐后大小
             type, // 放置堆类型
-            m_MinBlockSize,
+            m_MinBlockSize, // 最小块大小（对齐大小）
             flags); // 放置堆选项，例如堆是否可以包含纹理
 
         CHECK_HRESULT(g_Device->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
         SET_DEBUGNAME(m_PlacedHeap.get(), _T("Heap"));
 
-        m_MaxOrder = static_cast<UINT>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
+        m_MaxOrderSize = static_cast<UINT>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
 
         m_PlacedResources = map<UINT, IResource*>();
-        m_MemoryBlocks = set<UINT>();
-        m_MemoryBlocks.insert(0);
-        m_MemoryBlocks.insert(m_MaxOrder);
+        m_MemoryBlockOrders = set<UINT>();
+        m_MemoryBlockOrders.insert(0);
     }
 
 #if 0
@@ -100,7 +93,7 @@ namespace Graphics
 
         UINT allocateSize = UINT64_UPPER(placedDesc->m_AllocationSize, m_MinBlockSize) / m_MinBlockSize; // 对齐到块大小，计算需要使用块数量
 
-        if (allocateSize > m_MaxOrder)
+        if (allocateSize > m_MaxOrderSize)
         {
             // 单个资源大小超过了堆大小上限
             ASSERT(0);
@@ -108,26 +101,21 @@ namespace Graphics
         }
 
         // 从第一个位置开始查询
-        auto pBlock = m_MemoryBlocks.begin();
-        while (pBlock != m_MemoryBlocks.end())
+        auto pBlock = m_MemoryBlockOrders.begin();
+        while (pBlock != m_MemoryBlockOrders.end())
         {
             // 查找该位置是否已被使用
             auto pFindedRes = m_PlacedResources.find(*pBlock);
             if (pFindedRes == m_PlacedResources.end())
             {
                 // 当前 Block 位置未被使用
-
                 set<UINT>::iterator checkFreeBlock = pBlock;
-                checkFreeBlock++; // TODO 设定为下一个块必定是使用状态，当资源不使用时，应当移除绑定的块索引
+                checkFreeBlock++; // 设定为下一个块必定是使用状态，当资源不使用时，应当移除绑定块的索引
 
                 // 剩余可分配大小
                 UINT remain;
-                if (checkFreeBlock == m_MemoryBlocks.end())
-                {
-                    // TODO 测试程序不会执行到这里
-                    ASSERT(0);
-                    //remain = m_MaxOrder - *pBlock;
-                }
+                if (checkFreeBlock == m_MemoryBlockOrders.end())
+                    remain = m_MaxOrderSize - *pBlock;
                 else
                     remain = *checkFreeBlock - *pBlock;
 
@@ -151,16 +139,15 @@ namespace Graphics
             }
         }
 
-        if (pBlock != m_MemoryBlocks.end())
+        if (pBlock != m_MemoryBlockOrders.end())
         {
-            placedDesc->m_PlacedOrderIndex = *pBlock;
-            placedDesc->m_PlacedHeapOffset = *pBlock * (UINT64)m_MinBlockSize;
+            placedDesc->m_PlacedOrder = *pBlock;
             placedDesc->m_PlacedHeapPtr = this;
             ASSERT(placedDesc->m_AllocationSize == (allocateSize * (UINT64)m_MinBlockSize));
 
             CHECK_HRESULT(g_Device->CreatePlacedResource(
                 m_PlacedHeap.get(), // 放置资源的堆
-                placedDesc->m_PlacedHeapOffset, // 资源的偏移量，必须是资源的对齐的倍数
+                (*pBlock * (UINT64)m_MinBlockSize), // 资源的偏移量，必须是资源的对齐的倍数
                 &resourceDesc, // 资源描述
                 placedDesc->m_InitialState, // 资源的初始状态
                 placedDesc->m_OptimizedClearValue, // 描述用于优化特定资源的清除操作的值
@@ -168,15 +155,55 @@ namespace Graphics
             SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));
 
             m_PlacedResources.emplace(*pBlock, &resource); // 保留已放置资源链接
-            m_MemoryBlocks.insert(*pBlock + allocateSize); // 插入内存块位置
+            m_MemoryBlockOrders.insert(*pBlock + allocateSize); // 插入内存块位置
             return true;
         }
         else
         {
             // 该放置堆无可分配内存
-            ASSERT(0);
             return false;
         }
+    }
+
+    void GpuPlacedHeap::ReleaseResource(UINT order)
+    {
+        // 移除该资源
+        auto findedRes = m_PlacedResources.find(order);
+        if (findedRes != m_PlacedResources.end())
+            m_PlacedResources.erase(order);
+
+        auto bindedOrder = m_MemoryBlockOrders.find(order);
+        if (bindedOrder != m_MemoryBlockOrders.end())
+        {
+            // 检测尾部块是否被使用
+            {
+                auto nextOrder = bindedOrder;
+                nextOrder++;
+                if (nextOrder != m_MemoryBlockOrders.end())
+                {
+                    auto findedNextRes = m_PlacedResources.find(*nextOrder);
+                    if (findedNextRes == m_PlacedResources.end())
+                    {
+                        // 尾部块未被使用，将绑定的块和下一个块合并
+                        m_MemoryBlockOrders.erase(nextOrder);
+                    }
+                }
+            }
+
+            // 检测上一个资源是否存在
+            if (bindedOrder != m_MemoryBlockOrders.begin())
+            {
+                auto prevOrder = bindedOrder;
+                prevOrder--;
+                auto findedPrevRes = m_PlacedResources.find(*prevOrder);
+                if (findedPrevRes == m_PlacedResources.end())
+                {
+                    // 上一个资源已被释放，将绑定的块和上一个块合并
+                    m_MemoryBlockOrders.erase(bindedOrder);
+                }
+            }
+        }
+
     }
 
 
@@ -190,20 +217,25 @@ namespace Graphics
         auto* placedDesc = resource.GetPlacedResourceDesc();
 
         ASSERT(placedDesc != nullptr);
+        if (placedDesc == nullptr)
+            return;
+
         auto allocationInfo = g_Device->GetResourceAllocationInfo(NODEMASK, 1, &resourceDesc);
         placedDesc->m_AllocationSize = allocationInfo.SizeInBytes;
         placedDesc->m_AllocationAlignment = allocationInfo.Alignment;
 
-        if (placedDesc->m_AllocationAlignment != D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT)
-            ASSERT(0);
+        // TODO 扩展 MSAA 的放置堆 D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT
+        ASSERT(placedDesc->m_AllocationAlignment == D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT);
+        // TODO 放置资源的大小超过了设计的堆大小
+        ASSERT(placedDesc->m_AllocationSize <= DEFAULT_HEAP_SIZE);
 
         D3D12_HEAP_FLAGS heapFlags{};
-        vector<GpuPlacedHeap> heaps{};
+        vector<std::unique_ptr<GpuPlacedHeap>>* heaps{};
         switch (resourceDesc.Dimension)
         {
         case D3D12_RESOURCE_DIMENSION_BUFFER:
         {
-            heaps = placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT ? GetInstance().m_BufferHeaps : GetInstance().m_SharedBufferHeaps;
+            heaps = &(placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT ? GetInstance().m_DefaultBufferHeaps : GetInstance().m_UploadBufferHeaps);
             heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
         }
         break;
@@ -212,29 +244,30 @@ namespace Graphics
         case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
         {
             ASSERT(placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT);
-            heaps = GetInstance().m_TextureHeaps;
+            heaps = &(GetInstance().m_TextureHeaps);
             heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES;
         }
         break;
         default: ASSERT(0); break;
         }
 
-        auto pHeap = heaps.begin();
-        for (; pHeap != heaps.end(); pHeap++)
+        auto pHeap = heaps->begin();
+        for (; pHeap != heaps->end(); pHeap++)
         {
             // 尝试将资源放入堆
-            if (pHeap->PlacedResource(resource))
+            if ((**pHeap).PlacedResource(resource))
             {
                 break;
             }
         }
 
-        if (pHeap == heaps.end())
+        if (pHeap == heaps->end())
         {
             // 没有堆可以放置资源，创建一个新的堆
-            heaps.push_back(GpuPlacedHeap());
-            auto& newHeap = heaps.back();
-            newHeap.Create(placedDesc->m_HeapType, 100 * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT, heapFlags);
+            heaps->push_back(unique_ptr<GpuPlacedHeap>(new GpuPlacedHeap()));
+            auto& newHeap = *(heaps->back());
+
+            newHeap.Create(placedDesc->m_HeapType, DEFAULT_HEAP_SIZE, heapFlags);
             if (!newHeap.PlacedResource(resource))
             {
                 ASSERT(0);

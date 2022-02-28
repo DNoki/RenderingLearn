@@ -21,11 +21,8 @@ namespace Graphics
 #endif
 
 
-    //void InitRootSignature();
-    //void InitPipelineState();
     void InitShader();
     void InitMesh();
-    void InitPlacedHeap();
     void InitTexture2D();
     void InitCommandListBundle();
 

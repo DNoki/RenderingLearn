@@ -129,7 +129,7 @@
     <ClInclude Include="..\Source\D3D12Core\Display.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsBuffer.h" />
-    <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
+    <ClInclude Include="..\Source\D3D12Core\GraphicsMemory.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
     <ClInclude Include="..\Source\D3D12Core\Input.h" />
@@ -164,7 +164,7 @@
     <ClCompile Include="..\Source\D3D12Core\Display.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsBuffer.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GraphicsMemory.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Input.cpp" />

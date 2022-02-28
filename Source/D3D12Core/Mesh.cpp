@@ -69,7 +69,7 @@ namespace Game
                 continue;
 
             m_VertexBuffers[i].reset(new GraphicsBuffer());
-            m_VertexBuffers[i]->DirectCreate(vertexStrideArray[i] * vertexCountArray[i]);
+            m_VertexBuffers[i]->PlacedCreate(vertexStrideArray[i] * vertexCountArray[i]);
             m_VertexBuffers[i]->DispatchCopyBuffer(g_GraphicsCommandList, vertexDataArray[i]);
 
             m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
@@ -84,7 +84,7 @@ namespace Game
         if (m_Indices.size() > 0)
         {
             m_IndexBuffer.reset(new GraphicsBuffer());
-            m_IndexBuffer->DirectCreate(m_Indices.size() * sizeof(UINT16));
+            m_IndexBuffer->PlacedCreate(m_Indices.size() * sizeof(UINT16));
             m_IndexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, m_Indices.data());
 
             m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW

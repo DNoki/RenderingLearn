@@ -8,10 +8,9 @@ namespace Graphics
     {
     public:
         PlacedResourceDesc() = default;
-        ~PlacedResourceDesc()
-        {
-            // TODO
-        }
+        virtual ~PlacedResourceDesc();
+
+        inline UINT64 GetPlacedHeapOffset() const { return m_PlacedOrder * m_AllocationAlignment; }
 
         // 资源创建信息
         D3D12_HEAP_TYPE m_HeapType;
@@ -23,9 +22,8 @@ namespace Graphics
         UINT64 m_AllocationAlignment;
 
         // 资源放置信息（由放置堆填充）
-        const GpuPlacedHeap* m_PlacedHeapPtr;
-        UINT m_PlacedHeapOffset;
-        UINT m_PlacedOrderIndex;
+        GpuPlacedHeap* m_PlacedHeapPtr;
+        UINT m_PlacedOrder;         // 放置的定位位置
 
     private:
 
@@ -39,7 +37,7 @@ namespace Graphics
     {
     public:
         // --------------------------------------------------------------------------
-        IResource() = default;
+        inline IResource() { ZeroMemory(this, sizeof(IResource)); }
         virtual ~IResource() = 0 {}
 
         // --------------------------------------------------------------------------
@@ -80,6 +78,7 @@ namespace Graphics
         // IBV、VBV 等直接调用资源类型时使用
         D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress;
 
+        // 放置资源描述
         PlacedResourceDesc m_PlacedResourceDesc;
     };
 

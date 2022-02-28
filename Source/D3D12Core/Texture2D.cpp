@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 #include "GraphicsCore.h"
 #include "CommandList.h"
 
@@ -56,7 +56,7 @@ namespace Graphics
             UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_Resource.get(), 0, 1);
             // 创建 GPU 上传缓冲
             m_UploadBuffer.reset(new UploadBuffer());
-            m_UploadBuffer->DirectCreate(uploadBufferSize);
+            m_UploadBuffer->PlacedCreate(uploadBufferSize);
         }
 
         // 使用 GetCopyableFootprints 函数来获取可复制资源布局
