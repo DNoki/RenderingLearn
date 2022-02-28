@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 #include "GraphicsCore.h"
 #include "CommandList.h"
 
@@ -30,14 +30,15 @@ namespace Graphics
         SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
     }
 
-    void Texture2D::PlacedCreate(GpuPlacedHeap& pPlacedHeap, DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
+    void Texture2D::PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, arraySize, mipLevels);
 
-        // 要放入的放置堆类型必须是上传堆
-        ASSERT(pPlacedHeap.GetHeapDesc()->Properties.Type == D3D12_HEAP_TYPE_DEFAULT);
+        m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
+        m_PlacedResourceDesc.m_InitialState = D3D12_RESOURCE_STATE_COPY_DEST;
+        m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
 
-        pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_COPY_DEST, *this);
+        GraphicsMemory::PlacedResource(*this);
     }
 
     void Texture2D::DispatchCopyTextureData(const CommandList& commandList, const void* data)
@@ -55,7 +56,7 @@ namespace Graphics
             UINT64 uploadBufferSize = GetRequiredIntermediateSize(m_Resource.get(), 0, 1);
             // 创建 GPU 上传缓冲
             m_UploadBuffer.reset(new UploadBuffer());
-            m_UploadBuffer->DirectCreate(uploadBufferSize);
+            m_UploadBuffer->PlacedCreate(uploadBufferSize);
         }
 
         // 使用 GetCopyableFootprints 函数来获取可复制资源布局

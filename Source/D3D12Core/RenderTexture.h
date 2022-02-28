@@ -35,7 +35,7 @@ namespace Graphics
          * @param optStencil
         */
         void DirectCreateDSV(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 1.0f, UINT8 optStencil = 0);
-        void PlacedCreateDSV(GpuPlacedHeap& pPlacedHeap, DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 1.0f, UINT8 optStencil = 0); // TODO
+        void PlacedCreateDSV(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 1.0f, UINT8 optStencil = 0); // TODO
 
         /**
          * @brief 从交换链获取 RTV 缓冲

@@ -5,7 +5,7 @@
 #include "GraphicsBuffer.h"
 #include "TextureLoader.h"
 #include "Texture2D.h"
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 #include "GraphicsCommon.h"
 #include "GraphicsCore.h"
 #include "PipelineState.h"
@@ -33,10 +33,6 @@ namespace Graphics
 
     Texture2D t_DefaultTexture[2];
 
-    GpuPlacedHeap g_TexPlacedHeap;
-    GpuPlacedHeap g_VertexPlacedHeap;
-    GpuPlacedHeap g_UploadPlacedHeap; // TODO 上传堆可以改成全局管理分配模式，按需索取
-
     struct MVPBuffer
     {
         DirectX::XMFLOAT4X4 m_P;
@@ -61,22 +57,6 @@ namespace Graphics
         g_SampleShader.Create();
         g_SampleMaterial.Create(&g_SampleShader);
     }
-    void InitPlacedHeap()
-    {
-        const UINT64 sampleSize = 65536ull * 100u;
-
-        // 纹理放置堆
-        g_TexPlacedHeap = GpuPlacedHeap();
-        g_TexPlacedHeap.Create(D3D12_HEAP_TYPE_DEFAULT, sampleSize, D3D12_HEAP_FLAG_DENY_RT_DS_TEXTURES | D3D12_HEAP_FLAG_DENY_BUFFERS);
-
-        // 顶点放置堆
-        g_VertexPlacedHeap = GpuPlacedHeap();
-        g_VertexPlacedHeap.Create(D3D12_HEAP_TYPE_DEFAULT, sampleSize, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS); // 默认顶点堆选项必须为缓冲区
-
-        // 通用上传放置堆
-        g_UploadPlacedHeap = GpuPlacedHeap();
-        g_UploadPlacedHeap.Create(D3D12_HEAP_TYPE_UPLOAD, sampleSize, D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS); // 上传堆允许存放任何类型数据
-    }
     void InitTexture2D()
     {
         auto texPath = Application::GetAssetPath();
@@ -90,14 +70,14 @@ namespace Graphics
 
         auto& t1 = t_DefaultTexture[0];
         //g_TestTex2D.DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t1.PlacedCreate(g_TexPlacedHeap, texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t1.PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t1.DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
         texPath = Application::GetAssetPath();
         texPath.append(L"云堇.jpg");
         texData.LoadTexture2D(texPath);
 
-        t_DefaultTexture[1].DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t_DefaultTexture[1].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
 
         g_SampleMaterial.BindTexture(0, t_DefaultTexture[1]);
@@ -107,7 +87,7 @@ namespace Graphics
         auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         //auto constantBufferSize = sizeof(MVPBuffer);
         {
-            g_MvpBufferRes.DirectCreate(constantBufferSize);
+            g_MvpBufferRes.PlacedCreate(constantBufferSize);
             g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
             g_MVPBuffer->m_MVP = Matrix4x4::Identity;
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);

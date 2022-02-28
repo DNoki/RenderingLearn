@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 
 #include "UploadBuffer.h"
 
@@ -60,7 +60,7 @@ namespace Graphics
 
 
     private:
-        GpuPlacedHeap m_UploadPlacedHeap;
+        PlacedHeap m_UploadPlacedHeap;
 
         vector<UploadBufferPack> m_AllocatedBuffers;
     };
@@ -88,14 +88,14 @@ namespace Graphics
         Finalize();
     }
 
-    void UploadBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
+    void UploadBuffer::PlacedCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
-        // 要放入的放置堆类型必须是上传堆
-        ASSERT(pPlacedHeap.GetHeapDesc()->Properties.Type == D3D12_HEAP_TYPE_UPLOAD);
-
-        pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_GENERIC_READ, *this);
+        m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_UPLOAD;
+        m_PlacedResourceDesc.m_InitialState = D3D12_RESOURCE_STATE_GENERIC_READ;
+        m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
+        GraphicsMemory::PlacedResource(*this);
 
         Finalize();
     }

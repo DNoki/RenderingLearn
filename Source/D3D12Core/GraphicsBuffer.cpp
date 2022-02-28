@@ -3,7 +3,7 @@
 #include "DescriptorHandle.h"
 #include "UploadBuffer.h"
 #include "GraphicsCore.h"
-#include "GpuPlacedHeap.h"
+#include "GraphicsMemory.h"
 #include "CommandQueue.h"
 #include "CommandList.h"
 
@@ -45,14 +45,14 @@ namespace Graphics
         Finalize();
     }
 
-    void GraphicsBuffer::PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap)
+    void GraphicsBuffer::PlacedCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
-        // 要放入的放置堆类型必须是默认堆
-        ASSERT(pPlacedHeap.GetHeapDesc()->Properties.Type == D3D12_HEAP_TYPE_DEFAULT);
-
-        pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_COPY_DEST, *this);
+        m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
+        m_PlacedResourceDesc.m_InitialState = D3D12_RESOURCE_STATE_COPY_DEST;
+        m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
+        GraphicsMemory::PlacedResource(*this);
 
         Finalize();
     }
@@ -64,7 +64,7 @@ namespace Graphics
 
         // 创建上传缓冲
         m_UploadBuffer.reset(new UploadBuffer());
-        m_UploadBuffer->DirectCreate(bufferSize);
+        m_UploadBuffer->PlacedCreate(bufferSize);
 
         // 添加拷贝命令到命令队列
         {
@@ -147,7 +147,7 @@ namespace Graphics
                 strideSize });
     }
 
-    void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
+    void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, PlacedHeap& pPlacedHeap, PlacedHeap& pUploadPlacedHeap)
     {
         auto bufferSize = strideSize * vertexCount;
 

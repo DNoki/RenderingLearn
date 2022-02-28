@@ -52,10 +52,10 @@ PSInput VSMain(VSInput appdata)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-     //return float4(input.uv.xy, 0.0f, 1.0f);
-     //return float4(input.worldPos.xyz, 1.0f);
-     return float4(input.uv.rgb, 1.0f);
-     //return float4(input.color.rgb, 1.0f);
-     //return float4(input.normal.rgb, 1.0f);
-    //return g_texture.Sample(g_sampler, input.uv.xy);
+    //return float4(input.uv.xy, 0.0f, 1.0f);
+    //return float4(input.worldPos.xyz, 1.0f);
+    //return float4(input.uv.rgb, 1.0f);
+    //return float4(input.color.rgb, 1.0f);
+    //return float4(input.normal.rgb, 1.0f);
+    return g_texture.Sample(g_sampler, input.uv.xy);
 }

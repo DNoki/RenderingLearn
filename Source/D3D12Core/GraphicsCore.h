@@ -24,13 +24,13 @@ namespace Graphics
 
 namespace Graphics
 {
-    class GraphicManager
+    class GraphicsManager
     {
     public:
-        static GraphicManager& GetInstance();
+        static GraphicsManager& GetInstance();
 
     private:
-        GraphicManager() {}
+        GraphicsManager() {}
 
 
     };

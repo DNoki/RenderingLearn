@@ -6,24 +6,19 @@ namespace Graphics
     class GraphicsPipelineState;
     class GraphicsBuffer;
     class DescriptorHeap;
-    class GpuPlacedHeap;
-
-    //extern RootSignature g_RootSignature;
-    //extern GraphicsPipelineState g_PipelineState;
 
 
     extern GraphicsBuffer g_SampleVBV;
 
     extern DescriptorHeap t_SampleResDescHeap;
-    extern GpuPlacedHeap g_TexPlacedHeap;
-    extern GpuPlacedHeap g_UploadPlacedHeap;
+#if 0
+    extern PlacedHeap g_TexPlacedHeap;
+    extern PlacedHeap g_UploadPlacedHeap;
+#endif
 
 
-    //void InitRootSignature();
-    //void InitPipelineState();
     void InitShader();
     void InitMesh();
-    void InitPlacedHeap();
     void InitTexture2D();
     void InitCommandListBundle();
 

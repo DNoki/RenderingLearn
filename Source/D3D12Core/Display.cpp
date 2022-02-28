@@ -4,7 +4,6 @@
 #include "GraphicsCore.h"
 #include "CommandQueue.h"
 
-#include "DescriptorHeap.h"
 #include "Display.h"
 
 // DirectX 图形基础结构 (DXGI) ：最佳实践 https://docs.microsoft.com/zh-cn/windows/win32/direct3darticles/dxgi-best-practices
@@ -100,6 +99,7 @@ namespace Graphics
 
     void SwapChain::RebuildRenderTargets()
     {
+        m_RenderTargets.clear();
         m_RenderTargets.resize(m_SwapChainDesc.BufferCount);
 
         for (int i = 0; i < m_RenderTargets.size(); i++)

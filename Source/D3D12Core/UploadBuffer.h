@@ -4,8 +4,6 @@
 
 namespace Graphics
 {
-    class GpuPlacedHeap;
-
     /**
      * @brief 上传堆缓冲
     */
@@ -27,7 +25,7 @@ namespace Graphics
          * @param size
          * @param pPlacedHeap
         */
-        void PlacedCreate(UINT64 size, GpuPlacedHeap& pPlacedHeap) override;
+        void PlacedCreate(UINT64 size) override;
 
 
         /**

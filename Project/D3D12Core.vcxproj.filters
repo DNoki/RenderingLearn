@@ -16,7 +16,7 @@
     <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
     <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
-    <ClInclude Include="..\Source\D3D12Core\GpuPlacedHeap.h" />
+    <ClInclude Include="..\Source\D3D12Core\GraphicsMemory.h" />
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h" />
@@ -55,7 +55,7 @@
     <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
     <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GpuPlacedHeap.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GraphicsMemory.cpp" />
     <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp" />
