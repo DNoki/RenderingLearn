@@ -147,7 +147,7 @@ namespace Graphics
                 strideSize });
     }
 
-    void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, GpuPlacedHeap& pPlacedHeap, GpuPlacedHeap& pUploadPlacedHeap)
+    void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, PlacedHeap& pPlacedHeap, PlacedHeap& pUploadPlacedHeap)
     {
         auto bufferSize = strideSize * vertexCount;
 

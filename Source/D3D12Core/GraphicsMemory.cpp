@@ -20,13 +20,26 @@
 */
 // --------------------------------------------------------------------------
 
+// --------------------------------------------------------------------------
+/*
+    图形内存设计思路
+    模式一：对齐型放置
+        将一块内存区域按对齐大小分割为一个个小区域块，放置资源时始终对齐到块大小
+        优点：内存区域可以重复使用
+        缺点：对于大量小资源可能会产生大量碎片
+    模式二：紧凑型放置
+        TODO 将资源紧密的放置在堆中，使用过的区域是一次性的
+
+*/
+// --------------------------------------------------------------------------
+
 using namespace std;
 
 namespace Graphics
 {
     constexpr UINT64 DEFAULT_HEAP_SIZE = 1000 * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
-    void GpuPlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags)
+    void PlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags)
     {
         m_MinBlockSize = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
@@ -47,7 +60,7 @@ namespace Graphics
     }
 
 #if 0
-    void GpuPlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+    void PlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
     {
         auto index = m_PlacedResources.size();
         auto size = static_cast<UINT>(index + 1);
@@ -80,13 +93,13 @@ namespace Graphics
         SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));
     }
 
-    void GpuPlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+    void PlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
     {
         // TODO 能否用Map来管理放置堆？
     }
 #endif
 
-    bool GpuPlacedHeap::PlacedResource(IResource& resource)
+    bool PlacedHeap::PlacedResource(IResource& resource)
     {
         auto& resourceDesc = resource.GetResourceDesc();
         auto* placedDesc = resource.GetPlacedResourceDesc();
@@ -165,7 +178,7 @@ namespace Graphics
         }
     }
 
-    void GpuPlacedHeap::ReleaseResource(UINT order)
+    void PlacedHeap::ReleaseResource(UINT order)
     {
         // 移除该资源
         auto findedRes = m_PlacedResources.find(order);
@@ -230,7 +243,11 @@ namespace Graphics
         ASSERT(placedDesc->m_AllocationSize <= DEFAULT_HEAP_SIZE);
 
         D3D12_HEAP_FLAGS heapFlags{};
-        vector<std::unique_ptr<GpuPlacedHeap>>* heaps{};
+#ifdef DONT_USE_SMART_PTR
+        vector<PlacedHeap>* heaps{};
+#else
+        vector<std::unique_ptr<PlacedHeap>>* heaps{};
+#endif
         switch (resourceDesc.Dimension)
         {
         case D3D12_RESOURCE_DIMENSION_BUFFER:
@@ -255,7 +272,11 @@ namespace Graphics
         for (; pHeap != heaps->end(); pHeap++)
         {
             // 尝试将资源放入堆
+#ifdef DONT_USE_SMART_PTR
+            if ((*pHeap).PlacedResource(resource))
+#else
             if ((**pHeap).PlacedResource(resource))
+#endif
             {
                 break;
             }
@@ -264,8 +285,13 @@ namespace Graphics
         if (pHeap == heaps->end())
         {
             // 没有堆可以放置资源，创建一个新的堆
-            heaps->push_back(unique_ptr<GpuPlacedHeap>(new GpuPlacedHeap()));
+#ifdef DONT_USE_SMART_PTR
+            heaps->push_back(PlacedHeap());
+            auto& newHeap = heaps->back();
+#else
+            heaps->push_back(unique_ptr<PlacedHeap>(new PlacedHeap()));
             auto& newHeap = *(heaps->back());
+#endif
 
             newHeap.Create(placedDesc->m_HeapType, DEFAULT_HEAP_SIZE, heapFlags);
             if (!newHeap.PlacedResource(resource))

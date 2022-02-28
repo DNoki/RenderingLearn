@@ -5,7 +5,6 @@
 namespace Graphics
 {
     class CommandList;
-    class GpuPlacedHeap;
 
     class Texture2D : public ITexture
     {

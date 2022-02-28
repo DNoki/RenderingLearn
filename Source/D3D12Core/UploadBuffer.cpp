@@ -60,7 +60,7 @@ namespace Graphics
 
 
     private:
-        GpuPlacedHeap m_UploadPlacedHeap;
+        PlacedHeap m_UploadPlacedHeap;
 
         vector<UploadBufferPack> m_AllocatedBuffers;
     };

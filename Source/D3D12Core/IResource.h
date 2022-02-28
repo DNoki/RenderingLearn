@@ -2,7 +2,7 @@
 
 namespace Graphics
 {
-    class GpuPlacedHeap;
+    class PlacedHeap;
 
     class PlacedResourceDesc
     {
@@ -22,7 +22,7 @@ namespace Graphics
         UINT64 m_AllocationAlignment;
 
         // 资源放置信息（由放置堆填充）
-        GpuPlacedHeap* m_PlacedHeapPtr;
+        PlacedHeap* m_PlacedHeapPtr;
         UINT m_PlacedOrder;         // 放置的定位位置
 
     private:

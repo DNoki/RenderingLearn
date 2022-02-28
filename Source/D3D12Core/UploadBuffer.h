@@ -4,8 +4,6 @@
 
 namespace Graphics
 {
-    class GpuPlacedHeap;
-
     /**
      * @brief 上传堆缓冲
     */

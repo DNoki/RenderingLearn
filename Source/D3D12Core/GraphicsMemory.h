@@ -7,10 +7,10 @@ namespace Graphics
     /**
      * @brief 放置堆
     */
-    class GpuPlacedHeap
+    class PlacedHeap
     {
     public:
-        GpuPlacedHeap() = default;
+        PlacedHeap() = default;
 
         void Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags);
 
@@ -52,8 +52,14 @@ namespace Graphics
         static GraphicsMemory g_GraphicsMemory;
         static GraphicsMemory& GetInstance() { return g_GraphicsMemory; }
 
-        std::vector<std::unique_ptr<GpuPlacedHeap>> m_UploadBufferHeaps;     // 上传缓冲堆
-        std::vector<std::unique_ptr<GpuPlacedHeap>> m_DefaultBufferHeaps;    // 默认缓冲堆
-        std::vector<std::unique_ptr<GpuPlacedHeap>> m_TextureHeaps;          // 非渲染目标贴图缓冲堆
+#ifdef DONT_USE_SMART_PTR
+        std::vector<PlacedHeap> m_UploadBufferHeaps;     // 上传缓冲堆
+        std::vector<PlacedHeap> m_DefaultBufferHeaps;    // 默认缓冲堆
+        std::vector<PlacedHeap> m_TextureHeaps;          // 非渲染目标贴图缓冲堆
+#else
+        std::vector<std::unique_ptr<PlacedHeap>> m_UploadBufferHeaps;     // 上传缓冲堆
+        std::vector<std::unique_ptr<PlacedHeap>> m_DefaultBufferHeaps;    // 默认缓冲堆
+        std::vector<std::unique_ptr<PlacedHeap>> m_TextureHeaps;          // 非渲染目标贴图缓冲堆
+#endif
     };
 }

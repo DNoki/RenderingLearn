@@ -5,7 +5,6 @@
 namespace Graphics
 {
     class UploadBuffer;
-    class GpuPlacedHeap;
     class CommandList;
 
     /**
