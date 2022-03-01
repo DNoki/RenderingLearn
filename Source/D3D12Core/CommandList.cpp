@@ -51,7 +51,7 @@ namespace Graphics
             // 返回一个命令分配器
             m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
 
-            CHECK_HRESULT(g_Device->CreateCommandList(
+            CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandList(
                 NODEMASK,
                 m_Type,                     // 命令列表类型
                 m_CommandAllocator->GetD3D12Allocator(),    // 命令列表分配器
@@ -65,7 +65,7 @@ namespace Graphics
         {
             // 创建命令列表
             // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
-            CHECK_HRESULT(g_Device->CreateCommandList1(
+            CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandList1(
                 NODEMASK,
                 m_Type,
                 D3D12_COMMAND_LIST_FLAG_NONE,

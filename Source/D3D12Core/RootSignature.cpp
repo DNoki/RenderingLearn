@@ -57,7 +57,7 @@ namespace Graphics
         // 检测是否支持 V1.1 版本的根签名
         D3D12_FEATURE_DATA_ROOT_SIGNATURE rsFeatureData{};
         rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
-        if (FAILED(g_Device->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &rsFeatureData, sizeof(rsFeatureData))))
+        if (FAILED(GraphicsManager::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE, &rsFeatureData, sizeof(rsFeatureData))))
             rsFeatureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 
         // 初始化根签名描述
@@ -80,7 +80,7 @@ namespace Graphics
         if (pErrorSignature)
             TRACE((char*)pErrorSignature->GetBufferPointer());
 
-        CHECK_HRESULT(g_Device->CreateRootSignature(NODEMASK, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateRootSignature(NODEMASK, pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
         SET_DEBUGNAME(m_RootSignature.get(), _T("RootSignature"));
     }
 }

@@ -33,14 +33,12 @@
 namespace Graphics
 {
     CommandQueue::CommandQueue() : m_Type(), m_CommandQueue(nullptr),
-        m_Fence(nullptr), m_FenceValue(1), m_FenceEvent(nullptr),
-        m_IsClose(false)
+        m_Fence(nullptr), m_FenceValue(1), m_FenceEvent(nullptr)
     {
     }
 
     void CommandQueue::Create(D3D12_COMMAND_LIST_TYPE type)
     {
-        m_IsClose = false;
         m_Type = type;
 
         // 创建D3D12命令队列接口
@@ -49,12 +47,12 @@ namespace Graphics
         queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL; // 命令队列的优先级
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // 命令队列选项
         queueDesc.NodeMask = NODEMASK; // 节点标识
-        CHECK_HRESULT(g_Device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
         SET_DEBUGNAME(m_CommandQueue.get(), _T("CommandQueue"));
 
 
         // 创建同步对象 Fence， 用于等待渲染完成
-        CHECK_HRESULT(g_Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
         m_FenceValue = 1;
 
         // 创建用于帧同步的事件句柄，用于等待Fence事件通知
@@ -65,17 +63,12 @@ namespace Graphics
 
     void CommandQueue::CloseQueue()
     {
-        if (m_IsClose) return;
-
         WaitForQueueCompleted();
 
         CloseHandle(m_FenceEvent);
 
         m_CommandQueue = nullptr;
-
         m_Fence = nullptr;
-
-        m_IsClose = true;
     }
 
     void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists)
@@ -96,8 +89,6 @@ namespace Graphics
 
     void CommandQueue::WaitForQueueCompleted()
     {
-        ASSERT(!m_IsClose);
-
         // 在继续之前等待框架完成不是最佳实践。 为简单起见，这是这样实现的代码。 D3D12HelloFrameBuffering 示例说明了如何使用围栏来有效利用资源并最大限度地提高 GPU 利用率。
 
         // 发出信号并增加围栏值。

@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Game;
+using namespace Graphics;
 
 
 namespace Application
@@ -82,7 +83,7 @@ namespace Application
         case WM_ENTERSIZEMOVE: // 窗口进入调整模式（位置，大小）
         {
             g_AppEvent.set(EventFlag::AdjWindow);
-            Graphics::g_SwapChain.Resize(8, 8); // TODO 使窗口黑屏
+            GraphicsManager::GetSwapChain()->Resize(8, 8); // TODO 使窗口黑屏
             TimeSystem::ProcessMsg(message, wParam, lParam);
         }
         break;
@@ -91,7 +92,7 @@ namespace Application
             g_AppEvent.reset(EventFlag::AdjWindow);
             RECT clientRect;
             GetClientRect(g_Hwnd, &clientRect);
-            Graphics::g_SwapChain.Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top); // 调整窗口大小
+            GraphicsManager::GetSwapChain()->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top); // 调整窗口大小
 
             TimeSystem::ProcessMsg(message, wParam, lParam);
         }
@@ -137,7 +138,7 @@ namespace Application
             case SIZE_MAXHIDE:      // 当某个其他窗口最大化时，消息会发送到所有弹出窗口
             case SIZE_RESTORED:     // 窗口已调整大小，但SIZE_MINIMIZED和SIZE_MAXIMIZED值均不适用
                 if (!g_AppEvent.test(EventFlag::AdjWindow)) // 正在调整窗口时忽略
-                    Graphics::g_SwapChain.Resize(width, height); // 调整窗口大小
+                    GraphicsManager::GetSwapChain()->Resize(width, height); // 调整窗口大小
                 break;
             case SIZE_MINIMIZED:    // 窗口已最小化
             default: break;
@@ -248,9 +249,11 @@ namespace Application
         }
 
         // --------------------------------------------------------------------------
+        // 初始化图形管理器
+        GraphicsManager::GetInstance().Initialize();
         TimeSystem::InitTimeSystem();
         Input::Initialize(g_Hwnd);
-        Graphics::Initialize();
+        Initialize();
 
         // --------------------------------------------------------------------------
         ShowWindow(g_Hwnd, nCmdShow);
@@ -268,7 +271,7 @@ namespace Application
             }
 
             Input::BeforeUpdate();
-            Graphics::OnRender();
+            OnRender();
 
             TimeSystem::UpdateTimeSystem();
 
@@ -286,8 +289,8 @@ namespace Application
         //    DispatchMessage(&msg);
         //}
 
-        // 终了处理
-        Graphics::OnDestroy();
+        // 销毁图形管理器
+        GraphicsManager::GetInstance().Destory();
 
         return 0;
     }

@@ -1,17 +1,13 @@
 ﻿#pragma once
 
+#include "CommandQueue.h"
+#include "Display.h"
+
 constexpr UINT NODEMASK = 0; // TODO 多适配器系统 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/multi-engine
 
 namespace Graphics
 {
-    class SwapChain;
-    class CommandQueue;
     class CommandList;
-
-    extern winrt::com_ptr<IDXGIFactory7> g_Factory;
-    extern winrt::com_ptr<ID3D12Device6> g_Device;
-    extern CommandQueue g_GraphicsCommandQueue;
-    extern SwapChain g_SwapChain;
 
     extern CommandList g_GraphicsCommandList;
 
@@ -19,17 +15,27 @@ namespace Graphics
 
     void OnRender();
 
-    void OnDestroy();
-}
 
-namespace Graphics
-{
     class GraphicsManager
     {
     public:
-        static GraphicsManager& GetInstance();
+        inline static GraphicsManager& GetInstance() { return m_GraphicsManager; }
+
+        static IDXGIFactory7* GetFactory();
+        static ID3D12Device6* GetDevice();
+
+        static CommandQueue* GetGraphicsCommandQueue();
+        static CommandQueue* GetComputeCommandQueue();
+        static CommandQueue* GetCopyCommandQueue();
+
+        static SwapChain* GetSwapChain();
+
+        void Initialize();
+        void Destory();
 
     private:
+        static GraphicsManager m_GraphicsManager;
+
         GraphicsManager() {}
 
 

@@ -165,7 +165,7 @@ namespace Application
         // 查询错误信息 https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dxgi-error
         if (hr == 0x887a0005)
         {
-            auto error = Graphics::g_Device->GetDeviceRemovedReason();
+            auto error = Graphics::GraphicsManager::GetDevice()->GetDeviceRemovedReason();
             // 在即时窗口窗口查看设备移除原因
             ASSERT(0);
         }

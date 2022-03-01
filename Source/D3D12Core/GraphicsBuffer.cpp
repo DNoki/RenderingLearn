@@ -32,7 +32,7 @@ namespace Graphics
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
         auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-        CHECK_HRESULT(g_Device->CreateCommittedResource(
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
             &heapType,
             D3D12_HEAP_FLAG_NONE,
             &m_ResourceDesc,
@@ -119,7 +119,7 @@ namespace Graphics
         auto pHeapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
 
-        CHECK_HRESULT(Graphics::g_Device->CreateCommittedResource(
+        CHECK_HRESULT(Graphics::GraphicsManager::GetDevice()->CreateCommittedResource(
             &pHeapProperties, // 为资源的堆提供属性
             D3D12_HEAP_FLAG_NONE, // 堆选项
             &m_ResourceDesc, // 描述资源

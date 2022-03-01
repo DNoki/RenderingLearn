@@ -127,7 +127,7 @@ namespace Graphics
     CommandAllocator::CommandAllocator(D3D12_COMMAND_LIST_TYPE type) : m_Type(type), m_CommandAllocator()
     {
         // 创建命令列表分配器
-        CHECK_HRESULT(g_Device->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));
         SET_DEBUGNAME(m_CommandAllocator.get(), _T("CommandAllocator"));
     }
 

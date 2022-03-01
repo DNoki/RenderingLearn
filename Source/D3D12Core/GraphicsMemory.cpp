@@ -49,7 +49,7 @@ namespace Graphics
             m_MinBlockSize, // 最小块大小（对齐大小）
             flags); // 放置堆选项，例如堆是否可以包含纹理
 
-        CHECK_HRESULT(g_Device->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
         SET_DEBUGNAME(m_PlacedHeap.get(), _T("Heap"));
 
         m_MaxOrderSize = static_cast<UINT>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
@@ -72,7 +72,7 @@ namespace Graphics
         std::vector<D3D12_RESOURCE_ALLOCATION_INFO1> resourceInfos(size);
 
         // 当需要放置多个资源时，可以直接利用 GetResourceAllocationInfo1 函数计算偏移
-        g_Device->GetResourceAllocationInfo1(
+        GraphicsManager::GetDevice()->GetResourceAllocationInfo1(
             1u,
             size,                   // 资源描述的数量
             resourceDescs.data(),   // 资源描述列表
@@ -83,7 +83,7 @@ namespace Graphics
         auto& allocationInfo = resourceInfos[index];
         ASSERT((allocationInfo.Offset + allocationInfo.SizeInBytes) <= m_PlacedHeapDesc.SizeInBytes, L"WARNING::PlacedResource()指定资源无法放置到堆。");
 
-        CHECK_HRESULT(g_Device->CreatePlacedResource(
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreatePlacedResource(
             m_PlacedHeap.get(),     // 放置资源的堆
             allocationInfo.Offset,    // 资源的偏移量，必须是资源的对齐的倍数
             &resourceDescs[index],  // 资源描述
@@ -158,7 +158,7 @@ namespace Graphics
             placedDesc->m_PlacedHeapPtr = this;
             ASSERT(placedDesc->m_AllocationSize == (allocateSize * (UINT64)m_MinBlockSize));
 
-            CHECK_HRESULT(g_Device->CreatePlacedResource(
+            CHECK_HRESULT(GraphicsManager::GetDevice()->CreatePlacedResource(
                 m_PlacedHeap.get(), // 放置资源的堆
                 (*pBlock * (UINT64)m_MinBlockSize), // 资源的偏移量，必须是资源的对齐的倍数
                 &resourceDesc, // 资源描述
@@ -233,7 +233,7 @@ namespace Graphics
         if (placedDesc == nullptr)
             return;
 
-        auto allocationInfo = g_Device->GetResourceAllocationInfo(NODEMASK, 1, &resourceDesc);
+        auto allocationInfo = GraphicsManager::GetDevice()->GetResourceAllocationInfo(NODEMASK, 1, &resourceDesc);
         placedDesc->m_AllocationSize = allocationInfo.SizeInBytes;
         placedDesc->m_AllocationAlignment = allocationInfo.Alignment;
 

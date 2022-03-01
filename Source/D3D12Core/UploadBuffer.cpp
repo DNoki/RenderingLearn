@@ -76,7 +76,7 @@ namespace Graphics
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
         auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-        CHECK_HRESULT(g_Device->CreateCommittedResource(
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
             &heapType,
             D3D12_HEAP_FLAG_NONE,
             &m_ResourceDesc,

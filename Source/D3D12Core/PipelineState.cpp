@@ -100,7 +100,7 @@ namespace Graphics
         //msLevels.SampleCount = 4; // Replace with your sample count.
         //msLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 
-        //CHECK_HRESULT(g_Device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels)));
+        //CHECK_HRESULT(GraphicsManager::GetDevice()->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels)));
         //auto supportMsaaQuality = msLevels.NumQualityLevels;
     }
 
@@ -164,7 +164,7 @@ namespace Graphics
         {
             // 创建一个新的管线状态对象
             winrt::com_ptr<ID3D12PipelineState> pso;
-            CHECK_HRESULT(g_Device->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(pso.put())));
+            CHECK_HRESULT(GraphicsManager::GetDevice()->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(pso.put())));
             SET_DEBUGNAME(pso.get(), _T("PipelineState"));
 
             m_PSO = pso.get();

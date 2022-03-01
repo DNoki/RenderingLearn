@@ -96,7 +96,7 @@ namespace Graphics
     }
     void InitMesh()
     {
-        g_SampleMesh=(Mesh::CreateCube());
+        g_SampleMesh = (Mesh::CreateCube());
 
         g_ModelTrans = Transform();
         g_ModelTrans.LocalScale = Vector3::One * 2.0f;

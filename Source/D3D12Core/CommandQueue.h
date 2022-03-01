@@ -44,14 +44,5 @@ namespace Graphics
         winrt::com_ptr<ID3D12Fence1> m_Fence;   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
         UINT64 m_FenceValue;                    // 围栏值
         HANDLE m_FenceEvent;
-
-        bool m_IsClose;
     };
-}
-
-namespace Graphics
-{
-    extern CommandQueue g_GraphicsCommandQueue; // 图形命令队列
-    extern CommandQueue g_ComputeCommandQueue;  // 计算命令队列
-    extern CommandQueue g_CopyCommandQueue;     // 拷贝命令队列
 }

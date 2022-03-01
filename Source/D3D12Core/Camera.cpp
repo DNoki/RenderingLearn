@@ -23,13 +23,13 @@ namespace Game
         case Game::ProjectionMode::Perspective:
         {
             ASSERT(0.1f < m_FieldOfView && m_FieldOfView < 179.0f);
-            projection = XMMatrixPerspectiveFovLH(m_FieldOfView * Math::Deg2Rad, g_SwapChain.GetScreenAspect(), m_NearClipPlane, m_FarClipPlane);
+            projection = XMMatrixPerspectiveFovLH(m_FieldOfView * Math::Deg2Rad, GraphicsManager::GetSwapChain()->GetScreenAspect(), m_NearClipPlane, m_FarClipPlane);
         }
         break;
         case Game::ProjectionMode::Orthographic:
         {
             float orthSize = m_OrthographicSize * 2.0f;
-            projection = XMMatrixOrthographicLH(orthSize * g_SwapChain.GetScreenAspect(), orthSize, m_NearClipPlane, m_FarClipPlane);
+            projection = XMMatrixOrthographicLH(orthSize * GraphicsManager::GetSwapChain()->GetScreenAspect(), orthSize, m_NearClipPlane, m_FarClipPlane);
         }
         break;
         default: break;

@@ -60,11 +60,11 @@ namespace Graphics
 
 
         // 创建描述符堆
-        CHECK_HRESULT(g_Device->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
         SET_DEBUGNAME(m_DescriptorHeap.get(), _T("DescriptorHeap"));
 
         // 单个描述符大小
-        m_DescriptorSize = g_Device->GetDescriptorHandleIncrementSize(type);
+        m_DescriptorSize = GraphicsManager::GetDevice()->GetDescriptorHandleIncrementSize(type);
 
         // 描述符起始句柄
         m_StartDescriptorHandle = {
@@ -90,7 +90,7 @@ namespace Graphics
 
         ASSERT(buffer.GetBufferSize() == cbvDesc.SizeInBytes, L"WARNING::常量缓冲资源大小未对齐到256。");
 
-        g_Device->CreateConstantBufferView(&cbvDesc, GetDescriptorHandle(index));
+        GraphicsManager::GetDevice()->CreateConstantBufferView(&cbvDesc, GetDescriptorHandle(index));
     }
 
     void DescriptorHeap::BindShaderResourceView(int index, const Texture& tex) const
@@ -103,15 +103,15 @@ namespace Graphics
         srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels = 1;
 
-        g_Device->CreateShaderResourceView(tex.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
+        GraphicsManager::GetDevice()->CreateShaderResourceView(tex.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
     }
 
     void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& renderTex) const
     {
-        g_Device->CreateRenderTargetView(renderTex.GetD3D12Resource(), renderTex.GetRtvDesc(), GetDescriptorHandle(index));
+        GraphicsManager::GetDevice()->CreateRenderTargetView(renderTex.GetD3D12Resource(), renderTex.GetRtvDesc(), GetDescriptorHandle(index));
     }
     void DescriptorHeap::BindDepthStencilView(int index, const RenderTexture& renderTex) const
     {
-        g_Device->CreateDepthStencilView(renderTex.GetD3D12Resource(), renderTex.GetDsvDesc(), GetDescriptorHandle(index));
+        GraphicsManager::GetDevice()->CreateDepthStencilView(renderTex.GetD3D12Resource(), renderTex.GetDsvDesc(), GetDescriptorHandle(index));
     }
 }

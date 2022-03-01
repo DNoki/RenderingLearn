@@ -41,8 +41,8 @@ namespace Graphics
         m_FullScreenDesc = nullptr;
         //m_FullScreenDesc->Windowed = TRUE;
 
-        CHECK_HRESULT(g_Factory->CreateSwapChainForHwnd(
-            g_GraphicsCommandQueue.GetD3D12CommandQueue(), // 对于 Direct3D 12，这是一个指向直接命令队列的指针
+        CHECK_HRESULT(GraphicsManager::GetFactory()->CreateSwapChainForHwnd(
+            GraphicsManager::GetGraphicsCommandQueue()->GetD3D12CommandQueue(), // 对于 Direct3D 12，这是一个指向直接命令队列的指针
             hwnd,
             &m_SwapChainDesc,       // 交换链描述
             m_FullScreenDesc.get(), // 全屏交换链描述
@@ -70,7 +70,7 @@ namespace Graphics
             return;
 
         // TODO 需要在这里等待指令队列完成
-        g_GraphicsCommandQueue.WaitForQueueCompleted();
+        GraphicsManager::GetGraphicsCommandQueue()->WaitForQueueCompleted();
 
         m_SwapChainDesc.Width = width;
         m_SwapChainDesc.Height = height;
@@ -92,7 +92,7 @@ namespace Graphics
         m_SwapChain->Present(1, 0); // 交换一次缓冲，使黑色填充屏幕
 
         // TODO 需要在这里等待指令队列完成
-        g_GraphicsCommandQueue.WaitForQueueCompleted();
+        GraphicsManager::GetGraphicsCommandQueue()->WaitForQueueCompleted();
 
         TRACE(L"Changing display resolution to %ux%u", m_SwapChainDesc.Width, m_SwapChainDesc.Height);
     }

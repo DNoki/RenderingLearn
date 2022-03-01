@@ -20,7 +20,7 @@ namespace Graphics
         // 无法在 D3D12_HEAP_TYPE_UPLOAD 或 D3D12_HEAP_TYPE_READBACK 堆上创建纹理资源。
         // 研究 CopyTextureRegion 以在 CPU 可访问缓冲区中复制纹理数据，或研究 D3D12_HEAP_TYPE_CUSTOM 和 WriteToSubresource 以优化 UMA 适配器。
         auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-        CHECK_HRESULT(g_Device->CreateCommittedResource(
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
             &heapType,             // 默认堆类型
             D3D12_HEAP_FLAG_NONE,           // 堆选项
             &m_ResourceDesc,                // 贴图描述
@@ -64,7 +64,7 @@ namespace Graphics
         UINT numRows[1] = {};
         UINT64 rowSizeInBytes[1] = {};
         UINT64 totalBytes = 0;
-        g_Device->GetCopyableFootprints(
+        GraphicsManager::GetDevice()->GetCopyableFootprints(
             &m_ResourceDesc,    // 资源的描述
             0,                  // 资源中第一个子资源索引
             1,                  // 资源中子资源数量
@@ -150,7 +150,7 @@ namespace Graphics
         UINT numRows[1] = {};
         UINT64 rowSizeInBytes[1] = {};
         UINT64 totalBytes = 0;
-        g_Device->GetCopyableFootprints(
+        GraphicsManager::GetDevice()->GetCopyableFootprints(
             &m_ResourceDesc,    // 资源的描述
             0,                  // 资源中第一个子资源索引
             1,                  // 资源中子资源数量
