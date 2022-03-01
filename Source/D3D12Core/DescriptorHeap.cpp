@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "IResource.h"
+#include "GraphicsResource.h"
 #include "RenderTexture.h"
 #include "GraphicsCore.h"
 
@@ -93,7 +93,7 @@ namespace Graphics
         g_Device->CreateConstantBufferView(&cbvDesc, GetDescriptorHandle(index));
     }
 
-    void DescriptorHeap::BindShaderResourceView(int index, const ITexture& tex) const
+    void DescriptorHeap::BindShaderResourceView(int index, const Texture& tex) const
     {
         ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 

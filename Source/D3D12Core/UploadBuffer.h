@@ -1,18 +1,21 @@
 ﻿#pragma once
 
-#include "IResource.h"
+#include "GraphicsResource.h"
 
 namespace Graphics
 {
     /**
      * @brief 上传堆缓冲
     */
-    class UploadBuffer : public IBufferResource
+    class UploadBuffer : public GraphicsResource, public IBufferResource
     {
     public:
         // --------------------------------------------------------------------------
         UploadBuffer();
 
+        // --------------------------------------------------------------------------
+        inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
+        inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         // --------------------------------------------------------------------------
         /**
@@ -49,6 +52,14 @@ namespace Graphics
     private:
         // Map 时指示 CPU 不可读取上传堆资源
         static const CD3DX12_RANGE c_ZeroReadRange;
+
+        inline void Finalize() override
+        {
+            // Resource必须创建以后才可以完成初始化
+            ASSERT(m_Resource != nullptr);
+            // 仅缓冲资源可以获取 GPU 虚拟地址
+            m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
+        }
 
     };
 }

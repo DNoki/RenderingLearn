@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "IResource.h"
+#include "GraphicsResource.h"
 
 namespace Graphics
 {
@@ -10,12 +10,15 @@ namespace Graphics
     /**
      * @brief GPU 缓冲
     */
-    class GraphicsBuffer : public IBufferResource
+    class GraphicsBuffer : public GraphicsResource, public IBufferResource
     {
     public:
         // --------------------------------------------------------------------------
         GraphicsBuffer();
 
+        // --------------------------------------------------------------------------
+        inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
+        inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         // --------------------------------------------------------------------------
         /**
@@ -40,5 +43,14 @@ namespace Graphics
 
     private:
         std::unique_ptr<UploadBuffer> m_UploadBuffer;
+
+        inline void Finalize() override
+        {
+            // Resource必须创建以后才可以完成初始化
+            ASSERT(m_Resource != nullptr);
+            // 仅缓冲资源可以获取 GPU 虚拟地址
+            m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
+        }
+
     };
 }

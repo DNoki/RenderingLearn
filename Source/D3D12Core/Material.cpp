@@ -73,7 +73,7 @@ namespace Game
         m_ResourceDescHeap->BindConstantBufferView(slot, buffer);
         m_Version++;
     }
-    void Material::BindTexture(int slot, const Graphics::ITexture& texture)
+    void Material::BindTexture(int slot, const Graphics::Texture& texture)
     {
         m_ResourceDescHeap->BindShaderResourceView(slot, texture);
         m_Version++;

@@ -30,15 +30,15 @@ namespace Graphics
     };
 
     /**
-     * @brief D3D12 资源接口
+     * @brief D3D12 资源抽象类
      * @return
     */
-    class IResource
+    class GraphicsResource
     {
     public:
         // --------------------------------------------------------------------------
-        inline IResource() { ZeroMemory(this, sizeof(IResource)); }
-        virtual ~IResource() = 0 {}
+        inline GraphicsResource() { ZeroMemory(this, sizeof(GraphicsResource)); }
+        virtual ~GraphicsResource() = 0 {}
 
         // --------------------------------------------------------------------------
         inline const D3D12_RESOURCE_DESC& GetResourceDesc() const noexcept
@@ -82,11 +82,10 @@ namespace Graphics
         PlacedResourceDesc m_PlacedResourceDesc;
     };
 
-    class IBufferResource : public IResource
+    class IBufferResource
     {
     public:
         // --------------------------------------------------------------------------
-        IBufferResource() {}
         virtual ~IBufferResource() = 0 {}
 
         // --------------------------------------------------------------------------
@@ -94,9 +93,9 @@ namespace Graphics
          * @brief 获取缓冲大小
          * @return
         */
-        inline UINT64 GetBufferSize() const { return m_ResourceDesc.Width; }
+        virtual UINT64 GetBufferSize() const = 0;
 
-        inline D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const { return m_GpuVirtualAddress; }
+        virtual D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const = 0;
 
         /**
          * @brief 创建一个资源并为其分配内存
@@ -111,23 +110,14 @@ namespace Graphics
         virtual void PlacedCreate(UINT64 size) = 0;
 
     protected:
+        virtual void Finalize() = 0;
 
-        void Finalize()
-        {
-            // Resource必须创建以后才可以完成初始化
-            ASSERT(m_Resource != nullptr);
-            // 仅缓冲资源可以获取 GPU 虚拟地址
-            m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
-        }
     };
 
-    class ITexture : public IResource
+    class Texture : public GraphicsResource
     {
     public:
-        ITexture() {}
-        virtual ~ITexture() = 0 {}
-
-    private:
+        virtual ~Texture() = 0 {}
 
     };
 }

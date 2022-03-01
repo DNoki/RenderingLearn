@@ -4,7 +4,7 @@ namespace Graphics
 {
     class DescriptorHandle;
     class DescriptorHeap;
-    class IResource;
+    class Texture;
     class GraphicsPipelineState;
     class CommandList;
     class MultiRenderTargets;
@@ -48,7 +48,7 @@ namespace Game
          * @param slot
          * @param texture
         */
-        void BindTexture(int slot, const Graphics::ITexture& texture);
+        void BindTexture(int slot, const Graphics::Texture& texture);
         /**
          * @brief 绑定采样器
          * @param sampler

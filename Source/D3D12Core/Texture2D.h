@@ -6,7 +6,7 @@ namespace Graphics
 {
     class CommandList;
 
-    class Texture2D : public ITexture
+    class Texture2D : public Texture
     {
     public:
         Texture2D() {}

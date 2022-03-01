@@ -2,7 +2,7 @@
 
 #include "GraphicsMemory.h"
 
-#include "IResource.h"
+#include "GraphicsResource.h"
 
 // --------------------------------------------------------------------------
 /*

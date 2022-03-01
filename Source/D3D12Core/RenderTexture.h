@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "IResource.h"
+#include "GraphicsResource.h"
 
 namespace Graphics
 {
@@ -9,7 +9,7 @@ namespace Graphics
     /**
      * @brief 渲染贴图（RTV、DSV）
     */
-    class RenderTexture : public ITexture
+    class RenderTexture : public Texture
     {
     public:
         RenderTexture() = default;

@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "IResource.h"
+#include "GraphicsResource.h"
 #include "GraphicsCore.h"
 
 #include "GraphicsMemory.h"
@@ -54,13 +54,13 @@ namespace Graphics
 
         m_MaxOrderSize = static_cast<UINT>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
 
-        m_PlacedResources = map<UINT, IResource*>();
+        m_PlacedResources = map<UINT, GraphicsResource*>();
         m_MemoryBlockOrders = set<UINT>();
         m_MemoryBlockOrders.insert(0);
     }
 
 #if 0
-    void PlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+    void PlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GraphicsResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
     {
         auto index = m_PlacedResources.size();
         auto size = static_cast<UINT>(index + 1);
@@ -93,13 +93,13 @@ namespace Graphics
         SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));
     }
 
-    void PlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, IResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+    void PlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, GraphicsResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
     {
         // TODO 能否用Map来管理放置堆？
     }
 #endif
 
-    bool PlacedHeap::PlacedResource(IResource& resource)
+    bool PlacedHeap::PlacedResource(GraphicsResource& resource)
     {
         auto& resourceDesc = resource.GetResourceDesc();
         auto* placedDesc = resource.GetPlacedResourceDesc();
@@ -123,7 +123,7 @@ namespace Graphics
             {
                 // 当前 Block 位置未被使用
                 set<UINT>::iterator checkFreeBlock = pBlock;
-                checkFreeBlock++; // 设定为下一个块必定是使用状态，当资源不使用时，应当移除绑定块的索引
+                ++checkFreeBlock; // 设定为下一个块必定是使用状态，当资源不使用时，应当移除绑定块的索引
 
                 // 剩余可分配大小
                 UINT remain;
@@ -140,14 +140,14 @@ namespace Graphics
                 else
                 {
                     // 该内存块超过可分配最大限制
-                    pBlock++;
+                    ++pBlock;
                     continue;
                 }
             }
             else
             {
                 // 该位置已被使用
-                pBlock++;
+                ++pBlock;
                 continue;
             }
         }
@@ -190,8 +190,8 @@ namespace Graphics
         {
             // 检测尾部块是否被使用
             {
-                auto nextOrder = bindedOrder;
-                nextOrder++;
+                set<UINT>::iterator nextOrder = bindedOrder;
+                ++nextOrder;
                 if (nextOrder != m_MemoryBlockOrders.end())
                 {
                     auto findedNextRes = m_PlacedResources.find(*nextOrder);
@@ -206,8 +206,8 @@ namespace Graphics
             // 检测上一个资源是否存在
             if (bindedOrder != m_MemoryBlockOrders.begin())
             {
-                auto prevOrder = bindedOrder;
-                prevOrder--;
+                set<UINT>::iterator prevOrder = bindedOrder;
+                --prevOrder;
                 auto findedPrevRes = m_PlacedResources.find(*prevOrder);
                 if (findedPrevRes == m_PlacedResources.end())
                 {
@@ -223,7 +223,7 @@ namespace Graphics
     GraphicsMemory GraphicsMemory::g_GraphicsMemory = GraphicsMemory();
 
 
-    void GraphicsMemory::PlacedResource(IResource& resource)
+    void GraphicsMemory::PlacedResource(GraphicsResource& resource)
     {
         // 获取资源分配需要的信息
         auto& resourceDesc = resource.GetResourceDesc();
@@ -269,7 +269,7 @@ namespace Graphics
         }
 
         auto pHeap = heaps->begin();
-        for (; pHeap != heaps->end(); pHeap++)
+        for (; pHeap != heaps->end(); ++pHeap)
         {
             // 尝试将资源放入堆
 #ifdef DONT_USE_SMART_PTR

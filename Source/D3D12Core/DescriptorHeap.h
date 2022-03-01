@@ -4,8 +4,8 @@
 
 namespace Graphics
 {
+    class Texture;
     class IBufferResource;
-    class ITexture;
     class RenderTexture;
 
     /**
@@ -64,7 +64,7 @@ namespace Graphics
          * @param index
          * @param resource
         */
-        void BindShaderResourceView(int index, const ITexture& tex) const;
+        void BindShaderResourceView(int index, const Texture& tex) const;
 
         void BindRenderTargetView(int index, const RenderTexture& renderTex) const;
         void BindDepthStencilView(int index, const RenderTexture& renderTex) const;

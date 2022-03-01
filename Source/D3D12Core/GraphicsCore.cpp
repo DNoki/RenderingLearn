@@ -167,6 +167,9 @@ namespace Graphics
 
     void OnRender()
     {
+        PIXSetMarker(g_GraphicsCommandQueue.GetD3D12CommandQueue(), PIX_COLOR(255, 0, 0), L"渲染 Marker");
+        PIXBeginEvent(g_GraphicsCommandQueue.GetD3D12CommandQueue(), PIX_COLOR(0, 255, 0), L"渲染 Event");
+
         // --------------------------------------------------------------------------
         // 渲染
         // 填充命令列表
@@ -208,6 +211,8 @@ namespace Graphics
         }
         // 执行命令列表
         g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);
+
+        PIXEndEvent(g_GraphicsCommandQueue.GetD3D12CommandQueue());
 
         // 呈现帧。
         CHECK_HRESULT(g_SwapChain.GetD3D12SwapChain()->Present(1, 0));

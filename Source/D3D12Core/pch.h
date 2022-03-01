@@ -50,6 +50,10 @@
 #define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
 #include <d3dx12.h> 
 
+// --------------------------------------------------------------------------
+// WinPixEventRuntime 标记GPU事件 https://devblogs.microsoft.com/pix/winpixeventruntime/
+#include "pix3.h"
+
 
 // --------------------------------------------------------------------------
 // DirectXTK12 工具包 https://github.com/Microsoft/DirectXTK12
