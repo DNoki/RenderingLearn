@@ -15,8 +15,8 @@ public:
         auto result = QueryPerformanceFrequency(&frequency);
         ASSERT(result, L"ERROR::计时器初始化失败。");
 
-        m_RecFrequencyMilli = 1000.0 / static_cast<float>(frequency.QuadPart);
-        m_RecFrequency = 1.0 / static_cast<float>(frequency.QuadPart);
+        m_RecFrequencyMilli = 1000.0 / (frequency.QuadPart);
+        m_RecFrequency = 1.0 / (frequency.QuadPart);
     }
 
     inline void Restart()
@@ -39,26 +39,26 @@ public:
         m_StartTime.QuadPart = 0;
     }
 
-    inline float GetElapsedSecond()
+    inline double GetElapsedSecond()
     {
         if (m_StartTime.QuadPart == 0)
-            return static_cast<float>(static_cast<double>(m_Counter.QuadPart) * m_RecFrequency);
+            return m_Counter.QuadPart * m_RecFrequency;
         else
         {
             LARGE_INTEGER currTime;
             QueryPerformanceCounter(&currTime);
-            return static_cast<float>(static_cast<double>(currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequency);
+            return (currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequency;
         }
     }
-    inline float GetElapsedMillisecond()
+    inline double GetElapsedMillisecond()
     {
         if (m_StartTime.QuadPart == 0)
-            return static_cast<float>(static_cast<double>(m_Counter.QuadPart) * m_RecFrequencyMilli);
+            return m_Counter.QuadPart * m_RecFrequencyMilli;
         else
         {
             LARGE_INTEGER currTime;
             QueryPerformanceCounter(&currTime);
-            return static_cast<float>(static_cast<double>(currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequencyMilli);
+            return (currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequencyMilli;
         }
     }
 
@@ -73,10 +73,16 @@ private:
 
 namespace TimeSystem
 {
-    UINT64 FrameCount = 0;
-    UINT64 SwapFrameCount = 0;
-    float RunTime = 0.0f;
-    float DeltaTime = 0.0f;
+    UINT64 g_FrameCount = 0;
+    UINT64 g_SwapFrameCount = 0;
+    float g_RunTime = 0.0f;
+    double g_RunTimeMilli = 0.0f;
+    float g_DeltaTime = 0.0f;
+
+    float g_FpsDeltaTimeSum = 0.0f;
+    float g_FpsPrevTime = 0.0f;
+    UINT64 g_FpsPrevCount = 0;
+    float g_AverageFps = 0.0f;
 
     static RealTimer g_RunTimer;
 
@@ -87,9 +93,36 @@ namespace TimeSystem
 
     void UpdateTimeSystem()
     {
-        float nowTime = g_RunTimer.GetElapsedSecond();
-        DeltaTime = nowTime - RunTime;
-        RunTime = nowTime;
+        // TODO 多重缓冲刷新错位可能会导致帧率跳动
+        const double frameMinTime = 15.75;
+
+        double nowTimeMilli = g_RunTimer.GetElapsedMillisecond();
+        double deltaTimeMilli = nowTimeMilli - g_RunTimeMilli;
+
+        if (deltaTimeMilli < frameMinTime)
+        {
+            // 线程等待
+            this_thread::sleep_for(chrono::microseconds(static_cast<UINT>((frameMinTime - deltaTimeMilli) * 1000)));
+        }
+
+        nowTimeMilli = g_RunTimer.GetElapsedMillisecond();
+        g_RunTimeMilli = nowTimeMilli;
+
+        float nowTime = static_cast<float>(nowTimeMilli * 0.001);
+        g_DeltaTime = nowTime - g_RunTime;
+        g_RunTime = nowTime;
+
+        // 计算平均 FPS
+        {
+            g_FpsDeltaTimeSum += g_DeltaTime;
+            if (g_RunTime - g_FpsPrevTime >= 0.1f)
+            {
+                g_FpsPrevTime = g_RunTime;
+                g_AverageFps = 1.0f / (g_FpsDeltaTimeSum / (g_FrameCount - g_FpsPrevCount));
+                g_FpsDeltaTimeSum = 0.0f;
+                g_FpsPrevCount = g_FrameCount;
+            }
+        }
     }
     void ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam)
     {

@@ -132,7 +132,7 @@ namespace Graphics
         TimeSystem::AddFrameCompleted();
         TimeSystem::AddSwapFrameCompleted();
 
-        SetWindowTitle(Format(g_TitleFormat.c_str(), WINDOW_TITLE, g_TitleGPU.c_str(), Time::GetFPS()));
+        SetWindowTitle(Format(g_TitleFormat.c_str(), WINDOW_TITLE, g_TitleGPU.c_str(), Time::GetAverageFPS()));
     }
 
     class GraphicsManagerImpl
@@ -236,20 +236,6 @@ namespace Graphics
             m_GraphicsCommandQueue->CloseQueue();
             m_ComputeCommandQueue->CloseQueue();
             m_CopyCommandQueue->CloseQueue();
-
-            m_SwapChain = nullptr;
-
-            m_GraphicsCommandQueue = nullptr;
-            m_ComputeCommandQueue = nullptr;
-            m_CopyCommandQueue = nullptr;
-
-            m_Device = nullptr;
-            m_Adapter = nullptr;
-            m_Factory = nullptr;
-
-#if DEBUG
-            m_D3D12Debug = nullptr;
-#endif // DEBUG
         }
 
     private:

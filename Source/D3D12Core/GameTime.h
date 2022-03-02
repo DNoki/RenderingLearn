@@ -3,15 +3,16 @@
 
 namespace TimeSystem
 {
-    extern UINT64 FrameCount;
-    extern UINT64 SwapFrameCount;
-    extern float RunTime;
-    extern float DeltaTime;
+    extern UINT64 g_FrameCount;
+    extern UINT64 g_SwapFrameCount;
+    extern float g_RunTime;
+    extern float g_DeltaTime;
+    extern float g_AverageFps;
 
     void InitTimeSystem();
     void UpdateTimeSystem();
-    inline void AddFrameCompleted() { FrameCount++; }
-    inline void AddSwapFrameCompleted() { SwapFrameCount++; }
+    inline void AddFrameCompleted() { g_FrameCount++; }
+    inline void AddSwapFrameCompleted() { g_SwapFrameCount++; }
     void ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam);
 }
 
@@ -24,27 +25,32 @@ namespace Game
          * @brief 已渲染帧数量
          * @return
         */
-        inline static UINT64 GetFrameCount() { return TimeSystem::FrameCount; }
+        inline static UINT64 GetFrameCount() { return TimeSystem::g_FrameCount; }
         /**
          * @brief 已在屏幕上呈现的帧数量
          * @return
         */
-        inline static UINT64 GetSwapFrameCount() { return TimeSystem::SwapFrameCount; }
+        inline static UINT64 GetSwapFrameCount() { return TimeSystem::g_SwapFrameCount; }
         /**
          * @brief 自游戏启动以来的时间
          * @return
         */
-        inline static float GetRunTime() { return TimeSystem::RunTime; }
+        inline static float GetRunTime() { return TimeSystem::g_RunTime; }
         /**
          * @brief 上一帧所用时间
          * @return
         */
-        inline static float GetDeltaTime() { return TimeSystem::DeltaTime; }
+        inline static float GetDeltaTime() { return TimeSystem::g_DeltaTime; }
         /**
          * @brief 实时帧速率
          * @return
         */
-        inline static float GetFPS() { return 1.0f / TimeSystem::DeltaTime; }
+        inline static float GetFPS() { return 1.0f / TimeSystem::g_DeltaTime; }
+        /**
+         * @brief 平均帧速率
+         * @return
+        */
+        inline static float GetAverageFPS() { return TimeSystem::g_AverageFps; }
 
 
 

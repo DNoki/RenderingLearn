@@ -151,8 +151,9 @@ namespace Graphics
                     pos.x -= 1.0f;
                 if (Input::KeyState(KeyCode::D))
                     pos.x += 1.0f;
-                pos.z += Input::GetMouseDeltaScrollWheel();
-                g_Camera.m_Transform.LocalPosition += pos * Time::GetDeltaTime() * 10.0f;
+                pos *= Time::GetDeltaTime() * 10.0f;
+                pos.z += Input::GetMouseDeltaScrollWheel() * 0.2f;
+                g_Camera.m_Transform.LocalPosition += pos;
 
                 Vector3 rot{};
                 if (Input::MouseButtonState(MouseButtonType::LeftButton))
@@ -162,7 +163,7 @@ namespace Graphics
                     rot.x = -deltaPos.y;
                     rot.y *= -1.0f;
                 }
-                g_Camera.m_Transform.LocalEulerAngles += rot * 10.0f * Time::GetDeltaTime() * Math::Deg2Rad;
+                g_Camera.m_Transform.LocalEulerAngles += rot * 0.1f * Math::Deg2Rad;
                 //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
 
                 if (Input::KeyDown(KeyCode::R))
