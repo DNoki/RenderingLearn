@@ -32,5 +32,8 @@ namespace Graphics
     public:
         static CommandAllocator* Request(D3D12_COMMAND_LIST_TYPE type);
         static void Restore(CommandAllocator* allocator);
+
+    private:
+        CommandAllocatorPool() = default;
     };
 }

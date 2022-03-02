@@ -18,7 +18,7 @@ namespace Game
 
         void Create(const Mesh* mesh, Material* material, bool useBundle = true);
 
-        void ExecuteDraw(const Graphics::CommandList* commandList);
+        void DispatchDraw(const Graphics::CommandList* commandList);
 
     private:
         bool m_UseBundle; // 是否使用捆绑包命令列表

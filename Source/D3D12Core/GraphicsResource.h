@@ -3,6 +3,7 @@
 namespace Graphics
 {
     class PlacedHeap;
+    class CommandList;
 
     class PlacedResourceDesc
     {
@@ -14,7 +15,6 @@ namespace Graphics
 
         // 资源创建信息
         D3D12_HEAP_TYPE m_HeapType;
-        D3D12_RESOURCE_STATES m_InitialState;
         const D3D12_CLEAR_VALUE* m_OptimizedClearValue;
 
         // 资源分配信息（从设备获取分配大小与对齐大小）
@@ -49,19 +49,12 @@ namespace Graphics
         {
             return m_Resource.get();
         }
+        inline D3D12_RESOURCE_STATES GetResourceStates() const noexcept { return m_ResourceStates; }
         inline PlacedResourceDesc* GetPlacedResourceDesc() noexcept
         {
             return &m_PlacedResourceDesc;
         }
 
-        inline void SetResourceDesc(const D3D12_RESOURCE_DESC& desc) noexcept
-        {
-            m_ResourceDesc = desc;
-        }
-        inline void SetResourceDesc(const D3D12_RESOURCE_DESC&& desc) noexcept
-        {
-            m_ResourceDesc = desc;
-        }
         inline ID3D12Resource1** PutD3D12Resource() noexcept
         {
             return m_Resource.put();
@@ -73,6 +66,7 @@ namespace Graphics
         winrt::com_ptr<ID3D12Resource1> m_Resource;
         // 资源描述
         D3D12_RESOURCE_DESC m_ResourceDesc;
+        D3D12_RESOURCE_STATES m_ResourceStates; // 资源状态
 
         // GPU 内存中的虚拟地址
         // IBV、VBV 等直接调用资源类型时使用
@@ -118,6 +112,13 @@ namespace Graphics
     {
     public:
         virtual ~Texture() = 0 {}
+
+        /**
+         * @brief 改变资源状态
+         * @param commandList 图形命令列表
+         * @param after 要改变的状态
+        */
+        void DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after);
 
     };
 }

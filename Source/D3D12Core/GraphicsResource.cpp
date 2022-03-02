@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 
 #include "GraphicsMemory.h"
+#include "CommandList.h"
 
 #include "GraphicsResource.h"
 
@@ -78,5 +79,12 @@ namespace Graphics
         {
             m_PlacedHeapPtr->ReleaseResource(m_PlacedOrder);
         }
+    }
+
+    void Texture::DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after)
+    {
+        ASSERT(m_ResourceStates != after);
+        commandList->ResourceTransitionBarrier(this, m_ResourceStates, after);
+        m_ResourceStates = after; // TODO 资源状态并非是立即更新的
     }
 }

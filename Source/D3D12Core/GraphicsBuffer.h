@@ -39,6 +39,12 @@ namespace Graphics
          * @param data
         */
         void DispatchCopyBuffer(const CommandList& commandList, const void* data);
+        /**
+         * @brief 改变资源状态
+         * @param commandList 图形命令列表
+         * @param after 要改变的状态
+        */
+        void DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after);
 
 
     private:

@@ -41,16 +41,25 @@ namespace Game
         // --------------------------------------------------------------------------
         inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
 
-
-        void ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const;
+        /**
+         * @brief 执行检查资源屏障状态
+         * @param commandList
+        */
+        void DispatchResourceExamine(const Graphics::CommandList* commandList) const;
+        /**
+         * @brief 执行绘制
+         * @param commandList
+         * @param bindSemanticFlag
+        */
+        void DispatchDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const;
 
 
         // --------------------------------------------------------------------------
         /**
          * @brief 创建面片
-         * @param size 
-         * @param rhcoords 
-         * @return 
+         * @param size
+         * @param rhcoords
+         * @return
         */
         static Mesh CreateQuad(float size = 1.0f, bool rhcoords = false);
         /**

@@ -60,7 +60,7 @@ namespace Game
         else m_BundleCommandList = nullptr;
     }
 
-    void MeshRenderer::ExecuteDraw(const Graphics::CommandList* commandList)
+    void MeshRenderer::DispatchDraw(const Graphics::CommandList* commandList)
     {
         // 必须由图形命令列表调用
         ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -85,8 +85,8 @@ namespace Game
             {
                 m_BundleCommandList->Reset();
 
-                m_BindedMaterial->ExecuteBindMaterial(m_BundleCommandList.get(), false);
-                m_BindedMesh->ExecuteDraw(m_BundleCommandList.get(), m_BindedMaterial->GetShader()->GetBindSemanticFlag());
+                m_BindedMaterial->DispatchBindMaterial(m_BundleCommandList.get(), false);
+                m_BindedMesh->DispatchDraw(m_BundleCommandList.get(), m_BindedMaterial->GetShader()->GetBindSemanticFlag());
 
                 m_BundleCommandList->Close();
             }
@@ -96,14 +96,15 @@ namespace Game
         if (m_UseBundle)
         {
             // 使用捆绑包绘制
-            m_BindedMaterial->ExecuteBindMaterial(commandList, true);
-            commandList->ExecuteBundle(m_BundleCommandList.get());
+            m_BindedMaterial->DispatchBindMaterial(commandList, true);
+            m_BindedMesh->DispatchResourceExamine(commandList);
+            commandList->DispatchBundleCommand(m_BundleCommandList.get());
         }
         else
         {
             // 不使用捆绑包，直接绘制
-            m_BindedMaterial->ExecuteBindMaterial(commandList, false);
-            m_BindedMesh->ExecuteDraw(commandList, m_BindedMaterial->GetShader()->GetBindSemanticFlag());
+            m_BindedMaterial->DispatchBindMaterial(commandList, false);
+            m_BindedMesh->DispatchDraw(commandList, m_BindedMaterial->GetShader()->GetBindSemanticFlag());
         }
     }
 }

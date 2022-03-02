@@ -59,6 +59,9 @@ namespace Graphics
     }
     void InitTexture2D()
     {
+        auto& g_GraphicsCommandList = *CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        g_GraphicsCommandList.Reset();
+
         auto texPath = Application::GetAssetPath();
         texPath.append("Shimarin.png");
 
@@ -68,10 +71,10 @@ namespace Graphics
         TextureLoader texData;
         texData.LoadTexture2D(texPath);
 
-        auto& t1 = t_DefaultTexture[0];
         //g_TestTex2D.DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t1.PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t1.DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+        t_DefaultTexture[0].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+        t_DefaultTexture[0].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+        t_DefaultTexture[0].DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
         texPath = Application::GetAssetPath();
         texPath.append(L"云堇.jpg");
@@ -79,6 +82,7 @@ namespace Graphics
 
         t_DefaultTexture[1].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
         t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+        t_DefaultTexture[1].DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
         g_SampleMaterial.BindTexture(0, t_DefaultTexture[1]);
         g_SampleMaterial.BindSampler(&g_SamplerPointMirror);
@@ -93,6 +97,8 @@ namespace Graphics
             //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
             g_SampleMaterial.BindBuffer(1, g_MvpBufferRes);
         }
+
+        GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
     }
     void InitMesh()
     {
@@ -114,7 +120,7 @@ namespace Graphics
     }
 
 
-    void SampleDraw()
+    void SampleDraw(const CommandList* g_GraphicsCommandList)
     {
         static DescriptorHandle* samplers[] =
         {
@@ -202,7 +208,7 @@ namespace Graphics
             g_SampleMaterial.SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
         }
 
-        g_SampleRenderer.ExecuteDraw(&g_GraphicsCommandList);
+        g_SampleRenderer.DispatchDraw(g_GraphicsCommandList);
     }
 
 }

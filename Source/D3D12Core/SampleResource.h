@@ -22,5 +22,5 @@ namespace Graphics
     void InitTexture2D();
     void InitCommandListBundle();
 
-    void SampleDraw();
+    void SampleDraw(const CommandList* g_GraphicsCommandList);
 }

@@ -9,8 +9,6 @@ namespace Graphics
 {
     class CommandList;
 
-    extern CommandList g_GraphicsCommandList;
-
     void Initialize();
 
     void OnRender();

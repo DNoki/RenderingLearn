@@ -52,6 +52,10 @@ namespace Game
     {
         m_PrimitiveTopology = primitiveTopology;
 
+        // 取得一个闲置拷贝命令列表
+        auto* commandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_COPY);
+        commandList->Reset();
+
         // 顶点数量
         UINT64 vertexCount = m_Positions.size();
         UINT64 vertexCountArray[] = { m_Positions.size(), m_Normals.size(), m_Tangents.size(), m_Colors.size(), m_UVs.size(), };
@@ -70,7 +74,7 @@ namespace Game
 
             m_VertexBuffers[i].reset(new GraphicsBuffer());
             m_VertexBuffers[i]->PlacedCreate(vertexStrideArray[i] * vertexCountArray[i]);
-            m_VertexBuffers[i]->DispatchCopyBuffer(g_GraphicsCommandList, vertexDataArray[i]);
+            m_VertexBuffers[i]->DispatchCopyBuffer(*commandList, vertexDataArray[i]);
 
             m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
                 {
@@ -85,7 +89,7 @@ namespace Game
         {
             m_IndexBuffer.reset(new GraphicsBuffer());
             m_IndexBuffer->PlacedCreate(m_Indices.size() * sizeof(UINT16));
-            m_IndexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, m_Indices.data());
+            m_IndexBuffer->DispatchCopyBuffer(*commandList, m_Indices.data());
 
             m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW
                 {
@@ -95,9 +99,24 @@ namespace Game
                 });
         }
         else m_IndexBuffer = nullptr;
+
+        GraphicsManager::GetCopyCommandQueue()->ExecuteCommandLists(commandList);
     }
 
-    void Mesh::ExecuteDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const
+    void Mesh::DispatchResourceExamine(const Graphics::CommandList* commandList) const
+    {
+        for (int i = 0; i < VertexSemanticCount; i++)
+        {
+            if (m_VertexBuffers[i] && (m_VertexBuffers[i]->GetResourceStates() != D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER))
+            {
+                m_VertexBuffers[i]->DispatchTransitionStates(commandList, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            }
+        }
+        if (m_IndexBuffer && (m_IndexBuffer->GetResourceStates() != D3D12_RESOURCE_STATE_INDEX_BUFFER))
+            m_IndexBuffer->DispatchTransitionStates(commandList, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+    }
+
+    void Mesh::DispatchDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const
     {
         commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 

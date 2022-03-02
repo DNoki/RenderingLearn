@@ -31,8 +31,6 @@ namespace Graphics
 
     GraphicsManager GraphicsManager::m_GraphicsManager = GraphicsManager();
 
-    CommandList g_GraphicsCommandList;
-
     MultiRenderTargets g_CurrentRenderTargets;
 
 
@@ -40,14 +38,6 @@ namespace Graphics
 
     void Initialize()
     {
-        // --------------------------------------------------------------------------
-        // 创建指令列表
-        g_GraphicsCommandList.Create(D3D12_COMMAND_LIST_TYPE_DIRECT, true);
-
-        // 重置命令列表以其便能够帮助初始化资源复制命令
-        //g_GraphicsCommandList.Reset(nullptr);
-
-
         // --------------------------------------------------------------------------
         // 初始化共通动态采样器
         InitializeCommonSampler();
@@ -67,13 +57,10 @@ namespace Graphics
         InitCommandListBundle();
 
         // --------------------------------------------------------------------------
-        // 由于初始化贴图时需要执行复制命令
-        // 执行命令列表
-        GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
-
-
-        // 等待命令列表执行。 我们在主循环中重用相同的命令列表，但现在，我们只想等待设置完成后再继续。
+        // 等待命令列表执行。 
         GraphicsManager::GetGraphicsCommandQueue()->WaitForQueueCompleted();
+        GraphicsManager::GetComputeCommandQueue()->WaitForQueueCompleted();
+        GraphicsManager::GetCopyCommandQueue()->WaitForQueueCompleted();
     }
 
 
@@ -85,6 +72,10 @@ namespace Graphics
 
         auto& g_SwapChain = *GraphicsManager::GetSwapChain();
 
+
+        // 重置命令列表
+        auto& g_GraphicsCommandList = *CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        g_GraphicsCommandList.Reset();
         // --------------------------------------------------------------------------
         // 渲染
         // 填充命令列表
@@ -95,9 +86,6 @@ namespace Graphics
             g_CurrentRenderTargets.SetRenderTarget(0, g_SwapChain.GetRtvDescHandle(cbbi), g_SwapChain.GetRenderTarget(cbbi).GetFormat());
             g_CurrentRenderTargets.SetDepthStencil(g_SwapChain.GetDsvDescHandle(), g_SwapChain.GetDepthStencil().GetFormat());
 
-            // 重置命令列表
-            g_GraphicsCommandList.Reset();
-
             // 设置必要的状态。
             auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(g_SwapChain.GetWidth()), static_cast<float>(g_SwapChain.GetHeight()));
             g_GraphicsCommandList.RSSetViewports(1, &viewport);
@@ -106,11 +94,9 @@ namespace Graphics
 
             // 指示后台缓冲区将用作渲染目标。
             auto& currentRenderTarget = g_SwapChain.GetRenderTarget(cbbi);
-            auto barriers1 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            g_GraphicsCommandList.ResourceBarrier(1, &barriers1);
+            currentRenderTarget.DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
             // 设置渲染目标
-            //g_GraphicsCommandList.OMSetRenderTargets(1, g_SwapChain.GetRtvDescHandle(cbbi), FALSE, g_SwapChain.GetDsvDescHandle()); // TODO 实现多目标渲染
             g_GraphicsCommandList.OMSetRenderTargets(&g_CurrentRenderTargets);
 
             // 清除渲染目标贴图
@@ -118,11 +104,10 @@ namespace Graphics
             g_GraphicsCommandList.ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
             g_GraphicsCommandList.ClearDepthStencilView(g_SwapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-            SampleDraw();
+            SampleDraw(&g_GraphicsCommandList);
 
             // 指示现在将使用后台缓冲区来呈现。
-            auto barriers2 = CD3DX12_RESOURCE_BARRIER::Transition(currentRenderTarget.GetD3D12Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-            g_GraphicsCommandList.ResourceBarrier(1, &barriers2);
+            currentRenderTarget.DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_PRESENT);
         }
         // 执行命令列表
         g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);

@@ -35,7 +35,7 @@ namespace Game
          * @param commandList 命令列表
          * @param isOnlyBindDescriptorHeap 仅绑定描述符堆
         */
-        void ExecuteBindMaterial(const Graphics::CommandList* commandList, bool isOnlyBindDescriptorHeap) const;
+        void DispatchBindMaterial(const Graphics::CommandList* commandList, bool isOnlyBindDescriptorHeap) const;
 
         /**
          * @brief 绑定常量缓冲

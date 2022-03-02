@@ -30,13 +30,14 @@ namespace Graphics
     void GraphicsBuffer::DirectCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+        m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
 
         auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
             &heapType,
             D3D12_HEAP_FLAG_NONE,
             &m_ResourceDesc,
-            D3D12_RESOURCE_STATE_COPY_DEST, // 初始状态为拷贝目标
+            m_ResourceStates,
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())
         ));
@@ -48,9 +49,9 @@ namespace Graphics
     void GraphicsBuffer::PlacedCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
+        m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
 
         m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
-        m_PlacedResourceDesc.m_InitialState = D3D12_RESOURCE_STATE_COPY_DEST;
         m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
         GraphicsMemory::PlacedResource(*this);
 
@@ -80,13 +81,22 @@ namespace Graphics
                 0, 0, 1,
                 &srcData);
 
+#if 0
             // 等待拷贝完成
             auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
                 m_Resource.get(),
                 D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
                 D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
             commandList.ResourceBarrier(1, &barriers);
+#endif
         }
+    }
+
+    void GraphicsBuffer::DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after)
+    {
+        ASSERT(m_ResourceStates != after);
+        commandList->ResourceTransitionBarrier(this, m_ResourceStates, after);
+        m_ResourceStates = after; // TODO 资源状态并非是立即更新的
     }
 
 #if 0

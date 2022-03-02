@@ -54,7 +54,7 @@ namespace Graphics
          * @brief 获取渲染目标贴图
          * @return
         */
-        inline const RenderTexture& GetRenderTarget(UINT index) const
+        inline RenderTexture& GetRenderTarget(UINT index)
         {
             return m_RenderTargets[index];
         }

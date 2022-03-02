@@ -162,7 +162,7 @@ namespace Graphics
                 m_PlacedHeap.get(), // 放置资源的堆
                 (*pBlock * (UINT64)m_MinBlockSize), // 资源的偏移量，必须是资源的对齐的倍数
                 &resourceDesc, // 资源描述
-                placedDesc->m_InitialState, // 资源的初始状态
+                resource.GetResourceStates(), // 资源的初始状态
                 placedDesc->m_OptimizedClearValue, // 描述用于优化特定资源的清除操作的值
                 IID_PPV_ARGS(resource.PutD3D12Resource()))); // 要放置的资源
             SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));

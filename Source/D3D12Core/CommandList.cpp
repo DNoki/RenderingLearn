@@ -26,6 +26,8 @@
 */
 // --------------------------------------------------------------------------
 
+using namespace std;
+
 namespace Graphics
 {
     CommandList::CommandList() : m_Type(), m_CommandAllocator(), m_CommandList(), m_IsLocked()
@@ -112,6 +114,16 @@ namespace Graphics
         m_IsLocked = false;
     }
 
+    void CommandList::ResourceTransitionBarrier(const GraphicsResource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
+    {
+        /*
+            资源屏障同步资源状态 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
+        */
+        ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+        D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetD3D12Resource(), before, after);
+        m_CommandList->ResourceBarrier(1, &barrier);
+    }
+
     void CommandList::SetGraphicsRootSignature(const RootSignature* pRootSignature) const
     {
         m_CommandList->SetGraphicsRootSignature(pRootSignature->GetD3D12RootSignature());
@@ -134,5 +146,92 @@ namespace Graphics
 
         ASSERT(descHeaps.size() > 0);
         m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
+    }
+
+
+    class CommandListPoolImpl
+    {
+    public:
+        CommandListPoolImpl() = default;
+
+        inline CommandList* Request(D3D12_COMMAND_LIST_TYPE type)
+        {
+            vector<CommandList>* list = nullptr;
+            queue<CommandList*>* queqe = nullptr;
+            CommandList* result = nullptr;
+
+            switch (type)
+            {
+            case D3D12_COMMAND_LIST_TYPE_DIRECT:
+                list = &m_GraphicsCommandLists;
+                queqe = &m_GraphicsIdleQueue;
+                break;
+            case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+                list = &m_ComputeCommandLists;
+                queqe = &m_ComputeIdleQueue;
+                break;
+            case D3D12_COMMAND_LIST_TYPE_COPY:
+                list = &m_CopyCommandLists;
+                queqe = &m_CopyIdleQueue;
+                break;
+            default:
+                ASSERT(0, L"ERROR::不支持的命令列表类型");
+                return result;
+            }
+
+            if (queqe->empty())
+            {
+                list->push_back(CommandList());
+                result = &list->back();
+                result->Create(type);
+            }
+            else
+            {
+                result = queqe->front();
+                queqe->pop();
+            }
+            return result;
+        }
+        inline void Restore(CommandList* commandList)
+        {
+            queue<CommandList*>* queqe = nullptr;
+
+            switch (commandList->GetType())
+            {
+            case D3D12_COMMAND_LIST_TYPE_DIRECT:
+                queqe = &m_GraphicsIdleQueue;
+                break;
+            case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+                queqe = &m_ComputeIdleQueue;
+                break;
+            case D3D12_COMMAND_LIST_TYPE_COPY:
+                queqe = &m_CopyIdleQueue;
+                break;
+            default:
+                ASSERT(0, L"ERROR::不支持的命令列表类型");
+                break;
+            }
+
+            queqe->push(commandList);
+        }
+
+    private:
+        vector<CommandList> m_GraphicsCommandLists;
+        vector<CommandList> m_ComputeCommandLists;
+        vector<CommandList> m_CopyCommandLists;
+
+        queue<CommandList*> m_GraphicsIdleQueue;
+        queue<CommandList*> m_ComputeIdleQueue;
+        queue<CommandList*> m_CopyIdleQueue;
+
+    } g_CommandListPoolImpl;
+
+    CommandList* CommandListPool::Request(D3D12_COMMAND_LIST_TYPE type)
+    {
+        return g_CommandListPoolImpl.Request(type);
+    }
+    void CommandListPool::Restore(CommandList* commandList)
+    {
+        g_CommandListPoolImpl.Restore(commandList);
     }
 }

@@ -4,6 +4,7 @@
 
 namespace Graphics
 {
+    class GraphicsResource;
     class CommandAllocator;
     class RootSignature;
     class PipelineState;
@@ -39,11 +40,14 @@ namespace Graphics
         }
 
 #pragma region 捆绑包命令列表不可用
+#if 0
         inline void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* pBarriers) const
         {
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
             m_CommandList->ResourceBarrier(numBarriers, pBarriers);
         }
+#endif
+        void ResourceTransitionBarrier(const GraphicsResource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const;
         inline void RSSetViewports(UINT numViewports, const D3D12_VIEWPORT* pViewports) const
         {
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
@@ -77,7 +81,7 @@ namespace Graphics
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
             m_CommandList->ClearDepthStencilView(depthStencilView, clearFlags, depth, stencil, numRects, pRects);
         }
-        inline void ExecuteBundle(const CommandList* pCommandList) const
+        inline void DispatchBundleCommand(const CommandList* pCommandList) const
         {
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
             m_CommandList->ExecuteBundle(pCommandList->GetD3D12CommandList());
@@ -123,5 +127,17 @@ namespace Graphics
         bool m_IsLocked; // 是否允许写入命令
 
         MultiRenderTargets m_CurrentRenderTargets;
+    };
+
+
+    class CommandListPool
+    {
+    public:
+        static CommandList* Request(D3D12_COMMAND_LIST_TYPE type);
+        static void Restore(CommandList* commandList);
+
+    private:
+        CommandListPool() = default;
+
     };
 }

@@ -36,7 +36,7 @@ namespace Game
         }
     }
 
-    void Material::ExecuteBindMaterial(const CommandList* commandList, bool isOnlyBindDescriptorHeap) const
+    void Material::DispatchBindMaterial(const CommandList* commandList, bool isOnlyBindDescriptorHeap) const
     {
         /*
             允许 图形命令列表 或 捆绑包命令列表 执行绑定材质操作。

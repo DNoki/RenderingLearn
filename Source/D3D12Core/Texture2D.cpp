@@ -15,6 +15,7 @@ namespace Graphics
     void Texture2D::DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, arraySize, mipLevels);
+        m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
 
         // 纹理资源的存储堆类型必须为 默认堆
         // 无法在 D3D12_HEAP_TYPE_UPLOAD 或 D3D12_HEAP_TYPE_READBACK 堆上创建纹理资源。
@@ -24,7 +25,7 @@ namespace Graphics
             &heapType,             // 默认堆类型
             D3D12_HEAP_FLAG_NONE,           // 堆选项
             &m_ResourceDesc,                // 贴图描述
-            D3D12_RESOURCE_STATE_COPY_DEST, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
+            m_ResourceStates, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())));
         SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
@@ -33,9 +34,9 @@ namespace Graphics
     void Texture2D::PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, arraySize, mipLevels);
+        m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
 
         m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
-        m_PlacedResourceDesc.m_InitialState = D3D12_RESOURCE_STATE_COPY_DEST;
         m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
 
         GraphicsMemory::PlacedResource(*this);
@@ -131,6 +132,7 @@ namespace Graphics
 
         // 资源屏障
         // 转换屏障：描述子资源在不同用途之间的转换，系统将验证命令列表中的子资源转换是否与同一命令列表中以前的转换相一致
+#if 0
         auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
             m_Resource.get(),
             D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
@@ -139,6 +141,7 @@ namespace Graphics
             | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE // 该资源与像素着色器一起使用。
         );
         commandList.ResourceBarrier(1, &barriers);
+#endif
     }
 
     void Texture2D::GenerateChecker(const CommandList& commandList)

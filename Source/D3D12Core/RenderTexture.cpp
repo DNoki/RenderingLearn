@@ -28,12 +28,15 @@ namespace Graphics
             m_ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
         }
 
+        // 资源状态
+        m_ResourceStates = D3D12_RESOURCE_STATE_DEPTH_WRITE; // 允许深度模板缓冲写入
+
         auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
             &heapType,
             D3D12_HEAP_FLAG_NONE,
             &m_ResourceDesc,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE, // 允许深度模板缓冲写入
+            m_ResourceStates, // 允许深度模板缓冲写入
             &depthOptimizedClearValue,
             IID_PPV_ARGS(PutD3D12Resource())));
         SET_DEBUGNAME(m_Resource.get(), _T("RenderTexture"));
@@ -54,5 +57,6 @@ namespace Graphics
         SET_DEBUGNAME(m_Resource.get(), _T("RenderTexture"));
 
         m_ResourceDesc = m_Resource->GetDesc();
+        m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
     }
 }

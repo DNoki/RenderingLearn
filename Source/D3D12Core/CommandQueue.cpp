@@ -85,6 +85,7 @@ namespace Graphics
             ppCommandLists[i] = commandLists[i].GetD3D12CommandList();
         }
         m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
+        CommandListPool::Restore(commandLists); // 将使用完毕的列表放回池
     }
 
     void CommandQueue::WaitForQueueCompleted()
