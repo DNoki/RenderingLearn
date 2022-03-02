@@ -15,6 +15,8 @@ namespace Graphics
         RenderTexture() = default;
 
         inline DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
+        inline UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }
+        inline UINT GetHeight() const { return static_cast<UINT>(m_ResourceDesc.Height); }
         /**
          * @brief 获取 RTV 描述
          * @return

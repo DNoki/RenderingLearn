@@ -54,13 +54,10 @@ namespace Graphics
          * @brief 获取渲染目标贴图
          * @return
         */
-        inline RenderTexture& GetRenderTarget(UINT index)
-        {
-            return m_RenderTargets[index];
-        }
+        inline RenderTexture* GetRenderTarget(UINT index) const { return m_RenderTargets[index].get(); }
 
         inline DescriptorHandle GetDsvDescHandle() const { return m_DsvDescriptorHeap.GetDescriptorHandle(0); }
-        inline const RenderTexture& GetDepthStencil() const { return *m_DepthStencils; }
+        inline RenderTexture* GetDepthStencil() const { return m_DepthStencils.get(); }
 
         // --------------------------------------------------------------------------
         /**
@@ -86,7 +83,7 @@ namespace Graphics
         std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc; // 全屏交换链描述
 
         DescriptorHeap m_RtvDescriptorHeap; // 渲染目标描述符堆
-        std::vector<RenderTexture> m_RenderTargets; // 渲染目标贴图列表
+        std::vector<std::unique_ptr<RenderTexture>> m_RenderTargets; // 渲染目标贴图列表
 
         DescriptorHeap m_DsvDescriptorHeap;
         std::unique_ptr<RenderTexture> m_DepthStencils; // 渲染目标贴图列表

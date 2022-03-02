@@ -31,8 +31,6 @@ namespace Graphics
 
     GraphicsManager GraphicsManager::m_GraphicsManager = GraphicsManager();
 
-    MultiRenderTargets g_CurrentRenderTargets;
-
 
     void InitializeCommonSampler();
 
@@ -66,58 +64,70 @@ namespace Graphics
 
     void OnRender()
     {
-        auto& g_GraphicsCommandQueue = *GraphicsManager::GetGraphicsCommandQueue();
-        PIXSetMarker(g_GraphicsCommandQueue.GetD3D12CommandQueue(), PIX_COLOR(255, 0, 0), L"渲染 Marker");
-        PIXBeginEvent(g_GraphicsCommandQueue.GetD3D12CommandQueue(), PIX_COLOR(0, 255, 0), L"渲染 Event");
+        auto* graphicsCommandQueue = GraphicsManager::GetGraphicsCommandQueue();
+        PIXSetMarker(graphicsCommandQueue->GetD3D12CommandQueue(), PIX_COLOR(255, 0, 0), L"渲染 Marker");
+        PIXBeginEvent(graphicsCommandQueue->GetD3D12CommandQueue(), PIX_COLOR(0, 255, 0), L"渲染 Event");
 
-        auto& g_SwapChain = *GraphicsManager::GetSwapChain();
+        auto& swapChain = *GraphicsManager::GetSwapChain();
 
 
         // 重置命令列表
-        auto& g_GraphicsCommandList = *CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
-        g_GraphicsCommandList.Reset();
+        auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        graphicsCommandList->Reset();
         // --------------------------------------------------------------------------
         // 渲染
         // 填充命令列表
         {
             // 获取当前后台缓冲索引
-            auto cbbi = g_SwapChain.GetCurrentBackBufferIndex();
-            g_CurrentRenderTargets = MultiRenderTargets{};
-            g_CurrentRenderTargets.SetRenderTarget(0, g_SwapChain.GetRtvDescHandle(cbbi), g_SwapChain.GetRenderTarget(cbbi).GetFormat());
-            g_CurrentRenderTargets.SetDepthStencil(g_SwapChain.GetDsvDescHandle(), g_SwapChain.GetDepthStencil().GetFormat());
+            UINT cbbi = swapChain.GetCurrentBackBufferIndex();
+
+            // 以交换链为渲染目标
+            MultiRenderTargets currentRenderTargets{};
+            currentRenderTargets.SetRenderTarget(0, swapChain.GetRenderTarget(cbbi), swapChain.GetRtvDescHandle(cbbi));
+            currentRenderTargets.SetDepthStencil(swapChain.GetDepthStencil(), swapChain.GetDsvDescHandle());
 
             // 设置必要的状态。
-            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(g_SwapChain.GetWidth()), static_cast<float>(g_SwapChain.GetHeight()));
-            g_GraphicsCommandList.RSSetViewports(1, &viewport);
-            auto scissorRect = CD3DX12_RECT(0, 0, g_SwapChain.GetWidth(), g_SwapChain.GetHeight());
-            g_GraphicsCommandList.RSSetScissorRects(1, &scissorRect);
+            {
+                // 设置视口大小
+                auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
+                graphicsCommandList->RSSetViewports(1, &viewport);
+                // 设置剪切大小
+                auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
+                graphicsCommandList->RSSetScissorRects(1, &scissorRect);
+            }
 
             // 指示后台缓冲区将用作渲染目标。
-            auto& currentRenderTarget = g_SwapChain.GetRenderTarget(cbbi);
-            currentRenderTarget.DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
+            for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
+            {
+                currentRenderTargets.GetRenderTargets(i)->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            }
             // 设置渲染目标
-            g_GraphicsCommandList.OMSetRenderTargets(&g_CurrentRenderTargets);
+            graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
 
             // 清除渲染目标贴图
-            const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-            g_GraphicsCommandList.ClearRenderTargetView(g_SwapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
-            g_GraphicsCommandList.ClearDepthStencilView(g_SwapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            {
+                const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
+                graphicsCommandList->ClearRenderTargetView(swapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
+                graphicsCommandList->ClearDepthStencilView(swapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            }
 
-            SampleDraw(&g_GraphicsCommandList);
+            SampleDraw(graphicsCommandList);
 
             // 指示现在将使用后台缓冲区来呈现。
-            currentRenderTarget.DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_PRESENT);
+            for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
+            {
+                currentRenderTargets.GetRenderTargets(i)->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PRESENT);
+            }
         }
         // 执行命令列表
-        g_GraphicsCommandQueue.ExecuteCommandLists(&g_GraphicsCommandList);
+        graphicsCommandQueue->ExecuteCommandLists(graphicsCommandList);
 
-        PIXEndEvent(g_GraphicsCommandQueue.GetD3D12CommandQueue());
+        PIXEndEvent(graphicsCommandQueue->GetD3D12CommandQueue());
 
         // 呈现帧。
-        CHECK_HRESULT(g_SwapChain.GetD3D12SwapChain()->Present(1, 0));
+        CHECK_HRESULT(swapChain.GetD3D12SwapChain()->Present(1, 0));
 
-        g_GraphicsCommandQueue.WaitForQueueCompleted();
+        graphicsCommandQueue->WaitForQueueCompleted();
 
         TimeSystem::AddFrameCompleted();
         TimeSystem::AddSwapFrameCompleted();

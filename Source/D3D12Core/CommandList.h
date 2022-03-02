@@ -69,7 +69,7 @@ namespace Graphics
         {
             ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
             m_CurrentRenderTargets = *mrt;
-            m_CommandList->OMSetRenderTargets(m_CurrentRenderTargets.GetRenderTargetCount(), m_CurrentRenderTargets.GetRenderTargets(), FALSE, m_CurrentRenderTargets.GetDepthStencil());
+            m_CommandList->OMSetRenderTargets(m_CurrentRenderTargets.GetRenderTargetCount(), m_CurrentRenderTargets.GetRtvDescriptors(), FALSE, m_CurrentRenderTargets.DsvDescriptor());
         }
         inline void ClearRenderTargetView(D3D12_CPU_DESCRIPTOR_HANDLE rtv, const Color& colorRGBA, UINT numRects, const D3D12_RECT* pRects) const
         {

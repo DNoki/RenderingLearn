@@ -104,8 +104,9 @@ namespace Graphics
 
         for (int i = 0; i < m_RenderTargets.size(); i++)
         {
-            m_RenderTargets[i].GetRtvFromSwapChain(*this, i);
-            m_RtvDescriptorHeap.BindRenderTargetView(i, m_RenderTargets[i]);
+            m_RenderTargets[i].reset(new RenderTexture());
+            m_RenderTargets[i]->GetRtvFromSwapChain(*this, i);
+            m_RtvDescriptorHeap.BindRenderTargetView(i, *(m_RenderTargets[i]));
         }
 
         // 创建深度模板渲染贴图
