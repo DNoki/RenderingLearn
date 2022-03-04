@@ -14,21 +14,21 @@ namespace Graphics
         UploadBuffer();
 
         // --------------------------------------------------------------------------
-        inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
-        inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
+        virtual inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
+        virtual inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         // --------------------------------------------------------------------------
         /**
          * @brief 创建一个上传堆并为其分配内存
          * @param size
         */
-        void DirectCreate(UINT64 size) override;
+        virtual void DirectCreate(UINT64 size) override;
         /**
          * @brief 使用定位方式创建一个上传堆
          * @param size
          * @param pPlacedHeap
         */
-        void PlacedCreate(UINT64 size) override;
+        virtual void PlacedCreate(UINT64 size) override;
 
 
         /**
@@ -53,7 +53,7 @@ namespace Graphics
         // Map 时指示 CPU 不可读取上传堆资源
         static const CD3DX12_RANGE c_ZeroReadRange;
 
-        inline void Finalize() override
+        virtual inline void Finalize() override
         {
             // Resource必须创建以后才可以完成初始化
             ASSERT(m_Resource != nullptr);

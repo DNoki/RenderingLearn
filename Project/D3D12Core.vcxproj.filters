@@ -15,7 +15,7 @@
     <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
     <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
     <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
-    <ClInclude Include="..\Source\D3D12Core\SampleResource.h" />
+    <ClInclude Include="..\Source\D3D12Core\SampleScene.h" />
     <ClInclude Include="..\Source\D3D12Core\GraphicsMemory.h" />
     <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
@@ -38,6 +38,12 @@
     <ClInclude Include="..\Source\D3D12Core\Material.h" />
     <ClInclude Include="..\Source\D3D12Core\MultiRenderTargets.h" />
     <ClInclude Include="..\Source\D3D12Core\PipelineStateManager.h" />
+    <ClInclude Include="..\Source\D3D12Core\Transform.h" />
+    <ClInclude Include="..\Source\D3D12Core\GameObject.h" />
+    <ClInclude Include="..\Source\D3D12Core\Component.h" />
+    <ClInclude Include="..\Source\D3D12Core\Scene.h" />
+    <ClInclude Include="..\Source\D3D12Core\SceneManager.h" />
+    <ClInclude Include="..\Source\D3D12Core\ConstansBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
@@ -54,7 +60,7 @@
     <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />
     <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />
     <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\SampleResource.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\SampleScene.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GraphicsMemory.cpp" />
     <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
@@ -71,6 +77,12 @@
     <ClCompile Include="..\Source\D3D12Core\Material.cpp" />
     <ClCompile Include="..\Source\D3D12Core\MultiRenderTargets.cpp" />
     <ClCompile Include="..\Source\D3D12Core\PipelineStateManager.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Transform.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GameObject.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Component.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Scene.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\SceneManager.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\ConstansBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

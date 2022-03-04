@@ -13,6 +13,11 @@ namespace Graphics
     public:
         // --------------------------------------------------------------------------
         SwapChain() = default;
+        SwapChain(const SwapChain& sc) = delete;
+        SwapChain(SwapChain&& sc) = default;
+
+        inline SwapChain& operator = (const SwapChain& sc) = delete;
+        inline SwapChain& operator = (SwapChain&& sc) = default;
 
         // --------------------------------------------------------------------------
         inline IDXGISwapChain4* GetD3D12SwapChain() const { return m_SwapChain.get(); }

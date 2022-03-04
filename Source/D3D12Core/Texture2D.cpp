@@ -8,8 +8,9 @@
 
 
 using namespace std;
+using namespace Graphics;
 
-namespace Graphics
+namespace Game
 {
 
     void Texture2D::DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)

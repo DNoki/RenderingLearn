@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Component.h"
+
 namespace Graphics
 {
     class RenderTexture;
@@ -11,10 +13,15 @@ namespace Game
     class Mesh;
     class Material;
 
-    class MeshRenderer
+    class MeshRenderer final : public Component
     {
     public:
-        MeshRenderer() = default;
+        MeshRenderer(GameObject& obj) : Component(obj) {}
+        MeshRenderer(const MeshRenderer& mr) = delete;
+        MeshRenderer(MeshRenderer&& mr) = default;
+
+        inline MeshRenderer& operator = (const MeshRenderer & mr) = delete;
+        inline MeshRenderer& operator = (MeshRenderer && mr) = default;
 
         void Create(const Mesh* mesh, Material* material, bool useBundle = true);
 

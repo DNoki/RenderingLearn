@@ -12,7 +12,6 @@
 #include "CommandList.h"
 
 #include "GameTime.h"
-#include "SampleResource.h"
 #include "AppMain.h"
 
 #include "GraphicsCore.h"
@@ -31,7 +30,7 @@ namespace Graphics
 
     GraphicsManager GraphicsManager::m_GraphicsManager = GraphicsManager();
 
-
+#if 0
     void InitializeCommonSampler();
 
     void Initialize()
@@ -134,6 +133,7 @@ namespace Graphics
 
         SetWindowTitle(Format(g_TitleFormat.c_str(), WINDOW_TITLE, g_TitleGPU.c_str(), Time::GetAverageFPS()));
     }
+#endif
 
     class GraphicsManagerImpl
     {

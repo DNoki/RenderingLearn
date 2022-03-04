@@ -19,6 +19,11 @@ namespace Game
     public:
         // --------------------------------------------------------------------------
         Material() = default;
+        Material(const Material & mat) = delete;
+        Material(Material && mat) = default;
+
+        inline Material& operator = (const Material & mat) = delete;
+        inline Material& operator = (Material && mat) = default;
 
         void Create(const Shader* shader);
 

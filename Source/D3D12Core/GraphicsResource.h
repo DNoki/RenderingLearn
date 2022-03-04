@@ -10,6 +10,11 @@ namespace Graphics
     public:
         PlacedResourceDesc() = default;
         virtual ~PlacedResourceDesc();
+        PlacedResourceDesc(const PlacedResourceDesc& desc) = delete;
+        PlacedResourceDesc(PlacedResourceDesc&& desc) = default;
+
+        inline PlacedResourceDesc& operator = (const PlacedResourceDesc& desc) = delete;
+        inline PlacedResourceDesc& operator = (PlacedResourceDesc&& desc) = default;
 
         inline UINT64 GetPlacedHeapOffset() const { return m_PlacedOrder * m_AllocationAlignment; }
 
@@ -39,6 +44,11 @@ namespace Graphics
         // --------------------------------------------------------------------------
         inline GraphicsResource() { ZeroMemory(this, sizeof(GraphicsResource)); }
         virtual ~GraphicsResource() = 0 {}
+        GraphicsResource(const GraphicsResource& res) = delete;
+        GraphicsResource(GraphicsResource&& res) = default;
+
+        inline GraphicsResource& operator = (const GraphicsResource& res) = delete;
+        inline GraphicsResource& operator = (GraphicsResource&& res) = default;
 
         // --------------------------------------------------------------------------
         inline const D3D12_RESOURCE_DESC& GetResourceDesc() const noexcept
@@ -80,7 +90,13 @@ namespace Graphics
     {
     public:
         // --------------------------------------------------------------------------
+        IBufferResource() = default;
         virtual ~IBufferResource() = 0 {}
+        IBufferResource(const IBufferResource& buffer) = delete;
+        IBufferResource(IBufferResource&& buffer) = default;
+
+        inline IBufferResource& operator = (const IBufferResource& buffer) = delete;
+        inline IBufferResource& operator = (IBufferResource&& buffer) = default;
 
         // --------------------------------------------------------------------------
         /**
@@ -119,6 +135,22 @@ namespace Graphics
          * @param after 要改变的状态
         */
         void DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after);
+
+    };
+}
+
+namespace Game
+{
+    class IGameResource
+    {
+    public:
+        IGameResource() = default;
+        virtual ~IGameResource() {}
+
+        virtual std::string GetName() const = 0;
+        virtual std::string SetName() = 0;
+
+    private:
 
     };
 }

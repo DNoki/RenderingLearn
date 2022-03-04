@@ -15,4 +15,5 @@ namespace Graphics
     extern DescriptorHandle g_SamplerPointMirror; // 点采样镜像纹理
     extern DescriptorHandle g_SamplerLinearMirror; // 线性采样镜像纹理
 
+    void InitializeCommonSampler();
 }

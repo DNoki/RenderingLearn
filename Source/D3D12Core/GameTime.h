@@ -10,7 +10,7 @@ namespace TimeSystem
     extern float g_AverageFps;
 
     void InitTimeSystem();
-    void UpdateTimeSystem();
+    void RefreshTimeSystem();
     inline void AddFrameCompleted() { g_FrameCount++; }
     inline void AddSwapFrameCompleted() { g_SwapFrameCount++; }
     void ProcessMsg(UINT msg, WPARAM wParam, LPARAM lParam);

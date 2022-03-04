@@ -69,7 +69,7 @@ void Input::MouseProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
     m_Mouse->ProcessMessage(message, wParam, lParam);
 }
 
-void Input::BeforeUpdate()
+void Input::RefreshBeforeUpdate()
 {
     auto kbdState = m_Keyboard->GetState();
     m_KbdTracker->Update(kbdState);

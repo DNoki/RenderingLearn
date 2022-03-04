@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+namespace Graphics
+{
+    class GraphicsBuffer;
+}
 
 namespace Game
 {
@@ -26,6 +30,11 @@ namespace Game
 
         // --------------------------------------------------------------------------
         Mesh() = default;
+        Mesh(const Mesh & buffer) = delete;
+        Mesh(Mesh && buffer) = default;
+
+        inline Mesh& operator = (const Mesh & buffer) = delete;
+        inline Mesh& operator = (Mesh && buffer) = default;
 
         // --------------------------------------------------------------------------
 #if 0

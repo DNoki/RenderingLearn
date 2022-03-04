@@ -13,6 +13,11 @@ namespace Graphics
     {
     public:
         RenderTexture() = default;
+        RenderTexture(const RenderTexture & tex) = delete;
+        RenderTexture(RenderTexture && tex) = default;
+
+        inline RenderTexture& operator = (const RenderTexture & tex) = delete;
+        inline RenderTexture& operator = (RenderTexture && tex) = default;
 
         inline DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
         inline UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }

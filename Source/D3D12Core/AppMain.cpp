@@ -2,8 +2,11 @@
 
 #include "GameTime.h"
 #include "GraphicsCore.h"
+#include "GraphicsCommon.h"
 #include "Display.h"
 #include "Input.h"
+#include "Scene.h"
+#include "SceneManager.h"
 
 #include "AppMain.h"
 
@@ -251,9 +254,10 @@ namespace Application
         // --------------------------------------------------------------------------
         // 初始化图形管理器
         GraphicsManager::GetInstance().Initialize();
-        TimeSystem::InitTimeSystem();
-        Input::Initialize(g_Hwnd);
-        Initialize();
+        InitializeCommonSampler();
+        TimeSystem::InitTimeSystem(); // 初始化时间系统
+        Input::Initialize(g_Hwnd); // 初始化输入模块
+        SceneManager::Initialize(0); // 初始化场景管理器
 
         // --------------------------------------------------------------------------
         ShowWindow(g_Hwnd, nCmdShow);
@@ -270,10 +274,11 @@ namespace Application
                     g_AppEvent.set(EventFlag::Exit);
             }
 
-            Input::BeforeUpdate();
-            OnRender();
+            TimeSystem::RefreshTimeSystem();
+            Input::RefreshBeforeUpdate();
+            SceneManager::GetActiveScene()->ExecuteScene();
+            SceneManager::CheckLoadNextScene();
 
-            TimeSystem::UpdateTimeSystem();
 
             // TODO ALT+F4 关闭窗口
             if (Input::KeyState(KeyCode::LeftAlt) && Input::KeyState(KeyCode::F4))
@@ -289,6 +294,8 @@ namespace Application
         //    DispatchMessage(&msg);
         //}
 
+        // 销毁场景管理器
+        SceneManager::Destory();
         // 销毁图形管理器
         GraphicsManager::GetInstance().Destory();
 

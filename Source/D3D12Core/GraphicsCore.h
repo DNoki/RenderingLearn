@@ -9,9 +9,7 @@ namespace Graphics
 {
     class CommandList;
 
-    void Initialize();
 
-    void OnRender();
 
 
     class GraphicsManager
@@ -38,4 +36,7 @@ namespace Graphics
 
 
     };
+
+    extern std::wstring g_TitleFormat;
+    extern std::wstring g_TitleGPU;
 }

@@ -23,7 +23,7 @@ namespace Game
         static void Initialize(HWND hwnd);
         static void KeyboardProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
         static void MouseProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
-        static void BeforeUpdate();
+        static void RefreshBeforeUpdate();
 
 
         inline static bool KeyDown(KeyCode key) { return m_KbdTracker->IsKeyPressed(key); }

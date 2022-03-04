@@ -91,7 +91,7 @@ namespace TimeSystem
         g_RunTimer.Restart();
     }
 
-    void UpdateTimeSystem()
+    void RefreshTimeSystem()
     {
         // TODO 多重缓冲刷新错位可能会导致帧率跳动
         const double frameMinTime = 15.75;

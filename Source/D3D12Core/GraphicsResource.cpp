@@ -78,6 +78,7 @@ namespace Graphics
         if (m_PlacedHeapPtr)
         {
             m_PlacedHeapPtr->ReleaseResource(m_PlacedOrder);
+            m_PlacedHeapPtr = nullptr;
         }
     }
 
