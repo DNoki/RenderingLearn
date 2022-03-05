@@ -12,10 +12,17 @@ namespace Graphics
     public:
         // --------------------------------------------------------------------------
         UploadBuffer();
+        virtual ~UploadBuffer() override = default;
 
         // --------------------------------------------------------------------------
         virtual inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
         virtual inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
+
+        inline virtual void SetName(const std::wstring& name) override
+        {
+            m_Name = std::wstring(name);
+            if (m_Resource) SET_DEBUGNAME(m_Resource.get(), Application::Format(_T("%s (UploadBuffer)"), m_Name.c_str()));
+        }
 
         // --------------------------------------------------------------------------
         /**

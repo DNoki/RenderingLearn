@@ -47,51 +47,11 @@ namespace Application
 #pragma endregion
 
     HRESULT CheckHresult(HRESULT hr);
-    void SetDebugName(ID3D12Object* pObj, std::wstring name);
+    void SetDebugName(ID3D12Object* pObj, const std::wstring& name);
+    void SetDebugName(ID3D12Object* pObj, const std::string& name);
     std::wstring GetDebugName(ID3D12Object* pObj);
-    void SetDebugName(IDXGIObject* pObj, std::wstring name);
+    void SetDebugName(IDXGIObject* pObj, const std::wstring& name);
+    void SetDebugName(IDXGIObject* pObj, const std::string& name);
     std::wstring GetDebugName(IDXGIObject* pObj);
 }
 
-
-
-class ShaderUtility
-{
-public:
-#if DEBUG
-    inline static HRESULT CompileVSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompilePSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompileGSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::GEOMETRY_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompileHSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
-    inline static HRESULT CompileDSFromFile(Path& pFileName, ID3DBlob** ppCode) { return CompileFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
-#endif
-
-    inline static HRESULT ReadVSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::VERTEX_SHADER, pFileName, ppCode); }
-    inline static HRESULT ReadPSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::PIXEL_SHADER, pFileName, ppCode); }
-    inline static HRESULT ReadGSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::GEOMETRY_SHADER, pFileName, ppCode); }
-    inline static HRESULT ReadHSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::HULL_SHADER, pFileName, ppCode); }
-    inline static HRESULT ReadDSFromFile(Path& pFileName, ID3DBlob** ppCode) { return ReadFromFile(ShaderType::DOMAIN_SHADER, pFileName, ppCode); }
-
-private:
-    enum class ShaderType
-    {
-        VERTEX_SHADER = 0,
-        PIXEL_SHADER,
-        GEOMETRY_SHADER,
-        HULL_SHADER,
-        DOMAIN_SHADER,
-    };
-
-#if DEBUG
-    /**
-     * @brief 运行期编译着色器代码
-     * @param type
-     * @param pFileName
-     * @param ppCode
-     * @return
-    */
-    static HRESULT CompileFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode);
-#endif
-    static HRESULT ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode);
-
-};

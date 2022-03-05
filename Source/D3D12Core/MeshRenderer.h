@@ -17,6 +17,7 @@ namespace Game
     {
     public:
         MeshRenderer(GameObject& obj) : Component(obj) {}
+        virtual ~MeshRenderer() override = default;
         MeshRenderer(const MeshRenderer& mr) = delete;
         MeshRenderer(MeshRenderer&& mr) = default;
 

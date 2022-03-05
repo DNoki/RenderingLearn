@@ -29,10 +29,13 @@ namespace Game
             m_PipelineState->SetPixelShader(m_Shader->GetShaderBuffer(ShaderType::PixelShader));
         }
 
-        // 创建资源描述符堆
         {
+            // 创建资源描述符堆
             m_ResourceDescHeap.reset(new DescriptorHeap());
-            m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetBindResourceCount());
+            m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetShaderDesc().GetBindResourceCount());
+            // 创建采样器描述符堆
+            m_SamplerDescHeap.reset(new DescriptorHeap());
+            m_SamplerDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, m_Shader->GetShaderDesc().m_SamplerCount);
         }
     }
 
@@ -45,7 +48,7 @@ namespace Game
         if (isOnlyBindDescriptorHeap)
         {
             ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
-            commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
+            commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), m_SamplerDescHeap.get());
         }
         else
         {
@@ -56,26 +59,43 @@ namespace Game
 
             // 绑定描述符堆
             {
-                commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), &g_CommonSamplersDescriptorHeap);
+                commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), m_SamplerDescHeap.get());
 
+                UINT rootParamIndex = 0;
+                if (m_ResourceDescHeap->GetDescriptorsCount() > 0)
+                    commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_ResourceDescHeap->GetDescriptorHandle(0));
+                if (m_SamplerDescHeap->GetDescriptorsCount() > 0)
+                    commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_SamplerDescHeap->GetDescriptorHandle(0));
+#if 0
                 auto rootPrarmIndex = 0;
                 for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
                     commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
 
                 if (m_SamplerDescriptorHandle)
                     commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, *m_SamplerDescriptorHandle);
+#endif
             }
         }
     }
 
     void Material::BindBuffer(int slot, const Graphics::IBufferResource& buffer)
     {
+        ASSERT(slot < m_Shader->GetShaderDesc().m_CbvCount);
         m_ResourceDescHeap->BindConstantBufferView(slot, buffer);
         m_Version++;
     }
     void Material::BindTexture(int slot, const Graphics::Texture& texture)
     {
+        ASSERT(slot < m_Shader->GetShaderDesc().m_SrvCount);
+        slot += m_Shader->GetShaderDesc().m_CbvCount;
         m_ResourceDescHeap->BindShaderResourceView(slot, texture);
+        m_Version++;
+    }
+
+    void Material::BindSampler(int slot, const D3D12_SAMPLER_DESC& sampler)
+    {
+        ASSERT(slot < m_Shader->GetShaderDesc().m_SamplerCount);
+        m_SamplerDescHeap->BindSampler(slot, sampler);
         m_Version++;
     }
 

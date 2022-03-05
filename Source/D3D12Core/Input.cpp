@@ -30,13 +30,6 @@ float                                       Input::m_MouseDeltaScrollWheel;
 
 constexpr float MIN_MOUSE_SCROLL_WHEEL_DELTA = 1.0f / 120.0f; // 鼠标滚轮最小变化量归一化系数
 
-Input::Input()
-{
-}
-
-Input::~Input()
-{
-}
 
 void Input::Initialize(HWND hwnd)
 {

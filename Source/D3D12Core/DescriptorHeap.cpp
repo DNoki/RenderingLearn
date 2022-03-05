@@ -61,7 +61,6 @@ namespace Graphics
 
         // 创建描述符堆
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
-        SET_DEBUGNAME(m_DescriptorHeap.get(), _T("DescriptorHeap"));
 
         // 单个描述符大小
         m_DescriptorSize = GraphicsManager::GetDevice()->GetDescriptorHandleIncrementSize(type);
@@ -104,6 +103,12 @@ namespace Graphics
         srvDesc.Texture2D.MipLevels = 1;
 
         GraphicsManager::GetDevice()->CreateShaderResourceView(tex.GetD3D12Resource(), &srvDesc, GetDescriptorHandle(index));
+    }
+
+    void DescriptorHeap::BindSampler(int index, const D3D12_SAMPLER_DESC& samplerDesc) const
+    {
+        ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        GraphicsManager::GetDevice()->CreateSampler(&samplerDesc, GetDescriptorHandle(index));
     }
 
     void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& renderTex) const

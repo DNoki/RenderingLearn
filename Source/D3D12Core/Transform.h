@@ -15,6 +15,7 @@ namespace Game
         Vector3 LocalScale;
 
         Transform(GameObject& obj);
+        virtual ~Transform() override = default;
 
         // 获取位置
         Vector3 GetPosition(bool isWorld = true) const;

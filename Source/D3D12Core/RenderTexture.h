@@ -13,6 +13,7 @@ namespace Graphics
     {
     public:
         RenderTexture() = default;
+        virtual ~RenderTexture() override = default;
         RenderTexture(const RenderTexture & tex) = delete;
         RenderTexture(RenderTexture && tex) = default;
 
@@ -50,6 +51,12 @@ namespace Graphics
          * @param index
         */
         void GetRtvFromSwapChain(const SwapChain& swapChain, UINT index);
+
+        inline virtual void SetName(const std::wstring& name) override
+        {
+            m_Name = std::wstring(name);
+            if (m_Resource) SET_DEBUGNAME(m_Resource.get(), Application::Format(_T("%s (RenderTexture)"), m_Name.c_str()));
+        }
 
     protected:
         /**

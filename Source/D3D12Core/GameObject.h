@@ -8,10 +8,10 @@ namespace Game
     class GameObject final
     {
     public:
-        std::string m_Name;
+        std::wstring m_Name;
 
         GameObject();
-        GameObject(const std::string& name, Transform* parent = nullptr, bool worldPositionStays = true);
+        GameObject(const std::wstring& name, Transform* parent = nullptr, bool worldPositionStays = true);
         GameObject(const GameObject& obj) = delete;
         GameObject(GameObject&& obj) = default;
 

@@ -23,6 +23,7 @@ namespace Game
         float m_FarClipPlane;   // 远裁面
 
         Camera(GameObject& obj);
+        virtual ~Camera() override = default;
 
 
         Matrix4x4 GetProjectionMatrix() const;

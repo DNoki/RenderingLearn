@@ -18,8 +18,6 @@ namespace Game
     class Input
     {
     public:
-        ~Input();
-
         static void Initialize(HWND hwnd);
         static void KeyboardProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
         static void MouseProcessMessage(UINT message, WPARAM wParam, LPARAM lParam);
@@ -40,7 +38,7 @@ namespace Game
 
 
     private:
-        Input();
+        Input() = default;
 
         static std::unique_ptr<DirectX::Keyboard> m_Keyboard; // 键盘消息处理
         static std::unique_ptr<DirectX::Keyboard::KeyboardStateTracker> m_KbdTracker; // 键盘消息追踪

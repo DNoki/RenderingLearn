@@ -7,10 +7,10 @@
 
 namespace Game
 {
-    GameObject::GameObject() : GameObject("New GameObject", nullptr, false) {}
-    GameObject::GameObject(const std::string& name, Transform* parent, bool worldPositionStays) : m_Components()
+    GameObject::GameObject() : GameObject(_T("New GameObject"), nullptr, false) {}
+    GameObject::GameObject(const std::wstring& name, Transform* parent, bool worldPositionStays) : m_Components()
     {
-        m_Name = name;
+        m_Name = std::wstring(name);
         m_Enabled = true;
         m_Transform.reset(new Transform(*this));
     }

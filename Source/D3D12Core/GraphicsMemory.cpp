@@ -50,7 +50,6 @@ namespace Graphics
             flags); // 放置堆选项，例如堆是否可以包含纹理
 
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
-        SET_DEBUGNAME(m_PlacedHeap.get(), _T("Heap"));
 
         m_MaxOrderSize = static_cast<UINT>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
 
@@ -165,7 +164,6 @@ namespace Graphics
                 resource.GetResourceStates(), // 资源的初始状态
                 placedDesc->m_OptimizedClearValue, // 描述用于优化特定资源的清除操作的值
                 IID_PPV_ARGS(resource.PutD3D12Resource()))); // 要放置的资源
-            SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));
 
             m_PlacedResources.emplace(*pBlock, &resource); // 保留已放置资源链接
             m_MemoryBlockOrders.insert(*pBlock + allocateSize); // 插入内存块位置
@@ -248,12 +246,14 @@ namespace Graphics
 #else
         vector<std::unique_ptr<PlacedHeap>>* heaps{};
 #endif
+        wstring resourceTypeName = L"";
         switch (resourceDesc.Dimension)
         {
         case D3D12_RESOURCE_DIMENSION_BUFFER:
         {
             heaps = &(placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT ? GetInstance().m_DefaultBufferHeaps : GetInstance().m_UploadBufferHeaps);
             heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS;
+            resourceTypeName = L"Buffer";
         }
         break;
         case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
@@ -263,6 +263,7 @@ namespace Graphics
             ASSERT(placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT);
             heaps = &(GetInstance().m_TextureHeaps);
             heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES;
+            resourceTypeName = L"Texture";
         }
         break;
         default: ASSERT(0); break;
@@ -294,6 +295,17 @@ namespace Graphics
 #endif
 
             newHeap.Create(placedDesc->m_HeapType, DEFAULT_HEAP_SIZE, heapFlags);
+
+            static const wstring typeNames[] =
+            {
+                L"",
+                L"Default",
+                L"Upload",
+                L"Readback",
+                L"Custom",
+            };
+            newHeap.SetName(Application::Format(L"%s %s", typeNames[placedDesc->m_HeapType].c_str(), resourceTypeName.c_str()));
+
             if (!newHeap.PlacedResource(resource))
             {
                 ASSERT(0);

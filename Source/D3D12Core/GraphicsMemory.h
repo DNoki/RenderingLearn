@@ -23,6 +23,13 @@ namespace Graphics
 
         inline ID3D12Heap* GetPlacedHeap() const { return m_PlacedHeap.get(); }
 
+        inline virtual std::wstring GetName() const { return m_Name; }
+        inline virtual void SetName(const std::wstring& name)
+        {
+            m_Name = std::wstring(name);
+            if (m_PlacedHeap) SET_DEBUGNAME(m_PlacedHeap.get(), Application::Format(_T("%s (PlacedHeap)"), m_Name.c_str()));
+        }
+
     private:
         winrt::com_ptr<ID3D12Heap> m_PlacedHeap;    // D3D12 放置堆对象
         D3D12_HEAP_DESC m_PlacedHeapDesc;           // D3D12 放置堆描述
@@ -32,6 +39,8 @@ namespace Graphics
 
         std::map<UINT, GraphicsResource*> m_PlacedResources; // 已放置的资源
         std::set<UINT> m_MemoryBlockOrders; // 已经定位的块索引
+
+        std::wstring m_Name;
     };
 
     class GraphicsMemory

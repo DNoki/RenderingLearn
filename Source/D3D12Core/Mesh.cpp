@@ -103,6 +103,27 @@ namespace Game
         GraphicsManager::GetCopyCommandQueue()->ExecuteCommandLists(commandList);
     }
 
+    void Mesh::SetName(const std::wstring& name)
+    {
+        m_Name = std::wstring(name);
+
+        static const wstring vertexNames[] =
+        {
+            L"VBV位置",
+            L"VBV法线",
+            L"VBV切线",
+            L"VBV颜色",
+            L"VBV纹理坐标",
+        };
+        for (int i = 0; i < VertexSemanticCount; i++)
+        {
+            if (m_VertexBuffers[i])
+                m_VertexBuffers[i]->SetName(Application::Format(L"%s %s", m_Name.c_str(), vertexNames[i].c_str()));
+        }
+        if (m_IndexBuffer)
+            m_IndexBuffer->SetName(Application::Format(L"%s IBV索引", m_Name.c_str()));
+    }
+
     void Mesh::DispatchResourceExamine(const Graphics::CommandList* commandList) const
     {
         for (int i = 0; i < VertexSemanticCount; i++)

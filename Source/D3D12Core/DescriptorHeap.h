@@ -53,6 +53,13 @@ namespace Graphics
         */
         DescriptorHandle GetDescriptorHandle(UINT index) const;
 
+        inline virtual std::wstring GetName() const { return m_Name; }
+        inline virtual void SetName(const std::wstring& name)
+        {
+            m_Name = std::wstring(name);
+            if (m_DescriptorHeap) SET_DEBUGNAME(m_DescriptorHeap.get(), Application::Format(_T("%s (DescriptorHeap)"), m_Name.c_str()));
+        }
+
         /**
          * @brief 绑定常量缓冲资源
          * @param index
@@ -65,6 +72,7 @@ namespace Graphics
          * @param resource
         */
         void BindShaderResourceView(int index, const Texture& tex) const;
+        void BindSampler(int index, const D3D12_SAMPLER_DESC& samplerDesc) const;
 
         void BindRenderTargetView(int index, const RenderTexture& renderTex) const;
         void BindDepthStencilView(int index, const RenderTexture& renderTex) const;
@@ -74,6 +82,8 @@ namespace Graphics
         D3D12_DESCRIPTOR_HEAP_DESC m_DescriptorHeapDesc;              // 描述符堆属性
         UINT m_DescriptorSize;                              // 单个描述符大小
         DescriptorHandle m_StartDescriptorHandle;           // 描述符起始句柄
+
+        std::wstring m_Name;
 
         /**
          * @brief 单个描述符大小

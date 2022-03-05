@@ -30,10 +30,10 @@ using namespace Application;
 
 namespace Game
 {
-    Texture2D t_DefaultTexture[2];
-    Shader g_SampleShader;
-    Material g_SampleMaterial;
-    Mesh g_SampleMesh;
+    Shader* g_SampleShader;
+    Material* g_SampleMaterial;
+    Texture2D* g_SampleTexture[2];
+    Mesh* g_SampleMesh;
 
     struct MVPBuffer
     {
@@ -43,11 +43,15 @@ namespace Game
         Matrix4x4 m_IT_M;
         Matrix4x4 m_MVP;
     };
-    ConstansBuffer<MVPBuffer> g_SampleConstansBuffer;
+    ConstansBuffer<MVPBuffer>* g_SampleConstansBuffer;
+
+    GameObject* g_SampleCameraObject;
+    Camera* g_SampleCamera;
+    GameObject* g_SampleModelObject;
 
     void SampleScene::Initialize()
     {
-        m_Name = "SampleScene";
+        m_Name = _T("SampleScene");
 
         auto& g_GraphicsCommandList = *CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
         g_GraphicsCommandList.Reset();
@@ -59,44 +63,69 @@ namespace Game
             TextureLoader texData;
             texData.LoadTexture2D(texPath);
 
-            t_DefaultTexture[0].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-            t_DefaultTexture[0].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
-            t_DefaultTexture[0].DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            g_SampleTexture[0] = &AddGameResource(unique_ptr<Texture2D>(new Texture2D()));
+            g_SampleTexture[0]->PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+            g_SampleTexture[0]->DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+            g_SampleTexture[0]->DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            g_SampleTexture[0]->SetName(L"志摩 凛");
 
             texPath = Application::GetAssetPath();
             texPath.append(L"云堇.jpg");
             texData.LoadTexture2D(texPath);
 
-            t_DefaultTexture[1].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-            t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
-            t_DefaultTexture[1].DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            g_SampleTexture[1] = &AddGameResource(unique_ptr<Texture2D>(new Texture2D()));
+            g_SampleTexture[1]->PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
+            g_SampleTexture[1]->DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
+            g_SampleTexture[1]->DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            g_SampleTexture[1]->SetName(L"云堇");
         }
 
         {
-            g_SampleShader.Create();
-            g_SampleMaterial.Create(&g_SampleShader);
+            ShaderDesc shaderDesc{};
+            shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Normal) | (1 << (int)VertexSemantic::Texcoord);
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("SampleTexture_vs.cso");
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("SampleTexture_ps.cso");
+            shaderDesc.m_CbvCount = 1;
+            shaderDesc.m_SrvCount = 2;
+            shaderDesc.m_SamplerCount = 2;
 
-            g_SampleMaterial.BindTexture(0, t_DefaultTexture[1]);
-            g_SampleMaterial.BindSampler(&g_SamplerPointMirror);
+            g_SampleShader = &AddGameResource<Shader>();
+            g_SampleShader->Create(&shaderDesc);
+            g_SampleShader->SetName(L"示例着色器");
+
+            g_SampleMaterial = &AddGameResource<Material>();
+            g_SampleMaterial->Create(g_SampleShader);
+            g_SampleMaterial->SetName(L"示例材质");
+
+            g_SampleMaterial->BindTexture(0, *g_SampleTexture[0]);
+            g_SampleMaterial->BindTexture(1, *g_SampleTexture[1]);
+            g_SampleMaterial->BindSampler(0, g_SamplerPointMirror);
+            g_SampleMaterial->BindSampler(1, g_SamplerLinearBorder);
         }
 
         {
-            g_SampleConstansBuffer.PlacedCreate();
-            g_SampleMaterial.BindBuffer(1, *g_SampleConstansBuffer.GetResourceBuffer());
+            g_SampleConstansBuffer = &AddGameResource<ConstansBuffer<MVPBuffer>>();
+            g_SampleConstansBuffer->PlacedCreate();
+            g_SampleConstansBuffer->SetName(L"MvpConstansBuffer");
+            g_SampleMaterial->BindBuffer(0, *g_SampleConstansBuffer->GetResourceBuffer());
         }
 
-        g_SampleMesh = (Mesh::CreateCube());
+        {
+            g_SampleMesh = &AddGameResource<Mesh>();
+            *g_SampleMesh = Mesh::CreateCube();
+            g_SampleMesh->SetName(L"Cube");
+        }
 
         {
-            auto& sampleObj = AddGameObject(unique_ptr<GameObject>(new GameObject("Test Object")));
-            auto& meshRenderer = sampleObj.AddComponent<MeshRenderer>();
-            meshRenderer.Create(&g_SampleMesh, &g_SampleMaterial, false);
-            sampleObj.GetTransform().LocalScale = Vector3::One * 2.0f;
+            g_SampleModelObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object")));
+            auto& meshRenderer = g_SampleModelObject->AddComponent<MeshRenderer>();
+            meshRenderer.Create(g_SampleMesh, g_SampleMaterial, false);
+            g_SampleModelObject->GetTransform().LocalScale = Vector3::One * 2.0f;
 
-            auto& cameraObj = AddGameObject(unique_ptr<GameObject>(new GameObject("Main Camera")));
-            auto& camera = cameraObj.AddComponent<Camera>();
-            cameraObj.GetTransform().LocalPosition = Vector3(0.0f, 5.0f, -5.0f);
-            cameraObj.GetTransform().LookAt(sampleObj.GetTransform().GetPosition());
+            g_SampleCameraObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Main Camera")));
+            auto& camera = g_SampleCameraObject->AddComponent<Camera>();
+            g_SampleCameraObject->GetTransform().LocalPosition = Vector3(0.0f, 5.0f, -5.0f);
+            g_SampleCameraObject->GetTransform().LookAt(g_SampleModelObject->GetTransform().GetPosition());
         }
 
         GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
@@ -110,10 +139,7 @@ namespace Game
 
     void SampleScene::ExecuteUpdate()
     {
-        auto* sampleObj = FindGameObject("Test Object");
-        auto* cameraObj = FindGameObject("Main Camera");
-
-        static DescriptorHandle* samplers[] =
+        static D3D12_SAMPLER_DESC* samplers[] =
         {
             &g_SamplerPointBorder,
             &g_SamplerLinearBorder,
@@ -125,10 +151,10 @@ namespace Game
             &g_SamplerLinearMirror,
         };
         static int useSamplerIndex = 0;
-        if (Input::KeyDown(KeyCode::Space))
+        if (Input::KeyDown(KeyCode::D1))
         {
             useSamplerIndex = Math::Repeat(useSamplerIndex + 1, 0, _countof(samplers));
-            g_SampleMaterial.BindSampler(samplers[useSamplerIndex]);
+            g_SampleMaterial->BindSampler(0, *samplers[useSamplerIndex]);
         }
 
         {
@@ -141,14 +167,14 @@ namespace Game
                 pos.x -= 1.0f;
             if (Input::KeyState(KeyCode::D))
                 pos.x += 1.0f;
-            pos = cameraObj->GetTransform().GetRotation() * pos;
+            pos = g_SampleCameraObject->GetTransform().GetRotation() * pos;
 
             if (Input::KeyState(KeyCode::Space))
                 pos.y += 1.0f;
             if (Input::KeyState(KeyCode::C))
                 pos.y -= 1.0f;
             pos *= Time::GetDeltaTime() * 10.0f;
-            cameraObj->GetTransform().LocalPosition += pos;
+            g_SampleCameraObject->GetTransform().LocalPosition += pos;
 
             Vector3 rot{};
             if (Input::MouseButtonState(MouseButtonType::LeftButton))
@@ -158,29 +184,29 @@ namespace Game
                 rot.x = -deltaPos.y;
                 rot.y *= -1.0f;
             }
-            cameraObj->GetTransform().LocalEulerAngles += rot * 0.1f * Math::Deg2Rad;
+            g_SampleCameraObject->GetTransform().LocalEulerAngles += rot * 0.1f * Math::Deg2Rad;
             //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
 
             if (Input::KeyDown(KeyCode::R))
             {
-                cameraObj->GetTransform().LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
-                cameraObj->GetTransform().LocalEulerAngles = Vector3::Zero;
-                cameraObj->GetTransform().LocalScale = Vector3::One;
+                g_SampleCameraObject->GetTransform().LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+                g_SampleCameraObject->GetTransform().LocalEulerAngles = Vector3::Zero;
+                g_SampleCameraObject->GetTransform().LocalScale = Vector3::One;
             }
 
-            sampleObj->GetTransform().LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
+            g_SampleModelObject->GetTransform().LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
         }
 
         if (Input::KeyDown(KeyCode::Enter))
         {
             static int fillMode = 1;
-            g_SampleMaterial.SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
+            g_SampleMaterial->SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
         }
     }
     void SampleScene::ExecuteRender()
     {
-        auto* sampleObj = FindGameObject("Test Object");
-        auto* cameraObj = FindGameObject("Main Camera");
+        auto* sampleObj = FindGameObject(L"Test Object");
+        auto* cameraObj = FindGameObject(L"Main Camera");
 
         auto* graphicsCommandQueue = GraphicsManager::GetGraphicsCommandQueue();
         auto& swapChain = *GraphicsManager::GetSwapChain();
@@ -235,11 +261,12 @@ namespace Game
 
                 Matrix4x4 model = sampleObj->GetTransform().GetLocalToWorldMatrix();
 
-                g_SampleConstansBuffer.GetMappingBuffer()->m_P = pers;
-                g_SampleConstansBuffer.GetMappingBuffer()->m_V = view;
-                g_SampleConstansBuffer.GetMappingBuffer()->m_M = model;
-                g_SampleConstansBuffer.GetMappingBuffer()->m_IT_M = model.Inverse().Transpose();
-                g_SampleConstansBuffer.GetMappingBuffer()->m_MVP = pers * view * model;
+                auto& mvpBuffer = *g_SampleConstansBuffer->GetMappingBuffer();
+                mvpBuffer.m_P = pers;
+                mvpBuffer.m_V = view;
+                mvpBuffer.m_M = model;
+                mvpBuffer.m_IT_M = model.Inverse().Transpose();
+                mvpBuffer.m_MVP = pers * view * model;
 
                 sampleObj->GetComponent<MeshRenderer>()->DispatchDraw(graphicsCommandList);
             }

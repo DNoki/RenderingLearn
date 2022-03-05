@@ -10,6 +10,8 @@ namespace Graphics
     class PipelineState
     {
     public:
+        virtual ~PipelineState() = 0 {}
+
         /**
          * @brief 获取D3D12管线状态对象
          * @return
@@ -31,6 +33,7 @@ namespace Graphics
     {
     public:
         GraphicsPipelineState();
+        virtual ~GraphicsPipelineState() override = default;
 
         inline D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetPsoDesc() { return m_PSODesc; }
         /**

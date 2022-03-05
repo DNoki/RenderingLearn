@@ -41,7 +41,6 @@ namespace Graphics
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())
         ));
-        SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
 
         Finalize();
     }

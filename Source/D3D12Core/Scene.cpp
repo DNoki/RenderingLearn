@@ -31,15 +31,11 @@ namespace Game
 {
     GameObject& Scene::AddGameObject(std::unique_ptr<GameObject>&& gameObj)
     {
-        return AddGameObject(gameObj);
-    }
-    GameObject& Scene::AddGameObject(std::unique_ptr<GameObject>& gameObj)
-    {
         auto result = gameObj.get();
         m_HierarchyObject.push_back(move(gameObj));
         return *result;
     }
-    GameObject* Scene::FindGameObject(const std::string& name) const
+    GameObject* Scene::FindGameObject(const std::wstring& name) const
     {
         for (auto& obj : m_HierarchyObject)
         {
@@ -58,6 +54,7 @@ namespace Game
     void Scene::CloseScene()
     {
         m_HierarchyObject.clear();
+        m_ResourceMap.clear();
     }
 
 }

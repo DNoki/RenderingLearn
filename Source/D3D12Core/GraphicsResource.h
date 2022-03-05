@@ -70,6 +70,13 @@ namespace Graphics
             return m_Resource.put();
         }
 
+        inline virtual std::wstring GetName() const { return m_Name; }
+        inline virtual void SetName(const std::wstring& name)
+        {
+            m_Name = std::wstring(name);
+            if (m_Resource) SET_DEBUGNAME(m_Resource.get(), Application::Format(_T("%s (Resource)"), m_Name.c_str()));
+        }
+
     protected:
         // 资源对象
         // 封装了 CPU 和 GPU 读取和写入物理内存或堆的通用能力。
@@ -84,6 +91,10 @@ namespace Graphics
 
         // 放置资源描述
         PlacedResourceDesc m_PlacedResourceDesc;
+
+        // 资源名称
+        std::wstring m_Name;
+
     };
 
     class IBufferResource
@@ -127,7 +138,7 @@ namespace Graphics
     class Texture : public GraphicsResource
     {
     public:
-        virtual ~Texture() = 0 {}
+        virtual ~Texture() override = 0 {}
 
         /**
          * @brief 改变资源状态
@@ -145,10 +156,10 @@ namespace Game
     {
     public:
         IGameResource() = default;
-        virtual ~IGameResource() {}
+        virtual ~IGameResource() = 0 {}
 
-        virtual std::string GetName() const = 0;
-        virtual std::string SetName() = 0;
+        virtual std::wstring GetName() const = 0;
+        virtual void SetName(const std::wstring& name) = 0;
 
     private:
 

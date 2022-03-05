@@ -12,33 +12,19 @@ using namespace DirectX;
 
 namespace Graphics
 {
-    DescriptorHeap g_CommonSamplersDescriptorHeap;
-
-    DescriptorHandle g_SamplerPointBorder; // 点采样边界色纹理
-    DescriptorHandle g_SamplerLinearBorder; // 线性采样边界色纹理
-    DescriptorHandle g_SamplerPointClamp; // 点采样钳位纹理
-    DescriptorHandle g_SamplerLinearClamp; // 线性采样钳位纹理
-    DescriptorHandle g_SamplerPointWarp; // 点采样平铺纹理
-    DescriptorHandle g_SamplerLinearWarp; // 线性采样平铺纹理
-    DescriptorHandle g_SamplerPointMirror; // 点采样镜像纹理
-    DescriptorHandle g_SamplerLinearMirror; // 线性采样镜像纹理
-
+    D3D12_SAMPLER_DESC g_SamplerPointBorder; // 点采样边界色纹理
+    D3D12_SAMPLER_DESC g_SamplerLinearBorder; // 线性采样边界色纹理
+    D3D12_SAMPLER_DESC g_SamplerPointClamp; // 点采样钳位纹理
+    D3D12_SAMPLER_DESC g_SamplerLinearClamp; // 线性采样钳位纹理
+    D3D12_SAMPLER_DESC g_SamplerPointWarp; // 点采样平铺纹理
+    D3D12_SAMPLER_DESC g_SamplerLinearWarp; // 线性采样平铺纹理
+    D3D12_SAMPLER_DESC g_SamplerPointMirror; // 点采样镜像纹理
+    D3D12_SAMPLER_DESC g_SamplerLinearMirror; // 线性采样镜像纹理
 
 
     void InitializeCommonSampler()
     {
-        // 创建动态采样器堆，绑定描述符
-        g_CommonSamplersDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 8);
-        g_SamplerPointBorder = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(0);
-        g_SamplerLinearBorder = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(1);
-        g_SamplerPointClamp = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(2);
-        g_SamplerLinearClamp = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(3);
-        g_SamplerPointWarp = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(4);
-        g_SamplerLinearWarp = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(5);
-        g_SamplerPointMirror = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(6);
-        g_SamplerLinearMirror = g_CommonSamplersDescriptorHeap.GetDescriptorHandle(7);
-
-
+        // 创建动态采样器
         D3D12_SAMPLER_DESC sampler{};
         sampler.MipLODBias = 0.0f;
         sampler.MaxAnisotropy = 1;
@@ -51,64 +37,64 @@ namespace Graphics
 
 
         // SamplerPointBorder
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerPointBorder);
+        g_SamplerPointBorder = sampler;
+        g_SamplerPointBorder.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+        g_SamplerPointBorder.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        g_SamplerPointBorder.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        g_SamplerPointBorder.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        g_SamplerPointBorder.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         // SamplerLinearBorder
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerLinearBorder);
+        g_SamplerLinearBorder = sampler;
+        g_SamplerLinearBorder.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        g_SamplerLinearBorder.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        g_SamplerLinearBorder.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        g_SamplerLinearBorder.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+        g_SamplerLinearBorder.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
         // SamplerPointClamp
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerPointClamp);
+        g_SamplerPointClamp = sampler;
+        g_SamplerPointClamp.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+        g_SamplerPointClamp.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        g_SamplerPointClamp.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        g_SamplerPointClamp.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        g_SamplerPointClamp.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         // SamplerLinearClamp
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerLinearClamp);
+        g_SamplerLinearClamp = sampler;
+        g_SamplerLinearClamp.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        g_SamplerLinearClamp.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        g_SamplerLinearClamp.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        g_SamplerLinearClamp.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+        g_SamplerLinearClamp.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
         // SamplerPointWarp
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerPointWarp);
+        g_SamplerPointWarp = sampler;
+        g_SamplerPointWarp.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+        g_SamplerPointWarp.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        g_SamplerPointWarp.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        g_SamplerPointWarp.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        g_SamplerPointWarp.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         // SamplerLinearWarp
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerLinearWarp);
+        g_SamplerLinearWarp = sampler;
+        g_SamplerLinearWarp.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        g_SamplerLinearWarp.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        g_SamplerLinearWarp.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        g_SamplerLinearWarp.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+        g_SamplerLinearWarp.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
         // SamplerPointMirror
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerPointMirror);
+        g_SamplerPointMirror = sampler;
+        g_SamplerPointMirror.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+        g_SamplerPointMirror.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        g_SamplerPointMirror.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        g_SamplerPointMirror.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        g_SamplerPointMirror.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         // SamplerLinearMirror
-        sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-        sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
-        sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-        GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerLinearMirror);
+        g_SamplerLinearMirror = sampler;
+        g_SamplerLinearMirror.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        g_SamplerLinearMirror.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        g_SamplerLinearMirror.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        g_SamplerLinearMirror.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        g_SamplerLinearMirror.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
     }
 
 }

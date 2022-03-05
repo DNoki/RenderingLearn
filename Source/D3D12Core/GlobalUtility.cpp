@@ -173,10 +173,14 @@ namespace Application
     }
 
     int g_GlobalDebugIndex = 0;
-    void SetDebugName(ID3D12Object* pObj, wstring name)
+    void SetDebugName(ID3D12Object* pObj, const wstring& name)
     {
         wstring indexedName = Format(_T("%s_%06d"), name.c_str(), g_GlobalDebugIndex++);
         CheckHresult(pObj->SetName(indexedName.c_str()));
+    }
+    void SetDebugName(ID3D12Object* pObj, const string& name)
+    {
+        SetDebugName(pObj, ToUnicode(name.c_str(), CP_UTF8));
     }
     wstring GetDebugName(ID3D12Object* pObj)
     {
@@ -186,10 +190,14 @@ namespace Application
         pObj->GetPrivateData(WKPDID_D3DDebugObjectNameW, &size, text.data());
         return text;
     }
-    void SetDebugName(IDXGIObject* pObj, wstring name)
+    void SetDebugName(IDXGIObject* pObj, const wstring& name)
     {
         wstring indexedName = Format(_T("%s_%06d"), name.c_str(), g_GlobalDebugIndex++);
         CheckHresult(pObj->SetPrivateData(WKPDID_D3DDebugObjectNameW, static_cast<UINT>((indexedName.size() + 1) * sizeof(wchar_t)), indexedName.c_str()));
+    }
+    void SetDebugName(IDXGIObject* pObj, const string& name)
+    {
+        SetDebugName(pObj, ToUnicode(name.c_str(), CP_UTF8));
     }
     wstring GetDebugName(IDXGIObject* pObj)
     {
@@ -200,112 +208,3 @@ namespace Application
         return text;
     }
 }
-
-
-#if DEBUG
-HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode)
-{
-    static const string ShaderModel = "5_1";
-    static const string entryPoints[] =
-    {
-        "VSMain",
-        "PSMain",
-        "GSMain",
-        "HSMain",
-        "DSMain",
-    };
-    static const string compileTarget[] =
-    {
-        Application::Format("vs_%s", ShaderModel),
-        Application::Format("ps_%s", ShaderModel),
-        Application::Format("gs_%s", ShaderModel),
-        Application::Format("hs_%s", ShaderModel),
-        Application::Format("ds_%s", ShaderModel),
-    };
-
-    // CompileFlags https://docs.microsoft.com/zh-cn/windows/win32/direct3dhlsl/d3dcompile-constants
-#ifdef DEBUG
-    // 使用图形调试工具启用着色器调试
-    auto compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-    auto compileFlags = 0;
-#endif // DEBUG
-
-    HRESULT compileResult;
-    winrt::com_ptr<ID3DBlob> errorBlob;
-
-    // #define D3D_COMPILE_STANDARD_FILE_INCLUDE ((ID3DInclude*)(UINT_PTR)1)
-    // D3D_COMPILE_STANDARD_FILE_INCLUDE 可以在任何 API 中为 pInclude 传递，并指示应该使用简单的默认包含处理程序。 包含处理程序将包含与当前目录相关的文件和与初始源文件目录相关的文件。 当与 D3DCompile 之类的 API 一起使用时，pSourceName 必须是文件名，并且初始相对目录将从它派生。
-
-    compileResult = D3DCompileFromFile(
-        pFileName.c_str(),                              // HLSL文件路径
-        nullptr,                                // 定义着色器宏
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,      // 默认包含处理
-        entryPoints[static_cast<int>(type)].c_str(),    // 着色器入口函数
-        compileTarget[static_cast<int>(type)].c_str(),  // 着色器目标
-        compileFlags,                           // 着色器编译选项
-        0,                                      // 效果编译选项
-        ppCode,                                 // 接收已编译的代码
-        errorBlob.put()                         // 接收编译错误信息
-    );
-    if (FAILED(compileResult) && errorBlob)
-        TRACE((char*)errorBlob->GetBufferPointer());
-
-    CHECK_HRESULT(compileResult);
-
-    return compileResult;
-}
-#endif
-
-HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob** ppCode)
-{
-    // C++ 文件读写操作
-    //#include <ifstream> // 从文件读取
-    //#include <ofstream> // 从文件读取
-    //#include <fstream> // 打开文件供读写
-
-    // 文件流打开模式
-    // ios::in          只读
-    // ios::out         只写
-    // ios::app         从文件末尾开始写入
-    // ios::binary      二进制模式
-    // ios::nocreate    打开文件时若文件不存在，不创建文件
-    // ios::noreplace   打开文件时若文件不存在，则创建文件
-    // ios::trunc       打开文件并清空内容
-    // ios::ate         打开文件并移动到文件尾
-
-    // 状态标志服
-    // is_open() 文件是否正常打开
-    // bad() 读写过程中发生错误
-    // fail() 读写过程中发生错误 或格式错误
-    // eof() 读文件到达末尾
-    // good() 以上任何一个返回true，则返回false
-
-    // 文件流指针位置
-    // ios::beg         文件头
-    // ios::end         文件尾
-    // ios::cur         当前位置
-
-    // 文件流指针
-    // tellg() 返回输入流指针的位置(类型为long)
-    // tellp() 返回输出流指针的位置(类型为long)
-    // seekg() 设置输入流指针位置，可偏移指定量
-    // seekp() 设置输出流指针位置，可偏移指定量
-
-    ifstream file;
-    file.open(pFileName, ios::binary);
-    ASSERT(file.good(), L"ERROR::Shader文件打开失败。");
-
-    file.seekg(0, ios_base::end);
-    auto size = file.tellg();
-    file.seekg(0, ios_base::beg);
-
-    auto hresult = D3DCreateBlob(size, ppCode);
-    CHECK_HRESULT(hresult);
-
-    file.read(reinterpret_cast<char*>((*ppCode)->GetBufferPointer()), size);
-    file.close();
-
-    return hresult;
-}
-

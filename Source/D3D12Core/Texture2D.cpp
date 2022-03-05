@@ -29,7 +29,6 @@ namespace Game
             m_ResourceStates, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())));
-        SET_DEBUGNAME(m_Resource.get(), _T("Resource"));
     }
 
     void Texture2D::PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)

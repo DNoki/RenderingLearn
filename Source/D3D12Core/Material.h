@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "GraphicsResource.h"
+
 namespace Graphics
 {
     class DescriptorHandle;
@@ -14,16 +16,17 @@ namespace Game
 {
     class Shader;
 
-    class Material
+    class Material final : public IGameResource
     {
     public:
         // --------------------------------------------------------------------------
         Material() = default;
-        Material(const Material & mat) = delete;
-        Material(Material && mat) = default;
+        virtual ~Material() override = default;
+        Material(const Material& mat) = delete;
+        Material(Material&& mat) = default;
 
-        inline Material& operator = (const Material & mat) = delete;
-        inline Material& operator = (Material && mat) = default;
+        inline Material& operator = (const Material& mat) = delete;
+        inline Material& operator = (Material&& mat) = default;
 
         void Create(const Shader* shader);
 
@@ -33,6 +36,25 @@ namespace Game
         inline const Graphics::DescriptorHeap* GetResourceDescHeap() const { return m_ResourceDescHeap.get(); }
 
         inline UINT64 GetVersion() const { return m_Version; }
+
+        inline virtual std::wstring GetName() const override { return m_Name; }
+        inline virtual void SetName(const std::wstring& name) override
+        {
+            m_Name = std::wstring(name);
+            if (m_PipelineState)
+            {
+                // TODO
+                //SET_DEBUGNAME(m_PipelineState->GetD3D12PSO(), Application::Format(_T("%s (PipelineState)"), m_Name.c_str()));
+            }
+            if (m_ResourceDescHeap)
+            {
+                m_ResourceDescHeap->SetName(Application::Format(_T("%s (Material::Resources)"), m_Name.c_str()));
+            }
+            if (m_SamplerDescHeap)
+            {
+                m_SamplerDescHeap->SetName(Application::Format(_T("%s (Material::Samplers)"), m_Name.c_str()));
+            }
+        }
 
         // --------------------------------------------------------------------------
         /**
@@ -58,11 +80,7 @@ namespace Game
          * @brief 绑定采样器
          * @param sampler
         */
-        inline void BindSampler(const Graphics::DescriptorHandle* sampler)
-        {
-            m_SamplerDescriptorHandle = sampler;
-            m_Version++;
-        }
+        void BindSampler(int slot, const D3D12_SAMPLER_DESC& sampler);
 
         /**
          * @brief 设置渲染目标
@@ -113,9 +131,11 @@ namespace Game
     private:
         const Shader* m_Shader; // 材质使用的着色器
 
-        std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState;   // 材质定义的管线状态
-        std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap;       // 材质绑定的资源 // TODO 考虑存储资源对象，对资源对象添加版本号管理
-        const Graphics::DescriptorHandle* m_SamplerDescriptorHandle; // TODO 考虑多个采样器存在的情况
+        std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState; // 材质定义的管线状态
+        std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap; // 资源描述符堆
+        std::unique_ptr<Graphics::DescriptorHeap> m_SamplerDescHeap; // 采样器描述符堆
+
+        std::wstring m_Name;
 
         UINT64 m_Version; // 每当更新绑定的资源时，版本号加1
 

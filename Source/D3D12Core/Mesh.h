@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "GraphicsResource.h"
+
 namespace Graphics
 {
     class GraphicsBuffer;
@@ -17,7 +19,7 @@ namespace Game
 
     constexpr UINT VertexSemanticCount = (int)VertexSemantic::Count;
 
-    class Mesh
+    class Mesh final : public IGameResource
     {
     public:
         std::vector<Vector3> m_Positions;   // 位置
@@ -30,6 +32,7 @@ namespace Game
 
         // --------------------------------------------------------------------------
         Mesh() = default;
+        virtual ~Mesh() override = default;
         Mesh(const Mesh & buffer) = delete;
         Mesh(Mesh && buffer) = default;
 
@@ -49,6 +52,9 @@ namespace Game
 
         // --------------------------------------------------------------------------
         inline DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
+
+        inline virtual std::wstring GetName() const override { return m_Name; }
+        virtual void SetName(const std::wstring& name) override;
 
         /**
          * @brief 执行检查资源屏障状态
@@ -167,6 +173,8 @@ namespace Game
 
         std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]; // 顶点缓冲视图
         std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> m_IBV; // 索引缓冲视图
+
+        std::wstring m_Name;
 
         bool m_Version; // TODO
 
