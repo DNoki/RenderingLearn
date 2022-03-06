@@ -156,7 +156,7 @@ namespace Graphics
 
         inline CommandList* Request(D3D12_COMMAND_LIST_TYPE type)
         {
-            vector<CommandList>* list = nullptr;
+            vector<unique_ptr<CommandList>>* list = nullptr;
             queue<CommandList*>* queqe = nullptr;
             CommandList* result = nullptr;
 
@@ -181,8 +181,8 @@ namespace Graphics
 
             if (queqe->empty())
             {
-                list->push_back(CommandList());
-                result = &list->back();
+                list->push_back(unique_ptr<CommandList>(new CommandList()));
+                result = list->back().get();
                 result->Create(type);
             }
             else
@@ -216,9 +216,9 @@ namespace Graphics
         }
 
     private:
-        vector<CommandList> m_GraphicsCommandLists;
-        vector<CommandList> m_ComputeCommandLists;
-        vector<CommandList> m_CopyCommandLists;
+        vector<unique_ptr<CommandList>> m_GraphicsCommandLists;
+        vector<unique_ptr<CommandList>> m_ComputeCommandLists;
+        vector<unique_ptr<CommandList>> m_CopyCommandLists;
 
         queue<CommandList*> m_GraphicsIdleQueue;
         queue<CommandList*> m_ComputeIdleQueue;

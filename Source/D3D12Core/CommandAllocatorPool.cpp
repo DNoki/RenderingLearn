@@ -39,7 +39,7 @@ namespace Graphics
         */
         CommandAllocator* RequestAllocator(D3D12_COMMAND_LIST_TYPE type)
         {
-            vector<CommandAllocator>* list = nullptr;
+            vector<unique_ptr<CommandAllocator>>* list = nullptr;
             queue<CommandAllocator*>* queqe = nullptr;
             CommandAllocator* result = nullptr;
 
@@ -68,8 +68,8 @@ namespace Graphics
 
             if (queqe->empty())
             {
-                list->push_back(CommandAllocator(type));
-                result = &list->back();
+                list->push_back(unique_ptr<CommandAllocator>(new CommandAllocator(type)));
+                result = list->back().get();
                 result->Reset();
             }
             else
@@ -110,10 +110,10 @@ namespace Graphics
         }
 
     private:
-        vector<CommandAllocator> m_GraphicsCommandAllocators;   // 图形命令分配器
-        vector<CommandAllocator> m_BundleCommandAllocators;     // 命令捆绑包分配器
-        vector<CommandAllocator> m_ComputeCommandAllocators;    // 计算命令分配器
-        vector<CommandAllocator> m_CopyCommandAllocators;       // 拷贝命令分配器
+        vector<unique_ptr<CommandAllocator>> m_GraphicsCommandAllocators;   // 图形命令分配器
+        vector<unique_ptr<CommandAllocator>> m_BundleCommandAllocators;     // 命令捆绑包分配器
+        vector<unique_ptr<CommandAllocator>> m_ComputeCommandAllocators;    // 计算命令分配器
+        vector<unique_ptr<CommandAllocator>> m_CopyCommandAllocators;       // 拷贝命令分配器
 
         queue<CommandAllocator*> m_GraphicsIdleQueue;   // 图形分配器等待队列
         queue<CommandAllocator*> m_BundleIdleQueue;     // 捆绑包分配器等待队列
