@@ -62,11 +62,11 @@ namespace Graphics
         /**
          * @brief 渲染目标视图描述
         */
-        std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc;
+        std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc{};
         /**
          * @brief 深度模板视图描述
         */
-        std::unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC> m_DsvDesc;
+        std::unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC> m_DsvDesc{};
 
     };
 }

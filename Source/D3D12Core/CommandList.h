@@ -13,7 +13,7 @@ namespace Graphics
     class CommandList
     {
     public:
-        CommandList();
+        CommandList() = default;
         ~CommandList();
 
         /**
@@ -118,26 +118,27 @@ namespace Graphics
         }
 
     private:
-        D3D12_COMMAND_LIST_TYPE m_Type;
-        CommandAllocator* m_CommandAllocator;
+        D3D12_COMMAND_LIST_TYPE m_Type{};
+        CommandAllocator* m_CommandAllocator{};
 
-        winrt::com_ptr<ID3D12GraphicsCommandList5> m_CommandList;
+        winrt::com_ptr<ID3D12GraphicsCommandList5> m_CommandList{};
         //winrt::com_ptr<ID3D12CommandList> m_CommandList;
 
-        bool m_IsLocked; // 是否允许写入命令
+        bool m_IsLocked{}; // 是否允许写入命令
 
-        MultiRenderTargets m_CurrentRenderTargets;
+        MultiRenderTargets m_CurrentRenderTargets{};
     };
 
 
     class CommandListPool
     {
     public:
+        CommandListPool() = delete;
+
         static CommandList* Request(D3D12_COMMAND_LIST_TYPE type);
         static void Restore(CommandList* commandList);
 
     private:
-        CommandListPool() = default;
 
     };
 }

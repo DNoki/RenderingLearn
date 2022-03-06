@@ -39,6 +39,24 @@ namespace Game
         }
     }
 
+    void Material::SetName(const std::wstring& name)
+    {
+        m_Name = std::wstring(name);
+        if (m_PipelineState)
+        {
+            // TODO
+            //SET_DEBUGNAME(m_PipelineState->GetD3D12PSO(), Application::Format(_T("%s (PipelineState)"), m_Name.c_str()));
+        }
+        if (m_ResourceDescHeap)
+        {
+            m_ResourceDescHeap->SetName(Application::Format(_T("%s (Material::Resources)"), m_Name.c_str()));
+        }
+        if (m_SamplerDescHeap)
+        {
+            m_SamplerDescHeap->SetName(Application::Format(_T("%s (Material::Samplers)"), m_Name.c_str()));
+        }
+    }
+
     void Material::DispatchBindMaterial(const CommandList* commandList, bool isOnlyBindDescriptorHeap) const
     {
         /*

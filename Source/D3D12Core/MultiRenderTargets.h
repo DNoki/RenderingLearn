@@ -25,13 +25,13 @@ namespace Graphics
         inline const DXGI_FORMAT* GetDepthStencilFormat() const { return &m_DepthStencilFormat; }
 
     private:
-        std::vector<RenderTexture*> m_RenderTargets;
-        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RtvDescriptors;
-        std::vector<DXGI_FORMAT> m_RenderTargetsFormat;
+        std::vector<RenderTexture*> m_RenderTargets{};
+        std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> m_RtvDescriptors{};
+        std::vector<DXGI_FORMAT> m_RenderTargetsFormat{};
 
-        RenderTexture* m_DepthStencil;
-        D3D12_CPU_DESCRIPTOR_HANDLE m_DsvDescriptor;
-        DXGI_FORMAT m_DepthStencilFormat;
+        RenderTexture* m_DepthStencil{};
+        D3D12_CPU_DESCRIPTOR_HANDLE m_DsvDescriptor{};
+        DXGI_FORMAT m_DepthStencilFormat{};
 
     };
 }

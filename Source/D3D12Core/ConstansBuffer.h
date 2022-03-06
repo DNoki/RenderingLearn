@@ -50,10 +50,10 @@ namespace Game
         }
 
     private:
-        std::unique_ptr<Graphics::UploadBuffer> m_BufferResource;
-        T* m_MappingBuffer;
+        std::unique_ptr<Graphics::UploadBuffer> m_BufferResource{};
+        T* m_MappingBuffer{};
 
-        std::wstring m_Name;
+        std::wstring m_Name{};
 
     };
 }

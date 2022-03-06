@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
+#include "Display.h"
+#include "RenderTexture.h"
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "DescriptorHeap.h"
@@ -30,10 +32,6 @@ using namespace std;
 
 namespace Graphics
 {
-    CommandList::CommandList() : m_Type(), m_CommandAllocator(), m_CommandList(), m_IsLocked()
-    {
-    }
-
     CommandList::~CommandList()
     {
         if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
@@ -216,13 +214,13 @@ namespace Graphics
         }
 
     private:
-        vector<unique_ptr<CommandList>> m_GraphicsCommandLists;
-        vector<unique_ptr<CommandList>> m_ComputeCommandLists;
-        vector<unique_ptr<CommandList>> m_CopyCommandLists;
+        vector<unique_ptr<CommandList>> m_GraphicsCommandLists{};
+        vector<unique_ptr<CommandList>> m_ComputeCommandLists{};
+        vector<unique_ptr<CommandList>> m_CopyCommandLists{};
 
-        queue<CommandList*> m_GraphicsIdleQueue;
-        queue<CommandList*> m_ComputeIdleQueue;
-        queue<CommandList*> m_CopyIdleQueue;
+        queue<CommandList*> m_GraphicsIdleQueue{};
+        queue<CommandList*> m_ComputeIdleQueue{};
+        queue<CommandList*> m_CopyIdleQueue{};
 
     } g_CommandListPoolImpl;
 

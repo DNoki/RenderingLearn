@@ -77,11 +77,6 @@
 
 typedef std::filesystem::path Path;
 
-// 空描述符地址
-constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_NULL = 0;
-// 未知描述符地址
-constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
-
 #pragma endregion
 
 
@@ -130,6 +125,8 @@ constexpr D3D12_GPU_VIRTUAL_ADDRESS D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN = -1;
 #endif // DEBUG
 
 
+#pragma region 全局定义
+
 enum class VertexSemantic
 {
     Position,
@@ -140,3 +137,10 @@ enum class VertexSemantic
 
     Count
 };
+
+inline std::wstring g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
+inline std::wstring g_TitleGPU = L"";
+
+constexpr UINT NODEMASK = 0; // TODO 多适配器系统 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/multi-engine
+
+#pragma endregion

@@ -66,11 +66,6 @@ namespace Graphics
     };
 #endif
 
-
-    const CD3DX12_RANGE UploadBuffer::c_ZeroReadRange = CD3DX12_RANGE(0, 0);
-
-    UploadBuffer::UploadBuffer() {}
-
     void UploadBuffer::DirectCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);

@@ -15,7 +15,7 @@ namespace Game
     class Texture2D final : public Graphics::Texture, public IGameResource
     {
     public:
-        Texture2D() {}
+        Texture2D() = default;
         virtual ~Texture2D() override = default;
 
         void DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize = 1, UINT16 mipLevels = 0);
@@ -32,7 +32,7 @@ namespace Game
         }
 
     private:
-        std::unique_ptr<Graphics::UploadBuffer> m_UploadBuffer;
+        std::unique_ptr<Graphics::UploadBuffer> m_UploadBuffer{};
 
     };
 }

@@ -6,7 +6,6 @@ namespace Application
     {
     public:
         TextureLoader() = default;
-        ~TextureLoader();
 
         void LoadTexture2D(const Path& path);
 
@@ -16,9 +15,9 @@ namespace Application
         inline int GetHeight() const { return m_Height; }
 
     private:
-        std::vector<UINT8> m_Data;;
-        DXGI_FORMAT m_Format;
-        int m_Width;
-        int m_Height;
+        std::vector<UINT8> m_Data{};
+        DXGI_FORMAT m_Format{};
+        int m_Width{};
+        int m_Height{};
     };
 }

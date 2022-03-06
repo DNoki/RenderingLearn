@@ -4,7 +4,6 @@
 
 namespace Graphics
 {
-    class DescriptorHandle;
     class DescriptorHeap;
     class Texture;
     class GraphicsPipelineState;
@@ -38,23 +37,7 @@ namespace Game
         inline UINT64 GetVersion() const { return m_Version; }
 
         inline virtual std::wstring GetName() const override { return m_Name; }
-        inline virtual void SetName(const std::wstring& name) override
-        {
-            m_Name = std::wstring(name);
-            if (m_PipelineState)
-            {
-                // TODO
-                //SET_DEBUGNAME(m_PipelineState->GetD3D12PSO(), Application::Format(_T("%s (PipelineState)"), m_Name.c_str()));
-            }
-            if (m_ResourceDescHeap)
-            {
-                m_ResourceDescHeap->SetName(Application::Format(_T("%s (Material::Resources)"), m_Name.c_str()));
-            }
-            if (m_SamplerDescHeap)
-            {
-                m_SamplerDescHeap->SetName(Application::Format(_T("%s (Material::Samplers)"), m_Name.c_str()));
-            }
-        }
+        virtual void SetName(const std::wstring& name) override;
 
         // --------------------------------------------------------------------------
         /**
@@ -129,15 +112,15 @@ namespace Game
         D3D12_COMPARISON_FUNC GetDepthFunc() const;
 
     private:
-        const Shader* m_Shader; // 材质使用的着色器
+        const Shader* m_Shader{}; // 材质使用的着色器
 
-        std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState; // 材质定义的管线状态
-        std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap; // 资源描述符堆
-        std::unique_ptr<Graphics::DescriptorHeap> m_SamplerDescHeap; // 采样器描述符堆
+        std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState{}; // 材质定义的管线状态
+        std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap{}; // 资源描述符堆
+        std::unique_ptr<Graphics::DescriptorHeap> m_SamplerDescHeap{}; // 采样器描述符堆
 
-        std::wstring m_Name;
+        std::wstring m_Name{};
 
-        UINT64 m_Version; // 每当更新绑定的资源时，版本号加1
+        UINT64 m_Version{ 1 }; // 每当更新绑定的资源时，版本号加1
 
     };
 

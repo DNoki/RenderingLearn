@@ -19,9 +19,9 @@ namespace Graphics
         inline ID3D12PipelineState* GetD3D12PSO() const { return m_PSO; }
 
     protected:
-        ID3D12PipelineState* m_PSO;  // 管线状态对象
+        ID3D12PipelineState* m_PSO{};  // 管线状态对象
 
-        PipelineState() : m_PSO(nullptr) {}
+        PipelineState() = default;
 
         virtual void Finalize() = 0;
     };
@@ -137,8 +137,8 @@ namespace Graphics
         virtual void Finalize();
 
     private:
-        UINT64 m_PsoDescHash; // 已生成管线状态对象所使用的描述哈希值
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc; // 图形管线状态描述
+        UINT64 m_PsoDescHash = 0; // 已生成管线状态对象所使用的描述哈希值
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc{}; // 图形管线状态描述
 
     };
 

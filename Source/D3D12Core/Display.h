@@ -1,13 +1,14 @@
 ﻿#pragma once
 
 #include "DescriptorHeap.h"
-#include "RenderTexture.h"
 
 constexpr UINT SWAP_FRAME_BACK_BUFFER_COUNT = 3; // 交换后缓冲数量
 constexpr auto SWAP_CHAIN_RENDER_TARGET_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 namespace Graphics
 {
+    class RenderTexture;
+
     class SwapChain
     {
     public:
@@ -81,17 +82,16 @@ namespace Graphics
         void Resize(UINT width = 0, UINT height = 0);
 
     private:
+        winrt::com_ptr<IDXGISwapChain4> m_SwapChain{};    // 交换链
+        DXGI_SWAP_CHAIN_DESC1 m_SwapChainDesc{};          // 交换链描述
 
-        winrt::com_ptr<IDXGISwapChain4> m_SwapChain;    // 交换链
-        DXGI_SWAP_CHAIN_DESC1 m_SwapChainDesc;          // 交换链描述
+        std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc{}; // 全屏交换链描述
 
-        std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc; // 全屏交换链描述
+        DescriptorHeap m_RtvDescriptorHeap{}; // 渲染目标描述符堆
+        std::vector<std::unique_ptr<RenderTexture>> m_RenderTargets{}; // 渲染目标贴图列表
 
-        DescriptorHeap m_RtvDescriptorHeap; // 渲染目标描述符堆
-        std::vector<std::unique_ptr<RenderTexture>> m_RenderTargets; // 渲染目标贴图列表
-
-        DescriptorHeap m_DsvDescriptorHeap;
-        std::unique_ptr<RenderTexture> m_DepthStencils; // 渲染目标贴图列表
+        DescriptorHeap m_DsvDescriptorHeap{};
+        std::unique_ptr<RenderTexture> m_DepthStencils{}; // 渲染目标贴图列表
 
         /**
          * @brief 重新生成渲染目标贴图

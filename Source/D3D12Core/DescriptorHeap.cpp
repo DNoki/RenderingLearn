@@ -39,11 +39,6 @@ namespace Graphics
     // --------------------------------------------------------------------------
 
 
-
-    DescriptorHeap::DescriptorHeap() : m_DescriptorHeap(nullptr), m_DescriptorHeapDesc(), m_DescriptorSize(), m_StartDescriptorHandle()
-    {
-    }
-
     void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count)
     {
         ASSERT(m_DescriptorHeap == nullptr);

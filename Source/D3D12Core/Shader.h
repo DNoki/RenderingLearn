@@ -5,9 +5,6 @@
 namespace Graphics
 {
     class RootSignature;
-    class DescriptorHeap;
-    class GraphicsPipelineState;
-    class CommandList;
 }
 
 namespace Game
@@ -26,12 +23,12 @@ namespace Game
     class ShaderDesc
     {
     public:
-        int m_SemanticFlags;
-        Path m_ShaderFilePaths[static_cast<int>(ShaderType::Count)];
-        int m_SrvCount;
-        int m_UavCount;
-        int m_CbvCount;
-        int m_SamplerCount;
+        int m_SemanticFlags{ 1 << (int)VertexSemantic::Position }; // 着色器使用语义
+        Path m_ShaderFilePaths[static_cast<int>(ShaderType::Count)]{};
+        int m_SrvCount{ 0 };
+        int m_UavCount{ 0 };
+        int m_CbvCount{ 0 };
+        int m_SamplerCount{ 0 };
 
         inline int GetBindCount() const { return GetBindResourceCount() + m_SamplerCount; }
         inline int GetBindResourceCount() const { return m_SrvCount + m_UavCount + m_CbvCount; }
@@ -53,7 +50,7 @@ namespace Game
         inline const ShaderDesc& GetShaderDesc() const { return m_ShaderDesc; }
         inline const Graphics::RootSignature* GetRootSignature() const { return m_RootSignature.get(); }
         inline D3D12_INPUT_LAYOUT_DESC GetInputLayout() const { return { m_InputLayouts.data(), static_cast<UINT>(m_InputLayouts.size()) }; }
-        inline int GetBindSemanticFlag() const { return m_BindSemanticFlag; }
+        inline int GetBindSemanticFlag() const { return m_ShaderDesc.m_SemanticFlags; }
         inline const ID3DBlob* GetShaderBuffer(ShaderType type) const { return m_ShaderBlobs[static_cast<int>(type)].get(); }
 
         inline virtual std::wstring GetName() const override { return m_Name; }
@@ -65,14 +62,13 @@ namespace Game
         }
 
     private:
-        ShaderDesc m_ShaderDesc;
-        winrt::com_ptr<ID3DBlob> m_ShaderBlobs[static_cast<int>(ShaderType::Count)]; // 着色器编译缓冲
+        ShaderDesc m_ShaderDesc{};
+        winrt::com_ptr<ID3DBlob> m_ShaderBlobs[static_cast<int>(ShaderType::Count)]{}; // 着色器编译缓冲
 
-        std::unique_ptr<Graphics::RootSignature> m_RootSignature;   // 根签名
-        std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts;       // 顶点输入结构
-        int m_BindSemanticFlag; // 着色器使用语义
+        std::unique_ptr<Graphics::RootSignature> m_RootSignature{};   // 根签名
+        std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts{};       // 顶点输入结构
 
-        std::wstring m_Name;
+        std::wstring m_Name{};
 
         void ReadFromFile(ShaderType type, const Path& filePath);
     };

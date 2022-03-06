@@ -84,8 +84,6 @@ namespace Game
 
             m_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
         }
-
-        m_BindSemanticFlag = m_ShaderDesc.m_SemanticFlags;
 #endif
 #if 0
         Path vsShaderPath = Application::GetShaderPath().append("SampleTexture_vs.cso");

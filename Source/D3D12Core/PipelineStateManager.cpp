@@ -9,7 +9,7 @@ using namespace winrt;
 
 namespace Graphics
 {
-    map<size_t, com_ptr<ID3D12PipelineState>> g_GraphicsPipelineStateMap;
+    static map<size_t, com_ptr<ID3D12PipelineState>> g_GraphicsPipelineStateMap;
 
     ID3D12PipelineState* PipelineStateManager::GetPipelineState(UINT64 psoDescHash)
     {

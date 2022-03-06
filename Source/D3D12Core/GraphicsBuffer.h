@@ -14,17 +14,17 @@ namespace Graphics
     {
     public:
         // --------------------------------------------------------------------------
-        GraphicsBuffer();
+        GraphicsBuffer() = default;
         virtual ~GraphicsBuffer() override = default;
         GraphicsBuffer(const GraphicsBuffer& buffer) = delete;
         GraphicsBuffer(GraphicsBuffer&& buffer) = default;
 
-        inline GraphicsBuffer& operator = (const GraphicsBuffer & buffer) = delete;
-        inline GraphicsBuffer& operator = (GraphicsBuffer && buffer) = default;
+        inline GraphicsBuffer& operator = (const GraphicsBuffer& buffer) = delete;
+        inline GraphicsBuffer& operator = (GraphicsBuffer&& buffer) = default;
 
         // --------------------------------------------------------------------------
         virtual inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
-        virtual inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
+        virtual inline D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         inline virtual void SetName(const std::wstring& name) override
         {
@@ -60,7 +60,7 @@ namespace Graphics
 
 
     private:
-        std::unique_ptr<UploadBuffer> m_UploadBuffer;
+        std::unique_ptr<UploadBuffer> m_UploadBuffer{};
 
         inline virtual void Finalize() override
         {

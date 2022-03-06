@@ -11,12 +11,12 @@ namespace Graphics
     {
     public:
         // --------------------------------------------------------------------------
-        UploadBuffer();
+        UploadBuffer() = default;
         virtual ~UploadBuffer() override = default;
 
         // --------------------------------------------------------------------------
-        virtual inline UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
-        virtual inline D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
+        inline virtual UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
+        inline virtual D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         inline virtual void SetName(const std::wstring& name) override
         {
@@ -58,7 +58,7 @@ namespace Graphics
 
     private:
         // Map 时指示 CPU 不可读取上传堆资源
-        static const CD3DX12_RANGE c_ZeroReadRange;
+        inline static const CD3DX12_RANGE c_ZeroReadRange = CD3DX12_RANGE(0, 0);
 
         virtual inline void Finalize() override
         {

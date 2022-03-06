@@ -25,9 +25,6 @@ using namespace Game;
 
 namespace Graphics
 {
-    wstring g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
-    wstring g_TitleGPU;
-
     GraphicsManager GraphicsManager::m_GraphicsManager = GraphicsManager();
 
 #if 0
@@ -139,19 +136,20 @@ namespace Graphics
     {
     public:
 #if DEBUG
-        winrt::com_ptr<ID3D12Debug3> m_D3D12Debug;
+        winrt::com_ptr<ID3D12Debug3> m_D3D12Debug{};
 #endif // DEBUG
-        winrt::com_ptr<IDXGIFactory7> m_Factory;
-        winrt::com_ptr<IDXGIAdapter4> m_Adapter;
-        winrt::com_ptr<ID3D12Device6> m_Device;
+        winrt::com_ptr<IDXGIFactory7> m_Factory{};
+        winrt::com_ptr<IDXGIAdapter4> m_Adapter{};
+        winrt::com_ptr<ID3D12Device6> m_Device{};
 
-        std::unique_ptr<CommandQueue> m_GraphicsCommandQueue;   // 图形命令队列
-        std::unique_ptr<CommandQueue> m_ComputeCommandQueue;    // 计算命令队列
-        std::unique_ptr<CommandQueue> m_CopyCommandQueue;       // 拷贝命令队列
+        std::unique_ptr<CommandQueue> m_GraphicsCommandQueue{};   // 图形命令队列
+        std::unique_ptr<CommandQueue> m_ComputeCommandQueue{};    // 计算命令队列
+        std::unique_ptr<CommandQueue> m_CopyCommandQueue{};       // 拷贝命令队列
 
-        std::unique_ptr<SwapChain> m_SwapChain;
+        std::unique_ptr<SwapChain> m_SwapChain{};
 
         GraphicsManagerImpl() = default;
+
         inline void Initialize()
         {
             UINT nDXGIFactoryFlags = 0U;
@@ -281,6 +279,4 @@ namespace Graphics
     {
         g_GraphicsManager.Destory();
     }
-
-
 }

@@ -12,7 +12,7 @@ namespace Graphics
     class CommandQueue
     {
     public:
-        CommandQueue();
+        CommandQueue() = default;
 
         /**
          * @brief 创建指令队列
@@ -35,14 +35,14 @@ namespace Graphics
         inline ID3D12CommandQueue* GetD3D12CommandQueue() const { return m_CommandQueue.get(); }
 
     private:
-        winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue;
+        winrt::com_ptr<ID3D12CommandQueue> m_CommandQueue{};
 
-        D3D12_COMMAND_LIST_TYPE m_Type;
+        D3D12_COMMAND_LIST_TYPE m_Type{};
 
-        std::vector<CommandAllocator*> m_Allocators; // 执行中的命令分配器
+        std::vector<CommandAllocator*> m_Allocators{}; // 执行中的命令分配器
 
-        winrt::com_ptr<ID3D12Fence1> m_Fence;   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
-        UINT64 m_FenceValue;                    // 围栏值
-        HANDLE m_FenceEvent;
+        winrt::com_ptr<ID3D12Fence1> m_Fence{};   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
+        UINT64 m_FenceValue{ 1 };                    // 围栏值
+        HANDLE m_FenceEvent{};
     };
 }

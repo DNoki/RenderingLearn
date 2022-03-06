@@ -11,10 +11,6 @@ using namespace std;
 
 namespace Game
 {
-    int SceneManager::m_ActiveScene = 0;
-    int SceneManager::m_NextScene = -1;
-    vector<unique_ptr<Scene>> SceneManager::m_Scenes = vector<unique_ptr<Scene>>();
-
     void SceneManager::Initialize(int startupSceneIndex)
     {
         m_ActiveScene = startupSceneIndex;

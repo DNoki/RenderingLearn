@@ -33,11 +33,11 @@ namespace Game
         // --------------------------------------------------------------------------
         Mesh() = default;
         virtual ~Mesh() override = default;
-        Mesh(const Mesh & buffer) = delete;
-        Mesh(Mesh && buffer) = default;
+        Mesh(const Mesh& buffer) = delete;
+        Mesh(Mesh&& buffer) = default;
 
-        inline Mesh& operator = (const Mesh & buffer) = delete;
-        inline Mesh& operator = (Mesh && buffer) = default;
+        inline Mesh& operator = (const Mesh& buffer) = delete;
+        inline Mesh& operator = (Mesh&& buffer) = default;
 
         // --------------------------------------------------------------------------
 #if 0
@@ -166,17 +166,17 @@ namespace Game
         static Mesh CreateTeapot(float size = 1, size_t tessellation = 8, bool rhcoords = false);
 
     private:
-        D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology; // 定义管道如何解释和呈现顶点
+        D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology{}; // 定义管道如何解释和呈现顶点
 
-        std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffers[VertexSemanticCount]; // 顶点缓冲列表
-        std::unique_ptr<Graphics::GraphicsBuffer> m_IndexBuffer;  // 索引缓冲
+        std::unique_ptr<Graphics::GraphicsBuffer> m_VertexBuffers[VertexSemanticCount]{}; // 顶点缓冲列表
+        std::unique_ptr<Graphics::GraphicsBuffer> m_IndexBuffer{};  // 索引缓冲
 
-        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]; // 顶点缓冲视图
-        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> m_IBV; // 索引缓冲视图
+        std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]{}; // 顶点缓冲视图
+        std::unique_ptr<D3D12_INDEX_BUFFER_VIEW> m_IBV{}; // 索引缓冲视图
 
-        std::wstring m_Name;
+        std::wstring m_Name{};
 
-        bool m_Version; // TODO
+        bool m_Version{ 1 }; // TODO
 
         /**
          * @brief 处理预置网格

@@ -10,10 +10,6 @@ using namespace Graphics;
 
 namespace Game
 {
-    Camera::Camera(GameObject& obj) : Component(obj),
-        m_ProjectionMode(ProjectionMode::Perspective), m_FieldOfView(60.0f), m_OrthographicSize(5.0f),
-        m_NearClipPlane(0.1f), m_FarClipPlane(1000.0f) {}
-
     Matrix4x4 Camera::GetProjectionMatrix() const
     {
         Matrix4x4 projection{};

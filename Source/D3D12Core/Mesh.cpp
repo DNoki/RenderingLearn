@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 
 #include "GraphicsCore.h"
+#include "CommandQueue.h"
+#include "UploadBuffer.h"
 #include "GraphicsBuffer.h"
 #include "CommandList.h"
 

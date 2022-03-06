@@ -24,9 +24,6 @@
 
 namespace Graphics
 {
-
-    GraphicsBuffer::GraphicsBuffer() : m_UploadBuffer(nullptr) {}
-
     void GraphicsBuffer::DirectCreate(UINT64 size)
     {
         m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);

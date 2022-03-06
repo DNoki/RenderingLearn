@@ -3,6 +3,8 @@
 #include "AppMain.h"
 #include "CommandList.h"
 #include "GraphicsCore.h"
+#include "CommandQueue.h"
+#include "Display.h"
 #include "GraphicsCommon.h"
 #include "GameTime.h"
 #include "Input.h"
@@ -13,6 +15,7 @@
 #include "GraphicsBuffer.h"
 #include "ConstansBuffer.h"
 #include "Texture2D.h"
+#include "RenderTexture.h"
 #include "Shader.h"
 #include "Material.h"
 #include "Mesh.h"
@@ -33,7 +36,7 @@ namespace Game
     Shader* g_SampleShader;
     Material* g_SampleMaterial;
     Texture2D* g_SampleTexture[2];
-    Mesh* g_SampleMesh;
+    Mesh* g_SampleMesh[2];
 
     struct MVPBuffer
     {
@@ -111,15 +114,19 @@ namespace Game
         }
 
         {
-            g_SampleMesh = &AddGameResource<Mesh>();
-            *g_SampleMesh = Mesh::CreateCube();
-            g_SampleMesh->SetName(L"Cube");
+            g_SampleMesh[0] = &AddGameResource<Mesh>();
+            *g_SampleMesh[0] = Mesh::CreateCube();
+            g_SampleMesh[0]->SetName(L"Cube");
+
+            g_SampleMesh[1] = &AddGameResource<Mesh>();
+            *g_SampleMesh[1] = Mesh::CreateSphere();
+            g_SampleMesh[1]->SetName(L"Sphere");
         }
 
         {
             g_SampleModelObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object")));
             auto& meshRenderer = g_SampleModelObject->AddComponent<MeshRenderer>();
-            meshRenderer.Create(g_SampleMesh, g_SampleMaterial, false);
+            meshRenderer.BindResource(g_SampleMesh[1], g_SampleMaterial, false);
             g_SampleModelObject->GetTransform().LocalScale = Vector3::One * 2.0f;
 
             g_SampleCameraObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Main Camera")));
@@ -139,24 +146,47 @@ namespace Game
 
     void SampleScene::ExecuteUpdate()
     {
-        static D3D12_SAMPLER_DESC* samplers[] =
-        {
-            &g_SamplerPointBorder,
-            &g_SamplerLinearBorder,
-            &g_SamplerPointClamp,
-            &g_SamplerLinearClamp,
-            &g_SamplerPointWarp,
-            &g_SamplerLinearWarp,
-            &g_SamplerPointMirror,
-            &g_SamplerLinearMirror,
-        };
-        static int useSamplerIndex = 0;
+        // 测试切换采样器
         if (Input::KeyDown(KeyCode::D1))
         {
+            static D3D12_SAMPLER_DESC* samplers[] =
+            {
+                &g_SamplerPointBorder,
+                &g_SamplerLinearBorder,
+                &g_SamplerPointClamp,
+                &g_SamplerLinearClamp,
+                &g_SamplerPointWarp,
+                &g_SamplerLinearWarp,
+                &g_SamplerPointMirror,
+                &g_SamplerLinearMirror,
+            };
+            static int useSamplerIndex = 0;
             useSamplerIndex = Math::Repeat(useSamplerIndex + 1, 0, _countof(samplers));
             g_SampleMaterial->BindSampler(0, *samplers[useSamplerIndex]);
         }
+        // 测试切换贴图
+        if (Input::KeyDown(KeyCode::D2))
+        {
+            static int useIndex = 0;
+            useIndex = Math::Repeat(useIndex + 1, 0, _countof(g_SampleTexture));
+            g_SampleMaterial->BindTexture(0, *g_SampleTexture[useIndex]);
+        }
+        // 测试切换模型
+        if (Input::KeyDown(KeyCode::D3))
+        {
+            static int useIndex = 0;
+            useIndex = Math::Repeat(useIndex + 1, 0, _countof(g_SampleMesh));
+            auto* meshRenderer = g_SampleModelObject->GetComponent<MeshRenderer>();
+            meshRenderer->BindResource(g_SampleMesh[useIndex], meshRenderer->GetMaterial());
+        }
+        // 测试切换渲染模式
+        if (Input::KeyDown(KeyCode::D4))
+        {
+            static int fillMode = 1;
+            g_SampleMaterial->SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
+        }
 
+        // 测试模型变换
         {
             Vector3 pos{};
             if (Input::KeyState(KeyCode::W))
@@ -185,7 +215,6 @@ namespace Game
                 rot.y *= -1.0f;
             }
             g_SampleCameraObject->GetTransform().LocalEulerAngles += rot * 0.1f * Math::Deg2Rad;
-            //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
 
             if (Input::KeyDown(KeyCode::R))
             {
@@ -195,12 +224,6 @@ namespace Game
             }
 
             g_SampleModelObject->GetTransform().LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
-        }
-
-        if (Input::KeyDown(KeyCode::Enter))
-        {
-            static int fillMode = 1;
-            g_SampleMaterial->SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
         }
     }
     void SampleScene::ExecuteRender()

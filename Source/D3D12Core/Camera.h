@@ -16,13 +16,13 @@ namespace Game
     class Camera final : public Component
     {
     public:
-        ProjectionMode m_ProjectionMode; // 投影模式
-        float m_FieldOfView; // 透视模式的视角 角度制
-        float m_OrthographicSize; // 正交模式下相机的半尺寸
-        float m_NearClipPlane;  // 近裁面
-        float m_FarClipPlane;   // 远裁面
+        ProjectionMode m_ProjectionMode{ ProjectionMode::Perspective }; // 投影模式
+        float m_FieldOfView{ 60.0f }; // 透视模式的视角 角度制
+        float m_OrthographicSize{ 5.0f }; // 正交模式下相机的半尺寸
+        float m_NearClipPlane{ 0.1f };  // 近裁面
+        float m_FarClipPlane{ 1000.0f };   // 远裁面
 
-        Camera(GameObject& obj);
+        Camera(GameObject& obj) : Component(obj) {}
         virtual ~Camera() override = default;
 
 

@@ -40,14 +40,14 @@ namespace Game
     private:
         Input() = default;
 
-        static std::unique_ptr<DirectX::Keyboard> m_Keyboard; // 键盘消息处理
-        static std::unique_ptr<DirectX::Keyboard::KeyboardStateTracker> m_KbdTracker; // 键盘消息追踪
+        inline static std::unique_ptr<DirectX::Keyboard> m_Keyboard{}; // 键盘消息处理
+        inline static std::unique_ptr<DirectX::Keyboard::KeyboardStateTracker> m_KbdTracker{}; // 键盘消息追踪
 
-        static std::unique_ptr<DirectX::Mouse> m_Mouse; // 鼠标消息处理
-        static std::unique_ptr<DirectX::Mouse::ButtonStateTracker> m_MouseTracker; // 鼠标消息追踪
-        static std::vector<const DirectX::Mouse::ButtonStateTracker::ButtonState*> m_MouseButtonsState;
-        static DirectX::Mouse::State m_LastMouseState; // 鼠标最后状态
-        static Vector2 m_MouseDeltaPos;
-        static float m_MouseDeltaScrollWheel;
+        inline static std::unique_ptr<DirectX::Mouse> m_Mouse{}; // 鼠标消息处理
+        inline static std::unique_ptr<DirectX::Mouse::ButtonStateTracker> m_MouseTracker{}; // 鼠标消息追踪
+        inline static std::vector<const DirectX::Mouse::ButtonStateTracker::ButtonState*> m_MouseButtonsState{};
+        inline static DirectX::Mouse::State m_LastMouseState{}; // 鼠标最后状态
+        inline static Vector2 m_MouseDeltaPos{};
+        inline static float m_MouseDeltaScrollWheel{ 0.0f };
     };
 }

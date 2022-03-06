@@ -17,7 +17,7 @@ namespace Game
     class Scene
     {
     public:
-        std::wstring m_Name;
+        std::wstring m_Name{};
 
         Scene() = default;
         virtual ~Scene() = default;
@@ -83,8 +83,8 @@ namespace Game
         virtual void CloseScene();
 
     private:
-        std::map<UINT64, std::vector<std::unique_ptr<IGameResource>>> m_ResourceMap;
-        std::vector<std::unique_ptr<GameObject>> m_HierarchyObject;
+        std::map<UINT64, std::vector<std::unique_ptr<IGameResource>>> m_ResourceMap{};
+        std::vector<std::unique_ptr<GameObject>> m_HierarchyObject{};
 
         virtual void ExecuteUpdate() = 0;
         virtual void ExecuteRender() = 0;

@@ -3,11 +3,11 @@
 
 namespace TimeSystem
 {
-    extern UINT64 g_FrameCount;
-    extern UINT64 g_SwapFrameCount;
-    extern float g_RunTime;
-    extern float g_DeltaTime;
-    extern float g_AverageFps;
+    inline UINT64 g_FrameCount{ 0 };
+    inline UINT64 g_SwapFrameCount{ 0 };
+    inline float g_RunTime{ 0.0 };
+    inline float g_DeltaTime{ 0.0 };
+    inline float g_AverageFps{ 0.0 };
 
     void InitTimeSystem();
     void RefreshTimeSystem();
@@ -52,8 +52,7 @@ namespace Game
         */
         inline static float GetAverageFPS() { return TimeSystem::g_AverageFps; }
 
-
-
     private:
+
     };
 }

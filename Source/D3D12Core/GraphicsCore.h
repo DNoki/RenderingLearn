@@ -1,16 +1,9 @@
 ﻿#pragma once
 
-#include "CommandQueue.h"
-#include "Display.h"
-
-constexpr UINT NODEMASK = 0; // TODO 多适配器系统 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/multi-engine
-
 namespace Graphics
 {
-    class CommandList;
-
-
-
+    class CommandQueue;
+    class SwapChain;
 
     class GraphicsManager
     {
@@ -32,11 +25,7 @@ namespace Graphics
     private:
         static GraphicsManager m_GraphicsManager;
 
-        GraphicsManager() {}
-
+        GraphicsManager() = default;
 
     };
-
-    extern std::wstring g_TitleFormat;
-    extern std::wstring g_TitleGPU;
 }

@@ -19,8 +19,6 @@ namespace Graphics
 {
     GraphicsPipelineState::GraphicsPipelineState()
     {
-        m_PsoDescHash = 0;
-        ZeroMemory(&m_PSODesc, sizeof(m_PSODesc));
         m_PSODesc.NodeMask = NODEMASK;
         m_PSODesc.SampleMask = UINT_MAX;
         m_PSODesc.SampleDesc.Count = 1;

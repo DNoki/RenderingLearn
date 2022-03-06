@@ -31,16 +31,16 @@ namespace Graphics
         }
 
     private:
-        winrt::com_ptr<ID3D12Heap> m_PlacedHeap;    // D3D12 放置堆对象
-        D3D12_HEAP_DESC m_PlacedHeapDesc;           // D3D12 放置堆描述
+        winrt::com_ptr<ID3D12Heap> m_PlacedHeap{};    // D3D12 放置堆对象
+        D3D12_HEAP_DESC m_PlacedHeapDesc{};           // D3D12 放置堆描述
 
-        UINT m_MinBlockSize; // 最小可分配内存块大小（对齐大小）
-        UINT m_MaxOrderSize; // 放置堆容量
+        UINT m_MinBlockSize{ D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT }; // 最小可分配内存块大小（对齐大小）
+        UINT m_MaxOrderSize{}; // 放置堆容量
 
-        std::map<UINT, GraphicsResource*> m_PlacedResources; // 已放置的资源
-        std::set<UINT> m_MemoryBlockOrders; // 已经定位的块索引
+        std::map<UINT, GraphicsResource*> m_PlacedResources{}; // 已放置的资源
+        std::set<UINT> m_MemoryBlockOrders{}; // 已经定位的块索引
 
-        std::wstring m_Name;
+        std::wstring m_Name{};
     };
 
     class GraphicsMemory
@@ -61,14 +61,8 @@ namespace Graphics
         static GraphicsMemory g_GraphicsMemory;
         static GraphicsMemory& GetInstance() { return g_GraphicsMemory; }
 
-#ifdef DONT_USE_SMART_PTR
-        std::vector<PlacedHeap> m_UploadBufferHeaps;     // 上传缓冲堆
-        std::vector<PlacedHeap> m_DefaultBufferHeaps;    // 默认缓冲堆
-        std::vector<PlacedHeap> m_TextureHeaps;          // 非渲染目标贴图缓冲堆
-#else
-        std::vector<std::unique_ptr<PlacedHeap>> m_UploadBufferHeaps;     // 上传缓冲堆
-        std::vector<std::unique_ptr<PlacedHeap>> m_DefaultBufferHeaps;    // 默认缓冲堆
-        std::vector<std::unique_ptr<PlacedHeap>> m_TextureHeaps;          // 非渲染目标贴图缓冲堆
-#endif
+        std::vector<std::unique_ptr<PlacedHeap>> m_UploadBufferHeaps{};     // 上传缓冲堆
+        std::vector<std::unique_ptr<PlacedHeap>> m_DefaultBufferHeaps{};    // 默认缓冲堆
+        std::vector<std::unique_ptr<PlacedHeap>> m_TextureHeaps{};          // 非渲染目标贴图缓冲堆
     };
 }

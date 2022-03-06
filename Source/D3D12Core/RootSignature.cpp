@@ -22,12 +22,6 @@ using namespace winrt;
 
 namespace Graphics
 {
-
-    RootSignature::RootSignature(UINT numRootParams, UINT numStaticSamplers)
-    {
-        Reset(numRootParams, numStaticSamplers);
-    }
-
     void RootSignature::Reset(UINT numRootParams, UINT numStaticSamplers)
     {
         m_IsFinalized = false;

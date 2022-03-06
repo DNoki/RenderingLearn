@@ -30,15 +30,13 @@
 */
 // --------------------------------------------------------------------------
 
+using namespace std;
+
 namespace Graphics
 {
-    CommandQueue::CommandQueue() : m_Type(), m_CommandQueue(nullptr),
-        m_Fence(nullptr), m_FenceValue(1), m_FenceEvent(nullptr)
-    {
-    }
-
     void CommandQueue::Create(D3D12_COMMAND_LIST_TYPE type)
     {
+        ASSERT(type < D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE);
         m_Type = type;
 
         // 创建D3D12命令队列接口
@@ -48,8 +46,6 @@ namespace Graphics
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // 命令队列选项
         queueDesc.NodeMask = NODEMASK; // 节点标识
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
-        SET_DEBUGNAME(m_CommandQueue.get(), _T("CommandQueue"));
-
 
         // 创建同步对象 Fence， 用于等待渲染完成
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
@@ -59,6 +55,11 @@ namespace Graphics
         m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
         if (m_FenceEvent == nullptr)
             CHECK_HRESULT(HRESULT_FROM_WIN32(GetLastError()));
+
+        // 设置调试名
+        static const wstring names[] = { L"Direct", L"Bundle", L"Compute", L"Copy", };
+        SET_DEBUGNAME(m_CommandQueue.get(), Application::Format(L"%s (CommandQueue)", names[m_Type].c_str()));
+        SET_DEBUGNAME(m_Fence.get(), Application::Format(L"%s (CommandQueue::Fence)", names[m_Type].c_str()));
     }
 
     void CommandQueue::CloseQueue()

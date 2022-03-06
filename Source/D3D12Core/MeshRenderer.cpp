@@ -45,7 +45,7 @@ using namespace Graphics;
 
 namespace Game
 {
-    void MeshRenderer::Create(const Mesh* mesh, Material* material, bool useBundle)
+    void MeshRenderer::BindResource(const Mesh* mesh, Material* material, bool useBundle)
     {
         m_BindedMesh = mesh;
         m_BindedMaterial = material;

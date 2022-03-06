@@ -18,10 +18,11 @@ class Quaternion;
 class Math
 {
 public:
-    static const float Epsilon;
-    static const float PI;
-    static const float Deg2Rad; // 角度转弧度
-    static const float Rad2Deg; // 弧度转角度
+    inline static const float Epsilon = std::numeric_limits<float>::epsilon();
+    inline static const float PI = DirectX::XM_PI;
+    inline static const float TAU = DirectX::XM_2PI;
+    inline static const float Deg2Rad = 0.017453292f; // 角度转弧度
+    inline static const float Rad2Deg = 57.295779f; // 弧度转角度
 
     inline static float Abs(float x) noexcept { return abs(x); }
     /**
@@ -75,24 +76,20 @@ private:
 class Vector4 : public DirectX::XMFLOAT4
 {
 public:
-    Vector4() : DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f) {}
+    using DirectX::XMFLOAT4::XMFLOAT4;
     Vector4(const Vector4&) = default;
     Vector4(Vector4&&) = default;
-
-    Vector4(DirectX::XMFLOAT4& v) noexcept { CopyMemory(this, &v, sizeof(Vector4)); }
-    Vector4(DirectX::XMFLOAT4&& v) noexcept { CopyMemory(this, &v, sizeof(Vector4)); }
-    Vector4(const DirectX::XMVECTOR& v) noexcept { DirectX::XMStoreFloat4(this, v); }
-    Vector4(const DirectX::XMVECTOR&& v) noexcept { DirectX::XMStoreFloat4(this, v); }
 
     Vector4& operator =(const Vector4&) = default;
     Vector4& operator =(Vector4&&) = default;
 
+    inline Vector4(const DirectX::XMVECTOR& v) noexcept { DirectX::XMStoreFloat4(this, v); }
+    inline Vector4(const DirectX::XMVECTOR&& v) noexcept { DirectX::XMStoreFloat4(this, v); }
+    inline constexpr Vector4(Vector3 v, float w) : DirectX::XMFLOAT4(v.x, v.y, v.z, w) {}
+
     inline operator DirectX::XMFLOAT4& () noexcept { return *this; }
     inline operator DirectX::XMVECTOR() const noexcept { return XMLoadFloat4(this); }
     inline operator Vector3 () const noexcept { return Vector3(x, y, z); }
-
-    inline constexpr Vector4(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
-    inline constexpr Vector4(Vector3 v, float w) : DirectX::XMFLOAT4(v.x, v.y, v.z, w) {}
 
 private:
 
@@ -103,22 +100,20 @@ class Quaternion : public DirectX::XMFLOAT4
 {
 public:
     // --------------------------------------------------------------------------
+    using DirectX::XMFLOAT4::XMFLOAT4;
     Quaternion() : DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) {}
     Quaternion(const Quaternion&) = default;
     Quaternion(Quaternion&&) = default;
 
-    Quaternion(const DirectX::XMFLOAT4& q) noexcept { memcpy(this, &q, sizeof(Quaternion)); }
-    Quaternion(const DirectX::XMFLOAT4&& q) noexcept { memcpy(this, &q, sizeof(Quaternion)); }
-    Quaternion(const DirectX::XMVECTOR& q) noexcept { DirectX::XMStoreFloat4(this, q); }
-    Quaternion(const DirectX::XMVECTOR&& q) noexcept { DirectX::XMStoreFloat4(this, q); }
-
     Quaternion& operator =(const Quaternion&) = default;
     Quaternion& operator =(Quaternion&&) = default;
 
+    inline Quaternion(const DirectX::XMVECTOR& q) noexcept { DirectX::XMStoreFloat4(this, q); }
+    inline Quaternion(const DirectX::XMVECTOR&& q) noexcept { DirectX::XMStoreFloat4(this, q); }
+    inline constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
+
     inline operator DirectX::XMFLOAT4& () noexcept { return *this; }
     inline operator DirectX::XMVECTOR() const noexcept { return XMLoadFloat4(this); }
-
-    inline constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
 
     // --------------------------------------------------------------------------
     /**
@@ -179,6 +174,7 @@ class Matrix4x4 : public DirectX::XMFLOAT4X4
 {
 public:
     // --------------------------------------------------------------------------
+    using DirectX::XMFLOAT4X4::XMFLOAT4X4;
     Matrix4x4() : DirectX::XMFLOAT4X4(
         1.f, 0, 0, 0,
         0, 1.f, 0, 0,
@@ -187,26 +183,14 @@ public:
     Matrix4x4(const Matrix4x4&) = default;
     Matrix4x4(Matrix4x4&&) = default;
 
-    Matrix4x4(const DirectX::XMFLOAT4X4& m) noexcept { memcpy(this, &m, sizeof(Matrix4x4)); }
-    Matrix4x4(const DirectX::XMFLOAT4X4&& m) noexcept { memcpy(this, &m, sizeof(Matrix4x4)); }
-    Matrix4x4(const DirectX::XMMATRIX& m) noexcept { DirectX::XMStoreFloat4x4(this, m); }
-    Matrix4x4(const DirectX::XMMATRIX&& m) noexcept { DirectX::XMStoreFloat4x4(this, m); }
-
     Matrix4x4& operator =(const Matrix4x4&) = default;
     Matrix4x4& operator =(Matrix4x4&&) = default;
 
+    Matrix4x4(const DirectX::XMMATRIX& m) noexcept { DirectX::XMStoreFloat4x4(this, m); }
+    Matrix4x4(const DirectX::XMMATRIX&& m) noexcept { DirectX::XMStoreFloat4x4(this, m); }
+
     inline operator DirectX::XMFLOAT4X4& () noexcept { return (*this); }
     inline operator DirectX::XMMATRIX() const noexcept { return DirectX::XMLoadFloat4x4(this); }
-
-    inline constexpr Matrix4x4(
-        float m00, float m01, float m02, float m03,
-        float m10, float m11, float m12, float m13,
-        float m20, float m21, float m22, float m23,
-        float m30, float m31, float m32, float m33) noexcept : DirectX::XMFLOAT4X4(
-            m00, m01, m02, m03,
-            m10, m11, m12, m13,
-            m20, m21, m22, m23,
-            m30, m31, m32, m33) {}
 
 
     // --------------------------------------------------------------------------

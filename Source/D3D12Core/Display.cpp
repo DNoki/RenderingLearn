@@ -3,6 +3,7 @@
 #include "AppMain.h"
 #include "GraphicsCore.h"
 #include "CommandQueue.h"
+#include "RenderTexture.h"
 
 #include "Display.h"
 

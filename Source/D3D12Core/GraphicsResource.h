@@ -19,16 +19,16 @@ namespace Graphics
         inline UINT64 GetPlacedHeapOffset() const { return m_PlacedOrder * m_AllocationAlignment; }
 
         // 资源创建信息
-        D3D12_HEAP_TYPE m_HeapType;
-        const D3D12_CLEAR_VALUE* m_OptimizedClearValue;
+        D3D12_HEAP_TYPE m_HeapType{};
+        const D3D12_CLEAR_VALUE* m_OptimizedClearValue{};
 
         // 资源分配信息（从设备获取分配大小与对齐大小）
-        UINT64 m_AllocationSize;
-        UINT64 m_AllocationAlignment;
+        UINT64 m_AllocationSize{};
+        UINT64 m_AllocationAlignment{};
 
         // 资源放置信息（由放置堆填充）
-        PlacedHeap* m_PlacedHeapPtr;
-        UINT m_PlacedOrder;         // 放置的定位位置
+        PlacedHeap* m_PlacedHeapPtr{};
+        UINT m_PlacedOrder{};         // 放置的定位位置
 
     private:
 
@@ -42,7 +42,7 @@ namespace Graphics
     {
     public:
         // --------------------------------------------------------------------------
-        inline GraphicsResource() { ZeroMemory(this, sizeof(GraphicsResource)); }
+        GraphicsResource() = default;
         virtual ~GraphicsResource() = 0 {}
         GraphicsResource(const GraphicsResource& res) = delete;
         GraphicsResource(GraphicsResource&& res) = default;
@@ -80,20 +80,20 @@ namespace Graphics
     protected:
         // 资源对象
         // 封装了 CPU 和 GPU 读取和写入物理内存或堆的通用能力。
-        winrt::com_ptr<ID3D12Resource1> m_Resource;
+        winrt::com_ptr<ID3D12Resource1> m_Resource{};
         // 资源描述
-        D3D12_RESOURCE_DESC m_ResourceDesc;
-        D3D12_RESOURCE_STATES m_ResourceStates; // 资源状态
+        D3D12_RESOURCE_DESC m_ResourceDesc{};
+        D3D12_RESOURCE_STATES m_ResourceStates{}; // 资源状态
 
         // GPU 内存中的虚拟地址
         // IBV、VBV 等直接调用资源类型时使用
-        D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress;
+        D3D12_GPU_VIRTUAL_ADDRESS m_GpuVirtualAddress{};
 
         // 放置资源描述
-        PlacedResourceDesc m_PlacedResourceDesc;
+        PlacedResourceDesc m_PlacedResourceDesc{};
 
         // 资源名称
-        std::wstring m_Name;
+        std::wstring m_Name{};
 
     };
 

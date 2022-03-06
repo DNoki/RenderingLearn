@@ -19,8 +19,8 @@ namespace Graphics
         inline ID3D12CommandAllocator* GetD3D12Allocator() { return m_CommandAllocator.get(); }
 
     private:
-        const D3D12_COMMAND_LIST_TYPE m_Type;
-        winrt::com_ptr<ID3D12CommandAllocator> m_CommandAllocator;
+        const D3D12_COMMAND_LIST_TYPE m_Type{};
+        winrt::com_ptr<ID3D12CommandAllocator> m_CommandAllocator{};
     };
 
 
@@ -30,10 +30,11 @@ namespace Graphics
     class CommandAllocatorPool
     {
     public:
+        CommandAllocatorPool() = delete;
+
         static CommandAllocator* Request(D3D12_COMMAND_LIST_TYPE type);
         static void Restore(CommandAllocator* allocator);
 
     private:
-        CommandAllocatorPool() = default;
     };
 }

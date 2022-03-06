@@ -28,7 +28,6 @@ namespace Game
 
     protected:
         Component(GameObject& obj);
-        Component(GameObject& obj, Transform& trans);
 
     private:
         GameObject& m_GameObject;

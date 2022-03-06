@@ -10,6 +10,8 @@ namespace Game
     class SceneManager final
     {
     public:
+        SceneManager() = delete;
+
         /**
          * @brief 获取活动场景
          * @return
@@ -34,8 +36,8 @@ namespace Game
         static void Destory();
 
     private:
-        static int m_ActiveScene;
-        static int m_NextScene;
-        static std::vector<std::unique_ptr<Scene>> m_Scenes;
+        inline static int m_ActiveScene{ 0 };
+        inline static int m_NextScene{ -1 };
+        inline static std::vector<std::unique_ptr<Scene>> m_Scenes{};
     };
 }

@@ -12,10 +12,6 @@
 
 namespace Application
 {
-    TextureLoader::~TextureLoader()
-    {
-    }
-
     void TextureLoader::LoadTexture2D(const Path& path)
     {
         m_Data.clear();

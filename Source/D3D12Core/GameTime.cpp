@@ -5,84 +5,76 @@
 
 using namespace std;
 
-
-class RealTimer
-{
-public:
-    RealTimer() : m_StartTime(), m_Counter()
-    {
-        LARGE_INTEGER frequency;
-        auto result = QueryPerformanceFrequency(&frequency);
-        ASSERT(result, L"ERROR::计时器初始化失败。");
-
-        m_RecFrequencyMilli = 1000.0 / (frequency.QuadPart);
-        m_RecFrequency = 1.0 / (frequency.QuadPart);
-    }
-
-    inline void Restart()
-    {
-        m_StartTime.QuadPart = 0;
-        m_Counter.QuadPart = 0;
-        Start();
-    }
-    inline void Start()
-    {
-        if (m_StartTime.QuadPart != 0)
-            Stop();
-        QueryPerformanceCounter(&m_StartTime);
-    }
-    inline void Stop()
-    {
-        LARGE_INTEGER endTime;
-        QueryPerformanceCounter(&endTime);
-        m_Counter.QuadPart += endTime.QuadPart - m_StartTime.QuadPart;
-        m_StartTime.QuadPart = 0;
-    }
-
-    inline double GetElapsedSecond()
-    {
-        if (m_StartTime.QuadPart == 0)
-            return m_Counter.QuadPart * m_RecFrequency;
-        else
-        {
-            LARGE_INTEGER currTime;
-            QueryPerformanceCounter(&currTime);
-            return (currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequency;
-        }
-    }
-    inline double GetElapsedMillisecond()
-    {
-        if (m_StartTime.QuadPart == 0)
-            return m_Counter.QuadPart * m_RecFrequencyMilli;
-        else
-        {
-            LARGE_INTEGER currTime;
-            QueryPerformanceCounter(&currTime);
-            return (currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequencyMilli;
-        }
-    }
-
-
-private:
-    double m_RecFrequencyMilli; // 每毫秒运行次数的倒数
-    double m_RecFrequency; // 每秒运行次数的倒数
-
-    LARGE_INTEGER m_StartTime;  // 起始时间
-    LARGE_INTEGER m_Counter;    // 记录时间
-};
-
 namespace TimeSystem
 {
-    UINT64 g_FrameCount = 0;
-    UINT64 g_SwapFrameCount = 0;
-    float g_RunTime = 0.0f;
-    double g_RunTimeMilli = 0.0f;
-    float g_DeltaTime = 0.0f;
+    class RealTimer
+    {
+    public:
+        RealTimer()
+        {
+            LARGE_INTEGER frequency;
+            BOOL result = QueryPerformanceFrequency(&frequency);
+            ASSERT(result, L"ERROR::计时器初始化失败。");
 
-    float g_FpsDeltaTimeSum = 0.0f;
-    float g_FpsPrevTime = 0.0f;
-    UINT64 g_FpsPrevCount = 0;
-    float g_AverageFps = 0.0f;
+            m_RecFrequencyMilli = 1000.0 / (frequency.QuadPart);
+            m_RecFrequency = 1.0 / (frequency.QuadPart);
+        }
+
+        inline void Restart()
+        {
+            m_StartTime.QuadPart = 0;
+            m_Counter.QuadPart = 0;
+            Start();
+        }
+        inline void Start()
+        {
+            if (m_StartTime.QuadPart != 0)
+                Stop();
+            QueryPerformanceCounter(&m_StartTime);
+        }
+        inline void Stop()
+        {
+            LARGE_INTEGER endTime;
+            QueryPerformanceCounter(&endTime);
+            m_Counter.QuadPart += endTime.QuadPart - m_StartTime.QuadPart;
+            m_StartTime.QuadPart = 0;
+        }
+
+        inline double GetElapsedSecond()
+        {
+            if (m_StartTime.QuadPart == 0)
+                return m_Counter.QuadPart * m_RecFrequency;
+            else
+            {
+                LARGE_INTEGER currTime;
+                QueryPerformanceCounter(&currTime);
+                return (currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequency;
+            }
+        }
+        inline double GetElapsedMillisecond()
+        {
+            if (m_StartTime.QuadPart == 0)
+                return m_Counter.QuadPart * m_RecFrequencyMilli;
+            else
+            {
+                LARGE_INTEGER currTime;
+                QueryPerformanceCounter(&currTime);
+                return (currTime.QuadPart - m_StartTime.QuadPart + m_Counter.QuadPart) * m_RecFrequencyMilli;
+            }
+        }
+
+    private:
+        double m_RecFrequencyMilli{ 0.0 }; // 每毫秒运行次数的倒数
+        double m_RecFrequency{ 0.0 }; // 每秒运行次数的倒数
+
+        LARGE_INTEGER m_StartTime{};  // 起始时间
+        LARGE_INTEGER m_Counter{};    // 记录时间
+    };
+
+    static double g_RunTimeMilli = 0.0f;
+    static float g_FpsDeltaTimeSum = 0.0f;
+    static float g_FpsPrevTime = 0.0f;
+    static UINT64 g_FpsPrevCount = 0;
 
     static RealTimer g_RunTimer;
 

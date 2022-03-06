@@ -8,7 +8,7 @@ namespace Graphics
     class RootSignature
     {
     public:
-        RootSignature(UINT numRootParams = 0, UINT numStaticSamplers = 0);
+        RootSignature() = default;
 
         /**
          * @brief 重置根签名
@@ -33,12 +33,12 @@ namespace Graphics
         }
 
     private:
-        bool m_IsFinalized;
-        winrt::com_ptr<ID3D12RootSignature> m_RootSignature;
+        bool m_IsFinalized{};
+        winrt::com_ptr<ID3D12RootSignature> m_RootSignature{};
 
-        UINT m_NumRootParams;
-        UINT m_NumStaticSamplers;
-        std::vector<CD3DX12_ROOT_PARAMETER1> m_ParamArray;
-        std::vector<CD3DX12_STATIC_SAMPLER_DESC> m_SamplerArray;
+        UINT m_NumRootParams{};
+        UINT m_NumStaticSamplers{};
+        std::vector<CD3DX12_ROOT_PARAMETER1> m_ParamArray{};
+        std::vector<CD3DX12_STATIC_SAMPLER_DESC> m_SamplerArray{};
     };
 }

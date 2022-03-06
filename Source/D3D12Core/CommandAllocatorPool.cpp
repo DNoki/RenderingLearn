@@ -25,12 +25,7 @@ namespace Graphics
     class CommandAllocatorPoolImpl
     {
     public:
-        CommandAllocatorPoolImpl() :
-            m_GraphicsCommandAllocators(), m_ComputeCommandAllocators(), m_CopyCommandAllocators(),
-            m_GraphicsIdleQueue(), m_ComputeIdleQueue(), m_CopyIdleQueue()
-        {
-
-        }
+        CommandAllocatorPoolImpl() = default;
 
         /**
          * @brief 返回一个闲置分配器，若无闲置则创建它
@@ -110,21 +105,21 @@ namespace Graphics
         }
 
     private:
-        vector<unique_ptr<CommandAllocator>> m_GraphicsCommandAllocators;   // 图形命令分配器
-        vector<unique_ptr<CommandAllocator>> m_BundleCommandAllocators;     // 命令捆绑包分配器
-        vector<unique_ptr<CommandAllocator>> m_ComputeCommandAllocators;    // 计算命令分配器
-        vector<unique_ptr<CommandAllocator>> m_CopyCommandAllocators;       // 拷贝命令分配器
+        vector<unique_ptr<CommandAllocator>> m_GraphicsCommandAllocators{};   // 图形命令分配器
+        vector<unique_ptr<CommandAllocator>> m_BundleCommandAllocators{};     // 命令捆绑包分配器
+        vector<unique_ptr<CommandAllocator>> m_ComputeCommandAllocators{};    // 计算命令分配器
+        vector<unique_ptr<CommandAllocator>> m_CopyCommandAllocators{};       // 拷贝命令分配器
 
-        queue<CommandAllocator*> m_GraphicsIdleQueue;   // 图形分配器等待队列
-        queue<CommandAllocator*> m_BundleIdleQueue;     // 捆绑包分配器等待队列
-        queue<CommandAllocator*> m_ComputeIdleQueue;    // 计算分配器等待队列
-        queue<CommandAllocator*> m_CopyIdleQueue;       // 拷贝分配器等待队列
+        queue<CommandAllocator*> m_GraphicsIdleQueue{};   // 图形分配器等待队列
+        queue<CommandAllocator*> m_BundleIdleQueue{};     // 捆绑包分配器等待队列
+        queue<CommandAllocator*> m_ComputeIdleQueue{};    // 计算分配器等待队列
+        queue<CommandAllocator*> m_CopyIdleQueue{};       // 拷贝分配器等待队列
 
 
     } g_CommandAllocatorPoolImpl;
 
 
-    CommandAllocator::CommandAllocator(D3D12_COMMAND_LIST_TYPE type) : m_Type(type), m_CommandAllocator()
+    CommandAllocator::CommandAllocator(D3D12_COMMAND_LIST_TYPE type) : m_Type(type)
     {
         // 创建命令列表分配器
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));

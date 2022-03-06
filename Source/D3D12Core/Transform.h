@@ -8,13 +8,13 @@ namespace Game
     {
     public:
         // 本地坐标位置
-        Vector3 LocalPosition;
+        Vector3 LocalPosition{ Vector3::Zero };
         // 本地坐标旋转
-        Vector3 LocalEulerAngles; // TODO 使用四元数存储旋转
+        Vector3 LocalEulerAngles{ Vector3::Zero }; // TODO 使用四元数存储旋转
         // 本地坐标缩放
-        Vector3 LocalScale;
+        Vector3 LocalScale{ Vector3::One };
 
-        Transform(GameObject& obj);
+        Transform(GameObject& obj) : Component(obj) {};
         virtual ~Transform() override = default;
 
         // 获取位置
@@ -72,8 +72,8 @@ namespace Game
 
     private:
         // 父对象变换
-        Transform* m_Parent;
-        std::vector<Transform*> m_Childs;
+        Transform* m_Parent{};
+        std::vector<Transform*> m_Childs{};
 
     };
 }

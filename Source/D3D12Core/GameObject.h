@@ -15,8 +15,8 @@ namespace Game
         GameObject(const GameObject& obj) = delete;
         GameObject(GameObject&& obj) = default;
 
-        inline GameObject& operator = (const GameObject & obj) = delete;
-        inline GameObject& operator = (GameObject && obj) = default;
+        inline GameObject& operator = (const GameObject& obj) = delete;
+        inline GameObject& operator = (GameObject&& obj) = default;
 
         /**
          * @brief 是否处于激活状态
@@ -85,9 +85,9 @@ namespace Game
         }
 
     private:
-        bool m_Enabled;
-        std::unique_ptr<Transform> m_Transform;
-        std::vector<std::unique_ptr<Component>> m_Components;
+        bool m_Enabled{ true };
+        std::unique_ptr<Transform> m_Transform{};
+        std::vector<std::unique_ptr<Component>> m_Components{};
 
     };
 }

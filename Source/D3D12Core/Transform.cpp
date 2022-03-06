@@ -6,9 +6,6 @@
 
 namespace Game
 {
-    Transform::Transform(GameObject& obj) : Component(obj), LocalPosition(), LocalEulerAngles(), LocalScale(Vector3::One) {}
-
-
     Vector3 Transform::GetPosition(bool isWorld) const
     {
         if (m_Parent == nullptr || !isWorld)
