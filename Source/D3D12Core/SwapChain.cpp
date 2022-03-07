@@ -1,11 +1,11 @@
 ﻿#include "pch.h"
 
 #include "AppMain.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "CommandQueue.h"
 #include "RenderTexture.h"
 
-#include "Display.h"
+#include "SwapChain.h"
 
 // DirectX 图形基础结构 (DXGI) ：最佳实践 https://docs.microsoft.com/zh-cn/windows/win32/direct3darticles/dxgi-best-practices
 

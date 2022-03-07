@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 
 #include "GameTime.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "GraphicsCommon.h"
-#include "Display.h"
+#include "SwapChain.h"
 #include "Input.h"
 #include "Scene.h"
 #include "SceneManager.h"

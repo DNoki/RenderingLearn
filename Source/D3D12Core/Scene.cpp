@@ -2,7 +2,7 @@
 
 #include "AppMain.h"
 #include "CommandList.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "GraphicsCommon.h"
 #include "GameTime.h"
 #include "Input.h"

@@ -10,7 +10,7 @@ namespace Game
         // 本地坐标位置
         Vector3 LocalPosition{ Vector3::Zero };
         // 本地坐标旋转
-        Vector3 LocalEulerAngles{ Vector3::Zero }; // TODO 使用四元数存储旋转
+        Quaternion LocalRotation{ Quaternion::Identity };
         // 本地坐标缩放
         Vector3 LocalScale{ Vector3::One };
 

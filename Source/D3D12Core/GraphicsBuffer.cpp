@@ -2,7 +2,7 @@
 
 #include "DescriptorHandle.h"
 #include "UploadBuffer.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "GraphicsMemory.h"
 #include "CommandQueue.h"
 #include "CommandList.h"

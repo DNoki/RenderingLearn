@@ -22,26 +22,25 @@ namespace Game
     }
     Quaternion Transform::GetRotation(bool isWorld) const
     {
-        return Quaternion::CreateFromEulerAngles(GetEulerAngles(isWorld));
+        if (m_Parent == nullptr || !isWorld)
+            return LocalRotation;
+        else
+            return m_Parent->GetRotation() * LocalRotation;
     }
     void Transform::SetRotation(const Quaternion& rot, bool isWorld)
     {
-        SetEulerAngles(rot.GetEulerAngles(), isWorld);
+        if (m_Parent == nullptr || !isWorld)
+            LocalRotation = rot;
+        else
+            LocalRotation = m_Parent->GetRotation().Inverse() * rot;
     }
     Vector3 Transform::GetEulerAngles(bool isWorld) const
     {
-        if (m_Parent == nullptr || !isWorld)
-            return LocalEulerAngles;
-        else
-            return (m_Parent->GetRotation() * Quaternion(LocalEulerAngles)).GetEulerAngles();
+        return GetRotation(isWorld).GetEulerAngles();
     }
     void Transform::SetEulerAngles(const Vector3& e, bool isWorld)
     {
-        auto eee = e * Math::Rad2Deg;
-        if (m_Parent == nullptr || !isWorld)
-            LocalEulerAngles = e;
-        else
-            LocalEulerAngles = (m_Parent->GetRotation().Inverse() * Quaternion(e)).GetEulerAngles();
+        SetRotation(Quaternion::CreateFromEulerAngles(e), isWorld);
     }
     Vector3 Transform::GetLossyScale() const
     {

@@ -2,7 +2,7 @@
 
 #include "GraphicsResource.h"
 #include "RenderTexture.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 
 #include "DescriptorHeap.h"
 

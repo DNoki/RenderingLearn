@@ -1,88 +1,242 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="..\Source\D3D12Core\AppMain.h" />
-    <ClInclude Include="..\Source\D3D12Core\GlobalUtility.h" />
-    <ClInclude Include="..\Source\D3D12Core\pch.h" />
-    <ClInclude Include="..\Source\D3D12Core\GraphicsCore.h" />
-    <ClInclude Include="..\Source\D3D12Core\Display.h" />
-    <ClInclude Include="..\Source\D3D12Core\DescriptorHeap.h" />
-    <ClInclude Include="..\Source\D3D12Core\RootSignature.h" />
-    <ClInclude Include="..\Source\D3D12Core\PipelineState.h" />
-    <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h" />
-    <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h" />
-    <ClInclude Include="..\Source\D3D12Core\GraphicsBuffer.h" />
-    <ClInclude Include="..\Source\D3D12Core\CommandQueue.h" />
-    <ClInclude Include="..\Source\D3D12Core\RenderTexture.h" />
-    <ClInclude Include="..\Source\D3D12Core\Texture2D.h" />
-    <ClInclude Include="..\Source\D3D12Core\SampleScene.h" />
-    <ClInclude Include="..\Source\D3D12Core\GraphicsMemory.h" />
-    <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h" />
-    <ClInclude Include="..\Source\D3D12Core\CommandList.h" />
-    <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h" />
     <ClInclude Include="..\Source\Shaders\Sample.shader">
       <Filter>Shaders</Filter>
     </ClInclude>
     <ClInclude Include="..\Source\Shaders\SampleTexture.shader">
       <Filter>Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="..\Source\D3D12Core\Input.h" />
-    <ClInclude Include="..\Source\D3D12Core\MathCommon.h" />
-    <ClInclude Include="..\Source\D3D12Core\GraphicsResource.h" />
-    <ClInclude Include="..\Source\D3D12Core\TextureLoader.h" />
-    <ClInclude Include="..\Source\D3D12Core\GameTime.h" />
-    <ClInclude Include="..\Source\D3D12Core\Camera.h" />
-    <ClInclude Include="..\Source\D3D12Core\Mesh.h" />
-    <ClInclude Include="..\Source\D3D12Core\MeshRenderer.h" />
-    <ClInclude Include="..\Source\D3D12Core\Shader.h" />
-    <ClInclude Include="..\Source\D3D12Core\Material.h" />
-    <ClInclude Include="..\Source\D3D12Core\MultiRenderTargets.h" />
-    <ClInclude Include="..\Source\D3D12Core\PipelineStateManager.h" />
-    <ClInclude Include="..\Source\D3D12Core\Transform.h" />
-    <ClInclude Include="..\Source\D3D12Core\GameObject.h" />
-    <ClInclude Include="..\Source\D3D12Core\Component.h" />
-    <ClInclude Include="..\Source\D3D12Core\Scene.h" />
-    <ClInclude Include="..\Source\D3D12Core\SceneManager.h" />
-    <ClInclude Include="..\Source\D3D12Core\ConstansBuffer.h" />
+    <ClInclude Include="..\Source\D3D12Core\GameObject.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GameTime.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Input.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\SceneManager.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Scene.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\SampleScene.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\SwapChain.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\DescriptorHeap.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GraphicsBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\CommandQueue.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\CommandList.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\CommandAllocatorPool.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GraphicsCommon.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GraphicsManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GraphicsMemory.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\PipelineStateManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\PipelineState.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\MultiRenderTargets.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\RootSignature.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\UploadBuffer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\MathCommon.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\AppMain.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GlobalUtility.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\TextureLoader.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\RenderTexture.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\GraphicsResource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\ConstansBuffer.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Material.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Mesh.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Shader.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Texture2D.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Camera.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Component.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\MeshRenderer.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Transform.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\pch.h">
+      <Filter>Global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\IGameResource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Source\D3D12Core\AppMain.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GlobalUtility.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\pch.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GraphicsCore.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Display.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\DescriptorHeap.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GraphicsBuffer.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\SampleScene.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GraphicsMemory.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\CommandList.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Input.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GraphicsResource.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GameTime.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Camera.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Mesh.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\MeshRenderer.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Shader.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Material.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\MultiRenderTargets.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\PipelineStateManager.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Transform.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\GameObject.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Component.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\Scene.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\SceneManager.cpp" />
-    <ClCompile Include="..\Source\D3D12Core\ConstansBuffer.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\GameObject.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GameTime.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Input.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\SceneManager.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Scene.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\SampleScene.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\DescriptorHeap.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\SwapChain.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GraphicsBuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\CommandQueue.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\CommandList.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\CommandAllocatorPool.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GraphicsCommon.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GraphicsManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GraphicsMemory.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\PipelineState.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\PipelineStateManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\MultiRenderTargets.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\RootSignature.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\UploadBuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\MathCommon.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\AppMain.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GlobalUtility.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\TextureLoader.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\RenderTexture.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\GraphicsResource.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\ConstansBuffer.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Material.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Mesh.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Shader.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Texture2D.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Camera.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Component.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\MeshRenderer.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Transform.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\pch.cpp">
+      <Filter>Global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\IGameResource.cpp">
+      <Filter>Resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -93,6 +247,24 @@
     </Filter>
     <Filter Include="Shaders\PS">
       <UniqueIdentifier>{81cc8fe0-a220-4c15-befc-848fcab83552}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game">
+      <UniqueIdentifier>{4b18c5eb-dc2b-47d3-957a-eb088654d0e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{2e1d3c97-b574-43e2-9307-0728ae6d6246}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Global">
+      <UniqueIdentifier>{40e23eae-59b7-4877-9fd1-ec6a15229def}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{e410484a-789f-48bd-b8fc-59f3810580e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{d5565957-f100-46a8-9000-71371c4b46c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component">
+      <UniqueIdentifier>{9556267e-e9f3-4888-bce5-f75f904c4420}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

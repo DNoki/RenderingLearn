@@ -134,9 +134,9 @@ public:
     inline Quaternion Conjugate() const noexcept { return DirectX::XMQuaternionConjugate(*this); }
 
     // --------------------------------------------------------------------------
-    inline static Quaternion CreateFromEulerAngles(float p, float y, float r) { return CreateFromEulerAngles(Vector3(p, y, r)); }
-    inline static Quaternion CreateFromEulerAngles(const Vector3& eulerAngles) { return DirectX::XMQuaternionRotationRollPitchYawFromVector(eulerAngles); }
-    inline static Quaternion CreateFromAxisAngle(const Vector3& axis, float angle) noexcept { return DirectX::XMQuaternionRotationAxis(axis, angle); }
+    inline static Quaternion CreateFromEulerAngles(float p, float y, float r) { return CreateFromEulerAngles(Vector3(p, y, r) * Math::Deg2Rad); }
+    inline static Quaternion CreateFromEulerAngles(const Vector3& eulerAngles) { return DirectX::XMQuaternionRotationRollPitchYawFromVector(eulerAngles * Math::Deg2Rad); }
+    inline static Quaternion CreateFromAxisAngle(const Vector3& axis, float angle) noexcept { return DirectX::XMQuaternionRotationAxis(axis, angle * Math::Deg2Rad); }
     static Quaternion LookRotationLH(const Vector3& forward, const Vector3& upwards = Vector3::Up) noexcept
     {
         using namespace DirectX;

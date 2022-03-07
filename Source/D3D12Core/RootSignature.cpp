@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 
 #include "RootSignature.h"
 

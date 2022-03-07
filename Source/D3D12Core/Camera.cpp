@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 
-#include "GraphicsCore.h"
-#include "Display.h"
+#include "GraphicsManager.h"
+#include "SwapChain.h"
 #include "Transform.h"
 
 #include "Camera.h"

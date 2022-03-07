@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "GraphicsResource.h"
+#include "IGameResource.h"
 
 namespace Graphics
 {

@@ -7,14 +7,14 @@
 
 #include "PipelineState.h"
 
-#include "Display.h"
+#include "SwapChain.h"
 #include "CommandQueue.h"
 #include "CommandList.h"
 
 #include "GameTime.h"
 #include "AppMain.h"
 
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 
 
 using namespace winrt;

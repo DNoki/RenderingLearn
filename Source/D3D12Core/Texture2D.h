@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include "GraphicsResource.h"
+#include "IGameResource.h"
 #include "UploadBuffer.h"
 
 namespace Graphics
 {
-    class Texture;
     class CommandList;
 }
 

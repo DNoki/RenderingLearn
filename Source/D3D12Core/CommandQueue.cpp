@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "PipelineState.h"
 #include "CommandAllocatorPool.h"
 #include "CommandList.h"

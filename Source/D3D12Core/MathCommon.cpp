@@ -101,7 +101,7 @@ Vector3 Quaternion::GetEulerAngles() const noexcept
         yaw = Math::Atan2(2.0f * (q.x * q.z + q.y * q.w), q.w * q.w - q.y * q.y - q.x * q.x + q.z * q.z);
     }
 
-    return Vector3(pitch, yaw, roll);
+    return Vector3(pitch, yaw, roll) * Math::Rad2Deg;
 }
 
 

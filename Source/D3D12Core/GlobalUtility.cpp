@@ -3,7 +3,7 @@
 #include <d3dcompiler.h>
 //#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
 
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 
 #include "GlobalUtility.h"
 

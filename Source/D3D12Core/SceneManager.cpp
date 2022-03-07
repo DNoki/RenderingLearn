@@ -4,6 +4,7 @@
 #include "Transform.h"
 #include "SampleScene.h"
 #include "GraphicsResource.h"
+#include "IGameResource.h"
 
 #include "SceneManager.h"
 

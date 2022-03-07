@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 
 #include "GraphicsMemory.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "CommandList.h"
 
 #include "Texture2D.h"

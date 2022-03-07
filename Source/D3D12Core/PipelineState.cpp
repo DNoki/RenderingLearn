@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 
 #include "PipelineStateManager.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 
 #include "PipelineState.h"
 

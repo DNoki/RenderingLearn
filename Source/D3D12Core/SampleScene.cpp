@@ -2,9 +2,9 @@
 
 #include "AppMain.h"
 #include "CommandList.h"
-#include "GraphicsCore.h"
+#include "GraphicsManager.h"
 #include "CommandQueue.h"
-#include "Display.h"
+#include "SwapChain.h"
 #include "GraphicsCommon.h"
 #include "GameTime.h"
 #include "Input.h"
@@ -214,16 +214,20 @@ namespace Game
                 rot.x = -deltaPos.y;
                 rot.y *= -1.0f;
             }
-            g_SampleCameraObject->GetTransform().LocalEulerAngles += rot * 0.1f * Math::Deg2Rad;
+            auto cameraEulerAngles = g_SampleCameraObject->GetTransform().GetRotation().GetEulerAngles();
+            cameraEulerAngles += rot * 0.1f;
 
             if (Input::KeyDown(KeyCode::R))
             {
                 g_SampleCameraObject->GetTransform().LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
-                g_SampleCameraObject->GetTransform().LocalEulerAngles = Vector3::Zero;
+                cameraEulerAngles = Vector3::Zero;
                 g_SampleCameraObject->GetTransform().LocalScale = Vector3::One;
             }
+            g_SampleCameraObject->GetTransform().SetEulerAngles(cameraEulerAngles);
 
-            g_SampleModelObject->GetTransform().LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
+            auto modelEulerAngles = g_SampleModelObject->GetTransform().GetEulerAngles();
+            modelEulerAngles.y += Time::GetDeltaTime() * 90.0f;
+            g_SampleModelObject->GetTransform().SetEulerAngles(modelEulerAngles);
         }
     }
     void SampleScene::ExecuteRender()
