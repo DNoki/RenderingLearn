@@ -26,7 +26,7 @@ namespace Game
     void Shader::Create(const ShaderDesc* shaderDesc)
     {
 #if 1
-        ASSERT(shaderDesc != nullptr);
+        if (shaderDesc == nullptr) throw L"ERROR::ShaderDesc is nullptr";
         m_ShaderDesc = *shaderDesc;
 
         // 加载着色器缓冲

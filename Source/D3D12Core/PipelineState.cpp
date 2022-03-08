@@ -82,10 +82,11 @@ namespace Graphics
     */
     void GraphicsPipelineState::SetRenderTargetFormats(UINT numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
     {
-        ASSERT(numRTVs == 0 || rtvFormats != nullptr, L"WARNING::Null format array conflicts with non-zero length");
-
         m_PSODesc.NumRenderTargets = numRTVs; // 渲染目标视图数量（最大为8）
-        CopyMemory(m_PSODesc.RTVFormats, rtvFormats, sizeof(DXGI_FORMAT) * numRTVs); // 渲染目标视图格式
+        if (numRTVs > 0 && rtvFormats != nullptr)
+        {
+            CopyMemory(m_PSODesc.RTVFormats, rtvFormats, sizeof(DXGI_FORMAT) * numRTVs); // 渲染目标视图格式
+        }
         m_PSODesc.DSVFormat = dsvFormat; // 深度模板视图格式
 
         // 多采样抗锯齿样本与质量

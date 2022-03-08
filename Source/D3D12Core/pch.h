@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#pragma warning(disable:26812) // 禁用 Enum 警告
+#pragma warning(push, 0) // 关闭所有第三方库头文件警告
+
 #include <functional>
 #include <queue>
 #include <filesystem>
@@ -63,6 +66,7 @@
 
 #include <GeometricPrimitive.h> // 用于创建预置模型
 
+#pragma warning(pop)
 
 
 #pragma region DEFINE
@@ -88,8 +92,6 @@ typedef std::filesystem::path Path;
 
 
 #if DEBUG
-
-#pragma warning(disable:26812) // 禁用 Enum 警告
 
 // 输出调试信息到控制台
 #define TRACE(...) Application::Trace(__VA_ARGS__)

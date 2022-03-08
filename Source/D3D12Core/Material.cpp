@@ -15,7 +15,7 @@ namespace Game
 {
     void Material::Create(const Shader* shader)
     {
-        ASSERT(shader != nullptr);
+        if (shader == nullptr) throw L"ERROR::Shader is nullptr";
         m_Shader = shader;
         m_Version = 1;
 
@@ -130,9 +130,7 @@ namespace Game
 
         if (!isSame)
         {
-            pso.NumRenderTargets = mrt->GetRenderTargetCount();
-            CopyMemory(pso.RTVFormats, mrt->GetRenderTargetsFormat(), sizeof(DXGI_FORMAT) * mrt->GetRenderTargetCount());
-            pso.DSVFormat = *mrt->GetDepthStencilFormat();
+            m_PipelineState->SetRenderTargetFormats(mrt->GetRenderTargetCount(), mrt->GetRenderTargetsFormat(), *mrt->GetDepthStencilFormat());
         }
     }
 

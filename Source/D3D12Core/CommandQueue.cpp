@@ -58,6 +58,7 @@ namespace Graphics
 
         // 设置调试名
         static const wstring names[] = { L"Direct", L"Bundle", L"Compute", L"Copy", };
+        if (m_Type < 0 || _countof(names) <= m_Type) return;
         SET_DEBUGNAME(m_CommandQueue.get(), Application::Format(L"%s (CommandQueue)", names[m_Type].c_str()));
         SET_DEBUGNAME(m_Fence.get(), Application::Format(L"%s (CommandQueue::Fence)", names[m_Type].c_str()));
     }

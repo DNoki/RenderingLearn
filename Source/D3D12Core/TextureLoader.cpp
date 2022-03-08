@@ -2,7 +2,10 @@
 
 #define STB_IMAGE_IMPLEMENTATION //通过定义STB_IMAGE_IMPLEMENTATION，预处理器会修改头文件，让其只包含相关的函数定义源码，等于是将这个头文件变为一个 .cpp 文件了。
 #define STBI_WINDOWS_UTF8 // STBI 文件路径字符串格式为 UTF8
+#pragma warning(push, 0)
+#pragma warning(disable:28251)
 #include <stb_image.h>
+#pragma warning(pop)
 
 //#include <wincodec.h> // TODO WIC库加载图片
 //#include <DDSTextureLoader.h>
@@ -29,18 +32,18 @@ namespace Application
         {
         case 1:
             m_Format = DXGI_FORMAT_R8_UNORM;
-            m_Data.resize(1 * pixilCount);
+            m_Data.resize(1ull * pixilCount);
             memcpy(m_Data.data(), data, m_Data.size());
             break;
         case 2:
             m_Format = DXGI_FORMAT_R8G8_UNORM;
-            m_Data.resize(2 * pixilCount);
+            m_Data.resize(2ull * pixilCount);
             memcpy(m_Data.data(), data, m_Data.size());
             break;
         case 3:
         {
             m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            m_Data.resize(4 * pixilCount);
+            m_Data.resize(4ull * pixilCount);
             size_t srcIndex = 0;
             for (size_t i = 0; i < m_Data.size(); i++)
             {
@@ -55,7 +58,7 @@ namespace Application
         break;
         case 4:
             m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-            m_Data.resize(4 * pixilCount);
+            m_Data.resize(4ull * pixilCount);
             memcpy(m_Data.data(), data, m_Data.size());
             break;
         default: ASSERT(0, L"ERROR::未定义格式"); break;
