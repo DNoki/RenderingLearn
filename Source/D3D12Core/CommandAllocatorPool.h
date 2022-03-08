@@ -8,6 +8,8 @@ namespace Graphics
     class CommandAllocator
     {
     public:
+        std::vector<std::function<void()>> m_OnCompletedEvents;
+
         CommandAllocator(D3D12_COMMAND_LIST_TYPE type);
 
         /**

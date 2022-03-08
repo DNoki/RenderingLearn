@@ -112,6 +112,13 @@ namespace Graphics
         m_IsLocked = false;
     }
 
+    void CommandList::AddOnCompletedEvent(std::function<void()> onCompleted) const
+    {
+        ASSERT(m_CommandAllocator);
+        if (m_CommandAllocator)
+            m_CommandAllocator->m_OnCompletedEvents.push_back(onCompleted);
+    }
+
     void CommandList::ResourceTransitionBarrier(const GraphicsResource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
     {
         /*

@@ -39,6 +39,8 @@ namespace Graphics
             return &m_CurrentRenderTargets;
         }
 
+        void AddOnCompletedEvent(std::function<void()> onCompleted) const;
+
 #pragma region 捆绑包命令列表不可用
 #if 0
         inline void ResourceBarrier(UINT numBarriers, const D3D12_RESOURCE_BARRIER* pBarriers) const

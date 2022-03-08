@@ -86,6 +86,12 @@ namespace Graphics
             commandList.ResourceBarrier(1, &barriers);
 #endif
         }
+
+        // 拷贝完成后释放上传堆
+        commandList.AddOnCompletedEvent([this]()
+            {
+                m_UploadBuffer.reset();
+            });
     }
 
     void GraphicsBuffer::DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after)

@@ -123,7 +123,12 @@ namespace Graphics
     {
         // 创建命令列表分配器
         CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));
-        SET_DEBUGNAME(m_CommandAllocator.get(), _T("CommandAllocator"));
+
+        if (D3D12_COMMAND_LIST_TYPE_DIRECT <= type && type < D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE)
+        {
+            static const wstring names[] = { L"Graphics", L"Bundle", L"Compute", L"Copy", };
+            SET_DEBUGNAME(m_CommandAllocator.get(), Application::Format(L"%s (CommandAllocator)", names[type].c_str()));
+        }
     }
 
 

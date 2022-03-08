@@ -130,6 +130,12 @@ namespace Game
                 &textureData);                                  // 指向数组的指针
         }
 
+        // 拷贝完成后释放上传堆
+        commandList.AddOnCompletedEvent([this]()
+            {
+                m_UploadBuffer.reset();
+            });
+
         // 资源屏障
         // 转换屏障：描述子资源在不同用途之间的转换，系统将验证命令列表中的子资源转换是否与同一命令列表中以前的转换相一致
 #if 0

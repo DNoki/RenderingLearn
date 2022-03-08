@@ -108,8 +108,13 @@ namespace Graphics
         }
 
         // 将所有使用的分配器释放
-        for (auto allocator : m_Allocators)
+        for (auto* allocator : m_Allocators)
         {
+            for (auto& onCompletedEvent : allocator->m_OnCompletedEvents)
+            {
+                if (onCompletedEvent) onCompletedEvent();
+            }
+            allocator->m_OnCompletedEvents.clear();
             CommandAllocatorPool::Restore(allocator);
         }
         m_Allocators.clear();
