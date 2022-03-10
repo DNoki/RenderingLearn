@@ -166,7 +166,6 @@ namespace Graphics
             // 创建 DirectX 图形基础设施 (DXGI) 
             {
                 CHECK_HRESULT(CreateDXGIFactory2(nDXGIFactoryFlags, IID_PPV_ARGS(m_Factory.put())));
-                CHECK_HRESULT(m_Factory->MakeWindowAssociation(Application::g_Hwnd, DXGI_MWA_NO_ALT_ENTER)); // 防止 DXGI 响应 Alt+Enter
                 SET_DEBUGNAME(m_Factory.get(), _T("IDXGIFactory"));
             }
 
@@ -227,6 +226,9 @@ namespace Graphics
             // 初始化交换链
             m_SwapChain.reset(new SwapChain());
             m_SwapChain->CreateForHwnd(Application::g_Hwnd, SWAP_FRAME_BACK_BUFFER_COUNT, SWAP_CHAIN_RENDER_TARGET_FORMAT);
+
+            // 防止 DXGI 响应 Alt+Enter
+            CHECK_HRESULT(m_Factory->MakeWindowAssociation(Application::g_Hwnd, DXGI_MWA_NO_ALT_ENTER));
         }
         inline void Destory()
         {

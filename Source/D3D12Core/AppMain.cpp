@@ -281,7 +281,7 @@ namespace Application
 
 
             // TODO ALT+F4 关闭窗口
-            if (Input::KeyState(KeyCode::LeftAlt) && Input::KeyState(KeyCode::F4))
+            if ((Input::KeyState(KeyCode::LeftAlt) && Input::KeyDown(KeyCode::F4)) || Input::KeyDown(KeyCode::Escape))
             {
                 CloseWindow();
             }
