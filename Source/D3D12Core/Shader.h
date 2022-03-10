@@ -43,7 +43,12 @@ namespace Game
     {
     public:
         Shader() = default;
-        virtual ~Shader() override = default;
+        virtual ~Shader() override = default;;
+        Shader(const Shader&) = delete;
+        Shader(Shader&&) = default;
+
+        inline Shader& operator = (const Shader&) = delete;
+        inline Shader& operator = (Shader&&) = default;
 
         void Create(const ShaderDesc* shaderDesc);
 

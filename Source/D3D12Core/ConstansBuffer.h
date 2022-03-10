@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "IGameResource.h"
+#include "UploadBuffer.h"
 
 namespace Graphics
 {

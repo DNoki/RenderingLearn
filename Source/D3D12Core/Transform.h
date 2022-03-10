@@ -1,9 +1,17 @@
 ﻿#pragma once
 
 #include "Component.h"
+#include "ConstansBuffer.h"
 
 namespace Game
 {
+    struct TransformBuffer
+    {
+        Matrix4x4 m_Model;
+        Matrix4x4 m_IT_Model;
+        Matrix4x4 m_MVP;
+    };
+
     class Transform final : public Component
     {
     public:
@@ -14,7 +22,7 @@ namespace Game
         // 本地坐标缩放
         Vector3 LocalScale{ Vector3::One };
 
-        Transform(GameObject& obj) : Component(obj) {};
+        Transform(GameObject& obj);
         virtual ~Transform() override = default;
 
         // 获取位置
@@ -40,6 +48,14 @@ namespace Game
         inline Vector3 GetUp() const { return GetRotation() * Vector3::Up; }
         // 获取右方向
         inline Vector3 GetRight() const { return GetRotation() * Vector3::Right; }
+        inline const ConstansBuffer<TransformBuffer>* GetTransformBuffer() const { return m_TransformBuffer.get(); }
+        inline void RefleshTransformBuffer(const Matrix4x4& pv)
+        {
+            auto* mappingBuffer = m_TransformBuffer->GetMappingBuffer();
+            mappingBuffer->m_Model = GetLocalToWorldMatrix();
+            mappingBuffer->m_IT_Model = mappingBuffer->m_Model.Inverse();
+            mappingBuffer->m_MVP = pv * mappingBuffer->m_Model;
+        }
 
         /**
          * @brief 设置父对象
@@ -74,6 +90,8 @@ namespace Game
         // 父对象变换
         Transform* m_Parent{};
         std::vector<Transform*> m_Childs{};
+
+        std::unique_ptr<ConstansBuffer<TransformBuffer>> m_TransformBuffer;
 
     };
 }

@@ -14,7 +14,6 @@ namespace Game
     private:
 
         virtual void ExecuteUpdate() override;
-        virtual void ExecuteRender() override;
 
     };
 

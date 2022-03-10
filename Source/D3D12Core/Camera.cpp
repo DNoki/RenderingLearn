@@ -3,6 +3,7 @@
 #include "GraphicsManager.h"
 #include "SwapChain.h"
 #include "Transform.h"
+#include "GameObject.h"
 
 #include "Camera.h"
 
@@ -10,6 +11,13 @@ using namespace Graphics;
 
 namespace Game
 {
+    Camera::Camera(GameObject& obj) : Component(obj) 
+    {
+        m_CameraBuffer.reset(new ConstansBuffer<CameraBuffer>());
+        m_CameraBuffer->PlacedCreate();
+        m_CameraBuffer->SetName(Application::Format(L"%s (CameraBuffer)", obj.m_Name));
+    }
+
     Matrix4x4 Camera::GetProjectionMatrix() const
     {
         Matrix4x4 projection{};

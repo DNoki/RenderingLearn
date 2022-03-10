@@ -16,11 +16,15 @@ struct PSInput
 };
 
 // 常量缓冲区
-cbuffer MVPBuffer : register(b0)
+cbuffer CameraBuffer : register(b0)
 {
-    float4x4 m_P;
-    float4x4 m_V;
-    float4x4 m_M;
+    float4x4 m_Project;
+    float4x4 m_View;
+};
+
+cbuffer ModelBuffer : register(b1)
+{
+    float4x4 m_Model;
     float4x4 m_IT_M;
     float4x4 m_MVP;
 };
@@ -35,11 +39,11 @@ PSInput VSMain(VSInput appdata)
     //f.position = position;
     f.position = mul(appdata.position, m_MVP);
     //f.position = mul(m_MVP, position);
-    //f.position = mul(mul(mul(position, m_M), m_V), m_P);
-    //f.position = mul(m_P, mul(m_V, mul(m_M, position)));
+    //f.position = mul(mul(mul(position, m_Model), m_View), m_Project);
+    //f.position = mul(m_Project, mul(m_View, mul(m_Model, position)));
     //f.worldPos = position;
-    f.worldPos = mul(appdata.position, m_M);
-    //f.worldPos = mul(m_M, position);
+    f.worldPos = mul(appdata.position, m_Model);
+    //f.worldPos = mul(m_Model, position);
     //f.color = appdata.color;
 
     f.normal = appdata.normal;

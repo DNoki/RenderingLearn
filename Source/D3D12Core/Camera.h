@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Component.h"
+#include "ConstansBuffer.h"
 
 namespace Game
 {
@@ -13,6 +14,12 @@ namespace Game
         Orthographic = 1,   // 正交
     };
 
+    struct CameraBuffer
+    {
+        Matrix4x4 m_Project;
+        Matrix4x4 m_View;
+    };
+
     class Camera final : public Component
     {
     public:
@@ -22,13 +29,22 @@ namespace Game
         float m_NearClipPlane{ 0.1f };  // 近裁面
         float m_FarClipPlane{ 1000.0f };   // 远裁面
 
-        Camera(GameObject& obj) : Component(obj) {}
+        Camera(GameObject& obj);
         virtual ~Camera() override = default;
 
 
         Matrix4x4 GetProjectionMatrix() const;
         Matrix4x4 GetViewMatrix() const;
 
+        inline const ConstansBuffer<CameraBuffer>* GetCameraBuffer() const { return m_CameraBuffer.get(); }
+        inline void RefleshCameraBuffer()
+        {
+            m_CameraBuffer->GetMappingBuffer()->m_Project = GetProjectionMatrix();
+            m_CameraBuffer->GetMappingBuffer()->m_View = GetViewMatrix();
+        }
+
     private:
+        std::unique_ptr<ConstansBuffer<CameraBuffer>> m_CameraBuffer;
+
     };
 }

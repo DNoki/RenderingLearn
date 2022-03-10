@@ -1,11 +1,19 @@
 ﻿#include "pch.h"
 
+#include "GameObject.h"
 
 #include "Transform.h"
 
 
 namespace Game
 {
+    Transform::Transform(GameObject& obj) : Component(obj) 
+    {
+        m_TransformBuffer.reset(new ConstansBuffer<TransformBuffer>());
+        m_TransformBuffer->PlacedCreate();
+        m_TransformBuffer->SetName(Application::Format(L"%s (TransformBuffer)", obj.m_Name));
+    };
+
     Vector3 Transform::GetPosition(bool isWorld) const
     {
         if (m_Parent == nullptr || !isWorld)

@@ -11,6 +11,18 @@ namespace Game
     class GameObject;
     class IGameResource;
 
+    class VersionedGameObject
+    {
+    public:
+        UINT64 m_Version{ 0 };
+        std::unique_ptr<GameObject> m_GameObject{};
+
+        VersionedGameObject() = default;
+
+    private:
+
+    };
+
     /**
      * @brief 场景
     */
@@ -77,17 +89,22 @@ namespace Game
          * @return
         */
         GameObject* FindGameObject(const std::wstring& name) const;
+        bool RemoveGameObject(const GameObject* obj);
 
         virtual void Initialize() = 0;
         virtual void ExecuteScene();
         virtual void CloseScene();
 
-    private:
+    protected:
         std::map<UINT64, std::vector<std::unique_ptr<IGameResource>>> m_ResourceMap{};
-        std::vector<std::unique_ptr<GameObject>> m_HierarchyObject{};
+        std::vector<VersionedGameObject> m_HierarchyObject{};
+        std::map<UINT64, std::vector<Component*>> m_BakedComponents{};
+
+        bool m_IsComponentChanged = false;
 
         virtual void ExecuteUpdate() = 0;
-        virtual void ExecuteRender() = 0;
+        virtual void ExecutePrevRender();
+        virtual void ExecuteRender();
     };
 
 }

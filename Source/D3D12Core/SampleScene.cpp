@@ -34,23 +34,13 @@ using namespace Application;
 namespace Game
 {
     Shader* g_SampleShader;
-    Material* g_SampleMaterial;
+    Material* g_SampleMaterial[2];
     Texture2D* g_SampleTexture[2];
     Mesh* g_SampleMesh[2];
 
-    struct MVPBuffer
-    {
-        Matrix4x4 m_P;
-        Matrix4x4 m_V;
-        Matrix4x4 m_M;
-        Matrix4x4 m_IT_M;
-        Matrix4x4 m_MVP;
-    };
-    ConstansBuffer<MVPBuffer>* g_SampleConstansBuffer;
-
     GameObject* g_SampleCameraObject;
     Camera* g_SampleCamera;
-    GameObject* g_SampleModelObject;
+    GameObject* g_SampleModelObject[2];
 
     void SampleScene::Initialize()
     {
@@ -88,7 +78,7 @@ namespace Game
             shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Normal) | (1 << (int)VertexSemantic::Texcoord);
             shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("SampleTexture_vs.cso");
             shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("SampleTexture_ps.cso");
-            shaderDesc.m_CbvCount = 1;
+            shaderDesc.m_CbvCount = 2;
             shaderDesc.m_SrvCount = 2;
             shaderDesc.m_SamplerCount = 2;
 
@@ -96,21 +86,17 @@ namespace Game
             g_SampleShader->Create(&shaderDesc);
             g_SampleShader->SetName(L"示例着色器");
 
-            g_SampleMaterial = &AddGameResource<Material>();
-            g_SampleMaterial->Create(g_SampleShader);
-            g_SampleMaterial->SetName(L"示例材质");
+            for (int i = 0; i < _countof(g_SampleMaterial); i++)
+            {
+                g_SampleMaterial[i] = &AddGameResource<Material>();
+                g_SampleMaterial[i]->Create(g_SampleShader);
+                g_SampleMaterial[i]->SetName(L"示例材质");
 
-            g_SampleMaterial->BindTexture(0, *g_SampleTexture[0]);
-            g_SampleMaterial->BindTexture(1, *g_SampleTexture[1]);
-            g_SampleMaterial->BindSampler(0, g_SamplerPointMirror);
-            g_SampleMaterial->BindSampler(1, g_SamplerLinearBorder);
-        }
-
-        {
-            g_SampleConstansBuffer = &AddGameResource<ConstansBuffer<MVPBuffer>>();
-            g_SampleConstansBuffer->PlacedCreate();
-            g_SampleConstansBuffer->SetName(L"MvpConstansBuffer");
-            g_SampleMaterial->BindBuffer(0, *g_SampleConstansBuffer->GetResourceBuffer());
+                g_SampleMaterial[i]->BindTexture(0, *g_SampleTexture[0]);
+                g_SampleMaterial[i]->BindTexture(1, *g_SampleTexture[1]);
+                g_SampleMaterial[i]->BindSampler(0, g_SamplerPointMirror);
+                g_SampleMaterial[i]->BindSampler(1, g_SamplerLinearBorder);
+            }
         }
 
         {
@@ -124,15 +110,21 @@ namespace Game
         }
 
         {
-            g_SampleModelObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object")));
-            auto& meshRenderer = g_SampleModelObject->AddComponent<MeshRenderer>();
-            meshRenderer.BindResource(g_SampleMesh[1], g_SampleMaterial, false);
-            g_SampleModelObject->GetTransform().LocalScale = Vector3::One * 2.0f;
+            g_SampleModelObject[0] = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object")));
+            auto& meshRenderer = g_SampleModelObject[0]->AddComponent<MeshRenderer>();
+            meshRenderer.BindResource(g_SampleMesh[1], g_SampleMaterial[0], false);
+            g_SampleModelObject[0]->GetTransform().LocalScale = Vector3::One * 2.0f;
+
+            g_SampleModelObject[1] = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object2")));
+            auto& meshRenderer2 = g_SampleModelObject[1]->AddComponent<MeshRenderer>();
+            meshRenderer2.BindResource(g_SampleMesh[1], g_SampleMaterial[1], false);
+            g_SampleModelObject[1]->GetTransform().LocalScale = Vector3::One;
+            g_SampleModelObject[1]->GetTransform().LocalPosition = Vector3::Up * 1.5f;
 
             g_SampleCameraObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Main Camera")));
             auto& camera = g_SampleCameraObject->AddComponent<Camera>();
             g_SampleCameraObject->GetTransform().LocalPosition = Vector3(0.0f, 5.0f, -5.0f);
-            g_SampleCameraObject->GetTransform().LookAt(g_SampleModelObject->GetTransform().GetPosition());
+            g_SampleCameraObject->GetTransform().LookAt(g_SampleModelObject[0]->GetTransform().GetPosition());
         }
 
         GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
@@ -146,6 +138,12 @@ namespace Game
 
     void SampleScene::ExecuteUpdate()
     {
+        int changeIndex = 0;
+        if (Input::KeyState(KeyCode::LeftControl))
+        {
+            changeIndex = 1;
+        }
+
         // 测试切换采样器
         if (Input::KeyDown(KeyCode::D1))
         {
@@ -162,28 +160,28 @@ namespace Game
             };
             static int useSamplerIndex = 0;
             useSamplerIndex = Math::Repeat(useSamplerIndex + 1, 0, _countof(samplers));
-            g_SampleMaterial->BindSampler(0, *samplers[useSamplerIndex]);
+            g_SampleMaterial[changeIndex]->BindSampler(0, *samplers[useSamplerIndex]);
         }
         // 测试切换贴图
         if (Input::KeyDown(KeyCode::D2))
         {
             static int useIndex = 0;
             useIndex = Math::Repeat(useIndex + 1, 0, _countof(g_SampleTexture));
-            g_SampleMaterial->BindTexture(0, *g_SampleTexture[useIndex]);
+            g_SampleMaterial[changeIndex]->BindTexture(0, *g_SampleTexture[useIndex]);
         }
         // 测试切换模型
         if (Input::KeyDown(KeyCode::D3))
         {
             static int useIndex = 0;
             useIndex = Math::Repeat(useIndex + 1, 0, _countof(g_SampleMesh));
-            auto* meshRenderer = g_SampleModelObject->GetComponent<MeshRenderer>();
+            auto* meshRenderer = g_SampleModelObject[changeIndex]->GetComponent<MeshRenderer>();
             meshRenderer->BindResource(g_SampleMesh[useIndex], meshRenderer->GetMaterial());
         }
         // 测试切换渲染模式
         if (Input::KeyDown(KeyCode::D4))
         {
             static int fillMode = 1;
-            g_SampleMaterial->SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
+            g_SampleMaterial[changeIndex]->SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
         }
 
         // 测试模型变换
@@ -225,97 +223,17 @@ namespace Game
             }
             g_SampleCameraObject->GetTransform().SetEulerAngles(cameraEulerAngles);
 
-            auto modelEulerAngles = g_SampleModelObject->GetTransform().GetEulerAngles();
+            auto modelEulerAngles = g_SampleModelObject[0]->GetTransform().GetEulerAngles();
             modelEulerAngles.y += Time::GetDeltaTime() * 90.0f;
-            g_SampleModelObject->GetTransform().SetEulerAngles(modelEulerAngles);
-        }
-    }
-    void SampleScene::ExecuteRender()
-    {
-        auto* sampleObj = FindGameObject(L"Test Object");
-        auto* cameraObj = FindGameObject(L"Main Camera");
-
-        auto* graphicsCommandQueue = GraphicsManager::GetGraphicsCommandQueue();
-        auto& swapChain = *GraphicsManager::GetSwapChain();
-
-
-        // 重置命令列表
-        auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
-        graphicsCommandList->Reset();
-
-        // 渲染
-        // 填充命令列表
-        {
-            // 获取当前后台缓冲索引
-            UINT cbbi = swapChain.GetCurrentBackBufferIndex();
-
-            // 以交换链为渲染目标
-            MultiRenderTargets currentRenderTargets{};
-            currentRenderTargets.SetRenderTarget(0, swapChain.GetRenderTarget(cbbi), swapChain.GetRtvDescHandle(cbbi));
-            currentRenderTargets.SetDepthStencil(swapChain.GetDepthStencil(), swapChain.GetDsvDescHandle());
-
-            // 设置必要的状态。
+            g_SampleModelObject[0]->GetTransform().SetEulerAngles(modelEulerAngles);
+            if (Input::KeyDown(KeyCode::Back))
             {
-                // 设置视口大小
-                auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
-                graphicsCommandList->RSSetViewports(1, &viewport);
-                // 设置剪切大小
-                auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
-                graphicsCommandList->RSSetScissorRects(1, &scissorRect);
-            }
-
-            // 指示后台缓冲区将用作渲染目标。
-            for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
-            {
-                currentRenderTargets.GetRenderTargets(i)->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-            }
-            // 设置渲染目标
-            graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
-
-            // 清除渲染目标贴图
-            {
-                const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-                graphicsCommandList->ClearRenderTargetView(swapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
-                graphicsCommandList->ClearDepthStencilView(swapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-            }
-
-            //SampleDraw(graphicsCommandList);
-            {
-                auto& camera = *cameraObj->GetComponent<Camera>();
-                Matrix4x4 pers = camera.GetProjectionMatrix();
-
-                Matrix4x4 view = camera.GetViewMatrix();
-
-                Matrix4x4 model = sampleObj->GetTransform().GetLocalToWorldMatrix();
-
-                auto& mvpBuffer = *g_SampleConstansBuffer->GetMappingBuffer();
-                mvpBuffer.m_P = pers;
-                mvpBuffer.m_V = view;
-                mvpBuffer.m_M = model;
-                mvpBuffer.m_IT_M = model.Inverse().Transpose();
-                mvpBuffer.m_MVP = pers * view * model;
-
-                sampleObj->GetComponent<MeshRenderer>()->DispatchDraw(graphicsCommandList);
-            }
-
-            // 指示现在将使用后台缓冲区来呈现。
-            for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
-            {
-                currentRenderTargets.GetRenderTargets(i)->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PRESENT);
+                TRACE("Input::KeyDown(KeyCode::Back)");
+                //g_SampleModelObject[0]->Destroy();
+                //g_SampleModelObject[0] = nullptr;
+                g_SampleModelObject[0]->RemoveComponent<MeshRenderer>();
             }
         }
-        // 执行命令列表
-        graphicsCommandQueue->ExecuteCommandLists(graphicsCommandList);
-
-        // 呈现帧。
-        CHECK_HRESULT(swapChain.GetD3D12SwapChain()->Present(1, 0));
-
-        graphicsCommandQueue->WaitForQueueCompleted();
-
-        TimeSystem::AddFrameCompleted(); // 帧完成信号+1
-        TimeSystem::AddSwapFrameCompleted(); // 已交换帧数量+1
-
-        SetWindowTitle(Format(g_TitleFormat.c_str(), WINDOW_TITLE, g_TitleGPU.c_str(), Time::GetAverageFPS()));
     }
 
 #if 0
