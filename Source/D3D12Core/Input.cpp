@@ -24,46 +24,49 @@ constexpr float MIN_MOUSE_SCROLL_WHEEL_DELTA = 1.0f / 120.0f; // 鼠标滚轮最
 void Input::Initialize(HWND hwnd)
 {
     ASSERT(hwnd != NULL);
+    auto& instance = GetInstance();
 
     // 键盘输入初始化
-    m_Keyboard.reset(new  Keyboard());
-    m_KbdTracker.reset(new  Keyboard::KeyboardStateTracker());
+    instance.m_Keyboard.reset(new  Keyboard());
+    instance.m_KbdTracker.reset(new  Keyboard::KeyboardStateTracker());
 
     // 鼠标输入初始化
-    m_Mouse.reset(new Mouse());
-    m_Mouse->SetWindow(hwnd);
-    m_MouseTracker.reset(new Mouse::ButtonStateTracker());
-    m_MouseButtonsState =
+    instance.m_Mouse.reset(new Mouse());
+    instance.m_Mouse->SetWindow(hwnd);
+    instance.m_MouseTracker.reset(new Mouse::ButtonStateTracker());
+    instance.m_MouseButtonsState =
     {
-        &(m_MouseTracker->leftButton),
-        &(m_MouseTracker->middleButton),
-        &(m_MouseTracker->rightButton),
-        &(m_MouseTracker->xButton1),
-        &(m_MouseTracker->xButton2),
+        &(instance.m_MouseTracker->leftButton),
+        &(instance.m_MouseTracker->middleButton),
+        &(instance.m_MouseTracker->rightButton),
+        &(instance.m_MouseTracker->xButton1),
+        &(instance.m_MouseTracker->xButton2),
     };
 }
 
 void Input::KeyboardProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
-    m_Keyboard->ProcessMessage(message, wParam, lParam);
+    GetInstance().m_Keyboard->ProcessMessage(message, wParam, lParam);
 }
 void Input::MouseProcessMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
-    m_Mouse->ProcessMessage(message, wParam, lParam);
+    GetInstance().m_Mouse->ProcessMessage(message, wParam, lParam);
 }
 
 void Input::RefreshBeforeUpdate()
 {
-    auto kbdState = m_Keyboard->GetState();
-    m_KbdTracker->Update(kbdState);
+    auto& instance = GetInstance();
+
+    auto kbdState = instance.m_Keyboard->GetState();
+    instance.m_KbdTracker->Update(kbdState);
 
     // 存储用于计算微变量
-    m_MouseDeltaPos = GetMousePosition();
-    m_MouseDeltaScrollWheel = (float)m_LastMouseState.scrollWheelValue;
+    instance.m_MouseDeltaPos = GetMousePosition();
+    instance.m_MouseDeltaScrollWheel = (float)instance.m_LastMouseState.scrollWheelValue;
 
-    m_LastMouseState = m_Mouse->GetState();
-    m_MouseTracker->Update(m_LastMouseState);
+    instance.m_LastMouseState = instance.m_Mouse->GetState();
+    instance.m_MouseTracker->Update(instance.m_LastMouseState);
 
-    m_MouseDeltaPos = GetMousePosition() - m_MouseDeltaPos;
-    m_MouseDeltaScrollWheel = ((float)m_LastMouseState.scrollWheelValue - m_MouseDeltaScrollWheel) * MIN_MOUSE_SCROLL_WHEEL_DELTA;
+    instance.m_MouseDeltaPos = GetMousePosition() - instance.m_MouseDeltaPos;
+    instance.m_MouseDeltaScrollWheel = ((float)instance.m_LastMouseState.scrollWheelValue - instance.m_MouseDeltaScrollWheel) * MIN_MOUSE_SCROLL_WHEEL_DELTA;
 }

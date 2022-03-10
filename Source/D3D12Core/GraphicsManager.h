@@ -8,7 +8,7 @@ namespace Graphics
     class GraphicsManager
     {
     public:
-        inline static GraphicsManager& GetInstance() { return m_GraphicsManager; }
+        inline static GraphicsManager& GetInstance() { return s_GraphicsManager; }
 
         static IDXGIFactory7* GetFactory();
         static ID3D12Device6* GetDevice();
@@ -23,7 +23,7 @@ namespace Graphics
         void Destory();
 
     private:
-        static GraphicsManager m_GraphicsManager;
+        static GraphicsManager s_GraphicsManager;
 
         GraphicsManager() = default;
 

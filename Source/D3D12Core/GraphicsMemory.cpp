@@ -218,7 +218,7 @@ namespace Graphics
     }
 
 
-    GraphicsMemory GraphicsMemory::g_GraphicsMemory = GraphicsMemory();
+    GraphicsMemory GraphicsMemory::s_GraphicsMemory = GraphicsMemory();
 
 
     void GraphicsMemory::PlacedResource(GraphicsResource& resource)

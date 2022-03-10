@@ -25,7 +25,7 @@ using namespace Game;
 
 namespace Graphics
 {
-    GraphicsManager GraphicsManager::m_GraphicsManager = GraphicsManager();
+    GraphicsManager GraphicsManager::s_GraphicsManager = GraphicsManager();
 
 #if 0
     void InitializeCommonSampler();

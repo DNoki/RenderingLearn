@@ -14,7 +14,7 @@ namespace Game
 {
     void SceneManager::Initialize(int startupSceneIndex)
     {
-        m_ActiveScene = startupSceneIndex;
+        s_ActiveScene = startupSceneIndex;
 
         AddScene<SampleScene>();
         GetActiveScene()->Initialize();
@@ -22,19 +22,19 @@ namespace Game
 
     void SceneManager::CheckLoadNextScene()
     {
-        if (m_NextScene >= 0)
+        if (s_NextScene >= 0)
         {
             GetActiveScene()->CloseScene();
-            m_ActiveScene = m_NextScene;
-            m_NextScene = -1;
+            s_ActiveScene = s_NextScene;
+            s_NextScene = -1;
             GetActiveScene()->Initialize();
         }
     }
 
     void SceneManager::Destory()
     {
-        for (auto& scene : m_Scenes)
+        for (auto& scene : s_Scenes)
             scene->CloseScene();
-        m_Scenes.clear();
+        s_Scenes.clear();
     }
 }

@@ -18,8 +18,8 @@ namespace Game
         */
         inline static Scene* GetActiveScene()
         {
-            ASSERT(m_ActiveScene < m_Scenes.size());
-            return m_Scenes[m_ActiveScene].get();
+            ASSERT(s_ActiveScene < s_Scenes.size());
+            return s_Scenes[s_ActiveScene].get();
         }
 
         static void Initialize(int startupSceneIndex);
@@ -27,17 +27,17 @@ namespace Game
         template <typename T = Scene>
         inline static T& AddScene()
         {
-            m_Scenes.push_back(make_unique<T>());
-            return *static_cast<T*>(m_Scenes.back().get());
+            s_Scenes.push_back(make_unique<T>());
+            return *static_cast<T*>(s_Scenes.back().get());
         }
 
-        inline static void LoadNextScene(unsigned int index) { m_NextScene = index; }
+        inline static void LoadNextScene(unsigned int index) { s_NextScene = index; }
         static void CheckLoadNextScene();
         static void Destory();
 
     private:
-        inline static int m_ActiveScene{ 0 };
-        inline static int m_NextScene{ -1 };
-        inline static std::vector<std::unique_ptr<Scene>> m_Scenes{};
+        inline static int s_ActiveScene{ 0 };
+        inline static int s_NextScene{ -1 };
+        inline static std::vector<std::unique_ptr<Scene>> s_Scenes{};
     };
 }

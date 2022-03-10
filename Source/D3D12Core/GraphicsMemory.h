@@ -58,8 +58,8 @@ namespace Graphics
         static void PlacedResource(GraphicsResource& resource);
 
     private:
-        static GraphicsMemory g_GraphicsMemory;
-        static GraphicsMemory& GetInstance() { return g_GraphicsMemory; }
+        static GraphicsMemory s_GraphicsMemory;
+        static GraphicsMemory& GetInstance() { return s_GraphicsMemory; }
 
         std::vector<std::unique_ptr<PlacedHeap>> m_UploadBufferHeaps{};     // 上传缓冲堆
         std::vector<std::unique_ptr<PlacedHeap>> m_DefaultBufferHeaps{};    // 默认缓冲堆
