@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 typedef DirectX::SimpleMath::Vector2        Vector2;
-typedef DirectX::SimpleMath::Vector3        Vector3;
+//typedef DirectX::SimpleMath::Vector3        Vector3;
 //typedef DirectX::SimpleMath::Vector4        Vector4;
 //typedef DirectX::SimpleMath::Matrix         Matrix4x4;
 //typedef DirectX::SimpleMath::Quaternion     Quaternion;
@@ -73,6 +73,59 @@ private:
 
 };
 
+class Vector3 : public DirectX::XMFLOAT3
+{
+public:
+    using DirectX::XMFLOAT3::XMFLOAT3;
+    Vector3(const Vector3&) = default;
+    Vector3(Vector3&&) = default;
+
+    Vector3& operator =(const Vector3&) = default;
+    Vector3& operator =(Vector3&&) = default;
+
+public:
+    Vector3(const XMFLOAT3& v) { CopyMemory(this, &v, sizeof(Vector3)); }
+    Vector3(XMFLOAT3&& v) { CopyMemory(this, &v, sizeof(Vector3)); }
+    Vector3(const DirectX::XMVECTOR& v) noexcept { DirectX::XMStoreFloat3(this, v); }
+    Vector3(const DirectX::XMVECTOR&& v) noexcept { DirectX::XMStoreFloat3(this, v); }
+
+    operator DirectX::XMFLOAT3& () noexcept { return *this; }
+    operator DirectX::XMVECTOR() const noexcept { return XMLoadFloat3(this); }
+
+public:
+    Vector3 operator+ () const noexcept { return *this; }
+    Vector3 operator- () const noexcept { return DirectX::XMVectorNegate(*this); }
+
+    Vector3& operator+= (const Vector3& V) noexcept { return *this = *this + V; }
+    Vector3& operator-= (const Vector3& V) noexcept { return *this = *this - V; }
+    Vector3& operator*= (const Vector3& V) noexcept { return *this = *this * V; }
+    Vector3& operator/= (const Vector3& V) noexcept { return *this = *this / V; }
+    Vector3& operator*= (const float& s) noexcept { return *this = *this * s; }
+    Vector3& operator/= (const float& s) noexcept { return *this = *this / s; }
+
+public:
+    static const Vector3 Zero;
+    static const Vector3 One;
+    static const Vector3 Left;
+    static const Vector3 Right;
+    static const Vector3 Up;
+    static const Vector3 Down;
+    static const Vector3 Forward;
+    static const Vector3 Backward;
+
+private:
+
+};
+
+inline Vector3 operator+ (const Vector3& v1, const Vector3& v2) noexcept { return DirectX::XMVectorAdd(v1, v2); }
+inline Vector3 operator- (const Vector3& v1, const Vector3& v2) noexcept { return DirectX::XMVectorSubtract(v1, v2); }
+inline Vector3 operator* (const Vector3& v1, const Vector3& v2) noexcept { return DirectX::XMVectorMultiply(v1, v2); }
+inline Vector3 operator/ (const Vector3& v1, const Vector3& v2) noexcept { return DirectX::XMVectorDivide(v1, v2); }
+inline Vector3 operator* (const Vector3& v, float s) noexcept { return DirectX::XMVectorScale(v, s); }
+inline Vector3 operator* (float s, const Vector3& v) noexcept { return DirectX::XMVectorScale(v, s); }
+inline Vector3 operator/ (const Vector3& v, float s) noexcept { return DirectX::XMVectorScale(v, 1.0f / s); }
+
+
 class Vector4 : public DirectX::XMFLOAT4
 {
 public:
@@ -134,7 +187,7 @@ public:
     inline Quaternion Conjugate() const noexcept { return DirectX::XMQuaternionConjugate(*this); }
 
     // --------------------------------------------------------------------------
-    inline static Quaternion CreateFromEulerAngles(float p, float y, float r) { return CreateFromEulerAngles(Vector3(p, y, r) * Math::Deg2Rad); }
+    inline static Quaternion CreateFromEulerAngles(float p, float y, float r) { return CreateFromEulerAngles(Vector3(p, y, r)); }
     inline static Quaternion CreateFromEulerAngles(const Vector3& eulerAngles) { return DirectX::XMQuaternionRotationRollPitchYawFromVector(eulerAngles * Math::Deg2Rad); }
     inline static Quaternion CreateFromAxisAngle(const Vector3& axis, float angle) noexcept { return DirectX::XMQuaternionRotationAxis(axis, angle * Math::Deg2Rad); }
     static Quaternion LookRotationLH(const Vector3& forward, const Vector3& upwards = Vector3::Up) noexcept

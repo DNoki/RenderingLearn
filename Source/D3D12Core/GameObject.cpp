@@ -12,6 +12,8 @@ namespace Game
     {
         m_Name = std::wstring(name);
         m_Transform.reset(new Transform(*this));
+        if (parent)
+            m_Transform->SetParent(parent, worldPositionStays);
     }
 
     bool GameObject::GetActive(bool isInHierarchy) const

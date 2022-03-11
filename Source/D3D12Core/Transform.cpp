@@ -7,7 +7,7 @@
 
 namespace Game
 {
-    Transform::Transform(GameObject& obj) : Component(obj) 
+    Transform::Transform(GameObject& obj) : Component(obj)
     {
         m_TransformBuffer.reset(new ConstansBuffer<TransformBuffer>());
         m_TransformBuffer->PlacedCreate();
@@ -17,30 +17,30 @@ namespace Game
     Vector3 Transform::GetPosition(bool isWorld) const
     {
         if (m_Parent == nullptr || !isWorld)
-            return LocalPosition;
+            return m_LocalPosition;
         else
-            return m_Parent->GetLocalToWorldMatrix() * Vector4(LocalPosition, 1.0f);
+            return m_Parent->GetLocalToWorldMatrix() * Vector4(m_LocalPosition, 1.0f);
     }
     void Transform::SetPosition(const Vector3& pos, bool isWorld)
     {
         if (m_Parent == nullptr || !isWorld)
-            LocalPosition = pos;
+            m_LocalPosition = pos;
         else
-            LocalPosition = m_Parent->GetLocalToWorldMatrix().Inverse() * Vector4(pos, 1.0f);
+            m_LocalPosition = m_Parent->GetLocalToWorldMatrix().Inverse() * Vector4(pos, 1.0f);
     }
     Quaternion Transform::GetRotation(bool isWorld) const
     {
         if (m_Parent == nullptr || !isWorld)
-            return LocalRotation;
+            return m_LocalRotation;
         else
-            return m_Parent->GetRotation() * LocalRotation;
+            return m_Parent->GetRotation() * m_LocalRotation;
     }
     void Transform::SetRotation(const Quaternion& rot, bool isWorld)
     {
         if (m_Parent == nullptr || !isWorld)
-            LocalRotation = rot;
+            m_LocalRotation = rot;
         else
-            LocalRotation = m_Parent->GetRotation().Inverse() * rot;
+            m_LocalRotation = m_Parent->GetRotation().Inverse() * rot;
     }
     Vector3 Transform::GetEulerAngles(bool isWorld) const
     {
@@ -53,16 +53,16 @@ namespace Game
     Vector3 Transform::GetLossyScale() const
     {
         if (m_Parent == nullptr)
-            return LocalScale;
+            return m_LocalScale;
         else
-            return m_Parent->GetLossyScale() * LocalScale;
+            return m_Parent->GetLossyScale() * m_LocalScale;
     }
     void Transform::SetLossyScale(const Vector3& s)
     {
         if (m_Parent == nullptr)
-            LocalScale = s;
+            m_LocalScale = s;
         else
-            LocalScale = s / m_Parent->GetLossyScale();
+            m_LocalScale = s / m_Parent->GetLossyScale();
     }
 
     void Transform::SetParent(Transform* parent, bool worldPositionStays)

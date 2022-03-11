@@ -113,18 +113,32 @@ namespace Game
             g_SampleModelObject[0] = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object")));
             auto& meshRenderer = g_SampleModelObject[0]->AddComponent<MeshRenderer>();
             meshRenderer.BindResource(g_SampleMesh[1], g_SampleMaterial[0], false);
-            g_SampleModelObject[0]->GetTransform().LocalScale = Vector3::One * 2.0f;
+            g_SampleModelObject[0]->GetTransform().m_LocalScale = Vector3::One * 2.0f;
+            g_SampleModelObject[0]->GetTransform().LookAt(Vector3::One);
 
             g_SampleModelObject[1] = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object2")));
             auto& meshRenderer2 = g_SampleModelObject[1]->AddComponent<MeshRenderer>();
-            meshRenderer2.BindResource(g_SampleMesh[1], g_SampleMaterial[1], false);
-            g_SampleModelObject[1]->GetTransform().LocalScale = Vector3::One;
-            g_SampleModelObject[1]->GetTransform().LocalPosition = Vector3::Up * 1.5f;
+            meshRenderer2.BindResource(g_SampleMesh[0], g_SampleMaterial[1], false);
+            g_SampleModelObject[1]->GetTransform().m_LocalScale = Vector3::One * 0.5f;
+            g_SampleModelObject[1]->GetTransform().m_LocalPosition = Vector3::Up * 0.75f;
+            g_SampleModelObject[1]->GetTransform().m_LocalRotation = Quaternion::CreateFromEulerAngles(10, 23, 30);
+            g_SampleModelObject[1]->GetTransform().SetParent(&g_SampleModelObject[0]->GetTransform(), false);
 
             g_SampleCameraObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Main Camera")));
             auto& camera = g_SampleCameraObject->AddComponent<Camera>();
-            g_SampleCameraObject->GetTransform().LocalPosition = Vector3(0.0f, 5.0f, -5.0f);
+            g_SampleCameraObject->GetTransform().m_LocalPosition = Vector3(0.0f, 5.0f, -5.0f);
             g_SampleCameraObject->GetTransform().LookAt(g_SampleModelObject[0]->GetTransform().GetPosition());
+        }
+
+        {
+            auto& quad = AddGameResource<Mesh>();
+            quad = Mesh::CreateQuad();
+
+            auto& groundObj = AddGameObject(unique_ptr<GameObject>(new GameObject(L"Ground")));
+            auto& groundMeshRenderer = groundObj.AddComponent<MeshRenderer>();
+            groundMeshRenderer.BindResource(&quad, g_SampleMaterial[0]);
+            groundObj.GetTransform().m_LocalScale = Vector3::One * 20.0f;
+            groundObj.GetTransform().Rotate(Vector3(90.0f, 0.0f, 0.0f));
         }
 
         GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
@@ -195,14 +209,14 @@ namespace Game
                 pos.x -= 1.0f;
             if (Input::KeyState(KeyCode::D))
                 pos.x += 1.0f;
-            pos = g_SampleCameraObject->GetTransform().GetRotation() * pos;
+            g_SampleCameraObject->GetTransform().Translate(Time::GetDeltaTime() * 10.0f * pos);
 
+            pos = Vector3::Zero;
             if (Input::KeyState(KeyCode::Space))
                 pos.y += 1.0f;
             if (Input::KeyState(KeyCode::C))
                 pos.y -= 1.0f;
-            pos *= Time::GetDeltaTime() * 10.0f;
-            g_SampleCameraObject->GetTransform().LocalPosition += pos;
+            g_SampleCameraObject->GetTransform().Translate(Time::GetDeltaTime() * 10.0f * pos, true);
 
             Vector3 rot{};
             if (Input::MouseButtonState(MouseButtonType::LeftButton))
@@ -211,21 +225,43 @@ namespace Game
                 rot.y = deltaPos.x;
                 rot.x = -deltaPos.y;
                 rot.y *= -1.0f;
+                rot *= 0.1f;
+                auto cameraRot = g_SampleCameraObject->GetTransform().GetEulerAngles();
+                cameraRot += rot;
+                g_SampleCameraObject->GetTransform().SetEulerAngles(cameraRot);
             }
-            auto cameraEulerAngles = g_SampleCameraObject->GetTransform().GetRotation().GetEulerAngles();
-            cameraEulerAngles += rot * 0.1f;
 
             if (Input::KeyDown(KeyCode::R))
             {
-                g_SampleCameraObject->GetTransform().LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
-                cameraEulerAngles = Vector3::Zero;
-                g_SampleCameraObject->GetTransform().LocalScale = Vector3::One;
+                g_SampleCameraObject->GetTransform().m_LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
+                g_SampleCameraObject->GetTransform().SetRotation(Quaternion::Identity);
+                g_SampleCameraObject->GetTransform().m_LocalScale = Vector3::One;
             }
-            g_SampleCameraObject->GetTransform().SetEulerAngles(cameraEulerAngles);
 
-            auto modelEulerAngles = g_SampleModelObject[0]->GetTransform().GetEulerAngles();
-            modelEulerAngles.y += Time::GetDeltaTime() * 90.0f;
-            g_SampleModelObject[0]->GetTransform().SetEulerAngles(modelEulerAngles);
+            int rotAxis = -1;
+            const Vector3 dirs[] = { Vector3::Right ,Vector3::Up ,Vector3::Forward };
+            if (Input::KeyState(KeyCode::NumPad1))
+                rotAxis = 0;
+            if (Input::KeyState(KeyCode::NumPad2))
+                rotAxis = 1;
+            if (Input::KeyState(KeyCode::NumPad3))
+                rotAxis = 2;
+
+            if (rotAxis == -1)
+            {
+                g_SampleModelObject[1]->GetTransform().m_LocalRotation = Quaternion::CreateFromEulerAngles(45, 0.0f, 0.0f);
+                g_SampleModelObject[1]->GetTransform().m_LocalPosition = Vector3::Up * 0.75f;
+            }
+            else
+            {
+                //g_SampleModelObject[1]->GetTransform().Rotate(dirs[rotAxis], Time::GetDeltaTime() * 90.0f, Input::KeyState(KeyCode::LeftAlt));
+                g_SampleModelObject[1]->GetTransform().Rotate(dirs[rotAxis] * Time::GetDeltaTime() * 360.0f, Input::KeyState(KeyCode::LeftAlt));
+                //g_SampleModelObject[1]->GetTransform().RotateAround(Vector3::Zero, dirs[rotAxis], Time::GetDeltaTime() * 360.0f);
+                //g_SampleModelObject[1]->GetTransform().Translate(dirs[rotAxis] * Time::GetDeltaTime() * 10.0f, Input::KeyState(KeyCode::LeftAlt));
+            }
+
+            g_SampleModelObject[0]->GetTransform().Rotate(Vector3(0.0f, Time::GetDeltaTime() * 90.0f, 0.0f), true);
+
             if (Input::KeyDown(KeyCode::Back))
             {
                 TRACE("Input::KeyDown(KeyCode::Back)");
@@ -235,188 +271,4 @@ namespace Game
             }
         }
     }
-
-#if 0
-    Shader g_SampleShader;
-
-    Texture2D t_DefaultTexture[2];
-
-    struct MVPBuffer
-    {
-        DirectX::XMFLOAT4X4 m_P;
-        DirectX::XMFLOAT4X4 m_V;
-        DirectX::XMFLOAT4X4 m_M;
-        DirectX::XMFLOAT4X4 m_IT_M;
-        DirectX::XMFLOAT4X4 m_MVP;
-    };
-    UploadBuffer g_MvpBufferRes;
-    MVPBuffer* g_MVPBuffer;
-
-    unique_ptr<GameObject> g_SampleObj;
-    unique_ptr<GameObject> g_CameraObj;
-
-    Mesh g_SampleMesh;
-    Material g_SampleMaterial;
-
-
-    void InitShader()
-    {
-        g_SampleShader.Create();
-        g_SampleMaterial.Create(&g_SampleShader);
-    }
-    void InitTexture2D()
-    {
-        auto& g_GraphicsCommandList = *CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
-        g_GraphicsCommandList.Reset();
-
-        auto texPath = Application::GetAssetPath();
-        texPath.append("Shimarin.png");
-
-        // 创建Checker贴图
-        //t_DefaultTexture.GenerateChecker(t_SampleResDescHeap.GetDescriptorHandle(0), 256, 256);
-
-        TextureLoader texData;
-        texData.LoadTexture2D(texPath);
-
-        //g_TestTex2D.DirectCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t_DefaultTexture[0].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t_DefaultTexture[0].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
-        t_DefaultTexture[0].DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-        texPath = Application::GetAssetPath();
-        texPath.append(L"云堇.jpg");
-        texData.LoadTexture2D(texPath);
-
-        t_DefaultTexture[1].PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-        t_DefaultTexture[1].DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
-        t_DefaultTexture[1].DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
-        g_SampleMaterial.BindTexture(0, t_DefaultTexture[1]);
-        g_SampleMaterial.BindSampler(&g_SamplerPointMirror);
-
-
-        auto constantBufferSize = UINT_UPPER(sizeof(MVPBuffer), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        //auto constantBufferSize = sizeof(MVPBuffer);
-        {
-            g_MvpBufferRes.PlacedCreate(constantBufferSize);
-            g_MvpBufferRes.Map(0, reinterpret_cast<void**>(&g_MVPBuffer));
-            g_MVPBuffer->m_MVP = Matrix4x4::Identity;
-            //g_MvpBufferRes.DispatchCopyBuffer(g_GraphicsCommandList, &mvp);
-            g_SampleMaterial.BindBuffer(1, g_MvpBufferRes);
-        }
-
-        GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
-    }
-    void InitMesh()
-    {
-        g_SampleMesh = (Mesh::CreateCube());
-    }
-
-    void InitCommandListBundle()
-    {
-        g_SampleObj.reset(new GameObject("Test Object"));
-        auto& meshRenderer = g_SampleObj->AddComponent<MeshRenderer>();
-        meshRenderer.Create(&g_SampleMesh, &g_SampleMaterial, false);
-        g_SampleObj->GetTransform().LocalScale = Vector3::One * 2.0f;
-
-        g_CameraObj.reset(new GameObject("Main Camera"));
-        auto& camera = g_CameraObj->AddComponent<Camera>();
-        g_CameraObj->GetTransform().LocalPosition = Vector3(0.0f, 5.0f, -5.0f);
-        g_CameraObj->GetTransform().LookAt(g_SampleObj->GetTransform().GetPosition());
-    }
-
-
-    void SampleDraw(const CommandList* g_GraphicsCommandList)
-    {
-        static DescriptorHandle* samplers[] =
-        {
-            &g_SamplerPointBorder,
-            &g_SamplerLinearBorder,
-            &g_SamplerPointClamp,
-            &g_SamplerLinearClamp,
-            &g_SamplerPointWarp,
-            &g_SamplerLinearWarp,
-            &g_SamplerPointMirror,
-            &g_SamplerLinearMirror,
-        };
-        static int useSamplerIndex = 0;
-        if (Input::KeyDown(KeyCode::Space))
-        {
-            useSamplerIndex = Math::Repeat(useSamplerIndex + 1, 0, _countof(samplers));
-            g_SampleMaterial.BindSampler(samplers[useSamplerIndex]);
-        }
-
-        {
-            {
-                Vector3 pos{};
-                if (Input::KeyState(KeyCode::W))
-                    pos.z += 1.0f;
-                if (Input::KeyState(KeyCode::S))
-                    pos.z -= 1.0f;
-                if (Input::KeyState(KeyCode::A))
-                    pos.x -= 1.0f;
-                if (Input::KeyState(KeyCode::D))
-                    pos.x += 1.0f;
-                pos = g_CameraObj->GetTransform().GetRotation() * pos;
-
-                if (Input::KeyState(KeyCode::Space))
-                    pos.y += 1.0f;
-                if (Input::KeyState(KeyCode::C))
-                    pos.y -= 1.0f;
-                pos *= Time::GetDeltaTime() * 10.0f;
-                g_CameraObj->GetTransform().LocalPosition += pos;
-
-                Vector3 rot{};
-                if (Input::MouseButtonState(MouseButtonType::LeftButton))
-                {
-                    Vector2 deltaPos = Input::GetMouseDeltaPos();
-                    rot.y = deltaPos.x;
-                    rot.x = -deltaPos.y;
-                    rot.y *= -1.0f;
-                }
-                g_CameraObj->GetTransform().LocalEulerAngles += rot * 0.1f * Math::Deg2Rad;
-                //TRACE(L"%f, %f\n", g_CameraTrans.LocalEulerAngles.x, g_CameraTrans.LocalEulerAngles.y);
-
-                if (Input::KeyDown(KeyCode::R))
-                {
-                    g_CameraObj->GetTransform().LocalPosition = Vector3(0.0f, 0.0f, -10.0f);
-                    g_CameraObj->GetTransform().LocalEulerAngles = Vector3::Zero;
-                    g_CameraObj->GetTransform().LocalScale = Vector3::One;
-                }
-
-                g_SampleObj->GetTransform().LocalEulerAngles.y += Time::GetDeltaTime() * 90.0f * Math::Deg2Rad;
-            }
-
-            auto& camera = *g_CameraObj->GetComponent<Camera>();
-            Matrix4x4 pers = camera.GetProjectionMatrix();
-
-            Matrix4x4 view = camera.GetViewMatrix();
-
-            Matrix4x4 model = g_SampleObj->GetTransform().GetLocalToWorldMatrix();
-
-            g_MVPBuffer->m_P = pers;
-            g_MVPBuffer->m_V = view;
-            g_MVPBuffer->m_M = model;
-            g_MVPBuffer->m_IT_M = model.Inverse().Transpose();
-            g_MVPBuffer->m_MVP = pers * view * model;
-        }
-
-        // 使用三角形带渲染，这是最快的绘制矩形的方式，是渲染UI的核心方法
-        //{
-        //    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-        //    commandList->IASetVertexBuffers(0, 1, g_SampleVBV.GetVBV());
-        //    commandList->DrawInstanced(4, 1, 0, 0);
-        //}
-
-
-        if (Input::KeyDown(KeyCode::Enter))
-        {
-            static int fillMode = 1;
-            g_SampleMaterial.SetFillMode((D3D12_FILL_MODE)Math::Repeat(fillMode++, 2, 4));
-        }
-
-        //g_SampleRenderer.DispatchDraw(g_GraphicsCommandList);
-        g_SampleObj->GetComponent<MeshRenderer>()->DispatchDraw(g_GraphicsCommandList);
-    }
-#endif
 }

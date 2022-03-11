@@ -140,6 +140,10 @@ enum class VertexSemantic
     Count
 };
 
+constexpr UINT DEFAULT_SCREEN_WIDTH = 1280u >> 0; // 初始窗口宽度
+constexpr UINT DEFAULT_SCREEN_HEIGHT = 720u >> 0; // 初始窗口高度
+
+constexpr const WCHAR* WINDOW_TITLE = L"Rendering Learn";
 inline std::wstring g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
 inline std::wstring g_TitleGPU = L"";
 

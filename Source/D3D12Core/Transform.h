@@ -16,11 +16,11 @@ namespace Game
     {
     public:
         // 本地坐标位置
-        Vector3 LocalPosition{ Vector3::Zero };
+        Vector3 m_LocalPosition{ Vector3::Zero };
         // 本地坐标旋转
-        Quaternion LocalRotation{ Quaternion::Identity };
+        Quaternion m_LocalRotation{ Quaternion::Identity };
         // 本地坐标缩放
-        Vector3 LocalScale{ Vector3::One };
+        Vector3 m_LocalScale{ Vector3::One };
 
         Transform(GameObject& obj);
         virtual ~Transform() override = default;
@@ -66,24 +66,73 @@ namespace Game
         inline Transform* GetParent() const { return m_Parent; }
         inline std::vector<Transform*>& GetChilds() { return m_Childs; }
 
-        // 获取本地到世界变换矩阵
+        /**
+         * @brief 获取本地到世界变换矩阵
+         * @return
+        */
         inline Matrix4x4 GetLocalToWorldMatrix() const
         {
             Matrix4x4 m;
             m.SetTRS(GetPosition(), GetEulerAngles(), GetLossyScale());
             return m;
         }
-        // 获取世界到本地变换矩阵
+        /**
+         * @brief 获取世界到本地变换矩阵
+         * @return
+        */
         inline Matrix4x4 GetWorldToLocalMatrix() const { return GetLocalToWorldMatrix().Inverse(); }
 
-        // 平移
-        void Translate(Vector3 value, bool isWorld = false);
-        // 旋转
-        void Rotate(Vector3 axis, float angle, bool isWorld = false);
-        void Rotate(Vector3 eulers, bool isWorld = false);
-        void RotateAround(Vector3 point, Vector3 axis, float angle);
+        /**
+         * @brief 平移变换
+         * @param offset 位移量
+         * @param isWorld 是否以世界坐标为基准
+        */
+        inline void Translate(Vector3 offset, bool isWorld = false)
+        {
+            offset = isWorld ? offset : (GetRotation(true) * offset);
+            SetPosition(offset + GetPosition(true), true);
+        }
+        /**
+         * @brief 按轴角旋转变换
+         * @param axis 旋转轴
+         * @param angle 旋转角
+         * @param isWorld 是否以世界坐标为基准
+        */
+        inline void Rotate(Vector3 axis, float angle, bool isWorld = false)
+        {
+            axis = isWorld ? axis : (GetRotation(true) * axis);
+            SetRotation(Quaternion::CreateFromAxisAngle(axis, angle) * GetRotation(true), true);
+        }
+        /**
+         * @brief 按欧拉角旋转变换
+         * @param eulers 欧拉角
+         * @param isWorld 是否以世界坐标为基准
+        */
+        inline void Rotate(Vector3 eulers, bool isWorld = false)
+        {
+            Rotate(Vector3::Up, eulers.y, isWorld);
+            Rotate(Vector3::Right, eulers.x, isWorld);
+            Rotate(Vector3::Forward, eulers.z, isWorld);
+        }
+        /**
+         * @brief 按世界坐标中的位置和旋转轴角旋转变换（更改位置和旋转）
+         * @param point 旋转中心
+         * @param axis 旋转轴
+         * @param angle 旋转角
+        */
+        void RotateAround(Vector3 point, Vector3 axis, float angle)
+        {
+            auto tempPos = GetPosition(true) - point;
+            tempPos = Quaternion::CreateFromAxisAngle(axis, angle) * tempPos;
+            SetPosition(tempPos + point, true);
+            Rotate(axis, angle, true);
+        }
 
-        // 旋转变换，使向前矢量指向 target 的当前位置。
+        /**
+         * @brief 旋转变换，使向前矢量指向 target 的当前位置。
+         * @param target
+         * @param up
+        */
         inline void LookAt(Vector3 target, Vector3 up = Vector3::Up) { SetRotation(Quaternion::LookRotationLH(target - GetPosition(), up)); }
 
     private:
