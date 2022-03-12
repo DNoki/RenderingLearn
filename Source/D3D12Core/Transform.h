@@ -3,6 +3,134 @@
 #include "Component.h"
 #include "ConstansBuffer.h"
 
+template<typename T>
+class TreeNode
+{
+public:
+    TreeNode* m_Parent;         // 父节点
+    TreeNode* m_FirstChild;     // 第一个子节点
+    TreeNode* m_NextSibling;    // 下一个兄弟节点
+    T m_Data; // 节点数据
+
+    TreeNode* GetFirstChild() { return m_FirstChild; }
+    TreeNode* GetLastChild()
+    {
+        return m_FirstChild ? m_FirstChild->GetLastSibling() : nullptr;
+    }
+    TreeNode* GetFirstSibling()
+    {
+        if (m_Parent)
+        {
+            ASSERT(m_Parent.m_FirstChild);
+            return m_Parent.m_FirstChild;
+        }
+        else return this;
+    }
+    TreeNode* GetLastSibling()
+    {
+        if (m_NextSibling)
+            return m_NextSibling->GetLastSibling();
+        else return this;
+    }
+
+    /**
+     * @brief 前序遍历
+     * @param node 
+     * @param action 
+    */
+    static void PreOrderTraverse(TreeNode* node, const std::function<void(TreeNode&)>& action)
+    {
+        if (node)
+        {
+            action(*node);
+            PreOrderTraverse(node->m_FirstChild, action);
+            PreOrderTraverse(node->m_NextSibling, action);
+        }
+    }
+    /**
+     * @brief 中序遍历
+     * @param node 
+     * @param action 
+    */
+    static void InOrderTraverse(TreeNode* node, const std::function<void(TreeNode&)>& action)
+    {
+        if (node)
+        {
+            InOrderTraverse(node->m_FirstChild, action);
+            action(*node);
+            InOrderTraverse(node->m_NextSibling, action);
+        }
+    }
+    /**
+     * @brief 后序遍历
+     * @param node 
+     * @param action 
+    */
+    static void PostOrderTraverse(TreeNode* node, const std::function<void(TreeNode&)>& action)
+    {
+        if (node)
+        {
+            PostOrderTraverse(node->m_FirstChild, action);
+            PostOrderTraverse(node->m_NextSibling, action);
+            action(*node);
+        }
+    }
+
+    /**
+     * @brief 遍历子节点
+     * @param action 
+    */
+    void ChildTraverse(const std::function<bool(TreeNode*, TreeNode&)>& action) const
+    {
+        // TODO 实现迭代器
+        TreeNode* prevChild = nullptr;
+        TreeNode* nextChild = m_FirstChild;
+        while (nextChild)
+        {
+            if (!action(prevChild, *nextChild))
+                break;
+            prevChild = nextChild;
+            nextChild = nextChild->m_NextSibling;
+        }
+    }
+
+    void AddChild(TreeNode* node)
+    {
+        if (m_FirstChild && m_FirstChild != node)
+            GetLastChild()->m_NextSibling = node;
+        else m_FirstChild = node;
+        node->m_Parent = this;
+    }
+    bool RemoveChild(TreeNode* node)
+    {
+        ASSERT(node->m_Parent == this);
+        bool result = false;
+
+        ChildTraverse([&](TreeNode* prev, TreeNode& curr)
+            {
+                if (&curr == node)
+                {
+                    // 已找到子节点
+                    if (prev)
+                        prev->m_NextSibling = node->m_NextSibling;
+                    else
+                    {
+                        ASSERT(node->m_Parent->m_FirstChild == node);
+                        node->m_Parent->m_FirstChild = node->m_NextSibling;
+                    }
+                    node->m_Parent = nullptr;
+                    result = true;
+                    return false;
+                }
+                return true;
+            });
+        return result;
+    }
+
+private:
+
+};
+
 namespace Game
 {
     struct TransformBuffer
@@ -63,8 +191,10 @@ namespace Game
          * @param worldPositionStays 保持世界空间位置
         */
         void SetParent(Transform* parent, bool worldPositionStays = true);
-        inline Transform* GetParent() const { return m_Parent; }
-        inline std::vector<Transform*>& GetChilds() { return m_Childs; }
+        inline Transform* GetParent() const
+        {
+            return m_TransformNode.m_Parent ? m_TransformNode.m_Parent->m_Data : nullptr;
+        }
 
         /**
          * @brief 获取本地到世界变换矩阵
@@ -137,8 +267,7 @@ namespace Game
 
     private:
         // 父对象变换
-        Transform* m_Parent{};
-        std::vector<Transform*> m_Childs{};
+        TreeNode<Transform*> m_TransformNode{};
 
         std::unique_ptr<ConstansBuffer<TransformBuffer>> m_TransformBuffer;
 

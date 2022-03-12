@@ -12,35 +12,40 @@ namespace Game
         m_TransformBuffer.reset(new ConstansBuffer<TransformBuffer>());
         m_TransformBuffer->PlacedCreate();
         m_TransformBuffer->SetName(Application::Format(L"%s (TransformBuffer)", obj.m_Name));
+        m_TransformNode.m_Data = this;
     };
 
     Vector3 Transform::GetPosition(bool isWorld) const
     {
-        if (m_Parent == nullptr || !isWorld)
+        auto* parent = GetParent();
+        if (parent == nullptr || !isWorld)
             return m_LocalPosition;
         else
-            return m_Parent->GetLocalToWorldMatrix() * Vector4(m_LocalPosition, 1.0f);
+            return parent->GetLocalToWorldMatrix() * Vector4(m_LocalPosition, 1.0f);
     }
     void Transform::SetPosition(const Vector3& pos, bool isWorld)
     {
-        if (m_Parent == nullptr || !isWorld)
+        auto* parent = GetParent();
+        if (parent == nullptr || !isWorld)
             m_LocalPosition = pos;
         else
-            m_LocalPosition = m_Parent->GetLocalToWorldMatrix().Inverse() * Vector4(pos, 1.0f);
+            m_LocalPosition = parent->GetLocalToWorldMatrix().Inverse() * Vector4(pos, 1.0f);
     }
     Quaternion Transform::GetRotation(bool isWorld) const
     {
-        if (m_Parent == nullptr || !isWorld)
+        auto* parent = GetParent();
+        if (parent == nullptr || !isWorld)
             return m_LocalRotation;
         else
-            return m_Parent->GetRotation() * m_LocalRotation;
+            return parent->GetRotation() * m_LocalRotation;
     }
     void Transform::SetRotation(const Quaternion& rot, bool isWorld)
     {
-        if (m_Parent == nullptr || !isWorld)
+        auto* parent = GetParent();
+        if (parent == nullptr || !isWorld)
             m_LocalRotation = rot;
         else
-            m_LocalRotation = m_Parent->GetRotation().Inverse() * rot;
+            m_LocalRotation = parent->GetRotation().Inverse() * rot;
     }
     Vector3 Transform::GetEulerAngles(bool isWorld) const
     {
@@ -52,39 +57,37 @@ namespace Game
     }
     Vector3 Transform::GetLossyScale() const
     {
-        if (m_Parent == nullptr)
+        auto* parent = GetParent();
+        if (parent == nullptr)
             return m_LocalScale;
         else
-            return m_Parent->GetLossyScale() * m_LocalScale;
+            return parent->GetLossyScale() * m_LocalScale;
     }
     void Transform::SetLossyScale(const Vector3& s)
     {
-        if (m_Parent == nullptr)
+        auto* parent = GetParent();
+        if (parent == nullptr)
             m_LocalScale = s;
         else
-            m_LocalScale = s / m_Parent->GetLossyScale();
+            m_LocalScale = s / parent->GetLossyScale();
     }
 
     void Transform::SetParent(Transform* parent, bool worldPositionStays)
     {
-        if (!parent || m_Parent == parent) return;
-        if (m_Parent)
+        if (m_TransformNode.m_Parent)
         {
-            auto it = std::find(m_Parent->m_Childs.begin(), m_Parent->m_Childs.end(), this);
-            if (it != m_Parent->m_Childs.end())
-                m_Parent->m_Childs.erase(it);
+            // 父对象已存在
+            m_TransformNode.m_Parent->RemoveChild(&m_TransformNode);
         }
-        parent->m_Childs.push_back(this);
-
         if (!worldPositionStays)
-            m_Parent = parent;
+            parent->m_TransformNode.AddChild(&m_TransformNode);
         else
         {
             auto pos = GetPosition();
             auto rotation = GetRotation();
             auto s = GetLossyScale();
 
-            m_Parent = parent;
+            parent->m_TransformNode.AddChild(&m_TransformNode);
             SetPosition(pos);
             SetRotation(rotation);
             SetLossyScale(s);
