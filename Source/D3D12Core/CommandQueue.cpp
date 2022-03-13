@@ -87,7 +87,26 @@ namespace Graphics
             ppCommandLists[i] = commandLists[i].GetD3D12CommandList();
         }
         m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
-        CommandListPool::Restore(commandLists); // 将使用完毕的列表放回池
+        for (UINT i = 0; i < numCommandLists; i++)
+            CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
+    }
+    void CommandQueue::ExecuteCommandLists(CommandList** commandLists, UINT numCommandLists)
+    {
+        std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
+
+        for (UINT i = 0; i < numCommandLists; i++)
+        {
+            auto* commandList = commandLists[i];
+            ASSERT(m_Type == commandList->GetType(), L"ERROR::命令列表类型与队列类型不一致。");
+            ASSERT(!commandList->IsLocked()); // 设只允许队列来关闭命令列表
+
+            m_Allocators.push_back(commandList->GetCommandAllocator()); // 添加分配器到使用中
+            commandList->Close(); // 关闭列表以执行命令
+            ppCommandLists[i] = commandList->GetD3D12CommandList();
+        }
+        m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
+        for (UINT i = 0; i < numCommandLists; i++)
+            CommandListPool::Restore(commandLists[i]); // 将使用完毕的列表放回池
     }
 
     void CommandQueue::WaitForQueueCompleted()

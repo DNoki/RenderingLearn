@@ -15,7 +15,7 @@ namespace Game
     {
         m_CameraBuffer.reset(new ConstansBuffer<CameraBuffer>());
         m_CameraBuffer->PlacedCreate();
-        m_CameraBuffer->SetName(Application::Format(L"%s (CameraBuffer)", obj.m_Name));
+        m_CameraBuffer->SetName(Application::Format(L"%s (CameraBuffer)", obj.m_Name.c_str()));
     }
 
     Matrix4x4 Camera::GetProjectionMatrix() const

@@ -132,7 +132,124 @@ namespace Game
     {
         auto& swapChain = *GraphicsManager::GetSwapChain();
 
+#if 1
+        // 获取渲染目标
+        MultiRenderTargets currentRenderTargets{};
+        {
+            UINT cbbi = swapChain.GetCurrentBackBufferIndex();
+            currentRenderTargets.SetRenderTarget(0, swapChain.GetRenderTarget(cbbi), swapChain.GetRtvDescHandle(cbbi));
+            currentRenderTargets.SetDepthStencil(swapChain.GetDepthStencil(), swapChain.GetDsvDescHandle());
+        }
 
+        vector<CommandList*> commandListArray{};
+
+        // 渲染前处理
+        {
+            // 获取一个命令列表
+            auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+            graphicsCommandList->Reset();
+
+            // 指示后台缓冲区将用作渲染目标。
+            for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
+            {
+                currentRenderTargets.GetRenderTargets(i)->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+            }
+            // 设置渲染目标
+            graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
+
+            // 设置必要的状态。
+            {
+                // 设置视口大小
+                auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
+                graphicsCommandList->RSSetViewports(1, &viewport);
+                // 设置剪切大小
+                auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
+                graphicsCommandList->RSSetScissorRects(1, &scissorRect);
+            }
+
+            // 清除渲染目标贴图
+            {
+                const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
+                for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
+                {
+                    graphicsCommandList->ClearRenderTargetView(currentRenderTargets.GetRtvDescriptors()[i], clearColor, 0, nullptr);
+                }
+                graphicsCommandList->ClearDepthStencilView(swapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            }
+
+            commandListArray.push_back(graphicsCommandList);
+        }
+
+        // 多线程渲染 TODO
+        {
+            auto cameraList = m_BakedComponents.find(typeid(Camera).hash_code());
+            auto rendererList = m_BakedComponents.find(typeid(MeshRenderer).hash_code());
+            if (cameraList != m_BakedComponents.end())
+            {
+                for (auto* comCamera : cameraList->second)
+                {
+                    Camera* camera = static_cast<Camera*>(comCamera);
+                    camera->RefleshCameraBuffer();
+                    auto* cameraBuffer = camera->GetCameraBuffer();
+                    auto* cameraMappingBuffer = cameraBuffer->GetMappingBuffer();
+
+                    if (rendererList != m_BakedComponents.end())
+                    {
+                        for (auto* comRenderer : rendererList->second)
+                        {
+                            MeshRenderer* renderer = static_cast<MeshRenderer*>(comRenderer);
+                            renderer->GetTransform().RefleshTransformBuffer(cameraMappingBuffer->m_Project * cameraMappingBuffer->m_View);
+
+                            renderer->GetMaterial()->BindBuffer(0, *(cameraBuffer->GetResourceBuffer()));
+                            renderer->GetMaterial()->BindBuffer(1, *(renderer->GetTransform().GetTransformBuffer()->GetResourceBuffer()));
+
+                            {
+                                // 获取一个命令列表
+                                auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+                                graphicsCommandList->Reset();
+
+                                // 设置渲染目标
+                                graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
+
+                                // 设置必要的状态。
+                                {
+                                    // 设置视口大小
+                                    auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
+                                    graphicsCommandList->RSSetViewports(1, &viewport);
+                                    // 设置剪切大小
+                                    auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
+                                    graphicsCommandList->RSSetScissorRects(1, &scissorRect);
+                                }
+
+                                renderer->DispatchDraw(graphicsCommandList);
+
+                                commandListArray.push_back(graphicsCommandList);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 渲染后处理
+        {
+            // 获取一个命令列表
+            auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+            graphicsCommandList->Reset();
+
+            // 指示现在将使用后台缓冲区来呈现。
+            for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
+            {
+                currentRenderTargets.GetRenderTargets(i)->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PRESENT);
+            }
+
+            commandListArray.push_back(graphicsCommandList);
+        }
+
+        // 执行命令列表
+        GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(commandListArray.data(), static_cast<UINT>(commandListArray.size()));
+
+#else
         // 重置命令列表
         auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
         graphicsCommandList->Reset();
@@ -169,7 +286,10 @@ namespace Game
             // 清除渲染目标贴图
             {
                 const Color clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-                graphicsCommandList->ClearRenderTargetView(swapChain.GetRtvDescHandle(cbbi), clearColor, 0, nullptr);
+                for (UINT i = 0; i < currentRenderTargets.GetRenderTargetCount(); i++)
+                {
+                    graphicsCommandList->ClearRenderTargetView(currentRenderTargets.GetRtvDescriptors()[i], clearColor, 0, nullptr);
+                }
                 graphicsCommandList->ClearDepthStencilView(swapChain.GetDsvDescHandle(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
             }
 
@@ -211,6 +331,7 @@ namespace Game
         }
         // 执行命令列表
         GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(graphicsCommandList);
+#endif
 
         // 呈现帧。
         CHECK_HRESULT(swapChain.GetD3D12SwapChain()->Present(1, 0));

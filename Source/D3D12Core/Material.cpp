@@ -30,6 +30,8 @@ namespace Game
         }
 
         {
+            // 创建常量缓冲列表
+            m_ConstantBuffers.resize(m_Shader->GetShaderDesc().m_CbvCount);
             // 创建资源描述符堆
             m_ResourceDescHeap.reset(new DescriptorHeap());
             m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetShaderDesc().GetBindResourceCount());
@@ -80,10 +82,18 @@ namespace Game
                 commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), m_SamplerDescHeap.get());
 
                 UINT rootParamIndex = 0;
+
+                // 绑定常量缓冲
+                for (int i = 0; i < m_Shader->GetShaderDesc().m_CbvCount; i++)
+                {
+                    commandList->SetGraphicsRootConstantBufferView(rootParamIndex++, m_ConstantBuffers[i]);
+                }
+                // 绑定资源
                 if (m_ResourceDescHeap->GetDescriptorsCount() > 0)
-                    commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_ResourceDescHeap->GetDescriptorHandle(0));
+                    commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_ResourceDescHeap.get());
+                // 绑定采样器
                 if (m_SamplerDescHeap->GetDescriptorsCount() > 0)
-                    commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_SamplerDescHeap->GetDescriptorHandle(0));
+                    commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_SamplerDescHeap.get());
 #if 0
                 auto rootPrarmIndex = 0;
                 for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
@@ -99,13 +109,12 @@ namespace Game
     void Material::BindBuffer(int slot, const Graphics::IBufferResource& buffer)
     {
         ASSERT(slot < m_Shader->GetShaderDesc().m_CbvCount);
-        m_ResourceDescHeap->BindConstantBufferView(slot, buffer);
+        m_ConstantBuffers[slot] = &buffer;
         m_Version++;
     }
     void Material::BindTexture(int slot, const Graphics::Texture& texture)
     {
         ASSERT(slot < m_Shader->GetShaderDesc().m_SrvCount);
-        slot += m_Shader->GetShaderDesc().m_CbvCount;
         m_ResourceDescHeap->BindShaderResourceView(slot, texture);
         m_Version++;
     }

@@ -21,6 +21,7 @@ namespace Graphics
         void Create(D3D12_COMMAND_LIST_TYPE type);
 
         void ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists = 1);
+        void ExecuteCommandLists(CommandList** commandLists, UINT numCommandLists = 1);
 
         /**
          * @brief 等待队列完成

@@ -9,6 +9,7 @@ namespace Graphics
     class RootSignature;
     class PipelineState;
     class DescriptorHeap;
+    class IBufferResource;
 
     class CommandList
     {
@@ -93,10 +94,8 @@ namespace Graphics
         void SetGraphicsRootSignature(const RootSignature* pRootSignature) const;
         void SetPipelineState(const PipelineState* pPipelineState) const;
         void SetDescriptorHeaps(const DescriptorHeap* pResourceDescHeap = nullptr, const DescriptorHeap* pSamplerDescHeap = nullptr) const;
-        inline void SetGraphicsRootDescriptorTable(UINT rootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) const
-        {
-            m_CommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, baseDescriptor);
-        }
+        void SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* baseDescriptor) const;
+        void SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const;
 
         inline void IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) const
         {

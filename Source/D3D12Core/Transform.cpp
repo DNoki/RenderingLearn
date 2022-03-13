@@ -11,7 +11,7 @@ namespace Game
     {
         m_TransformBuffer.reset(new ConstansBuffer<TransformBuffer>());
         m_TransformBuffer->PlacedCreate();
-        m_TransformBuffer->SetName(Application::Format(L"%s (TransformBuffer)", obj.m_Name));
+        m_TransformBuffer->SetName(Application::Format(L"%s (TransformBuffer)", obj.m_Name.c_str()));
         m_TransformNode.m_Data = this;
     };
 

@@ -133,6 +133,7 @@ namespace Game
         {
             auto& quad = AddGameResource<Mesh>();
             quad = Mesh::CreateQuad();
+            quad.SetName(L"Quad");
 
             auto& groundObj = AddGameObject(unique_ptr<GameObject>(new GameObject(L"Ground")));
             auto& groundMeshRenderer = groundObj.AddComponent<MeshRenderer>();

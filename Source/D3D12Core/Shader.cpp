@@ -39,18 +39,22 @@ namespace Game
         // 生成根签名
         {
             vector<CD3DX12_DESCRIPTOR_RANGE1> resourceDescriptorRanges{};
+#if 0
             if (m_ShaderDesc.m_CbvCount > 0)
             {
                 resourceDescriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE1());
                 resourceDescriptorRanges.back().Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, m_ShaderDesc.m_CbvCount, 0);
             }
+#endif
             if (m_ShaderDesc.m_SrvCount > 0)
             {
                 resourceDescriptorRanges.push_back(CD3DX12_DESCRIPTOR_RANGE1());
                 resourceDescriptorRanges.back().Init(
-                    D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
-                    m_ShaderDesc.m_SrvCount, 0, 0,
-                    D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE);
+                    D3D12_DESCRIPTOR_RANGE_TYPE_SRV, // 描述范围类型
+                    m_ShaderDesc.m_SrvCount, // 描述符数量
+                    0, // 起始注册位置
+                    0, // 寄存器空间，通常可以为 0
+                    D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE); // 指定描述符和数据易失性
             }
             if (m_ShaderDesc.m_UavCount > 0)
             {
@@ -65,12 +69,19 @@ namespace Game
             }
 
             // 计算根参数数量
-            UINT rootParamsCount = (resourceDescriptorRanges.size() > 0 ? 1 : 0) + (sampleDescriptorRanges.size() > 0 ? 1 : 0);
+            UINT rootParamsCount = (resourceDescriptorRanges.size() > 0 ? 1 : 0) + (sampleDescriptorRanges.size() > 0 ? 1 : 0) + m_ShaderDesc.m_CbvCount;
 
             m_RootSignature.reset(new RootSignature());
             m_RootSignature->Reset(rootParamsCount, 0); // 不使用静态采样器
 
             UINT rootParamIndex = 0;
+
+            // 根描述符
+            for (int i = 0; i < m_ShaderDesc.m_CbvCount; i++)
+            {
+                (*m_RootSignature)[rootParamIndex++].InitAsConstantBufferView(i);
+            }
+
             // CBV、SRV、UAV 描述符表
             if (resourceDescriptorRanges.size() > 0)
             {

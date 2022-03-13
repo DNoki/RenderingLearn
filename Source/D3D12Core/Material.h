@@ -115,6 +115,7 @@ namespace Game
         const Shader* m_Shader{}; // 材质使用的着色器
 
         std::unique_ptr<Graphics::GraphicsPipelineState> m_PipelineState{}; // 材质定义的管线状态
+        std::vector<const Graphics::IBufferResource*> m_ConstantBuffers{}; // 常量缓冲列表
         std::unique_ptr<Graphics::DescriptorHeap> m_ResourceDescHeap{}; // 资源描述符堆
         std::unique_ptr<Graphics::DescriptorHeap> m_SamplerDescHeap{}; // 采样器描述符堆
 

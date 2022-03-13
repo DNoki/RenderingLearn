@@ -6,6 +6,7 @@
 #include "RootSignature.h"
 #include "PipelineState.h"
 #include "DescriptorHeap.h"
+#include "GraphicsResource.h"
 #include "CommandQueue.h"
 #include "CommandAllocatorPool.h"
 
@@ -153,6 +154,14 @@ namespace Graphics
         m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
     }
 
+    void CommandList::SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* descriptorHeap) const
+    {
+        m_CommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, descriptorHeap->GetDescriptorHandle(0));
+    }
+    void CommandList::SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const
+    {
+        m_CommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer->GetGpuVirtualAddress());
+    }
 
     class CommandListPoolImpl
     {

@@ -30,8 +30,7 @@ namespace Game
         int m_CbvCount{ 0 };
         int m_SamplerCount{ 0 };
 
-        inline int GetBindCount() const { return GetBindResourceCount() + m_SamplerCount; }
-        inline int GetBindResourceCount() const { return m_SrvCount + m_UavCount + m_CbvCount; }
+        inline int GetBindResourceCount() const { return m_SrvCount + m_UavCount; }
 
         ShaderDesc() = default;
 
