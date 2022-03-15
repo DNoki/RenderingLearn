@@ -38,6 +38,22 @@ cbuffer DirectionalLightingBuffer : register(b2)
 Texture2D<float4> g_texture : register(t0);
 SamplerState g_sampler : register(s0);
 
+// Reverse-Z 的无限远裁面深度值转到视角空间
+float ReverseInfDepthToViewDepth(float depth, float nearClip)
+{
+    return nearClip / depth;
+}
+// Reverse-Z 的深度值转到线性空间
+float ReverseDepthToLinearDepth(float depth, float nearClip, float farClip)
+{
+    return nearClip / (depth * (farClip - nearClip) + nearClip);
+}
+// Reverse-Z 的深度值转到视角空间
+float ReverseDepthToViewDepth(float depth, float nearClip, float farClip)
+{
+    return farClip * ReverseDepthToLinearDepth(depth, nearClip, farClip);
+}
+
 PSInput VSMain(VSInput appdata)
 {
     PSInput f;

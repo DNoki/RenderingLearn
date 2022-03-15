@@ -30,7 +30,7 @@ namespace Resources
                     m_ClearValue.Color[3] = 1.0f;
                     break;
                 case Resources::RenderTextureType::DepthStencil:
-                    m_ClearValue.DepthStencil.Depth = 1.0f;
+                    m_ClearValue.DepthStencil.Depth = 0.0f;
                     m_ClearValue.DepthStencil.Stencil = 0;
                     break;
                 default: break;
@@ -97,7 +97,7 @@ namespace Resources
                     m_ClearValue.Color[3] = 1.0f;
                     break;
                 case Resources::RenderTextureType::DepthStencil:
-                    m_ClearValue.DepthStencil.Depth = 1.0f;
+                    m_ClearValue.DepthStencil.Depth = 0.0f;
                     m_ClearValue.DepthStencil.Stencil = 0;
                     break;
                 default: break;

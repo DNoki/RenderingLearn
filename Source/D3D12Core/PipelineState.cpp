@@ -27,6 +27,7 @@ namespace Graphics
         m_PSODesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
         m_PSODesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
         m_PSODesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+        m_PSODesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
         m_PSODesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     }
 
