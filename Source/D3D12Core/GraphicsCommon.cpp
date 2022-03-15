@@ -3,15 +3,24 @@
 #include "GraphicsManager.h"
 #include "DescriptorHeap.h"
 #include "GraphicsBuffer.h"
+#include "Mesh.h"
+#include "PipelineState.h"
+#include "Shader.h"
+#include "Material.h"
+#include "AppMain.h"
 
 #include "GraphicsCommon.h"
 
 using namespace std;
-using namespace DirectX;
+using namespace Game;
 
 
 namespace Graphics
 {
+    Game::Mesh g_BlitQuad;
+    Game::Shader g_BlitShader;
+    Game::Material g_BlitMaterial;
+
     void InitializeCommonSampler()
     {
         // 创建动态采样器
@@ -85,6 +94,29 @@ namespace Graphics
         g_SamplerLinearMirror.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
         g_SamplerLinearMirror.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
         g_SamplerLinearMirror.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+
+        // 位块传输用资源
+        {
+            g_BlitQuad = Mesh::CreateQuad(1.0f);
+            g_BlitMaterial.SetName(L"BlitQuad");
+
+            ShaderDesc shaderDesc{};
+            shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Texcoord);
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("Blit_vs.cso");
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("Blit_ps.cso");
+            shaderDesc.m_CbvCount = 0;
+            shaderDesc.m_SrvCount = 1;
+            shaderDesc.m_SamplerCount = 1;
+            g_BlitShader.Create(&shaderDesc);
+            g_BlitShader.SetName(L"BlitShader");
+
+            g_BlitMaterial.Create(&g_BlitShader);
+            g_BlitMaterial.SetName(L"BlitMaterial");
+            g_BlitMaterial.SetDepthEnable(false);
+
+            g_BlitMaterial.BindSampler(0, g_SamplerPointClamp);
+        }
     }
 
 }

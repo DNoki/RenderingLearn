@@ -1,24 +1,34 @@
 ﻿#pragma once
 
 #include "GraphicsResource.h"
+#include "IGameResource.h"
 
 namespace Graphics
 {
     class SwapChain;
+}
+
+namespace Resources
+{
+    enum class RenderTextureType
+    {
+        RenderTarget,
+        DepthStencil,
+    };
 
     /**
      * @brief 渲染贴图（RTV、DSV）
     */
-    class RenderTexture : public Texture
+    class RenderTexture : public Graphics::Texture, public Game::IGameResource
     {
     public:
         RenderTexture() = default;
         virtual ~RenderTexture() override = default;
-        RenderTexture(const RenderTexture & tex) = delete;
-        RenderTexture(RenderTexture && tex) = default;
+        RenderTexture(const RenderTexture&) = delete;
+        RenderTexture(RenderTexture&&) = default;
 
-        inline RenderTexture& operator = (const RenderTexture & tex) = delete;
-        inline RenderTexture& operator = (RenderTexture && tex) = default;
+        inline RenderTexture& operator = (const RenderTexture&) = delete;
+        inline RenderTexture& operator = (RenderTexture&&) = default;
 
         inline DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
         inline UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }
@@ -33,7 +43,32 @@ namespace Graphics
          * @return
         */
         inline const D3D12_DEPTH_STENCIL_VIEW_DESC* GetDsvDesc() const { return m_DsvDesc.get(); }
+        /**
+         * @brief 获取清空值
+         * @return
+        */
+        inline const D3D12_CLEAR_VALUE* GetClearValue() const { return &m_ClearValue; }
 
+        /**
+         * @brief 以注册方式创建渲染贴图
+         * @param type 渲染贴图类型
+         * @param format 格式
+         * @param width 宽度
+         * @param height 高度
+         * @param clearValue 清空值
+        */
+        void DirectCreate(RenderTextureType type, DXGI_FORMAT format, UINT64 width, UINT height, const D3D12_CLEAR_VALUE* clearValue = nullptr);
+        /**
+         * @brief 以放置方式创建渲染贴图
+         * @param type 渲染贴图类型
+         * @param format 格式
+         * @param width 宽度
+         * @param height 高度
+         * @param clearValue 清空值
+        */
+        void PlacedCreate(RenderTextureType type, DXGI_FORMAT format, UINT64 width, UINT height, const D3D12_CLEAR_VALUE* clearValue = nullptr);
+
+#if 0
         /**
          * @brief 注册方式创建深度模板视图
          * @param format
@@ -45,13 +80,17 @@ namespace Graphics
         void DirectCreateDSV(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 1.0f, UINT8 optStencil = 0);
         void PlacedCreateDSV(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 1.0f, UINT8 optStencil = 0); // TODO
 
+        void DirectCreateRTV(DXGI_FORMAT format, UINT64 width, UINT height, Color clearColor = Color());
+        void PlacedCreateRTV(DXGI_FORMAT format, UINT64 width, UINT height, Color clearColor = Color()); // TODO
+#endif
         /**
          * @brief 从交换链获取 RTV 缓冲
          * @param swapChain
          * @param index
         */
-        void GetRtvFromSwapChain(const SwapChain& swapChain, UINT index);
+        void CreateRtvFromSwapChain(const Graphics::SwapChain& swapChain, UINT index);
 
+        inline virtual std::wstring GetName() const override { return Texture::GetName(); }
         inline virtual void SetName(const std::wstring& name) override
         {
             m_Name = std::wstring(name);
@@ -59,6 +98,8 @@ namespace Graphics
         }
 
     protected:
+        RenderTextureType m_Type{};
+
         /**
          * @brief 渲染目标视图描述
         */
@@ -67,6 +108,8 @@ namespace Graphics
          * @brief 深度模板视图描述
         */
         std::unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC> m_DsvDesc{};
+
+        D3D12_CLEAR_VALUE m_ClearValue{};
 
     };
 }

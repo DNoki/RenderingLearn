@@ -113,6 +113,9 @@ const Vector3 Vector3::Down = Vector3(0.0f, -1.0f, 0.0f);
 const Vector3 Vector3::Forward = Vector3(0.0f, 0.0f, 1.0f);
 const Vector3 Vector3::Backward = Vector3(0.0f, 0.0f, -1.0f);
 
+const Vector4 Vector4::Zero = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+const Vector4 Vector4::One = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
 const Matrix4x4 Matrix4x4::Identity = Matrix4x4();
 
 

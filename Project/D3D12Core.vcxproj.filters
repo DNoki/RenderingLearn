@@ -121,6 +121,9 @@
     <ClInclude Include="..\Source\D3D12Core\IGameResource.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\Light.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\GameObject.cpp">
@@ -237,6 +240,9 @@
     <ClCompile Include="..\Source\D3D12Core\IGameResource.cpp">
       <Filter>Resources</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\Light.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -280,8 +286,17 @@
     <FxCompile Include="..\Source\Shaders\SampleTexture_ps.hlsl">
       <Filter>Shaders\PS</Filter>
     </FxCompile>
+    <FxCompile Include="..\Source\Shaders\Blit_ps.hlsl">
+      <Filter>Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\Blit_vs.hlsl">
+      <Filter>Shaders\VS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\Source\Shaders\Blit.shader">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

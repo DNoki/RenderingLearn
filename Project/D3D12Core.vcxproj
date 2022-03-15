@@ -64,7 +64,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;$(SolutionDir)Libraries\stb_image;..\Source\D3D12Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries;..\Source\D3D12Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -97,7 +97,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Libraries\D3DX12;$(SolutionDir)Libraries\stb_image;..\Source\D3D12Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Libraries;..\Source\D3D12Core;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <StringPooling>true</StringPooling>
@@ -129,6 +129,7 @@
     <ClInclude Include="..\Source\D3D12Core\ConstansBuffer.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHeap.h" />
     <ClInclude Include="..\Source\D3D12Core\IGameResource.h" />
+    <ClInclude Include="..\Source\D3D12Core\Light.h" />
     <ClInclude Include="..\Source\D3D12Core\SwapChain.h" />
     <ClInclude Include="..\Source\D3D12Core\DescriptorHandle.h" />
     <ClInclude Include="..\Source\D3D12Core\GameObject.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="..\Source\D3D12Core\ConstansBuffer.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHeap.cpp" />
     <ClCompile Include="..\Source\D3D12Core\IGameResource.cpp" />
+    <ClCompile Include="..\Source\D3D12Core\Light.cpp" />
     <ClCompile Include="..\Source\D3D12Core\SwapChain.cpp" />
     <ClCompile Include="..\Source\D3D12Core\DescriptorHandle.cpp" />
     <ClCompile Include="..\Source\D3D12Core\GameObject.cpp" />
@@ -206,6 +208,13 @@
     <ClCompile Include="..\Source\D3D12Core\GlobalUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\Source\Shaders\Blit_ps.hlsl" />
+    <FxCompile Include="..\Source\Shaders\Blit_vs.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="..\Source\Shaders\SampleTexture_ps.hlsl" />
     <FxCompile Include="..\Source\Shaders\SampleTexture_vs.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
@@ -222,6 +231,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Source\Shaders\Blit.shader" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

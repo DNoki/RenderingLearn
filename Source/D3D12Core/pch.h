@@ -51,7 +51,7 @@
 // Direct3D 12 的帮助程序结构 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/helper-structures-for-d3d12
 #define D3DX12_NO_STATE_OBJECT_HELPERS
 #define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
-#include <d3dx12.h> 
+#include <D3DX12/d3dx12.h> 
 
 // --------------------------------------------------------------------------
 // WinPixEventRuntime 标记GPU事件 https://devblogs.microsoft.com/pix/winpixeventruntime/

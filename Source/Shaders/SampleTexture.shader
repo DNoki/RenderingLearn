@@ -29,6 +29,12 @@ cbuffer ModelBuffer : register(b1)
     float4x4 m_MVP;
 };
 
+cbuffer DirectionalLightingBuffer : register(b2)
+{
+    float4 m_LightColor;
+    float4 m_WorldSpaceLightPos;
+};
+
 Texture2D<float4> g_texture : register(t0);
 SamplerState g_sampler : register(s0);
 
@@ -46,8 +52,8 @@ PSInput VSMain(VSInput appdata)
     //f.worldPos = mul(m_Model, position);
     //f.color = appdata.color;
 
-    f.normal = appdata.normal;
-    //f.normal = mul(appdata.normal, m_IT_M);
+    //f.normal = appdata.normal;
+    f.normal = mul(appdata.normal, m_IT_M);
     f.color = appdata.color;
     f.uv = appdata.uv;
 
@@ -56,10 +62,18 @@ PSInput VSMain(VSInput appdata)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
+    float3 lightDir = -normalize(m_WorldSpaceLightPos.xyz);
+    float3 normal = normalize(input.normal.xyz);
+
+    float diff = clamp(dot(lightDir, normal), 0.0f, 1.0f);
+    //float3 color = g_texture.Sample(g_sampler, input.uv.xy).rgb;
+    float3 color = diff * m_LightColor.rgb;
+
+    return float4(color, 1.0f);
     //return float4(input.uv.xy, 0.0f, 1.0f);
     //return float4(input.worldPos.xyz, 1.0f);
     //return float4(input.uv.rgb, 1.0f);
     //return float4(input.color.rgb, 1.0f);
     //return float4(input.normal.rgb, 1.0f);
-    return g_texture.Sample(g_sampler, input.uv.xy);
+    //return g_texture.Sample(g_sampler, input.uv.xy);
 }

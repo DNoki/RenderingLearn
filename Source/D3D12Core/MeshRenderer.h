@@ -2,9 +2,13 @@
 
 #include "Component.h"
 
-namespace Graphics
+namespace Resources
 {
     class RenderTexture;
+}
+
+namespace Graphics
+{
     class CommandList;
 }
 

@@ -19,6 +19,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "Light.h"
 
 #include "GameObject.h"
 #include "Transform.h"
@@ -30,6 +31,7 @@
 using namespace std;
 using namespace Graphics;
 using namespace Application;
+using namespace Resources;
 
 namespace Game
 {
@@ -40,14 +42,23 @@ namespace Game
 
     GameObject* g_SampleCameraObject;
     Camera* g_SampleCamera;
+    GameObject* g_SampleLightObject;
+    DirectionalLight* g_SampleLight;
     GameObject* g_SampleModelObject[2];
+
+    RenderTexture g_RenderTexture;
+    DescriptorHeap g_RenderTextureDescriptorHeap;
+    RenderTexture g_ShadowMapTexture;
+    DescriptorHeap g_ShadowMapDescriptorHeap;
 
     void SampleScene::Initialize()
     {
         m_Name = _T("SampleScene");
 
-        auto& g_GraphicsCommandList = *CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
-        g_GraphicsCommandList.Reset();
+        auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        graphicsCommandList->Reset();
+
+        bool isUseBundle = false;
 
         {
             auto texPath = Application::GetAssetPath();
@@ -58,8 +69,8 @@ namespace Game
 
             g_SampleTexture[0] = &AddGameResource(unique_ptr<Texture2D>(new Texture2D()));
             g_SampleTexture[0]->PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-            g_SampleTexture[0]->DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
-            g_SampleTexture[0]->DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            g_SampleTexture[0]->DispatchCopyTextureData(*graphicsCommandList, texData.GetDataPointer());
+            g_SampleTexture[0]->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             g_SampleTexture[0]->SetName(L"志摩 凛");
 
             texPath = Application::GetAssetPath();
@@ -68,8 +79,8 @@ namespace Game
 
             g_SampleTexture[1] = &AddGameResource(unique_ptr<Texture2D>(new Texture2D()));
             g_SampleTexture[1]->PlacedCreate(texData.GetFormat(), texData.GetWidth(), texData.GetHeight());
-            g_SampleTexture[1]->DispatchCopyTextureData(g_GraphicsCommandList, texData.GetDataPointer());
-            g_SampleTexture[1]->DispatchTransitionStates(&g_GraphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            g_SampleTexture[1]->DispatchCopyTextureData(*graphicsCommandList, texData.GetDataPointer());
+            g_SampleTexture[1]->DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             g_SampleTexture[1]->SetName(L"云堇");
         }
 
@@ -78,7 +89,7 @@ namespace Game
             shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Normal) | (1 << (int)VertexSemantic::Texcoord);
             shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("SampleTexture_vs.cso");
             shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("SampleTexture_ps.cso");
-            shaderDesc.m_CbvCount = 2;
+            shaderDesc.m_CbvCount = 3;
             shaderDesc.m_SrvCount = 2;
             shaderDesc.m_SamplerCount = 2;
 
@@ -112,13 +123,13 @@ namespace Game
         {
             g_SampleModelObject[0] = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object")));
             auto& meshRenderer = g_SampleModelObject[0]->AddComponent<MeshRenderer>();
-            meshRenderer.BindResource(g_SampleMesh[1], g_SampleMaterial[0], false);
+            meshRenderer.BindResource(g_SampleMesh[1], g_SampleMaterial[0], isUseBundle);
             g_SampleModelObject[0]->GetTransform().m_LocalScale = Vector3::One * 2.0f;
             g_SampleModelObject[0]->GetTransform().LookAt(Vector3::One);
 
             g_SampleModelObject[1] = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"Test Object2")));
             auto& meshRenderer2 = g_SampleModelObject[1]->AddComponent<MeshRenderer>();
-            meshRenderer2.BindResource(g_SampleMesh[0], g_SampleMaterial[1], false);
+            meshRenderer2.BindResource(g_SampleMesh[0], g_SampleMaterial[1], isUseBundle);
             g_SampleModelObject[1]->GetTransform().m_LocalScale = Vector3::One * 0.5f;
             g_SampleModelObject[1]->GetTransform().m_LocalPosition = Vector3::Up * 0.75f;
             g_SampleModelObject[1]->GetTransform().m_LocalRotation = Quaternion::CreateFromEulerAngles(10, 23, 30);
@@ -137,12 +148,33 @@ namespace Game
 
             auto& groundObj = AddGameObject(unique_ptr<GameObject>(new GameObject(L"Ground")));
             auto& groundMeshRenderer = groundObj.AddComponent<MeshRenderer>();
-            groundMeshRenderer.BindResource(&quad, g_SampleMaterial[0]);
+            groundMeshRenderer.BindResource(&quad, g_SampleMaterial[0], isUseBundle);
             groundObj.GetTransform().m_LocalScale = Vector3::One * 20.0f;
             groundObj.GetTransform().Rotate(Vector3(90.0f, 0.0f, 0.0f));
         }
 
-        GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&g_GraphicsCommandList);
+        // 创建渲染目标贴图
+        {
+            D3D12_CLEAR_VALUE clearValue{};
+            auto clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
+            CopyMemory(clearValue.Color, &clearColor, sizeof(Color));
+            g_RenderTexture.PlacedCreate(RenderTextureType::RenderTarget, DXGI_FORMAT_R8G8B8A8_UNORM, 2048, 2048, &clearValue);
+
+            g_RenderTextureDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1);
+            g_RenderTextureDescriptorHeap.BindRenderTargetView(0, g_RenderTexture);
+
+            g_ShadowMapTexture.PlacedCreate(RenderTextureType::DepthStencil, DXGI_FORMAT_D24_UNORM_S8_UINT, 2048, 2048);
+            g_ShadowMapDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
+            g_ShadowMapDescriptorHeap.BindDepthStencilView(0, g_ShadowMapTexture);
+        }
+
+        {
+            g_SampleLightObject = &AddGameObject(unique_ptr<GameObject>(new GameObject(L"DirectionalLight")));
+            g_SampleLight = &g_SampleLightObject->AddComponent<DirectionalLight>();
+            g_SampleLight->GetTransform().LookAt(-Vector3::One);
+        }
+
+        GraphicsManager::GetGraphicsCommandQueue()->ExecuteCommandLists(&graphicsCommandList);
 
 
         // 等待命令列表执行。 
@@ -270,6 +302,17 @@ namespace Game
                 //g_SampleModelObject[0] = nullptr;
                 g_SampleModelObject[0]->RemoveComponent<MeshRenderer>();
             }
+        }
+
+        {
+            g_SampleLight->GetTransform().Rotate(Vector3::Up, Time::GetDeltaTime() * 45.0f, true);
+            auto speed = 1.0f;
+            g_SampleLight->m_LightColor = Vector4(
+                (Math::Cos(Time::GetRunTime() * speed) + 1.0f) * 0.5f,
+                (Math::Cos(Time::GetRunTime() * speed - (Math::TAU / 3.0f)) + 1.0f) * 0.5f,
+                (Math::Cos(Time::GetRunTime() * speed + (Math::TAU / 3.0f)) + 1.0f) * 0.5f,
+                1.0f
+            );
         }
     }
 }

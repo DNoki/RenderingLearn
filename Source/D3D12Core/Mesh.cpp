@@ -5,6 +5,9 @@
 #include "UploadBuffer.h"
 #include "GraphicsBuffer.h"
 #include "CommandList.h"
+#include "PipelineState.h"
+#include "Shader.h"
+#include "Material.h"
 
 #include "Mesh.h"
 
@@ -102,7 +105,7 @@ namespace Game
         }
         else m_IndexBuffer = nullptr;
 
-        GraphicsManager::GetCopyCommandQueue()->ExecuteCommandLists(commandList);
+        GraphicsManager::GetCopyCommandQueue()->ExecuteCommandLists(&commandList);
     }
 
     void Mesh::SetName(const std::wstring& name)
@@ -165,6 +168,26 @@ namespace Game
             break;
         default: break;
         }
+    }
+
+    void Mesh::DispatchDraw(const Graphics::CommandList* commandList, Material* mat) const
+    {
+        // 必须由图形命令列表调用
+        ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+        // 设置当前渲染目标格式
+        mat->SetRenderTargets(commandList->GetRenderTargetInfos());
+
+        // 检测管线状态是否已更改
+        if (mat->GetPipelineState()->CheckStateChanged())
+        {
+            // 重新创建管线状态
+            mat->GetPipelineState()->Finalize();
+        }
+
+        mat->DispatchBindMaterial(commandList, false);
+        DispatchResourceExamine(commandList);
+        DispatchDraw(commandList, mat->GetShader()->GetBindSemanticFlag());
     }
 
     Mesh Mesh::CreateQuad(float size, bool rhcoords)

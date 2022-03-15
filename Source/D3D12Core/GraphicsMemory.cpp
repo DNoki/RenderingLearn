@@ -2,6 +2,7 @@
 
 #include "GraphicsResource.h"
 #include "GraphicsManager.h"
+#include "RenderTexture.h"
 
 #include "GraphicsMemory.h"
 
@@ -241,11 +242,7 @@ namespace Graphics
         ASSERT(placedDesc->m_AllocationSize <= DEFAULT_HEAP_SIZE);
 
         D3D12_HEAP_FLAGS heapFlags{};
-#ifdef DONT_USE_SMART_PTR
-        vector<PlacedHeap>* heaps{};
-#else
         vector<std::unique_ptr<PlacedHeap>>* heaps{};
-#endif
         wstring resourceTypeName = L"";
         switch (resourceDesc.Dimension)
         {
@@ -261,9 +258,18 @@ namespace Graphics
         case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
         {
             ASSERT(placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT);
-            heaps = &(GetInstance().m_TextureHeaps);
-            heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES;
-            resourceTypeName = L"Texture";
+            if (typeid(resource) == typeid(Resources::RenderTexture))
+            {
+                heaps = &(GetInstance().m_RenderTextureHeaps);
+                heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
+                resourceTypeName = L"RenderTexture";
+            }
+            else
+            {
+                heaps = &(GetInstance().m_TextureHeaps);
+                heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES;
+                resourceTypeName = L"Texture";
+            }
         }
         break;
         default: ASSERT(0); break;
@@ -273,11 +279,7 @@ namespace Graphics
         for (; pHeap != heaps->end(); ++pHeap)
         {
             // 尝试将资源放入堆
-#ifdef DONT_USE_SMART_PTR
-            if ((*pHeap).PlacedResource(resource))
-#else
             if ((**pHeap).PlacedResource(resource))
-#endif
             {
                 break;
             }
@@ -286,13 +288,8 @@ namespace Graphics
         if (pHeap == heaps->end())
         {
             // 没有堆可以放置资源，创建一个新的堆
-#ifdef DONT_USE_SMART_PTR
-            heaps->push_back(PlacedHeap());
-            auto& newHeap = heaps->back();
-#else
             heaps->push_back(unique_ptr<PlacedHeap>(new PlacedHeap()));
             auto& newHeap = *(heaps->back());
-#endif
 
             newHeap.Create(placedDesc->m_HeapType, DEFAULT_HEAP_SIZE, heapFlags);
 

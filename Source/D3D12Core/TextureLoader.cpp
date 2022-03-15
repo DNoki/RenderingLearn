@@ -4,7 +4,7 @@
 #define STBI_WINDOWS_UTF8 // STBI 文件路径字符串格式为 UTF8
 #pragma warning(push, 0)
 #pragma warning(disable:28251)
-#include <stb_image.h>
+#include <stb_image/stb_image.h>
 #pragma warning(pop)
 
 //#include <wincodec.h> // TODO WIC库加载图片

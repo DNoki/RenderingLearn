@@ -9,6 +9,8 @@ namespace Graphics
 
 namespace Game
 {
+    class Material;
+
     typedef DirectX::VertexPositionNormalTexture VertexPositionNormalTexture;
 
     enum class DrawType
@@ -67,6 +69,12 @@ namespace Game
          * @param bindSemanticFlag
         */
         void DispatchDraw(const Graphics::CommandList* commandList, int bindSemanticFlag) const;
+        /**
+         * @brief 以指定材质绘制
+         * @param commandList 
+         * @param mat 
+        */
+        void DispatchDraw(const Graphics::CommandList* commandList, Material* mat) const;
 
 
         // --------------------------------------------------------------------------

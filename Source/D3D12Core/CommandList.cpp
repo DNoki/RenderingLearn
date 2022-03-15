@@ -26,6 +26,14 @@
         捆绑包的目的是允许应用程序将少量 API 命令组合在一起，以便以后从直接命令列表中重复执行。
         在创建 bundle 时，驱动程序将执行尽可能多的预处理，以提高后续执行的效率。然后可以从多个命令列表中执行捆绑包，并在同一命令列表中多次执行。
 
+    图形管线
+        DX11 https://docs.microsoft.com/zh-cn/windows/win32/direct3d11/overviews-direct3d-11-graphics-pipeline
+        DX12 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/pipelines-and-shaders-with-directx-12
+        IA：Input-Assembler
+        SO：Stream Output
+        RS：Rasterizer Stage
+        OM：Output Merger
+
 */
 // --------------------------------------------------------------------------
 

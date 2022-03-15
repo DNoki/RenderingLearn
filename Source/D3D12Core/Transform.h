@@ -35,8 +35,8 @@ public:
 
     /**
      * @brief 前序遍历
-     * @param node 
-     * @param action 
+     * @param node
+     * @param action
     */
     static void PreOrderTraverse(TreeNode* node, const std::function<void(TreeNode&)>& action)
     {
@@ -49,8 +49,8 @@ public:
     }
     /**
      * @brief 中序遍历
-     * @param node 
-     * @param action 
+     * @param node
+     * @param action
     */
     static void InOrderTraverse(TreeNode* node, const std::function<void(TreeNode&)>& action)
     {
@@ -63,8 +63,8 @@ public:
     }
     /**
      * @brief 后序遍历
-     * @param node 
-     * @param action 
+     * @param node
+     * @param action
     */
     static void PostOrderTraverse(TreeNode* node, const std::function<void(TreeNode&)>& action)
     {
@@ -78,7 +78,7 @@ public:
 
     /**
      * @brief 遍历子节点
-     * @param action 
+     * @param action
     */
     void ChildTraverse(const std::function<bool(TreeNode*, TreeNode&)>& action) const
     {
@@ -181,7 +181,7 @@ namespace Game
         {
             auto* mappingBuffer = m_TransformBuffer->GetMappingBuffer();
             mappingBuffer->m_Model = GetLocalToWorldMatrix();
-            mappingBuffer->m_IT_Model = mappingBuffer->m_Model.Inverse();
+            mappingBuffer->m_IT_Model = mappingBuffer->m_Model.Inverse().Transpose();
             mappingBuffer->m_MVP = pv * mappingBuffer->m_Model;
         }
 

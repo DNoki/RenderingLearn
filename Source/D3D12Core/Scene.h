@@ -3,6 +3,7 @@
 namespace Graphics
 {
     class GraphicsResource;
+    class CommandList;
 }
 
 namespace Game
@@ -54,7 +55,7 @@ namespace Game
         template<typename T = IGameResource>
         T& AddGameResource() { return AddGameResource(std::make_unique<T>()); }
         template<typename T = IGameResource>
-        T* FindGameResource(const std::wstring& name = "")
+        T* FindGameResource(const std::wstring& name = L"")
         {
             IGameResource* result = nullptr;
             auto resourcesIt = m_ResourceMap.find(typeid(T).hash_code());
@@ -105,6 +106,10 @@ namespace Game
         virtual void ExecuteUpdate() = 0;
         virtual void ExecutePrevRender();
         virtual void ExecuteRender();
-    };
 
+    private:
+        void RenderPass1(std::vector<Graphics::CommandList*>& commandListArray);
+        void RenderPass2(std::vector<Graphics::CommandList*>& commandListArray);
+
+    };
 }

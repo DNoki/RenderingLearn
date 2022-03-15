@@ -106,12 +106,14 @@ namespace Graphics
         GraphicsManager::GetDevice()->CreateSampler(&samplerDesc, GetDescriptorHandle(index));
     }
 
-    void DescriptorHeap::BindRenderTargetView(int index, const RenderTexture& renderTex) const
+    void DescriptorHeap::BindRenderTargetView(int index, const Resources::RenderTexture& renderTex) const
     {
+        ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         GraphicsManager::GetDevice()->CreateRenderTargetView(renderTex.GetD3D12Resource(), renderTex.GetRtvDesc(), GetDescriptorHandle(index));
     }
-    void DescriptorHeap::BindDepthStencilView(int index, const RenderTexture& renderTex) const
+    void DescriptorHeap::BindDepthStencilView(int index, const Resources::RenderTexture& renderTex) const
     {
+        ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
         GraphicsManager::GetDevice()->CreateDepthStencilView(renderTex.GetD3D12Resource(), renderTex.GetDsvDesc(), GetDescriptorHandle(index));
     }
 }

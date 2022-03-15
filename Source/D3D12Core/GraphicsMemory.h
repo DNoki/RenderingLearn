@@ -64,5 +64,6 @@ namespace Graphics
         std::vector<std::unique_ptr<PlacedHeap>> m_UploadBufferHeaps{};     // 上传缓冲堆
         std::vector<std::unique_ptr<PlacedHeap>> m_DefaultBufferHeaps{};    // 默认缓冲堆
         std::vector<std::unique_ptr<PlacedHeap>> m_TextureHeaps{};          // 非渲染目标贴图缓冲堆
+        std::vector<std::unique_ptr<PlacedHeap>> m_RenderTextureHeaps{};    // 渲染目标贴图缓冲堆
     };
 }

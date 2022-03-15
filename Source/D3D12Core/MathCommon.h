@@ -144,6 +144,10 @@ public:
     inline operator DirectX::XMVECTOR() const noexcept { return XMLoadFloat4(this); }
     inline operator Vector3 () const noexcept { return Vector3(x, y, z); }
 
+public:
+    static const Vector4 Zero;
+    static const Vector4 One;
+
 private:
 
 };

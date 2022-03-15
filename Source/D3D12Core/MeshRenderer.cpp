@@ -104,6 +104,7 @@ namespace Game
         {
             // 不使用捆绑包，直接绘制
             m_BindedMaterial->DispatchBindMaterial(commandList, false);
+            m_BindedMesh->DispatchResourceExamine(commandList);
             m_BindedMesh->DispatchDraw(commandList, m_BindedMaterial->GetShader()->GetBindSemanticFlag());
         }
     }

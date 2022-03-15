@@ -11,7 +11,7 @@ using namespace Graphics;
 
 namespace Game
 {
-    Camera::Camera(GameObject& obj) : Component(obj) 
+    Camera::Camera(GameObject& obj) : Component(obj)
     {
         m_CameraBuffer.reset(new ConstansBuffer<CameraBuffer>());
         m_CameraBuffer->PlacedCreate();

@@ -2,11 +2,15 @@
 
 #include "DescriptorHandle.h"
 
+namespace Resources
+{
+    class RenderTexture;
+}
+
 namespace Graphics
 {
     class Texture;
     class IBufferResource;
-    class RenderTexture;
 
     /**
      * @brief 描述符堆
@@ -74,8 +78,8 @@ namespace Graphics
         void BindShaderResourceView(int index, const Texture& tex) const;
         void BindSampler(int index, const D3D12_SAMPLER_DESC& samplerDesc) const;
 
-        void BindRenderTargetView(int index, const RenderTexture& renderTex) const;
-        void BindDepthStencilView(int index, const RenderTexture& renderTex) const;
+        void BindRenderTargetView(int index, const Resources::RenderTexture& renderTex) const;
+        void BindDepthStencilView(int index, const Resources::RenderTexture& renderTex) const;
 
     private:
         winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap{};    // 描述符堆

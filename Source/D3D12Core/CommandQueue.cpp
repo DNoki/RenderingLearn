@@ -73,6 +73,7 @@ namespace Graphics
         m_Fence = nullptr;
     }
 
+#if 0
     void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists)
     {
         std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
@@ -90,6 +91,7 @@ namespace Graphics
         for (UINT i = 0; i < numCommandLists; i++)
             CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
     }
+#endif
     void CommandQueue::ExecuteCommandLists(CommandList** commandLists, UINT numCommandLists)
     {
         std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
@@ -106,7 +108,10 @@ namespace Graphics
         }
         m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
         for (UINT i = 0; i < numCommandLists; i++)
+        {
             CommandListPool::Restore(commandLists[i]); // 将使用完毕的列表放回池
+            commandLists[i] = nullptr;
+        }
     }
 
     void CommandQueue::WaitForQueueCompleted()
