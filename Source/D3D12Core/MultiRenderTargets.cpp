@@ -9,7 +9,7 @@ using namespace Resources;
 
 namespace Graphics
 {
-    void MultiRenderTargets::SetRenderTarget(UINT slot, RenderTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
+    void MultiRenderTargets::SetRenderTarget(UINT slot, RenderTargetTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
     {
         ASSERT(slot < 8);
         if (slot < m_RenderTargets.size())
@@ -26,7 +26,7 @@ namespace Graphics
         }
     }
 
-    void MultiRenderTargets::SetDepthStencil(RenderTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE dsv)
+    void MultiRenderTargets::SetDepthStencil(DepthStencilTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE dsv)
     {
         m_DepthStencil = renderTexture;
         m_DsvDescriptor = dsv;

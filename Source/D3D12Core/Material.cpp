@@ -34,10 +34,10 @@ namespace Game
             m_ConstantBuffers.resize(m_Shader->GetShaderDesc().m_CbvCount);
             // 创建资源描述符堆
             m_ResourceDescHeap.reset(new DescriptorHeap());
-            m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetShaderDesc().GetBindResourceCount());
+            m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetShaderDesc().GetBindResourceCount(), true);
             // 创建采样器描述符堆
             m_SamplerDescHeap.reset(new DescriptorHeap());
-            m_SamplerDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, m_Shader->GetShaderDesc().m_SamplerCount);
+            m_SamplerDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, m_Shader->GetShaderDesc().m_SamplerCount, true);
         }
     }
 

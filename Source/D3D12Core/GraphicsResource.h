@@ -140,6 +140,10 @@ namespace Graphics
     public:
         virtual ~Texture() override = 0 {}
 
+        inline DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
+        inline UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }
+        inline UINT GetHeight() const { return static_cast<UINT>(m_ResourceDesc.Height); }
+
         /**
          * @brief 改变资源状态
          * @param commandList 图形命令列表

@@ -258,7 +258,7 @@ namespace Graphics
         case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
         {
             ASSERT(placedDesc->m_HeapType == D3D12_HEAP_TYPE_DEFAULT);
-            if (typeid(resource) == typeid(Resources::RenderTexture))
+            if (typeid(resource) == typeid(Resources::RenderTargetTexture) || typeid(resource) == typeid(Resources::DepthStencilTexture))
             {
                 heaps = &(GetInstance().m_RenderTextureHeaps);
                 heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
@@ -268,7 +268,7 @@ namespace Graphics
             {
                 heaps = &(GetInstance().m_TextureHeaps);
                 heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_NON_RT_DS_TEXTURES;
-                resourceTypeName = L"Texture";
+                resourceTypeName = L"DefaultTexture";
             }
         }
         break;

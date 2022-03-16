@@ -4,7 +4,8 @@
 
 namespace Resources
 {
-    class RenderTexture;
+    class RenderTargetTexture;
+    class DepthStencilTexture;
 }
 
 namespace Graphics

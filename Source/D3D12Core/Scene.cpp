@@ -34,9 +34,9 @@ using namespace Resources;
 
 namespace Game
 {
-    extern RenderTexture g_RenderTexture;
+    extern RenderTargetTexture g_RenderTexture;
     extern DescriptorHeap g_RenderTextureDescriptorHeap;
-    extern RenderTexture g_ShadowMapTexture;
+    extern DepthStencilTexture g_ShadowMapTexture;
     extern DescriptorHeap g_ShadowMapDescriptorHeap;
 
     GameObject& Scene::AddGameObject(std::unique_ptr<GameObject>&& gameObj)

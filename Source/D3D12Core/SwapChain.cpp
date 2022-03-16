@@ -108,15 +108,15 @@ namespace Graphics
 
         for (int i = 0; i < m_RenderTargets.size(); i++)
         {
-            m_RenderTargets[i].reset(new RenderTexture());
-            m_RenderTargets[i]->CreateRtvFromSwapChain(*this, i);
+            m_RenderTargets[i].reset(new RenderTargetTexture());
+            m_RenderTargets[i]->CreateFromSwapChain(*this, i);
             m_RenderTargets[i]->SetName(Application::Format(L"SwapChain_RTV%d", i));
             m_RtvDescriptorHeap.BindRenderTargetView(i, *(m_RenderTargets[i]));
         }
 
         // 创建深度模板渲染贴图
-        m_DepthStencils.reset(new RenderTexture());
-        m_DepthStencils->PlacedCreate(RenderTextureType::DepthStencil, DXGI_FORMAT_D32_FLOAT, GetWidth(), GetHeight());
+        m_DepthStencils.reset(new DepthStencilTexture());
+        m_DepthStencils->PlacedCreate(DXGI_FORMAT_D32_FLOAT, GetWidth(), GetHeight());
         m_DepthStencils->SetName(L"SwapChain_DSV");
         m_DsvDescriptorHeap.BindDepthStencilView(0, *m_DepthStencils);
     }

@@ -11,6 +11,7 @@ using namespace Graphics;
 
 namespace Resources
 {
+#if 0
     void RenderTexture::DirectCreate(RenderTextureType type, DXGI_FORMAT format, UINT64 width, UINT height, const D3D12_CLEAR_VALUE* clearValue)
     {
         m_Type = type;
@@ -211,7 +212,7 @@ namespace Resources
         m_DsvDesc->Format = format;
         m_DsvDesc->ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
         m_DsvDesc->Flags = D3D12_DSV_FLAG_NONE;
-        }
+    }
 #endif
 
     void RenderTexture::CreateRtvFromSwapChain(const SwapChain& swapChain, UINT index)
@@ -225,4 +226,117 @@ namespace Resources
         m_ResourceDesc = m_Resource->GetDesc();
         m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
     }
+#endif // 0
+
+    void RenderTargetTexture::DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor)
+    {
+        InitDesc(format, width, height, optColor);
+
+        // 创建资源
+        auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
+            &heapType,
+            D3D12_HEAP_FLAG_NONE,
+            &m_ResourceDesc,
+            m_ResourceStates,
+            &m_ClearValue,
+            IID_PPV_ARGS(PutD3D12Resource())));
     }
+
+    void RenderTargetTexture::PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor)
+    {
+        InitDesc(format, width, height, optColor);
+
+        m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
+        m_PlacedResourceDesc.m_OptimizedClearValue = &m_ClearValue;
+
+        GraphicsMemory::PlacedResource(*this);
+    }
+    void RenderTargetTexture::CreateFromSwapChain(const Graphics::SwapChain& swapChain, UINT index)
+    {
+        ASSERT(m_Resource == nullptr);
+
+        m_RtvDesc = nullptr;
+        CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
+
+        m_ResourceDesc = m_Resource->GetDesc();
+        m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
+    }
+    void RenderTargetTexture::InitDesc(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor)
+    {
+        ASSERT(m_Resource == nullptr);
+
+        // 设置清除优化值
+        {
+            m_ClearValue.Format = format;
+            CopyMemory(m_ClearValue.Color, &optColor, sizeof(Color));
+        }
+
+        // 资源描述
+        {
+            m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height);
+            m_ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+        }
+
+        // 资源状态
+        m_ResourceStates = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+        // 渲染呈现视图描述
+        m_RtvDesc.reset(new D3D12_RENDER_TARGET_VIEW_DESC());
+        m_RtvDesc->Format = format;
+        m_RtvDesc->ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+    }
+
+
+    void DepthStencilTexture::DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth, UINT8 optStencil)
+    {
+        InitDesc(format, width, height, optDepth, optStencil);
+
+        auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+        CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommittedResource(
+            &heapType,
+            D3D12_HEAP_FLAG_NONE,
+            &m_ResourceDesc,
+            m_ResourceStates,
+            &m_ClearValue,
+            IID_PPV_ARGS(PutD3D12Resource())));
+    }
+
+    void DepthStencilTexture::PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth, UINT8 optStencil)
+    {
+        InitDesc(format, width, height, optDepth, optStencil);
+
+        m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
+        m_PlacedResourceDesc.m_OptimizedClearValue = &m_ClearValue;
+
+        GraphicsMemory::PlacedResource(*this);
+    }
+
+    void DepthStencilTexture::InitDesc(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth, UINT8 optStencil)
+    {
+        ASSERT(m_Resource == nullptr);
+
+        // 设置清除优化值
+        {
+            m_ClearValue.Format = format;
+            m_ClearValue.DepthStencil.Depth = optDepth;
+            m_ClearValue.DepthStencil.Stencil = optStencil;
+        }
+
+        // 资源描述
+        {
+            m_ResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height);
+            m_ResourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+        }
+
+        // 资源状态
+        m_ResourceStates = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+
+        // 深度模板视图描述
+        m_DsvDesc.reset(new D3D12_DEPTH_STENCIL_VIEW_DESC());
+        m_DsvDesc->Format = format;
+        m_DsvDesc->ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+        m_DsvDesc->Flags = D3D12_DSV_FLAG_NONE;
+    }
+
+}

@@ -10,6 +10,7 @@ namespace Graphics
 
 namespace Resources
 {
+#if 0
     enum class RenderTextureType
     {
         RenderTarget,
@@ -110,6 +111,95 @@ namespace Resources
         std::unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC> m_DsvDesc{};
 
         D3D12_CLEAR_VALUE m_ClearValue{};
+
+    };
+#endif
+
+    /**
+     * @brief 渲染呈现贴图
+    */
+    class RenderTargetTexture : public Graphics::Texture, public Game::IGameResource
+    {
+    public:
+        RenderTargetTexture() = default;
+
+        void DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor = Color());
+        void PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor = Color());
+        /**
+         * @brief 从交换链获取 RTV 缓冲
+         * @param swapChain
+         * @param index
+        */
+        void CreateFromSwapChain(const Graphics::SwapChain& swapChain, UINT index);
+
+        /**
+         * @brief 获取 RTV 描述
+         * @return
+        */
+        inline const D3D12_RENDER_TARGET_VIEW_DESC* GetRtvDesc() const { return m_RtvDesc.get(); }
+        /**
+         * @brief 获取清空值
+         * @return
+        */
+        inline const D3D12_CLEAR_VALUE* GetClearValue() const { return &m_ClearValue; }
+
+        inline virtual std::wstring GetName() const override { return Texture::GetName(); }
+        inline virtual void SetName(const std::wstring& name) override
+        {
+            m_Name = std::wstring(name);
+            if (m_Resource) SET_DEBUGNAME(m_Resource.get(), Application::Format(_T("%s (RenderTarget)"), m_Name.c_str()));
+        }
+
+    private:
+        /**
+         * @brief 渲染目标视图描述
+        */
+        std::unique_ptr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc{};
+
+        D3D12_CLEAR_VALUE m_ClearValue{};
+
+        void InitDesc(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor);
+
+    };
+
+    /**
+     * @brief 深度模板贴图
+    */
+    class DepthStencilTexture : public Graphics::Texture, public Game::IGameResource
+    {
+    public:
+        DepthStencilTexture() = default;
+
+        void DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 0.0f, UINT8 optStencil = 0);
+        void PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 0.0f, UINT8 optStencil = 0);
+
+        /**
+         * @brief 获取 DSV 描述
+         * @return
+        */
+        inline const D3D12_DEPTH_STENCIL_VIEW_DESC* GetDsvDesc() const { return m_DsvDesc.get(); }
+        /**
+         * @brief 获取清空值
+         * @return
+        */
+        inline const D3D12_CLEAR_VALUE* GetClearValue() const { return &m_ClearValue; }
+
+        inline virtual std::wstring GetName() const override { return Texture::GetName(); }
+        inline virtual void SetName(const std::wstring& name) override
+        {
+            m_Name = std::wstring(name);
+            if (m_Resource) SET_DEBUGNAME(m_Resource.get(), Application::Format(_T("%s (DepthStencil)"), m_Name.c_str()));
+        }
+
+    private:
+        /**
+         * @brief 深度模板视图描述
+        */
+        std::unique_ptr<D3D12_DEPTH_STENCIL_VIEW_DESC> m_DsvDesc{};
+
+        D3D12_CLEAR_VALUE m_ClearValue{};
+
+        void InitDesc(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth, UINT8 optStencil);
 
     };
 }

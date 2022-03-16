@@ -4,7 +4,8 @@
 
 namespace Resources
 {
-    class RenderTexture;
+    class RenderTargetTexture;
+    class DepthStencilTexture;
 }
 
 namespace Graphics
@@ -25,7 +26,7 @@ namespace Graphics
          * @param type 描述符堆类型
          * @param count 描述符数量
         */
-        void Create(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count);
+        void Create(D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count, bool isShaderVisible = false);
 
         /**
          * @brief 是否是着色器可见
@@ -78,8 +79,8 @@ namespace Graphics
         void BindShaderResourceView(int index, const Texture& tex) const;
         void BindSampler(int index, const D3D12_SAMPLER_DESC& samplerDesc) const;
 
-        void BindRenderTargetView(int index, const Resources::RenderTexture& renderTex) const;
-        void BindDepthStencilView(int index, const Resources::RenderTexture& renderTex) const;
+        void BindRenderTargetView(int index, const Resources::RenderTargetTexture& renderTex) const;
+        void BindDepthStencilView(int index, const Resources::DepthStencilTexture& renderTex) const;
 
     private:
         winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap{};    // 描述符堆

@@ -46,9 +46,9 @@ namespace Game
     DirectionalLight* g_SampleLight;
     GameObject* g_SampleModelObject[2];
 
-    RenderTexture g_RenderTexture;
+    RenderTargetTexture g_RenderTexture;
     DescriptorHeap g_RenderTextureDescriptorHeap;
-    RenderTexture g_ShadowMapTexture;
+    DepthStencilTexture g_ShadowMapTexture;
     DescriptorHeap g_ShadowMapDescriptorHeap;
 
     void SampleScene::Initialize()
@@ -155,15 +155,12 @@ namespace Game
 
         // 创建渲染目标贴图
         {
-            D3D12_CLEAR_VALUE clearValue{};
-            auto clearColor = Color(0.0f, 0.2f, 0.4f, 1.0f);
-            CopyMemory(clearValue.Color, &clearColor, sizeof(Color));
-            g_RenderTexture.PlacedCreate(RenderTextureType::RenderTarget, DXGI_FORMAT_R8G8B8A8_UNORM, 2048, 2048, &clearValue);
+            g_RenderTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, 2048, 2048, Color(0.0f, 0.2f, 0.4f, 1.0f));
 
             g_RenderTextureDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1);
             g_RenderTextureDescriptorHeap.BindRenderTargetView(0, g_RenderTexture);
 
-            g_ShadowMapTexture.PlacedCreate(RenderTextureType::DepthStencil, DXGI_FORMAT_D24_UNORM_S8_UINT, 2048, 2048);
+            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 2048, 2048);
             g_ShadowMapDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
             g_ShadowMapDescriptorHeap.BindDepthStencilView(0, g_ShadowMapTexture);
         }
