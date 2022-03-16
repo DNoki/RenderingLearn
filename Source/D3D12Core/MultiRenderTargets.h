@@ -15,8 +15,8 @@ namespace Graphics
     public:
         MultiRenderTargets() = default;
 
-        void SetRenderTarget(UINT slot, Resources::RenderTargetTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE rtv);
-        void SetDepthStencil(Resources::DepthStencilTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE dsv);
+        void SetRenderTarget(UINT slot, Resources::RenderTargetTexture* renderTexture);
+        void SetDepthStencil(Resources::DepthStencilTexture* renderTexture);
 
         inline UINT GetRenderTargetCount() const { return static_cast<UINT>(m_RenderTargets.size()); }
         UINT GetWidth() const;
@@ -32,13 +32,13 @@ namespace Graphics
 
         /**
          * @brief 切换所有渲染目标资源状态
-         * @param commandList 
-         * @param state 
+         * @param commandList
+         * @param state
         */
-        void DispatchRTsTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES state) const;
+        void DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES rtvState, D3D12_RESOURCE_STATES dsvState) const;
         /**
          * @brief 清空所有渲染目标
-         * @param commandList 
+         * @param commandList
         */
         void DispatchClear(const CommandList* commandList);
 

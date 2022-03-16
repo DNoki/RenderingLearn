@@ -82,8 +82,8 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 normal = normalize(input.normal.xyz);
 
     float diff = clamp(dot(lightDir, normal), 0.0f, 1.0f);
-    //float3 color = g_texture.Sample(g_sampler, input.uv.xy).rgb;
-    float3 color = diff * m_LightColor.rgb;
+    float3 color = g_texture.Sample(g_sampler, input.uv.xy).rgb;
+    color *= diff * m_LightColor.rgb;
 
     return float4(color, 1.0f);
     //return float4(input.uv.xy, 0.0f, 1.0f);

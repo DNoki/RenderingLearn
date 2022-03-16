@@ -34,5 +34,7 @@ namespace Game
     private:
         std::unique_ptr<Graphics::UploadBuffer> m_UploadBuffer{};
 
+        void InitDescriptor();
+
     };
 }

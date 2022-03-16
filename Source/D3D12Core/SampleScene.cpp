@@ -47,9 +47,7 @@ namespace Game
     GameObject* g_SampleModelObject[2];
 
     RenderTargetTexture g_RenderTexture;
-    DescriptorHeap g_RenderTextureDescriptorHeap;
     DepthStencilTexture g_ShadowMapTexture;
-    DescriptorHeap g_ShadowMapDescriptorHeap;
 
     void SampleScene::Initialize()
     {
@@ -58,7 +56,7 @@ namespace Game
         auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
         graphicsCommandList->Reset();
 
-        bool isUseBundle = false;
+        bool isUseBundle = false; // TODO 完善捆绑包
 
         {
             auto texPath = Application::GetAssetPath();
@@ -156,13 +154,10 @@ namespace Game
         // 创建渲染目标贴图
         {
             g_RenderTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, 2048, 2048, Color(0.0f, 0.2f, 0.4f, 1.0f));
-
-            g_RenderTextureDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1);
-            g_RenderTextureDescriptorHeap.BindRenderTargetView(0, g_RenderTexture);
+            g_RenderTexture.SetName(L"ShadowMapRenderTexture");
 
             g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 2048, 2048);
-            g_ShadowMapDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
-            g_ShadowMapDescriptorHeap.BindDepthStencilView(0, g_ShadowMapTexture);
+            g_ShadowMapTexture.SetName(L"ShadowMap");
         }
 
         {
@@ -191,7 +186,7 @@ namespace Game
         // 测试切换采样器
         if (Input::KeyDown(KeyCode::D1))
         {
-            static D3D12_SAMPLER_DESC* samplers[] =
+            static DescriptorHandle* samplers[] =
             {
                 &g_SamplerPointBorder,
                 &g_SamplerLinearBorder,

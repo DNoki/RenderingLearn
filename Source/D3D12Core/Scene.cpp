@@ -35,9 +35,7 @@ using namespace Resources;
 namespace Game
 {
     extern RenderTargetTexture g_RenderTexture;
-    extern DescriptorHeap g_RenderTextureDescriptorHeap;
     extern DepthStencilTexture g_ShadowMapTexture;
-    extern DescriptorHeap g_ShadowMapDescriptorHeap;
 
     GameObject& Scene::AddGameObject(std::unique_ptr<GameObject>&& gameObj)
     {
@@ -328,8 +326,8 @@ namespace Game
         // 获取渲染目标
         MultiRenderTargets currentRenderTargets{};
         {
-            currentRenderTargets.SetRenderTarget(0, &g_RenderTexture, g_RenderTextureDescriptorHeap.GetDescriptorHandle(0));
-            currentRenderTargets.SetDepthStencil(&g_ShadowMapTexture, g_ShadowMapDescriptorHeap.GetDescriptorHandle(0));
+            currentRenderTargets.SetRenderTarget(0, &g_RenderTexture);
+            currentRenderTargets.SetDepthStencil(&g_ShadowMapTexture);
         }
 
         // 获取一个命令列表
@@ -337,7 +335,7 @@ namespace Game
         graphicsCommandList->Reset();
 
         // 使阴影贴图为渲染目标
-        currentRenderTargets.DispatchRTsTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
         // 设置渲染目标
         graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
@@ -396,7 +394,7 @@ namespace Game
         }
 
         // 将渲染贴图改为着色器资源
-        currentRenderTargets.DispatchRTsTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
         commandListArray.push_back(graphicsCommandList);
     }
@@ -410,8 +408,7 @@ namespace Game
         {
             auto& swapChain = *GraphicsManager::GetSwapChain();
             UINT cbbi = swapChain.GetCurrentBackBufferIndex();
-            currentRenderTargets.SetRenderTarget(0, swapChain.GetRenderTarget(cbbi), swapChain.GetRtvDescHandle(cbbi));
-            currentRenderTargets.SetDepthStencil(swapChain.GetDepthStencil(), swapChain.GetDsvDescHandle());
+            currentRenderTargets.SetRenderTarget(0, swapChain.GetRenderTarget(cbbi));
         }
 
         // 重置命令列表
@@ -429,7 +426,7 @@ namespace Game
         }
 
         // 指示后台缓冲区将用作渲染目标
-        currentRenderTargets.DispatchRTsTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
         // 设置渲染目标
         graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
@@ -445,7 +442,7 @@ namespace Game
         }
 
         // 指示现在将使用后台缓冲区来呈现。
-        currentRenderTargets.DispatchRTsTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PRESENT);
+        currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_DEPTH_READ);
 
         commandListArray.push_back(graphicsCommandList);
     }

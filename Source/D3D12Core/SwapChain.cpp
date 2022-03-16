@@ -55,12 +55,6 @@ namespace Graphics
         // 获取交换链描述
         m_SwapChain->GetDesc1(&m_SwapChainDesc);
 
-        // 创建渲染目标描述符堆
-        m_RtvDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, m_SwapChainDesc.BufferCount);
-        m_RtvDescriptorHeap.SetName(L"SwapChainRtv");
-        m_DsvDescriptorHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1);
-        m_DsvDescriptorHeap.SetName(L"SwapChainDsv");
-
         RebuildRenderTargets();
 
         // 设置交换链背景颜色。通常，除非交换链内容小于目标窗口，否则背景颜色是不可见的。
@@ -111,13 +105,6 @@ namespace Graphics
             m_RenderTargets[i].reset(new RenderTargetTexture());
             m_RenderTargets[i]->CreateFromSwapChain(*this, i);
             m_RenderTargets[i]->SetName(Application::Format(L"SwapChain_RTV%d", i));
-            m_RtvDescriptorHeap.BindRenderTargetView(i, *(m_RenderTargets[i]));
         }
-
-        // 创建深度模板渲染贴图
-        m_DepthStencils.reset(new DepthStencilTexture());
-        m_DepthStencils->PlacedCreate(DXGI_FORMAT_D32_FLOAT, GetWidth(), GetHeight());
-        m_DepthStencils->SetName(L"SwapChain_DSV");
-        m_DsvDescriptorHeap.BindDepthStencilView(0, *m_DepthStencils);
     }
 }

@@ -4,6 +4,7 @@
 
 namespace Graphics
 {
+    class DescriptorHandle;
     class DescriptorHeap;
     class Texture;
     class GraphicsPipelineState;
@@ -63,7 +64,7 @@ namespace Game
          * @brief 绑定采样器
          * @param sampler
         */
-        void BindSampler(int slot, const D3D12_SAMPLER_DESC& sampler);
+        void BindSampler(int slot, const Graphics::DescriptorHandle& sampler);
 
         /**
          * @brief 设置渲染目标

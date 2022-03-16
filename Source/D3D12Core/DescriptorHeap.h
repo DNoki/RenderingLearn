@@ -65,6 +65,7 @@ namespace Graphics
             if (m_DescriptorHeap) SET_DEBUGNAME(m_DescriptorHeap.get(), Application::Format(_T("%s (DescriptorHeap)"), m_Name.c_str()));
         }
 
+#if 0
         /**
          * @brief 绑定常量缓冲资源
          * @param index
@@ -81,6 +82,7 @@ namespace Graphics
 
         void BindRenderTargetView(int index, const Resources::RenderTargetTexture& renderTex) const;
         void BindDepthStencilView(int index, const Resources::DepthStencilTexture& renderTex) const;
+#endif
 
     private:
         winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap{};    // 描述符堆
@@ -89,5 +91,16 @@ namespace Graphics
         DescriptorHandle m_StartDescriptorHandle{}; // 描述符起始句柄
 
         std::wstring m_Name{};
+    };
+
+    class DescriptorAllocator
+    {
+    public:
+        DescriptorAllocator() = delete;
+
+        static DescriptorHandle Allocat(D3D12_DESCRIPTOR_HEAP_TYPE type);
+
+    private:
+
     };
 }

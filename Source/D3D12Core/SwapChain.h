@@ -53,21 +53,10 @@ namespace Graphics
             return m_SwapChain->GetCurrentBackBufferIndex();
         }
         /**
-         * @brief 获取 RTV 描述符
-         * @return
-        */
-        inline DescriptorHandle GetRtvDescHandle(UINT index) const
-        {
-            return m_RtvDescriptorHeap.GetDescriptorHandle(index);
-        }
-        /**
          * @brief 获取渲染目标贴图
          * @return
         */
         inline Resources::RenderTargetTexture* GetRenderTarget(UINT index) const { return m_RenderTargets[index].get(); }
-
-        inline DescriptorHandle GetDsvDescHandle() const { return m_DsvDescriptorHeap.GetDescriptorHandle(0); }
-        inline Resources::DepthStencilTexture* GetDepthStencil() const { return m_DepthStencils.get(); }
 
         // --------------------------------------------------------------------------
         /**
@@ -91,11 +80,7 @@ namespace Graphics
 
         std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc{}; // 全屏交换链描述
 
-        DescriptorHeap m_RtvDescriptorHeap{}; // 渲染目标描述符堆
         std::vector<std::unique_ptr<Resources::RenderTargetTexture>> m_RenderTargets{}; // 渲染目标贴图列表
-
-        DescriptorHeap m_DsvDescriptorHeap{};
-        std::unique_ptr<Resources::DepthStencilTexture> m_DepthStencils{}; // 渲染目标贴图列表
 
         /**
          * @brief 重新生成渲染目标贴图

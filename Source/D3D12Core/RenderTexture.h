@@ -5,6 +5,7 @@
 
 namespace Graphics
 {
+    class DescriptorHandle;
     class SwapChain;
 }
 
@@ -132,6 +133,7 @@ namespace Resources
         */
         void CreateFromSwapChain(const Graphics::SwapChain& swapChain, UINT index);
 
+        inline const Graphics::DescriptorHandle& GetRTV() const { return m_RTV; }
         /**
          * @brief 获取 RTV 描述
          * @return
@@ -151,6 +153,7 @@ namespace Resources
         }
 
     private:
+        Graphics::DescriptorHandle m_RTV{};
         /**
          * @brief 渲染目标视图描述
         */
@@ -159,6 +162,7 @@ namespace Resources
         D3D12_CLEAR_VALUE m_ClearValue{};
 
         void InitDesc(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor);
+        void InitDescriptor();
 
     };
 
@@ -173,6 +177,7 @@ namespace Resources
         void DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 0.0f, UINT8 optStencil = 0);
         void PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth = 0.0f, UINT8 optStencil = 0);
 
+        inline const Graphics::DescriptorHandle& GetDSV() const { return m_SDV; }
         /**
          * @brief 获取 DSV 描述
          * @return
@@ -192,6 +197,7 @@ namespace Resources
         }
 
     private:
+        Graphics::DescriptorHandle m_SDV{};
         /**
          * @brief 深度模板视图描述
         */
@@ -200,6 +206,8 @@ namespace Resources
         D3D12_CLEAR_VALUE m_ClearValue{};
 
         void InitDesc(DXGI_FORMAT format, UINT64 width, UINT height, float optDepth, UINT8 optStencil);
+        void InitDescriptor();
+        DXGI_FORMAT GetSrvFormat(DXGI_FORMAT dsFormat) const;
 
     };
 }

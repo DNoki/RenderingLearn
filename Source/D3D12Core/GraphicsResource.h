@@ -1,7 +1,10 @@
 ﻿#pragma once
 
+#include "DescriptorHandle.h"
+
 namespace Graphics
 {
+    class DescriptorHandle;
     class PlacedHeap;
     class CommandList;
 
@@ -144,12 +147,17 @@ namespace Graphics
         inline UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }
         inline UINT GetHeight() const { return static_cast<UINT>(m_ResourceDesc.Height); }
 
+        inline const DescriptorHandle& GetSRV() const { return m_SRV; }
+
         /**
          * @brief 改变资源状态
          * @param commandList 图形命令列表
          * @param after 要改变的状态
         */
         void DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after);
+
+    protected:
+        DescriptorHandle m_SRV;
 
     };
 }

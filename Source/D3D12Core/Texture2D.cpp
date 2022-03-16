@@ -3,6 +3,7 @@
 #include "GraphicsMemory.h"
 #include "GraphicsManager.h"
 #include "CommandList.h"
+#include "DescriptorHeap.h"
 
 #include "Texture2D.h"
 
@@ -29,6 +30,8 @@ namespace Game
             m_ResourceStates, // 作为GPU复制操作目标，其状态必须为 D3D12_RESOURCE_STATE_COPY_DEST
             nullptr,
             IID_PPV_ARGS(PutD3D12Resource())));
+
+        InitDescriptor();
     }
 
     void Texture2D::PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize, UINT16 mipLevels)
@@ -40,6 +43,20 @@ namespace Game
         m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;
 
         GraphicsMemory::PlacedResource(*this);
+
+        InitDescriptor();
+    }
+
+    void Texture2D::InitDescriptor()
+    {
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.Format = m_ResourceDesc.Format;
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = 1;
+
+        m_SRV = DescriptorAllocator::Allocat(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        GraphicsManager::GetDevice()->CreateShaderResourceView(m_Resource.get(), &srvDesc, m_SRV);
     }
 
     void Texture2D::DispatchCopyTextureData(const CommandList& commandList, const void* data)

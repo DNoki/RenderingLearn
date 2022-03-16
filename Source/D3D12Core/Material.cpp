@@ -5,6 +5,8 @@
 #include "DescriptorHeap.h"
 #include "CommandList.h"
 #include "GraphicsCommon.h"
+#include "GraphicsResource.h"
+#include "GraphicsManager.h"
 
 #include "Material.h"
 
@@ -109,21 +111,29 @@ namespace Game
     void Material::BindBuffer(int slot, const Graphics::IBufferResource& buffer)
     {
         ASSERT(slot < m_Shader->GetShaderDesc().m_CbvCount);
-        m_ConstantBuffers[slot] = &buffer;
-        m_Version++;
+        if (m_ConstantBuffers[slot] != &buffer)
+        {
+            m_ConstantBuffers[slot] = &buffer;
+            //m_Version++; // TODO
+        }
+
     }
     void Material::BindTexture(int slot, const Graphics::Texture& texture)
     {
         ASSERT(slot < m_Shader->GetShaderDesc().m_SrvCount);
-        m_ResourceDescHeap->BindShaderResourceView(slot, texture);
-        m_Version++;
+        GraphicsManager::GetDevice()->CopyDescriptorsSimple(1,
+            m_ResourceDescHeap->GetDescriptorHandle(slot), texture.GetSRV(),
+            D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        //m_Version++; // TODO
     }
 
-    void Material::BindSampler(int slot, const D3D12_SAMPLER_DESC& sampler)
+    void Material::BindSampler(int slot, const DescriptorHandle& sampler)
     {
         ASSERT(slot < m_Shader->GetShaderDesc().m_SamplerCount);
-        m_SamplerDescHeap->BindSampler(slot, sampler);
-        m_Version++;
+        GraphicsManager::GetDevice()->CopyDescriptorsSimple(1,
+            m_SamplerDescHeap->GetDescriptorHandle(slot), sampler,
+            D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        //m_Version++; // TODO
     }
 
     void Material::SetRenderTargets(const MultiRenderTargets* mrt)

@@ -74,6 +74,7 @@ namespace Graphics
         return m_StartDescriptorHandle + index * m_DescriptorSize;
     }
 
+#if 0
     void DescriptorHeap::BindConstantBufferView(int index, const IBufferResource& buffer) const
     {
         ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -116,5 +117,52 @@ namespace Graphics
     {
         ASSERT(GetHeapType() == D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
         GraphicsManager::GetDevice()->CreateDepthStencilView(renderTex.GetD3D12Resource(), renderTex.GetDsvDesc(), GetDescriptorHandle(index));
+    }
+#endif
+
+
+    struct AllocatorHeap
+    {
+    public:
+        unique_ptr<DescriptorHeap> m_DescriptorHeap{};
+        UINT m_NextHandle{};
+    };
+
+    class DescriptorAllocatorImpl
+    {
+    public:
+        DescriptorAllocatorImpl() = default;
+
+        DescriptorHandle Allocat(D3D12_DESCRIPTOR_HEAP_TYPE type)
+        {
+            if (m_CurrentHeap[type] == nullptr || (m_CurrentHeap[type]->m_NextHandle >= m_CurrentHeap[type]->m_DescriptorHeap->GetDescriptorsCount()))
+            {
+                m_Heaps[type].push_back(AllocatorHeap());
+                m_CurrentHeap[type] = &m_Heaps[type].back();
+                m_CurrentHeap[type]->m_DescriptorHeap.reset(new DescriptorHeap());
+                m_CurrentHeap[type]->m_DescriptorHeap->Create(type, 256, false);
+
+                static const wstring heapNames[] =
+                {
+                    L"CBV_SRV_UAV",
+                    L"Sampler",
+                    L"RTV",
+                    L"DSV",
+                };
+                m_CurrentHeap[type]->m_DescriptorHeap->SetName(heapNames[type].c_str());
+            }
+            return m_CurrentHeap[type]->m_DescriptorHeap->GetDescriptorHandle(m_CurrentHeap[type]->m_NextHandle++);
+        }
+
+    private:
+        vector<AllocatorHeap> m_Heaps[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES]{};
+
+        AllocatorHeap* m_CurrentHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES]{};
+
+    } g_DescriptorAllocatorImpl;
+
+    DescriptorHandle DescriptorAllocator::Allocat(D3D12_DESCRIPTOR_HEAP_TYPE type)
+    {
+        return g_DescriptorAllocatorImpl.Allocat(type);
     }
 }

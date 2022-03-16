@@ -9,27 +9,27 @@ using namespace Resources;
 
 namespace Graphics
 {
-    void MultiRenderTargets::SetRenderTarget(UINT slot, RenderTargetTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
+    void MultiRenderTargets::SetRenderTarget(UINT slot, RenderTargetTexture* renderTexture)
     {
         ASSERT(slot < 8);
         if (slot < m_RenderTargets.size())
         {
             m_RenderTargets[slot] = renderTexture;
-            m_RtvDescriptors[slot] = rtv;
+            m_RtvDescriptors[slot] = renderTexture->GetRTV();
             m_RenderTargetsFormat[slot] = renderTexture->GetFormat();
         }
         else
         {
             m_RenderTargets.push_back(renderTexture);
-            m_RtvDescriptors.push_back(rtv);
+            m_RtvDescriptors.push_back(renderTexture->GetRTV());
             m_RenderTargetsFormat.push_back(renderTexture->GetFormat());
         }
     }
 
-    void MultiRenderTargets::SetDepthStencil(DepthStencilTexture* renderTexture, D3D12_CPU_DESCRIPTOR_HANDLE dsv)
+    void MultiRenderTargets::SetDepthStencil(DepthStencilTexture* renderTexture)
     {
         m_DepthStencil = renderTexture;
-        m_DsvDescriptor = dsv;
+        m_DsvDescriptor = renderTexture->GetDSV();
         m_DepthStencilFormat = renderTexture->GetFormat();
     }
 
@@ -54,13 +54,17 @@ namespace Graphics
         return height;
     }
 
-    void MultiRenderTargets::DispatchRTsTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES state) const
+    void MultiRenderTargets::DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES rtvState, D3D12_RESOURCE_STATES dsvState) const
     {
         ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
 
         for (UINT i = 0; i < m_RenderTargets.size(); i++)
         {
-            m_RenderTargets[i]->DispatchTransitionStates(commandList, state);
+            m_RenderTargets[i]->DispatchTransitionStates(commandList, rtvState);
+        }
+        if (m_DepthStencil)
+        {
+            m_DepthStencil->DispatchTransitionStates(commandList, dsvState);
         }
     }
 
