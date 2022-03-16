@@ -30,7 +30,7 @@ namespace Graphics
     Game::Shader g_BlitShader;
     Game::Material g_BlitMaterial;
 
-    void InitializeCommonSampler()
+    void InitializeCommonGraphicsResource()
     {
         // 初始化动态采样器
         {
@@ -97,7 +97,7 @@ namespace Graphics
 
         // 位块传输用资源
         {
-            g_BlitQuad = Mesh::CreateQuad(1.0f);
+            g_BlitQuad = Mesh::CreateQuad(2.0f);
             g_BlitMaterial.SetName(L"BlitQuad");
 
             ShaderDesc shaderDesc{};

@@ -254,7 +254,7 @@ namespace Application
         // --------------------------------------------------------------------------
         // 初始化图形管理器
         GraphicsManager::GetInstance().Initialize();
-        InitializeCommonSampler();
+        InitializeCommonGraphicsResource();
         TimeSystem::InitTimeSystem(); // 初始化时间系统
         Input::Initialize(g_Hwnd); // 初始化输入模块
         SceneManager::Initialize(0); // 初始化场景管理器

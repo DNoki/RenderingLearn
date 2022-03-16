@@ -124,8 +124,8 @@ namespace Resources
     public:
         RenderTargetTexture() = default;
 
-        void DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor = Color());
-        void PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor = Color());
+        void DirectCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor = Color::Black);
+        void PlacedCreate(DXGI_FORMAT format, UINT64 width, UINT height, Color optColor = Color::Black);
         /**
          * @brief 从交换链获取 RTV 缓冲
          * @param swapChain

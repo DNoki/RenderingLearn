@@ -24,5 +24,5 @@ namespace Graphics
     extern Game::Shader g_BlitShader;
     extern Game::Material g_BlitMaterial;
 
-    void InitializeCommonSampler();
+    void InitializeCommonGraphicsResource();
 }

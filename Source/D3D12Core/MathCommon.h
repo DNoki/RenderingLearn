@@ -9,7 +9,7 @@ typedef DirectX::SimpleMath::Plane          Plane;
 typedef DirectX::SimpleMath::Rectangle      Rect;
 typedef DirectX::SimpleMath::Ray            Ray;
 typedef DirectX::SimpleMath::Viewport       Viewport;
-typedef DirectX::SimpleMath::Color          Color;
+//typedef DirectX::SimpleMath::Color          Color;
 
 class Matrix4x4;
 class Quaternion;
@@ -25,6 +25,8 @@ public:
     inline static const float Rad2Deg = 57.295779f; // 弧度转角度
 
     inline static float Abs(float x) noexcept { return abs(x); }
+    inline static float Mod(float x, float y) noexcept { return fmod(x, y); }
+
     /**
      * @brief 比较两个浮点数是否近似
      * @param a
@@ -152,6 +154,53 @@ private:
 
 };
 
+class Color
+{
+public:
+    float r{};
+    float g{};
+    float b{};
+    float a{};
+
+    Color() = default;
+
+    Color(const DirectX::XMFLOAT4& c) noexcept { CopyMemory(this, &c, sizeof(Color)); }
+    Color(DirectX::XMFLOAT4&& c) noexcept { CopyMemory(this, &c, sizeof(Color)); }
+    Color(const DirectX::XMVECTOR& c) noexcept { DirectX::XMStoreFloat4(reinterpret_cast<DirectX::XMFLOAT4*>(this), c); }
+    Color(DirectX::XMVECTOR&& c) noexcept { DirectX::XMStoreFloat4(reinterpret_cast<DirectX::XMFLOAT4*>(this), c); }
+
+    Color(float _r, float _g, float _b, float _a = 1.0f) : r(_r), g(_g), b(_b), a(_a) {}
+
+    operator DirectX::XMFLOAT4& () noexcept { return *reinterpret_cast<DirectX::XMFLOAT4*>(this); }
+    operator DirectX::XMVECTOR() const noexcept { return DirectX::XMLoadFloat4(reinterpret_cast<const DirectX::XMFLOAT4*>(this)); }
+    operator const float* () const noexcept { return reinterpret_cast<const float*>(this); }
+
+    /**
+     * @brief 从 HSV 模型创建颜色(0.0 ~ 1.0)
+     * @param hue 色调
+     * @param saturation 饱和度
+     * @param value 明度
+     * @return
+    */
+    static Color CreateFromHSV(float hue, float saturation, float value);
+
+    std::wstring ToString() { return Application::Format(L"(%.2f, %.2f, %.2f, %.2f)", r, g, b, a); }
+
+public:
+    static const Color Black;
+    static const Color White;
+    static const Color Gray;
+    static const Color Red;
+    static const Color Green;
+    static const Color Blue;
+    static const Color Cyan;
+    static const Color Magenta;
+    static const Color Yellow;
+
+private:
+
+};
+
 
 class Quaternion : public DirectX::XMFLOAT4
 {
@@ -165,12 +214,12 @@ public:
     Quaternion& operator =(const Quaternion&) = default;
     Quaternion& operator =(Quaternion&&) = default;
 
-    inline Quaternion(const DirectX::XMVECTOR& q) noexcept { DirectX::XMStoreFloat4(this, q); }
-    inline Quaternion(const DirectX::XMVECTOR&& q) noexcept { DirectX::XMStoreFloat4(this, q); }
-    inline constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
+    Quaternion(const DirectX::XMVECTOR& q) noexcept { DirectX::XMStoreFloat4(this, q); }
+    Quaternion(DirectX::XMVECTOR&& q) noexcept { DirectX::XMStoreFloat4(this, q); }
+    constexpr Quaternion(float x, float y, float z, float w) : DirectX::XMFLOAT4(x, y, z, w) {}
 
-    inline operator DirectX::XMFLOAT4& () noexcept { return *this; }
-    inline operator DirectX::XMVECTOR() const noexcept { return XMLoadFloat4(this); }
+    operator DirectX::XMFLOAT4& () noexcept { return *this; }
+    operator DirectX::XMVECTOR() const noexcept { return DirectX::XMLoadFloat4(this); }
 
     // --------------------------------------------------------------------------
     /**
@@ -246,8 +295,8 @@ public:
     Matrix4x4(const DirectX::XMMATRIX& m) noexcept { DirectX::XMStoreFloat4x4(this, m); }
     Matrix4x4(const DirectX::XMMATRIX&& m) noexcept { DirectX::XMStoreFloat4x4(this, m); }
 
-    inline operator DirectX::XMFLOAT4X4& () noexcept { return (*this); }
-    inline operator DirectX::XMMATRIX() const noexcept { return DirectX::XMLoadFloat4x4(this); }
+    operator DirectX::XMFLOAT4X4& () noexcept { return (*this); }
+    operator DirectX::XMMATRIX() const noexcept { return DirectX::XMLoadFloat4x4(this); }
 
 
     // --------------------------------------------------------------------------

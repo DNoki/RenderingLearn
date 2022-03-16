@@ -28,13 +28,13 @@ namespace Graphics
     GraphicsManager GraphicsManager::s_GraphicsManager = GraphicsManager();
 
 #if 0
-    void InitializeCommonSampler();
+    void InitializeCommonGraphicsResource();
 
     void Initialize()
     {
         // --------------------------------------------------------------------------
         // 初始化共通动态采样器
-        InitializeCommonSampler();
+        InitializeCommonGraphicsResource();
 
 
         // --------------------------------------------------------------------------
