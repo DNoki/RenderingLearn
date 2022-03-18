@@ -82,7 +82,7 @@
       <ObjectFileOutput>$(OutDir)CompiledShaders\%(Filename).cso</ObjectFileOutput>
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
-      <PreprocessorDefinitions>D3DCOMPILE_DEBUG;D3DCOMPILE_DEBUG_NAME_FOR_BINARY</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SHADER_COMPILE;D3DCOMPILE_DEBUG;D3DCOMPILE_DEBUG_NAME_FOR_BINARY</PreprocessorDefinitions>
       <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
     </FxCompile>
   </ItemDefinitionGroup>
@@ -118,6 +118,7 @@
       <EntryPointName>PSMain</EntryPointName>
       <ShaderType>Pixel</ShaderType>
       <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>SHADER_COMPILE</PreprocessorDefinitions>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -215,6 +216,13 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="..\Source\Shaders\GenerateDirectionalLightShadowMap_ps.hlsl" />
+    <FxCompile Include="..\Source\Shaders\GenerateDirectionalLightShadowMap_vs.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="..\Source\Shaders\SampleTexture_ps.hlsl" />
     <FxCompile Include="..\Source\Shaders\SampleTexture_vs.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
@@ -232,6 +240,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\Shaders\Blit.shader" />
+    <None Include="..\Source\Shaders\GenerateDirectionalLightShadowMap.shader" />
+    <None Include="..\Source\Shaders\ShaderCommon.inl" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

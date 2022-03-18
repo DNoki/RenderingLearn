@@ -89,6 +89,7 @@ typedef std::filesystem::path Path;
 #include "GlobalUtility.h"
 #define USE_COLUMN_MAJOR
 #include "MathCommon.h"
+#include "../Shaders/ShaderCommon.inl"
 
 
 #if DEBUG

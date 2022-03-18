@@ -152,7 +152,6 @@ namespace Graphics
 
         ASSERT(m_PSODesc.pRootSignature != nullptr);
         ASSERT(m_PSODesc.InputLayout.NumElements > 0);
-        ASSERT(m_PSODesc.NumRenderTargets > 0);
         //m_PSODesc.StreamOutput=
         //m_PSODesc.CachedPSO=
         //m_PSODesc.Flags=

@@ -16,12 +16,6 @@ namespace Game
 
     };
 
-    struct DirectionalLightingBuffer
-    {
-        Vector4 m_LightColor;
-        Vector4 m_WorldSpaceLightPos;
-    };
-
     class DirectionalLight : public Light
     {
     public:
@@ -31,14 +25,15 @@ namespace Game
 
         DirectionalLight(GameObject& obj);
 
-        Matrix4x4 GetLightSpaceMatrix(const Camera& camera) const;
+        Matrix4x4 GetLightViewMatrix() const;
+        Matrix4x4 GetLightProjectionMatrix() const;
 
-        inline const ConstansBuffer<DirectionalLightingBuffer>* GetLightingBuffer() const { return m_LightingBuffer.get(); }
+        inline const ConstansBuffer<ShaderCommon::DirLightBuffer>* GetLightingBuffer() const { return m_LightingBuffer.get(); }
         void RefleshLightingBuffer();
 
 
     private:
-        std::unique_ptr<ConstansBuffer<DirectionalLightingBuffer>> m_LightingBuffer;
+        std::unique_ptr<ConstansBuffer<ShaderCommon::DirLightBuffer>> m_LightingBuffer;
 
     };
 }

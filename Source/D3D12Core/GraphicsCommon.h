@@ -7,6 +7,12 @@ namespace Game
     class Material;
 }
 
+namespace Resources
+{
+    class RenderTargetTexture;
+    class DepthStencilTexture;
+}
+
 namespace Graphics
 {
     class DescriptorHandle;
@@ -20,9 +26,19 @@ namespace Graphics
     extern DescriptorHandle g_SamplerPointMirror;   // 点采样镜像纹理
     extern DescriptorHandle g_SamplerLinearMirror;  // 线性采样镜像纹理
 
+    extern DescriptorHandle g_SamplerLinearBorderCompare;
+
     extern Game::Mesh g_BlitQuad;
     extern Game::Shader g_BlitShader;
     extern Game::Material g_BlitMaterial;
+
+    extern Game::Shader g_GenDirLightShadowMapShader;
+    extern Game::Material g_GenDirLightShadowMapMaterial;
+
+    extern Resources::DepthStencilTexture g_ShadowMapTexture;
+
+    extern Resources::RenderTargetTexture g_RenderRtvTexture;
+    extern Resources::DepthStencilTexture g_RenderDsvTexture;
 
     void InitializeCommonGraphicsResource();
 }

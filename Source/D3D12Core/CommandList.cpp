@@ -158,8 +158,8 @@ namespace Graphics
         if (pSamplerDescHeap)
             descHeaps.push_back(pSamplerDescHeap->GetD3D12DescriptorHeap());
 
-        ASSERT(descHeaps.size() > 0);
-        m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
+        if (descHeaps.size() > 0)
+            m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
     }
 
     void CommandList::SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* descriptorHeap) const

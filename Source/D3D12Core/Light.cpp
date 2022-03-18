@@ -11,33 +11,42 @@ namespace Game
 {
     DirectionalLight::DirectionalLight(GameObject& obj) : Light(obj)
     {
-        m_LightingBuffer.reset(new ConstansBuffer<DirectionalLightingBuffer>());
+        m_LightingBuffer.reset(new ConstansBuffer<ShaderCommon::DirLightBuffer>());
         m_LightingBuffer->PlacedCreate();
         m_LightingBuffer->SetName(Application::Format(L"%s (LightingBuffer)", obj.m_Name.c_str()));
     }
 
-    Matrix4x4 DirectionalLight::GetLightSpaceMatrix(const Camera& camera) const
+    Matrix4x4 DirectionalLight::GetLightViewMatrix() const
     {
-        // 视图矩阵
-        auto lightRotate = Matrix4x4::CreateFromRotation(this->GetTransform().GetRotation());
-        auto lightPosition = Matrix4x4::CreateFromTranslation(camera.GetTransform().GetPosition()
-            + camera.GetTransform().GetForward() * ShadowDistance * 0.5f
-            + -this->GetTransform().GetForward() * ShadowDistance * 0.5f
-        );
-        Matrix4x4 lightView = (lightPosition * lightRotate).Inverse();
-        //Matrix4x4 lightView = Matrix4x4::ZInverse * (lightPosition * lightRotate).Inverse();
+        auto pos = GetTransform().GetPosition() - (GetTransform().GetForward() * ShadowDistance * 0.5f);
+        auto rot = GetTransform().GetRotation();
 
+        // 返回世界到光照空间的矩阵
+        auto t = Matrix4x4::CreateFromTranslation(-pos);
+        auto r = Matrix4x4::CreateFromRotation(rot);
+
+        return r.Transpose() * t;
+    }
+    Matrix4x4 DirectionalLight::GetLightProjectionMatrix() const
+    {
         // 投影矩阵
-        auto size = ShadowDistance * 0.5f;
-        Matrix4x4 lightProjection = Matrix4x4::CreateFromOrthographicLH(size, size, ShadowNearPlaneOffset, 2 * ShadowDistance);
+        auto size = 10.0f;
+        auto projection = Matrix4x4::CreateFromOrthographicLH(size, size, ShadowNearPlaneOffset, ShadowDistance);
 
-        return lightProjection * lightView;
+        // 计算 ReversedZ
+        projection._33 = -projection._33;
+        projection._43 = 1.0f - projection._43;
+
+        return projection;
     }
 
     void DirectionalLight::RefleshLightingBuffer()
     {
         auto* mappingBuffer = m_LightingBuffer->GetMappingBuffer();
-        mappingBuffer->m_LightColor = m_LightColor;
-        mappingBuffer->m_WorldSpaceLightPos = Vector4(GetTransform().GetForward(), 1.0f);
+        mappingBuffer->_DirLight_Color = m_LightColor;
+        mappingBuffer->_DirLight_WorldPos = Vector4(GetTransform().GetForward(), 1.0f);
+        mappingBuffer->_DirLight_WorldToLight = GetLightViewMatrix();
+        mappingBuffer->_DirLight_LightToClip = GetLightProjectionMatrix();
+        mappingBuffer->_DirLight_WorldToLightClip = mappingBuffer->_DirLight_LightToClip * mappingBuffer->_DirLight_WorldToLight;
     }
 }

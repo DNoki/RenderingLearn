@@ -46,9 +46,6 @@ namespace Game
     DirectionalLight* g_SampleLight;
     GameObject* g_SampleModelObject[2];
 
-    RenderTargetTexture g_RenderTexture;
-    DepthStencilTexture g_ShadowMapTexture;
-
     void SampleScene::Initialize()
     {
         m_Name = _T("SampleScene");
@@ -102,9 +99,10 @@ namespace Game
                 g_SampleMaterial[i]->SetName(L"示例材质");
 
                 g_SampleMaterial[i]->BindTexture(0, *g_SampleTexture[0]);
-                g_SampleMaterial[i]->BindTexture(1, *g_SampleTexture[1]);
-                g_SampleMaterial[i]->BindSampler(0, g_SamplerPointMirror);
-                g_SampleMaterial[i]->BindSampler(1, g_SamplerLinearBorder);
+                g_SampleMaterial[i]->BindSampler(0, g_SamplerLinearBorder);
+
+                g_SampleMaterial[i]->BindTexture(1, g_ShadowMapTexture);
+                g_SampleMaterial[i]->BindSampler(1, g_SamplerLinearBorderCompare);
             }
         }
 
@@ -149,15 +147,6 @@ namespace Game
             groundMeshRenderer.BindResource(&quad, g_SampleMaterial[0], isUseBundle);
             groundObj.GetTransform().m_LocalScale = Vector3::One * 20.0f;
             groundObj.GetTransform().Rotate(Vector3(90.0f, 0.0f, 0.0f));
-        }
-
-        // 创建渲染目标贴图
-        {
-            g_RenderTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, 2048, 2048, Color(0.0f, 0.2f, 0.4f, 1.0f));
-            g_RenderTexture.SetName(L"ShadowMapRenderTexture");
-
-            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 2048, 2048);
-            g_ShadowMapTexture.SetName(L"ShadowMap");
         }
 
         {

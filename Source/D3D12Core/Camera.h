@@ -14,12 +14,6 @@ namespace Game
         Orthographic = 1,   // 正交
     };
 
-    struct CameraBuffer
-    {
-        Matrix4x4 m_Project;
-        Matrix4x4 m_View;
-    };
-
     class Camera final : public Component
     {
     public:
@@ -36,15 +30,16 @@ namespace Game
         Matrix4x4 GetProjectionMatrix() const;
         Matrix4x4 GetViewMatrix() const;
 
-        inline const ConstansBuffer<CameraBuffer>* GetCameraBuffer() const { return m_CameraBuffer.get(); }
+        inline const ConstansBuffer<ShaderCommon::CameraBuffer>* GetCameraBuffer() const { return m_CameraBuffer.get(); }
         inline void RefleshCameraBuffer()
         {
-            m_CameraBuffer->GetMappingBuffer()->m_Project = GetProjectionMatrix();
-            m_CameraBuffer->GetMappingBuffer()->m_View = GetViewMatrix();
+            m_CameraBuffer->GetMappingBuffer()->_Camera_Project = GetProjectionMatrix();
+            m_CameraBuffer->GetMappingBuffer()->_Camera_View = GetViewMatrix();
+            m_CameraBuffer->GetMappingBuffer()->_Camera_I_VP = (m_CameraBuffer->GetMappingBuffer()->_Camera_Project * m_CameraBuffer->GetMappingBuffer()->_Camera_View).Inverse();
         }
 
     private:
-        std::unique_ptr<ConstansBuffer<CameraBuffer>> m_CameraBuffer;
+        std::unique_ptr<ConstansBuffer<ShaderCommon::CameraBuffer>> m_CameraBuffer;
 
     };
 }

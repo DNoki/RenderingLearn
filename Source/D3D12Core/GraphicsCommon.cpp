@@ -7,12 +7,14 @@
 #include "PipelineState.h"
 #include "Shader.h"
 #include "Material.h"
+#include "RenderTexture.h"
 #include "AppMain.h"
 
 #include "GraphicsCommon.h"
 
 using namespace std;
 using namespace Game;
+using namespace Resources;
 
 
 namespace Graphics
@@ -26,9 +28,19 @@ namespace Graphics
     DescriptorHandle g_SamplerPointMirror;   // 点采样镜像纹理
     DescriptorHandle g_SamplerLinearMirror;  // 线性采样镜像纹理
 
+    DescriptorHandle g_SamplerLinearBorderCompare;
+
     Game::Mesh g_BlitQuad;
     Game::Shader g_BlitShader;
     Game::Material g_BlitMaterial;
+
+    Game::Shader g_GenDirLightShadowMapShader;
+    Game::Material g_GenDirLightShadowMapMaterial;
+
+    DepthStencilTexture g_ShadowMapTexture;
+
+    RenderTargetTexture g_RenderRtvTexture;
+    DepthStencilTexture g_RenderDsvTexture;
 
     void InitializeCommonGraphicsResource()
     {
@@ -93,12 +105,24 @@ namespace Graphics
 
                 GraphicsManager::GetDevice()->CreateSampler(&sampler, *descriptorHandles[i]);
             }
+
+            {
+                g_SamplerLinearBorderCompare = DescriptorAllocator::Allocat(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+
+                sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_GREATER;
+                sampler.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+                sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+                sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+                sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+
+                GraphicsManager::GetDevice()->CreateSampler(&sampler, g_SamplerLinearBorderCompare);
+            }
         }
 
         // 位块传输用资源
         {
             g_BlitQuad = Mesh::CreateQuad(2.0f);
-            g_BlitMaterial.SetName(L"BlitQuad");
+            g_BlitQuad.SetName(L"BlitQuad");
 
             ShaderDesc shaderDesc{};
             shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Texcoord);
@@ -115,6 +139,37 @@ namespace Graphics
             g_BlitMaterial.SetDepthEnable(false);
 
             g_BlitMaterial.BindSampler(0, g_SamplerPointClamp);
+        }
+
+        // 平行光阴影用资源
+        {
+            ShaderDesc shaderDesc{};
+            shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position);
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("GenerateDirectionalLightShadowMap_vs.cso");
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("GenerateDirectionalLightShadowMap_ps.cso");
+            shaderDesc.m_CbvCount = 2;
+            shaderDesc.m_SrvCount = 0;
+            shaderDesc.m_SamplerCount = 0;
+            g_GenDirLightShadowMapShader.Create(&shaderDesc);
+            g_GenDirLightShadowMapShader.SetName(L"GenDirLightShadowMapShader");
+
+            g_GenDirLightShadowMapMaterial.Create(&g_GenDirLightShadowMapShader);
+            g_GenDirLightShadowMapMaterial.SetName(L"GenDirLightShadowMapMaterial");
+        }
+
+        // 阴影贴图
+        {
+            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 2048, 2048);
+            g_ShadowMapTexture.SetName(L"ShadowMap");
+        }
+
+        // 渲染目标贴图
+        {
+            g_RenderRtvTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, 1920, 1080, Color(0.0f, 0.2f, 0.4f, 1.0f));
+            g_RenderRtvTexture.SetName(L"FinalRtvTexture");
+
+            g_RenderDsvTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 1920, 1080);
+            g_RenderDsvTexture.SetName(L"FinalDsvTexture");
         }
     }
 

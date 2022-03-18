@@ -110,6 +110,7 @@ namespace Game
     private:
         void RenderPass1(std::vector<Graphics::CommandList*>& commandListArray);
         void RenderPass2(std::vector<Graphics::CommandList*>& commandListArray);
+        void RenderPass3(std::vector<Graphics::CommandList*>& commandListArray);
 
     };
 }

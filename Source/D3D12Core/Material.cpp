@@ -35,11 +35,17 @@ namespace Game
             // 创建常量缓冲列表
             m_ConstantBuffers.resize(m_Shader->GetShaderDesc().m_CbvCount);
             // 创建资源描述符堆
-            m_ResourceDescHeap.reset(new DescriptorHeap());
-            m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetShaderDesc().GetBindResourceCount(), true);
-            // 创建采样器描述符堆
-            m_SamplerDescHeap.reset(new DescriptorHeap());
-            m_SamplerDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, m_Shader->GetShaderDesc().m_SamplerCount, true);
+            if (m_Shader->GetShaderDesc().GetBindResourceCount() > 0)
+            {
+                m_ResourceDescHeap.reset(new DescriptorHeap());
+                m_ResourceDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, m_Shader->GetShaderDesc().GetBindResourceCount(), true);
+            }
+            if (m_Shader->GetShaderDesc().m_SamplerCount)
+            {
+                // 创建采样器描述符堆
+                m_SamplerDescHeap.reset(new DescriptorHeap());
+                m_SamplerDescHeap->Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, m_Shader->GetShaderDesc().m_SamplerCount, true);
+            }
         }
     }
 
@@ -91,10 +97,10 @@ namespace Game
                     commandList->SetGraphicsRootConstantBufferView(rootParamIndex++, m_ConstantBuffers[i]);
                 }
                 // 绑定资源
-                if (m_ResourceDescHeap->GetDescriptorsCount() > 0)
+                if (m_ResourceDescHeap && m_ResourceDescHeap->GetDescriptorsCount() > 0)
                     commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_ResourceDescHeap.get());
                 // 绑定采样器
-                if (m_SamplerDescHeap->GetDescriptorsCount() > 0)
+                if (m_SamplerDescHeap && m_SamplerDescHeap->GetDescriptorsCount() > 0)
                     commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_SamplerDescHeap.get());
 #if 0
                 auto rootPrarmIndex = 0;

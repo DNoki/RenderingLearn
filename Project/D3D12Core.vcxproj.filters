@@ -292,10 +292,22 @@
     <FxCompile Include="..\Source\Shaders\Blit_vs.hlsl">
       <Filter>Shaders\VS</Filter>
     </FxCompile>
+    <FxCompile Include="..\Source\Shaders\GenerateDirectionalLightShadowMap_vs.hlsl">
+      <Filter>Shaders\VS</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\GenerateDirectionalLightShadowMap_ps.hlsl">
+      <Filter>Shaders\PS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\Source\Shaders\Blit.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Source\Shaders\GenerateDirectionalLightShadowMap.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Source\Shaders\ShaderCommon.inl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

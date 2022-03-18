@@ -133,13 +133,6 @@ private:
 
 namespace Game
 {
-    struct TransformBuffer
-    {
-        Matrix4x4 m_Model;
-        Matrix4x4 m_IT_Model;
-        Matrix4x4 m_MVP;
-    };
-
     class Transform final : public Component
     {
     public:
@@ -176,13 +169,13 @@ namespace Game
         inline Vector3 GetUp() const { return GetRotation() * Vector3::Up; }
         // 获取右方向
         inline Vector3 GetRight() const { return GetRotation() * Vector3::Right; }
-        inline const ConstansBuffer<TransformBuffer>* GetTransformBuffer() const { return m_TransformBuffer.get(); }
+        inline const ConstansBuffer<ShaderCommon::ModelBuffer>* GetTransformBuffer() const { return m_TransformBuffer.get(); }
         inline void RefleshTransformBuffer(const Matrix4x4& pv)
         {
             auto* mappingBuffer = m_TransformBuffer->GetMappingBuffer();
-            mappingBuffer->m_Model = GetLocalToWorldMatrix();
-            mappingBuffer->m_IT_Model = mappingBuffer->m_Model.Inverse().Transpose();
-            mappingBuffer->m_MVP = pv * mappingBuffer->m_Model;
+            mappingBuffer->_Model_LocalToWorld = GetLocalToWorldMatrix();
+            mappingBuffer->_Model_IT_M = mappingBuffer->_Model_LocalToWorld.Inverse().Transpose();
+            mappingBuffer->_Model_MVP = pv * mappingBuffer->_Model_LocalToWorld;
         }
 
         /**
@@ -269,7 +262,7 @@ namespace Game
         // 父对象变换
         TreeNode<Transform*> m_TransformNode{};
 
-        std::unique_ptr<ConstansBuffer<TransformBuffer>> m_TransformBuffer;
+        std::unique_ptr<ConstansBuffer<ShaderCommon::ModelBuffer>> m_TransformBuffer;
 
     };
 }
