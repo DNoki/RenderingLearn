@@ -112,6 +112,8 @@ namespace Game
         void SetDepthFunc(D3D12_COMPARISON_FUNC func);
         D3D12_COMPARISON_FUNC GetDepthFunc() const;
 
+        void SetDepthBias(int bias, float slopeScaledBias = 0.0f, float maxBias = 0.0f);
+
     private:
         const Shader* m_Shader{}; // 材质使用的着色器
 

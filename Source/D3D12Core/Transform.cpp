@@ -9,9 +9,6 @@ namespace Game
 {
     Transform::Transform(GameObject& obj) : Component(obj)
     {
-        m_TransformBuffer.reset(new ConstansBuffer<ShaderCommon::ModelBuffer>());
-        m_TransformBuffer->PlacedCreate();
-        m_TransformBuffer->SetName(Application::Format(L"%s (TransformBuffer)", obj.m_Name.c_str()));
         m_TransformNode.m_Data = this;
     };
 

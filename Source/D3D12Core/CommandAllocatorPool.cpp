@@ -34,43 +34,43 @@ namespace Graphics
         */
         CommandAllocator* RequestAllocator(D3D12_COMMAND_LIST_TYPE type)
         {
-            vector<unique_ptr<CommandAllocator>>* list = nullptr;
-            queue<CommandAllocator*>* queqe = nullptr;
+            vector<unique_ptr<CommandAllocator>>* _list = nullptr;
+            queue<CommandAllocator*>* _queue = nullptr;
             CommandAllocator* result = nullptr;
 
             switch (type)
             {
             case D3D12_COMMAND_LIST_TYPE_DIRECT:
-                list = &m_GraphicsCommandAllocators;
-                queqe = &m_GraphicsIdleQueue;
+                _list = &m_GraphicsCommandAllocators;
+                _queue = &m_GraphicsIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_BUNDLE:
-                list = &m_BundleCommandAllocators;
-                queqe = &m_BundleIdleQueue;
+                _list = &m_BundleCommandAllocators;
+                _queue = &m_BundleIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-                list = &m_ComputeCommandAllocators;
-                queqe = &m_ComputeIdleQueue;
+                _list = &m_ComputeCommandAllocators;
+                _queue = &m_ComputeIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_COPY:
-                list = &m_CopyCommandAllocators;
-                queqe = &m_CopyIdleQueue;
+                _list = &m_CopyCommandAllocators;
+                _queue = &m_CopyIdleQueue;
                 break;
             default:
                 ASSERT(0, L"ERROR::不支持的命令分配器类型");
                 return result;
             }
 
-            if (queqe->empty())
+            if (_queue->empty())
             {
-                list->push_back(unique_ptr<CommandAllocator>(new CommandAllocator(type)));
-                result = list->back().get();
+                _list->push_back(unique_ptr<CommandAllocator>(new CommandAllocator(type)));
+                result = _list->back().get();
                 result->Reset();
             }
             else
             {
-                result = queqe->front();
-                queqe->pop();
+                result = _queue->front();
+                _queue->pop();
                 result->Reset();
             }
             return result;
@@ -80,28 +80,29 @@ namespace Graphics
          * @brief 回收使用完毕的分配器
          * @param ca
         */
-        void RestoreAllocator(CommandAllocator* ca)
+        void RestoreAllocator(CommandAllocator** ca)
         {
-            queue<CommandAllocator*>* queqe = nullptr;
+            queue<CommandAllocator*>* _queue = nullptr;
 
-            switch (ca->GetType())
+            switch ((*ca)->GetType())
             {
             case D3D12_COMMAND_LIST_TYPE_DIRECT:
-                queqe = &m_GraphicsIdleQueue;
+                _queue = &m_GraphicsIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_BUNDLE:
-                queqe = &m_BundleIdleQueue;
+                _queue = &m_BundleIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-                queqe = &m_ComputeIdleQueue;
+                _queue = &m_ComputeIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_COPY:
-                queqe = &m_CopyIdleQueue;
+                _queue = &m_CopyIdleQueue;
                 break;
             default: ASSERT(0, L"ERROR::不支持的命令分配器类型"); break;
             }
 
-            queqe->push(ca);
+            _queue->push(*ca);
+            *ca = nullptr;
         }
 
     private:
@@ -136,7 +137,7 @@ namespace Graphics
     {
         return g_CommandAllocatorPoolImpl.RequestAllocator(type);
     }
-    void CommandAllocatorPool::Restore(CommandAllocator* allocator)
+    void CommandAllocatorPool::Restore(CommandAllocator** allocator)
     {
         // 回收此命令分配器，必须保证该分配器已执行完毕
         // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。

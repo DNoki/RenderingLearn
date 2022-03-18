@@ -109,8 +109,7 @@ namespace Graphics
         m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
         for (UINT i = 0; i < numCommandLists; i++)
         {
-            CommandListPool::Restore(commandLists[i]); // 将使用完毕的列表放回池
-            commandLists[i] = nullptr;
+            CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
         }
     }
 
@@ -139,7 +138,7 @@ namespace Graphics
                 if (onCompletedEvent) onCompletedEvent();
             }
             allocator->m_OnCompletedEvents.clear();
-            CommandAllocatorPool::Restore(allocator);
+            CommandAllocatorPool::Restore(&allocator);
         }
         m_Allocators.clear();
     }

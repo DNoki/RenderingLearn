@@ -138,7 +138,7 @@ namespace Graphics
         CommandListPool() = delete;
 
         static CommandList* Request(D3D12_COMMAND_LIST_TYPE type);
-        static void Restore(CommandList* commandList);
+        static void Restore(CommandList** commandList);
 
     private:
 

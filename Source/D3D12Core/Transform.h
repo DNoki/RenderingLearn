@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Component.h"
-#include "ConstansBuffer.h"
 
 template<typename T>
 class TreeNode
@@ -169,13 +168,12 @@ namespace Game
         inline Vector3 GetUp() const { return GetRotation() * Vector3::Up; }
         // 获取右方向
         inline Vector3 GetRight() const { return GetRotation() * Vector3::Right; }
-        inline const ConstansBuffer<ShaderCommon::ModelBuffer>* GetTransformBuffer() const { return m_TransformBuffer.get(); }
-        inline void RefleshTransformBuffer(const Matrix4x4& pv)
+
+        inline void FillModelBuffer(ShaderCommon::ModelBuffer* buffer, const Matrix4x4& pv)
         {
-            auto* mappingBuffer = m_TransformBuffer->GetMappingBuffer();
-            mappingBuffer->_Model_LocalToWorld = GetLocalToWorldMatrix();
-            mappingBuffer->_Model_IT_M = mappingBuffer->_Model_LocalToWorld.Inverse().Transpose();
-            mappingBuffer->_Model_MVP = pv * mappingBuffer->_Model_LocalToWorld;
+            buffer->_Model_LocalToWorld = GetLocalToWorldMatrix();
+            buffer->_Model_IT_M = buffer->_Model_LocalToWorld.Inverse().Transpose();
+            buffer->_Model_MVP = pv * buffer->_Model_LocalToWorld;
         }
 
         /**
@@ -261,8 +259,6 @@ namespace Game
     private:
         // 父对象变换
         TreeNode<Transform*> m_TransformNode{};
-
-        std::unique_ptr<ConstansBuffer<ShaderCommon::ModelBuffer>> m_TransformBuffer;
 
     };
 }

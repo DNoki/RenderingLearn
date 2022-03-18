@@ -57,4 +57,46 @@ namespace Game
         std::wstring m_Name{};
 
     };
+
+    class ConstansBufferPool
+    {
+    public:
+        ConstansBufferPool() = delete;
+
+        template<typename T>
+        static ConstansBuffer<T>* Request()
+        {
+            static std::vector<std::unique_ptr<ConstansBuffer<T>>> _list{};
+            static std::queue<ConstansBuffer<T>*> _queue{};
+
+            s_ConstansBufferQueues[typeid(T).hash_code()] = &_queue;
+
+            ConstansBuffer<T>* result = nullptr;
+            if (_queue.empty())
+            {
+                _list.push_back(std::unique_ptr<ConstansBuffer<T>>(new ConstansBuffer<T>()));
+                result = _list.back().get();
+                result->PlacedCreate();
+                result->SetName(Application::ToUnicode(typeid(T).name(), CP_UTF8));
+            }
+            else
+            {
+                result = _queue.front();
+                _queue.pop();
+            }
+            return result;
+        }
+
+        template<typename T>
+        static void Restore(ConstansBuffer<T>** cb)
+        {
+            std::queue<ConstansBuffer<T>*>* _queue = reinterpret_cast<std::queue<ConstansBuffer<T>*>*>(s_ConstansBufferQueues[typeid(T).hash_code()]);
+            _queue->push(*cb);
+            *cb = nullptr;
+        }
+
+    private:
+        static std::map<UINT64, void*> s_ConstansBufferQueues;
+
+    };
 }

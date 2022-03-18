@@ -19,6 +19,8 @@ using namespace Resources;
 
 namespace Graphics
 {
+#pragma region 采样器
+
     DescriptorHandle g_SamplerPointBorder;   // 点采样边界色纹理
     DescriptorHandle g_SamplerLinearBorder;  // 线性采样边界色纹理
     DescriptorHandle g_SamplerPointClamp;    // 点采样钳位纹理
@@ -28,22 +30,40 @@ namespace Graphics
     DescriptorHandle g_SamplerPointMirror;   // 点采样镜像纹理
     DescriptorHandle g_SamplerLinearMirror;  // 线性采样镜像纹理
 
-    DescriptorHandle g_SamplerLinearBorderCompare;
+    DescriptorHandle g_SamplerLinearBorderCompare; // 阴影判断采样器
 
-    Game::Mesh g_BlitQuad;
-    Game::Shader g_BlitShader;
-    Game::Material g_BlitMaterial;
+#pragma endregion
 
-    Game::Shader g_GenDirLightShadowMapShader;
-    Game::Material g_GenDirLightShadowMapMaterial;
+#pragma region 阴影贴图
 
+    Shader g_GenDepthShader;
+    Material g_GenDepthMaterial;
     DepthStencilTexture g_ShadowMapTexture;
+
+#pragma endregion
+
+#pragma region 延迟渲染
+
+    DepthStencilTexture g_DepthTexture;
+
+#pragma endregion
+
+#pragma region 后处理
+
+    Mesh g_BlitQuad;
+    Shader g_BlitShader;
+    Material g_BlitMaterial;
 
     RenderTargetTexture g_RenderRtvTexture;
     DepthStencilTexture g_RenderDsvTexture;
 
+#pragma endregion
+
     void InitializeCommonGraphicsResource()
     {
+        UINT defalutShadowMapSize = 1024;
+        UINT defalutRenderSizeX = 1920, defalutRenderSizeY = 1080;
+
         // 初始化动态采样器
         {
             DescriptorHandle* const descriptorHandles[] =
@@ -145,30 +165,36 @@ namespace Graphics
         {
             ShaderDesc shaderDesc{};
             shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position);
-            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("GenerateDirectionalLightShadowMap_vs.cso");
-            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("GenerateDirectionalLightShadowMap_ps.cso");
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = Application::GetShaderPath().append("GenerateDepth_vs.cso");
+            shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("GenerateDepth_ps.cso");
             shaderDesc.m_CbvCount = 2;
             shaderDesc.m_SrvCount = 0;
             shaderDesc.m_SamplerCount = 0;
-            g_GenDirLightShadowMapShader.Create(&shaderDesc);
-            g_GenDirLightShadowMapShader.SetName(L"GenDirLightShadowMapShader");
+            g_GenDepthShader.Create(&shaderDesc);
+            g_GenDepthShader.SetName(L"GenDirLightShadowMapShader");
 
-            g_GenDirLightShadowMapMaterial.Create(&g_GenDirLightShadowMapShader);
-            g_GenDirLightShadowMapMaterial.SetName(L"GenDirLightShadowMapMaterial");
-        }
+            g_GenDepthMaterial.Create(&g_GenDepthShader);
+            g_GenDepthMaterial.SetName(L"GenDirLightShadowMapMaterial");
+            g_GenDepthMaterial.SetDepthBias(-8000);// 阴影贴图与深度图实际写入值适当减小(Reverse-Z)
 
-        // 阴影贴图
-        {
-            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 2048, 2048);
+            // 阴影贴图
+            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, defalutShadowMapSize, defalutShadowMapSize);
             g_ShadowMapTexture.SetName(L"ShadowMap");
         }
 
-        // 渲染目标贴图
+        // 延迟渲染共通资源
         {
-            g_RenderRtvTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, 1920, 1080, Color(0.0f, 0.2f, 0.4f, 1.0f));
-            g_RenderRtvTexture.SetName(L"FinalRtvTexture");
+            g_DepthTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, defalutRenderSizeX, defalutRenderSizeY);
+            g_DepthTexture.SetName(L"场景深度");
+        }
 
-            g_RenderDsvTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, 1920, 1080);
+        // 后处理共通资源
+        {
+            // 渲染目标呈现贴图
+            g_RenderRtvTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, defalutRenderSizeX, defalutRenderSizeY, Color(0.0f, 0.2f, 0.4f, 1.0f));
+            g_RenderRtvTexture.SetName(L"FinalRtvTexture");
+            // 渲染目标深度贴图
+            g_RenderDsvTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, defalutRenderSizeX, defalutRenderSizeY);
             g_RenderDsvTexture.SetName(L"FinalDsvTexture");
         }
     }

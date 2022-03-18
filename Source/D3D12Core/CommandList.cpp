@@ -47,7 +47,7 @@ namespace Graphics
         {
             // 回收捆绑包使用的分配器
             ASSERT(m_CommandAllocator);
-            CommandAllocatorPool::Restore(m_CommandAllocator);
+            CommandAllocatorPool::Restore(&m_CommandAllocator);
         }
     }
 
@@ -109,7 +109,7 @@ namespace Graphics
             m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
         else if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
         {
-            CommandAllocatorPool::Restore(m_CommandAllocator);
+            CommandAllocatorPool::Restore(&m_CommandAllocator);
             m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
         }
 
@@ -178,47 +178,47 @@ namespace Graphics
 
         inline CommandList* Request(D3D12_COMMAND_LIST_TYPE type)
         {
-            vector<unique_ptr<CommandList>>* list = nullptr;
-            queue<CommandList*>* queqe = nullptr;
+            vector<unique_ptr<CommandList>>* _list = nullptr;
+            queue<CommandList*>* _queue = nullptr;
             CommandList* result = nullptr;
 
             switch (type)
             {
             case D3D12_COMMAND_LIST_TYPE_DIRECT:
-                list = &m_GraphicsCommandLists;
-                queqe = &m_GraphicsIdleQueue;
+                _list = &m_GraphicsCommandLists;
+                _queue = &m_GraphicsIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-                list = &m_ComputeCommandLists;
-                queqe = &m_ComputeIdleQueue;
+                _list = &m_ComputeCommandLists;
+                _queue = &m_ComputeIdleQueue;
                 break;
             case D3D12_COMMAND_LIST_TYPE_COPY:
-                list = &m_CopyCommandLists;
-                queqe = &m_CopyIdleQueue;
+                _list = &m_CopyCommandLists;
+                _queue = &m_CopyIdleQueue;
                 break;
             default:
                 ASSERT(0, L"ERROR::不支持的命令列表类型");
                 return result;
             }
 
-            if (queqe->empty())
+            if (_queue->empty())
             {
-                list->push_back(unique_ptr<CommandList>(new CommandList()));
-                result = list->back().get();
+                _list->push_back(unique_ptr<CommandList>(new CommandList()));
+                result = _list->back().get();
                 result->Create(type);
             }
             else
             {
-                result = queqe->front();
-                queqe->pop();
+                result = _queue->front();
+                _queue->pop();
             }
             return result;
         }
-        inline void Restore(CommandList* commandList)
+        inline void Restore(CommandList** commandList)
         {
             queue<CommandList*>* queqe = nullptr;
 
-            switch (commandList->GetType())
+            switch ((*commandList)->GetType())
             {
             case D3D12_COMMAND_LIST_TYPE_DIRECT:
                 queqe = &m_GraphicsIdleQueue;
@@ -234,7 +234,8 @@ namespace Graphics
                 break;
             }
 
-            queqe->push(commandList);
+            queqe->push(*commandList);
+            *commandList = nullptr;
         }
 
     private:
@@ -252,7 +253,7 @@ namespace Graphics
     {
         return g_CommandListPoolImpl.Request(type);
     }
-    void CommandListPool::Restore(CommandList* commandList)
+    void CommandListPool::Restore(CommandList** commandList)
     {
         g_CommandListPoolImpl.Restore(commandList);
     }

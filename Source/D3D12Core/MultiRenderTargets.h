@@ -37,10 +37,15 @@ namespace Graphics
         */
         void DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES rtvState, D3D12_RESOURCE_STATES dsvState) const;
         /**
+         * @brief 设置视口和剪切口
+         * @param commandList
+        */
+        void DispatchViewportsAndScissor(const CommandList* commandList) const;
+        /**
          * @brief 清空所有渲染目标
          * @param commandList
         */
-        void DispatchClear(const CommandList* commandList);
+        void DispatchClear(const CommandList* commandList, bool isClearColor = true, bool isClearDepth = true);
 
     private:
         std::vector<Resources::RenderTargetTexture*> m_RenderTargets{};

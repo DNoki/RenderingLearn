@@ -233,5 +233,16 @@ namespace Game
     {
         return m_PipelineState->GetDepthStencilState().DepthFunc;
     }
+
+    void Material::SetDepthBias(int bias, float slopeScaledBias, float maxBias)
+    {
+        // 深度偏差 https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-output-merger-stage-depth-bias
+        auto& psoValue = m_PipelineState->GetRasterizerState();
+        // 若深度贴图格式为 FLOAT32，则深度值计算公式为 bias * 2^(-23) + slope * maxSlope
+        // 例如 bias = 10000，实际上偏差值约等于 0.001192
+        psoValue.DepthBias = bias; 
+        psoValue.SlopeScaledDepthBias = slopeScaledBias;
+        psoValue.DepthBiasClamp = maxBias;
+    }
 }
 

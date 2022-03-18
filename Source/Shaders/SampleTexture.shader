@@ -71,7 +71,7 @@ float4 PSMain(PSInput input) : SV_TARGET
             {
                 float2 sampleUV = projCoords.xy + (float2(x, y) - (count * 0.5f - 0.5f)) * float2(1.0f / 2048, 1.0f / 2048) * 1.0f;
 
-                sum += DirLightShadowMap.SampleCmp(DirLightShadowMapState, sampleUV, projCoords.z + 0.003f);
+                sum += DirLightShadowMap.SampleCmp(DirLightShadowMapState, sampleUV, projCoords.z);
             }
         shadow = sum / (count * count);
     }

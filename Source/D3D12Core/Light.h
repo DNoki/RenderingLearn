@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Component.h"
-#include "ConstansBuffer.h"
 
 namespace Game
 {
@@ -28,12 +27,9 @@ namespace Game
         Matrix4x4 GetLightViewMatrix() const;
         Matrix4x4 GetLightProjectionMatrix() const;
 
-        inline const ConstansBuffer<ShaderCommon::DirLightBuffer>* GetLightingBuffer() const { return m_LightingBuffer.get(); }
-        void RefleshLightingBuffer();
-
+        void FillDirLightBuffer(ShaderCommon::DirLightBuffer* buffer);
 
     private:
-        std::unique_ptr<ConstansBuffer<ShaderCommon::DirLightBuffer>> m_LightingBuffer;
 
     };
 }

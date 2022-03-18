@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Component.h"
-#include "ConstansBuffer.h"
 
 namespace Game
 {
@@ -30,16 +29,14 @@ namespace Game
         Matrix4x4 GetProjectionMatrix() const;
         Matrix4x4 GetViewMatrix() const;
 
-        inline const ConstansBuffer<ShaderCommon::CameraBuffer>* GetCameraBuffer() const { return m_CameraBuffer.get(); }
-        inline void RefleshCameraBuffer()
+        inline void FillCameraBuffer(ShaderCommon::CameraBuffer* buffer) const
         {
-            m_CameraBuffer->GetMappingBuffer()->_Camera_Project = GetProjectionMatrix();
-            m_CameraBuffer->GetMappingBuffer()->_Camera_View = GetViewMatrix();
-            m_CameraBuffer->GetMappingBuffer()->_Camera_I_VP = (m_CameraBuffer->GetMappingBuffer()->_Camera_Project * m_CameraBuffer->GetMappingBuffer()->_Camera_View).Inverse();
+            buffer->_Camera_Project = GetProjectionMatrix();
+            buffer->_Camera_View = GetViewMatrix();
+            buffer->_Camera_I_VP = (buffer->_Camera_Project * buffer->_Camera_View).Inverse();
         }
 
     private:
-        std::unique_ptr<ConstansBuffer<ShaderCommon::CameraBuffer>> m_CameraBuffer;
 
     };
 }

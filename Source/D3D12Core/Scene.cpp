@@ -18,6 +18,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "ConstansBuffer.h"
 
 #include "GameObject.h"
 #include "Transform.h"
@@ -162,75 +163,134 @@ namespace Game
 
     void Scene::RenderPass1(vector<CommandList*>& commandListArray)
     {
+        static vector<ConstansBuffer<ShaderCommon::CameraBuffer>*> usedCameraBuffers{};
+        static vector<ConstansBuffer<ShaderCommon::DirLightBuffer>*> usedDirLightBuffers{};
+        static vector<ConstansBuffer<ShaderCommon::ModelBuffer>*> usedModelBuffers{};
+        usedCameraBuffers.clear();
+        usedDirLightBuffers.clear();
+        usedModelBuffers.clear();
+
         // 渲染阶段 1
         // 渲染阴影贴图、几何信息
 
-        // 渲染到阴影贴图
-        MultiRenderTargets currentRenderTargets{};
+        // 阴影贴图
+        MultiRenderTargets shadowMapTargets{};
+        CommandList* shadowMapCommandList;
         {
-            currentRenderTargets.SetDepthStencil(&g_ShadowMapTexture);
+            // 渲染到阴影贴图
+            {
+                shadowMapTargets.SetDepthStencil(&g_ShadowMapTexture);
+            }
+
+            // 获取一个命令列表
+            shadowMapCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+            shadowMapCommandList->Reset();
+
+            // 使阴影贴图为渲染目标
+            shadowMapTargets.DispatchTransitionStates(shadowMapCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+            // 设置渲染目标
+            shadowMapCommandList->OMSetRenderTargets(&shadowMapTargets);
+            shadowMapTargets.DispatchViewportsAndScissor(shadowMapCommandList);
+
+            // 清除渲染目标贴图
+            shadowMapTargets.DispatchClear(shadowMapCommandList);
         }
 
-        // 获取一个命令列表
-        auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
-        graphicsCommandList->Reset();
-
-        // 使阴影贴图为渲染目标
-        currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-
-        // 设置渲染目标
-        graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
-
-        // 设置必要的状态。
+        // 深度贴图
+        MultiRenderTargets deferredTargets{};
+        CommandList* deferredCommandList;
         {
-            // 设置视口大小
-            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
-            graphicsCommandList->RSSetViewports(1, &viewport);
-            // 设置剪切大小
-            auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
-            graphicsCommandList->RSSetScissorRects(1, &scissorRect);
+            deferredTargets.SetDepthStencil(&g_DepthTexture);
+
+            // 获取一个命令列表
+            deferredCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
+            deferredCommandList->Reset();
+
+            // 使阴影贴图为渲染目标
+            deferredTargets.DispatchTransitionStates(deferredCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+            // 设置渲染目标
+            deferredCommandList->OMSetRenderTargets(&deferredTargets);
+            deferredTargets.DispatchViewportsAndScissor(deferredCommandList);
+
+            // 清除渲染目标贴图
+            deferredTargets.DispatchClear(deferredCommandList);
         }
-
-        // 清除渲染目标贴图
-        currentRenderTargets.DispatchClear(graphicsCommandList);
-
 
         // 多线程渲染 TODO
         {
+            auto cameraList = m_BakedComponents.find(typeid(Camera).hash_code());
             auto dirLightList = m_BakedComponents.find(typeid(DirectionalLight).hash_code());
             auto rendererList = m_BakedComponents.find(typeid(MeshRenderer).hash_code());
-            if (dirLightList != m_BakedComponents.end() &&
+            if (cameraList != m_BakedComponents.end() &&
+                dirLightList != m_BakedComponents.end() &&
                 rendererList != m_BakedComponents.end() &&
+                cameraList->second.size() > 0 &&
                 dirLightList->second.size() > 0)
             {
+                Camera* camera = static_cast<Camera*>(cameraList->second.front());
                 DirectionalLight* dirLight = static_cast<DirectionalLight*>(dirLightList->second.front());
-                dirLight->RefleshLightingBuffer();
 
-                auto* dirLightBuffer = dirLight->GetLightingBuffer();
-                auto* dirLightMappingBuffer = dirLightBuffer->GetMappingBuffer();
-                auto worldSpaceToClipSpace = dirLightMappingBuffer->_DirLight_WorldToLightClip;
+                auto camera_WorldToClip = camera->GetProjectionMatrix() * camera->GetViewMatrix();
+                auto dirLight_WorldToClip = dirLight->GetLightProjectionMatrix() * dirLight->GetLightViewMatrix();
 
                 for (auto* comRenderer : rendererList->second)
                 {
                     MeshRenderer* renderer = static_cast<MeshRenderer*>(comRenderer);
-                    renderer->GetTransform().RefleshTransformBuffer(worldSpaceToClipSpace);
+
+                    auto* modelBuffer = ConstansBufferPool::Request<ShaderCommon::ModelBuffer>();
+                    usedModelBuffers.push_back(modelBuffer);
+
+                    renderer->GetTransform().FillModelBuffer(modelBuffer->GetMappingBuffer(), dirLight_WorldToClip);
 
                     //TODO
-                    g_GenDirLightShadowMapMaterial.BindBuffer(0, *(renderer->GetTransform().GetTransformBuffer()->GetResourceBuffer()));
-                    g_GenDirLightShadowMapMaterial.BindBuffer(1, *(renderer->GetTransform().GetTransformBuffer()->GetResourceBuffer()));
+                    g_GenDepthMaterial.BindBuffer(0, *(modelBuffer->GetResourceBuffer()));
+                    g_GenDepthMaterial.BindBuffer(1, *(modelBuffer->GetResourceBuffer()));
 
-                    renderer->GetMesh()->DispatchDraw(graphicsCommandList, &g_GenDirLightShadowMapMaterial);
+                    renderer->GetMesh()->DispatchDraw(shadowMapCommandList, &g_GenDepthMaterial);
+
+
+                    modelBuffer = ConstansBufferPool::Request<ShaderCommon::ModelBuffer>();
+                    usedModelBuffers.push_back(modelBuffer);
+
+                    renderer->GetTransform().FillModelBuffer(modelBuffer->GetMappingBuffer(), camera_WorldToClip);
+
+                    //TODO
+                    g_GenDepthMaterial.BindBuffer(0, *(modelBuffer->GetResourceBuffer()));
+                    g_GenDepthMaterial.BindBuffer(1, *(modelBuffer->GetResourceBuffer()));
+
+                    renderer->GetMesh()->DispatchDraw(deferredCommandList, &g_GenDepthMaterial);
                 }
             }
         }
 
         // 将渲染贴图改为着色器资源
-        currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        shadowMapTargets.DispatchTransitionStates(shadowMapCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        deferredTargets.DispatchTransitionStates(deferredCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
-        commandListArray.push_back(graphicsCommandList);
+        shadowMapCommandList->AddOnCompletedEvent([]()
+            {
+                for (int i = 0; i < usedCameraBuffers.size(); i++)
+                    ConstansBufferPool::Restore(&usedCameraBuffers[i]);
+                for (int i = 0; i < usedDirLightBuffers.size(); i++)
+                    ConstansBufferPool::Restore(&usedDirLightBuffers[i]);
+                for (int i = 0; i < usedModelBuffers.size(); i++)
+                    ConstansBufferPool::Restore(&usedModelBuffers[i]);
+            });
+
+        commandListArray.push_back(shadowMapCommandList);
+        commandListArray.push_back(deferredCommandList);
     }
     void Scene::RenderPass2(vector<CommandList*>& commandListArray)
     {
+        static vector<ConstansBuffer<ShaderCommon::CameraBuffer>*> usedCameraBuffers{};
+        static vector<ConstansBuffer<ShaderCommon::DirLightBuffer>*> usedDirLightBuffers{};
+        static vector<ConstansBuffer<ShaderCommon::ModelBuffer>*> usedModelBuffers{};
+        usedCameraBuffers.clear();
+        usedDirLightBuffers.clear();
+        usedModelBuffers.clear();
+
         // 渲染阶段 2
         // 使用阴影贴图、几何信息
 
@@ -238,31 +298,22 @@ namespace Game
         MultiRenderTargets currentRenderTargets{};
         {
             currentRenderTargets.SetRenderTarget(0, &g_RenderRtvTexture);
-            currentRenderTargets.SetDepthStencil(&g_RenderDsvTexture);
+            currentRenderTargets.SetDepthStencil(&g_DepthTexture);
         }
 
         // 重置命令列表
         auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
         graphicsCommandList->Reset();
 
-        // 设置必要的状态
-        {
-            // 设置视口大小
-            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
-            graphicsCommandList->RSSetViewports(1, &viewport);
-            // 设置剪切大小
-            auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
-            graphicsCommandList->RSSetScissorRects(1, &scissorRect);
-        }
-
         // 指示后台缓冲区将用作渲染目标
         currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
         // 设置渲染目标
         graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
+        currentRenderTargets.DispatchViewportsAndScissor(graphicsCommandList);
 
         // 清除渲染目标贴图
-        currentRenderTargets.DispatchClear(graphicsCommandList);
+        currentRenderTargets.DispatchClear(graphicsCommandList, true, false);
 
         // 使用阴影贴图渲染
         {
@@ -272,24 +323,36 @@ namespace Game
             if (cameraList != m_BakedComponents.end() && rendererList != m_BakedComponents.end())
             {
                 DirectionalLight* dirLight = static_cast<DirectionalLight*>(dirLightList->second.front());
-                dirLight->RefleshLightingBuffer();
+
+                auto* dirLightBuffer = ConstansBufferPool::Request<ShaderCommon::DirLightBuffer>();
+                usedDirLightBuffers.push_back(dirLightBuffer);
+
+                dirLight->FillDirLightBuffer(dirLightBuffer->GetMappingBuffer());
 
                 for (auto* comCamera : cameraList->second)
                 {
                     Camera* camera = static_cast<Camera*>(comCamera);
-                    camera->RefleshCameraBuffer();
-                    auto* cameraBuffer = camera->GetCameraBuffer();
+
+                    auto* cameraBuffer = ConstansBufferPool::Request<ShaderCommon::CameraBuffer>();
+                    usedCameraBuffers.push_back(cameraBuffer);
+
                     auto* cameraMappingBuffer = cameraBuffer->GetMappingBuffer();
+                    camera->FillCameraBuffer(cameraMappingBuffer);
+
                     auto worldSpaceToClipSpace = cameraMappingBuffer->_Camera_Project * cameraMappingBuffer->_Camera_View;
 
                     for (auto* comRenderer : rendererList->second)
                     {
                         MeshRenderer* renderer = static_cast<MeshRenderer*>(comRenderer);
-                        renderer->GetTransform().RefleshTransformBuffer(worldSpaceToClipSpace);
+
+                        auto* modelBuffer = ConstansBufferPool::Request<ShaderCommon::ModelBuffer>();
+                        usedModelBuffers.push_back(modelBuffer);
+
+                        renderer->GetTransform().FillModelBuffer(modelBuffer->GetMappingBuffer(), worldSpaceToClipSpace);
 
                         renderer->GetMaterial()->BindBuffer(0, *(cameraBuffer->GetResourceBuffer()));
-                        renderer->GetMaterial()->BindBuffer(1, *(renderer->GetTransform().GetTransformBuffer()->GetResourceBuffer()));
-                        renderer->GetMaterial()->BindBuffer(2, *(dirLight->GetLightingBuffer()->GetResourceBuffer()));
+                        renderer->GetMaterial()->BindBuffer(1, *(modelBuffer->GetResourceBuffer()));
+                        renderer->GetMaterial()->BindBuffer(2, *(dirLightBuffer->GetResourceBuffer()));
 
                         renderer->DispatchDraw(graphicsCommandList);
                     }
@@ -299,6 +362,16 @@ namespace Game
 
         // 指示现在将使用后台缓冲区来呈现。
         currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_READ);
+
+        graphicsCommandList->AddOnCompletedEvent([]()
+            {
+                for (int i = 0; i < usedCameraBuffers.size(); i++)
+                    ConstansBufferPool::Restore(&usedCameraBuffers[i]);
+                for (int i = 0; i < usedDirLightBuffers.size(); i++)
+                    ConstansBufferPool::Restore(&usedDirLightBuffers[i]);
+                for (int i = 0; i < usedModelBuffers.size(); i++)
+                    ConstansBufferPool::Restore(&usedModelBuffers[i]);
+            });
 
         commandListArray.push_back(graphicsCommandList);
     }
@@ -318,21 +391,12 @@ namespace Game
         auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
         graphicsCommandList->Reset();
 
-        // 设置必要的状态
-        {
-            // 设置视口大小
-            auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(currentRenderTargets.GetWidth()), static_cast<float>(currentRenderTargets.GetHeight()));
-            graphicsCommandList->RSSetViewports(1, &viewport);
-            // 设置剪切大小
-            auto scissorRect = CD3DX12_RECT(0, 0, currentRenderTargets.GetWidth(), currentRenderTargets.GetHeight());
-            graphicsCommandList->RSSetScissorRects(1, &scissorRect);
-        }
-
         // 指示后台缓冲区将用作渲染目标
         currentRenderTargets.DispatchTransitionStates(graphicsCommandList, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
         // 设置渲染目标
         graphicsCommandList->OMSetRenderTargets(&currentRenderTargets);
+        currentRenderTargets.DispatchViewportsAndScissor(graphicsCommandList);
 
         // 清除渲染目标贴图
         currentRenderTargets.DispatchClear(graphicsCommandList);

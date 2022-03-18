@@ -11,9 +11,6 @@ namespace Game
 {
     DirectionalLight::DirectionalLight(GameObject& obj) : Light(obj)
     {
-        m_LightingBuffer.reset(new ConstansBuffer<ShaderCommon::DirLightBuffer>());
-        m_LightingBuffer->PlacedCreate();
-        m_LightingBuffer->SetName(Application::Format(L"%s (LightingBuffer)", obj.m_Name.c_str()));
     }
 
     Matrix4x4 DirectionalLight::GetLightViewMatrix() const
@@ -39,14 +36,12 @@ namespace Game
 
         return projection;
     }
-
-    void DirectionalLight::RefleshLightingBuffer()
+    void DirectionalLight::FillDirLightBuffer(ShaderCommon::DirLightBuffer* buffer)
     {
-        auto* mappingBuffer = m_LightingBuffer->GetMappingBuffer();
-        mappingBuffer->_DirLight_Color = m_LightColor;
-        mappingBuffer->_DirLight_WorldPos = Vector4(GetTransform().GetForward(), 1.0f);
-        mappingBuffer->_DirLight_WorldToLight = GetLightViewMatrix();
-        mappingBuffer->_DirLight_LightToClip = GetLightProjectionMatrix();
-        mappingBuffer->_DirLight_WorldToLightClip = mappingBuffer->_DirLight_LightToClip * mappingBuffer->_DirLight_WorldToLight;
+        buffer->_DirLight_Color = m_LightColor;
+        buffer->_DirLight_WorldPos = Vector4(GetTransform().GetForward(), 1.0f);
+        buffer->_DirLight_WorldToLight = GetLightViewMatrix();
+        buffer->_DirLight_LightToClip = GetLightProjectionMatrix();
+        buffer->_DirLight_WorldToLightClip = buffer->_DirLight_LightToClip * buffer->_DirLight_WorldToLight;
     }
 }

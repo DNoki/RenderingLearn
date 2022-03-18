@@ -216,8 +216,8 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="..\Source\Shaders\GenerateDirectionalLightShadowMap_ps.hlsl" />
-    <FxCompile Include="..\Source\Shaders\GenerateDirectionalLightShadowMap_vs.hlsl">
+    <FxCompile Include="..\Source\Shaders\GenerateDepth_ps.hlsl" />
+    <FxCompile Include="..\Source\Shaders\GenerateDepth_vs.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
@@ -240,7 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\Shaders\Blit.shader" />
-    <None Include="..\Source\Shaders\GenerateDirectionalLightShadowMap.shader" />
+    <None Include="..\Source\Shaders\GenerateDepth.shader" />
     <None Include="..\Source\Shaders\ShaderCommon.inl" />
     <None Include="packages.config" />
   </ItemGroup>

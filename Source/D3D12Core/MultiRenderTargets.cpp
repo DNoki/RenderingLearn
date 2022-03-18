@@ -40,7 +40,7 @@ namespace Graphics
             width = m_RenderTargets.at(0)->GetWidth();
         else if (m_DepthStencil)
             width = m_DepthStencil->GetWidth();
-        else throw L"ERROR::设置任何渲染目标。";
+        else throw L"ERROR::未设置任何渲染目标。";
         return width;
     }
     UINT MultiRenderTargets::GetHeight() const
@@ -50,7 +50,7 @@ namespace Graphics
             height = m_RenderTargets.at(0)->GetHeight();
         else if (m_DepthStencil)
             height = m_DepthStencil->GetHeight();
-        else throw L"ERROR::设置任何渲染目标。";
+        else throw L"ERROR::未设置任何渲染目标。";
         return height;
     }
 
@@ -68,18 +68,31 @@ namespace Graphics
         }
     }
 
-    void MultiRenderTargets::DispatchClear(const CommandList* commandList)
+    void MultiRenderTargets::DispatchViewportsAndScissor(const CommandList* commandList) const
+    {
+        // 设置视口大小
+        auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, static_cast<float>(GetWidth()), static_cast<float>(GetHeight()));
+        commandList->RSSetViewports(1, &viewport);
+        // 设置剪切大小
+        auto scissorRect = CD3DX12_RECT(0, 0, GetWidth(), GetHeight());
+        commandList->RSSetScissorRects(1, &scissorRect);
+    }
+
+    void MultiRenderTargets::DispatchClear(const CommandList* commandList, bool isClearColor, bool isClearDepth)
     {
         ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
 
         // 清空渲染目标
-        for (UINT i = 0; i < m_RenderTargets.size(); i++)
+        if (isClearColor)
         {
-            commandList->ClearRenderTargetView(m_RtvDescriptors[i], *(Color*)(m_RenderTargets[i]->GetClearValue()->Color), 0, nullptr);
+            for (UINT i = 0; i < m_RenderTargets.size(); i++)
+            {
+                commandList->ClearRenderTargetView(m_RtvDescriptors[i], *(Color*)(m_RenderTargets[i]->GetClearValue()->Color), 0, nullptr);
+            }
         }
 
         // 清空深度模板贴图
-        if (m_DepthStencil)
+        if (m_DepthStencil && isClearDepth)
         {
             const auto* depthStencilClearValue = m_DepthStencil->GetClearValue();
             D3D12_CLEAR_FLAGS clearFlags;
