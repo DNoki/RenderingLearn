@@ -153,7 +153,7 @@ namespace Game
         GraphicsManager::GetGraphicsCommandQueue()->WaitForQueueCompleted();
 
         // 呈现帧。
-        CHECK_HRESULT(GraphicsManager::GetSwapChain()->GetD3D12SwapChain()->Present(0, 0));
+        CHECK_HRESULT(GraphicsManager::GetSwapChain()->GetD3D12SwapChain()->Present(VSYNC_ENABLE ? 1 : 0, 0));
 
         TimeSystem::AddFrameCompleted(); // 帧完成信号+1
         TimeSystem::AddSwapFrameCompleted(); // 已交换帧数量+1
@@ -327,7 +327,7 @@ namespace Game
                 auto* dirLightBuffer = ConstansBufferPool::Request<ShaderCommon::DirLightBuffer>();
                 usedDirLightBuffers.push_back(dirLightBuffer);
 
-                dirLight->FillDirLightBuffer(dirLightBuffer->GetMappingBuffer());
+                dirLight->FillDirLightBuffer(dirLightBuffer->GetMappingBuffer(), &g_DepthTexture);
 
                 for (auto* comCamera : cameraList->second)
                 {
@@ -337,7 +337,7 @@ namespace Game
                     usedCameraBuffers.push_back(cameraBuffer);
 
                     auto* cameraMappingBuffer = cameraBuffer->GetMappingBuffer();
-                    camera->FillCameraBuffer(cameraMappingBuffer);
+                    camera->FillCameraBuffer(cameraMappingBuffer, &currentRenderTargets);
 
                     auto worldSpaceToClipSpace = cameraMappingBuffer->_Camera_Project * cameraMappingBuffer->_Camera_View;
 

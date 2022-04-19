@@ -86,6 +86,7 @@ typedef std::filesystem::path Path;
 
 // --------------------------------------------------------------------------
 // 共通头文件
+#include "AppConfig.h"
 #include "GlobalUtility.h"
 #define USE_COLUMN_MAJOR
 #include "MathCommon.h"
@@ -126,28 +127,3 @@ typedef std::filesystem::path Path;
 #define SET_DEBUGNAME(obj, name) ((void)0)
 
 #endif // DEBUG
-
-
-#pragma region 全局定义
-
-enum class VertexSemantic
-{
-    Position,
-    Normal,
-    Tangent,
-    Color,
-    Texcoord,
-
-    Count
-};
-
-constexpr UINT DEFAULT_SCREEN_WIDTH = 1280u >> 0; // 初始窗口宽度
-constexpr UINT DEFAULT_SCREEN_HEIGHT = 720u >> 0; // 初始窗口高度
-
-constexpr const WCHAR* WINDOW_TITLE = L"Rendering Learn";
-inline std::wstring g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
-inline std::wstring g_TitleGPU = L"";
-
-constexpr UINT NODEMASK = 0; // TODO 多适配器系统 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/multi-engine
-
-#pragma endregion

@@ -25,6 +25,8 @@ namespace ShaderCommon {
         float4x4 _Camera_Project;
         float4x4 _Camera_View;
         float4x4 _Camera_I_VP;
+        float4 _Camera_WorldPos;
+        float4 _Camera_ScreenParams;
     };
 
 
@@ -43,6 +45,7 @@ namespace ShaderCommon {
         float4x4 _DirLight_WorldToLight;
         float4x4 _DirLight_LightToClip;
         float4x4 _DirLight_WorldToLightClip;
+        float4 _DirLight_ShadowmapParams;
     };
 
 

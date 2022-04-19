@@ -91,7 +91,7 @@ namespace TimeSystem
         double nowTimeMilli = g_RunTimer.GetElapsedMillisecond();
         double deltaTimeMilli = nowTimeMilli - g_RunTimeMilli;
 
-        if (deltaTimeMilli < frameMinTime)
+        if (VSYNC_ENABLE && deltaTimeMilli < frameMinTime)
         {
             // 线程等待
             this_thread::sleep_for(chrono::microseconds(static_cast<UINT>((frameMinTime - deltaTimeMilli) * 1000)));

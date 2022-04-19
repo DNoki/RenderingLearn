@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include "GameObject.h"
 #include "Camera.h"
+#include "RenderTexture.h"
 
 #include "Light.h"
 
@@ -36,12 +37,17 @@ namespace Game
 
         return projection;
     }
-    void DirectionalLight::FillDirLightBuffer(ShaderCommon::DirLightBuffer* buffer)
+    void DirectionalLight::FillDirLightBuffer(ShaderCommon::DirLightBuffer* buffer, const Resources::DepthStencilTexture* dsv)
     {
         buffer->_DirLight_Color = m_LightColor;
         buffer->_DirLight_WorldPos = Vector4(GetTransform().GetForward(), 1.0f);
         buffer->_DirLight_WorldToLight = GetLightViewMatrix();
         buffer->_DirLight_LightToClip = GetLightProjectionMatrix();
         buffer->_DirLight_WorldToLightClip = buffer->_DirLight_LightToClip * buffer->_DirLight_WorldToLight;
+
+        buffer->_DirLight_ShadowmapParams.x = static_cast<float>(dsv->GetWidth());
+        buffer->_DirLight_ShadowmapParams.y = static_cast<float>(dsv->GetHeight());
+        buffer->_DirLight_ShadowmapParams.z = 1.0f / buffer->_DirLight_ShadowmapParams.x;
+        buffer->_DirLight_ShadowmapParams.w = 1.0f / buffer->_DirLight_ShadowmapParams.y;
     }
 }

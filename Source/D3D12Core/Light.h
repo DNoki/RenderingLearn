@@ -2,6 +2,11 @@
 
 #include "Component.h"
 
+namespace Resources
+{
+    class DepthStencilTexture;
+}
+
 namespace Game
 {
     class Camera;
@@ -27,7 +32,7 @@ namespace Game
         Matrix4x4 GetLightViewMatrix() const;
         Matrix4x4 GetLightProjectionMatrix() const;
 
-        void FillDirLightBuffer(ShaderCommon::DirLightBuffer* buffer);
+        void FillDirLightBuffer(ShaderCommon::DirLightBuffer* buffer, const Resources::DepthStencilTexture* dsv);
 
     private:
 

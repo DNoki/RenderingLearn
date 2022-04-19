@@ -52,7 +52,7 @@ namespace Game
         auto* graphicsCommandList = CommandListPool::Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
         graphicsCommandList->Reset();
 
-        bool isUseBundle = false; // TODO 完善捆绑包
+        bool isUseBundle = USE_COMMAND_LIST_BUNDLE; // TODO 完善捆绑包
 
         {
             auto texPath = Application::GetAssetPath();
@@ -202,7 +202,7 @@ namespace Game
             static int useIndex = 0;
             useIndex = Math::Repeat(useIndex + 1, 0, _countof(g_SampleMesh));
             auto* meshRenderer = g_SampleModelObject[changeIndex]->GetComponent<MeshRenderer>();
-            meshRenderer->BindResource(g_SampleMesh[useIndex], meshRenderer->GetMaterial());
+            meshRenderer->BindResource(g_SampleMesh[useIndex], meshRenderer->GetMaterial(), USE_COMMAND_LIST_BUNDLE);
         }
         // 测试切换渲染模式
         if (Input::KeyDown(KeyCode::D4))

@@ -61,7 +61,6 @@ namespace Graphics
 
     void InitializeCommonGraphicsResource()
     {
-        UINT defalutShadowMapSize = 1024;
         UINT defalutRenderSizeX = 1920, defalutRenderSizeY = 1080;
 
         // 初始化动态采样器
@@ -178,7 +177,7 @@ namespace Graphics
             g_GenDepthMaterial.SetDepthBias(-8000);// 阴影贴图与深度图实际写入值适当减小(Reverse-Z)
 
             // 阴影贴图
-            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, defalutShadowMapSize, defalutShadowMapSize);
+            g_ShadowMapTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, DIRECTIONAL_LIGHT_SHADOWMAP_SIZE, DIRECTIONAL_LIGHT_SHADOWMAP_SIZE);
             g_ShadowMapTexture.SetName(L"ShadowMap");
         }
 

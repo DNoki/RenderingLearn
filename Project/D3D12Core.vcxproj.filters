@@ -124,6 +124,9 @@
     <ClInclude Include="..\Source\D3D12Core\Light.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="..\Source\D3D12Core\AppConfig.h">
+      <Filter>Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\D3D12Core\GameObject.cpp">
@@ -242,6 +245,9 @@
     </ClCompile>
     <ClCompile Include="..\Source\D3D12Core\Light.cpp">
       <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\D3D12Core\AppConfig.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

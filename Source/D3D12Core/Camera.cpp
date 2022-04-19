@@ -4,6 +4,7 @@
 #include "SwapChain.h"
 #include "Transform.h"
 #include "GameObject.h"
+#include "MultiRenderTargets.h"
 
 #include "Camera.h"
 
@@ -72,5 +73,18 @@ namespace Game
         auto r = Matrix4x4::CreateFromRotation(GetTransform().GetRotation());
 
         return r.Transpose() * t;
+    }
+    void Camera::FillCameraBuffer(ShaderCommon::CameraBuffer* buffer, const Graphics::MultiRenderTargets* renderTargets) const
+    {
+        buffer->_Camera_Project = GetProjectionMatrix();
+        buffer->_Camera_View = GetViewMatrix();
+        buffer->_Camera_I_VP = (buffer->_Camera_Project * buffer->_Camera_View).Inverse();
+
+        buffer->_Camera_WorldPos = Vector4(GetTransform().GetPosition(), 1.0f);
+
+        buffer->_Camera_ScreenParams.x = static_cast<float>(renderTargets->GetWidth());
+        buffer->_Camera_ScreenParams.y = static_cast<float>(renderTargets->GetHeight());
+        buffer->_Camera_ScreenParams.z = 1.0f / buffer->_Camera_ScreenParams.x;
+        buffer->_Camera_ScreenParams.w = 1.0f / buffer->_Camera_ScreenParams.y;
     }
 }

@@ -2,6 +2,11 @@
 
 #include "Component.h"
 
+namespace Graphics
+{
+    class MultiRenderTargets;
+}
+
 namespace Game
 {
     /**
@@ -29,12 +34,7 @@ namespace Game
         Matrix4x4 GetProjectionMatrix() const;
         Matrix4x4 GetViewMatrix() const;
 
-        inline void FillCameraBuffer(ShaderCommon::CameraBuffer* buffer) const
-        {
-            buffer->_Camera_Project = GetProjectionMatrix();
-            buffer->_Camera_View = GetViewMatrix();
-            buffer->_Camera_I_VP = (buffer->_Camera_Project * buffer->_Camera_View).Inverse();
-        }
+        void FillCameraBuffer(ShaderCommon::CameraBuffer* buffer, const Graphics::MultiRenderTargets* renderTargets) const;
 
     private:
 
