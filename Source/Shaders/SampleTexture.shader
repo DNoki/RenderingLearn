@@ -139,21 +139,32 @@ float4 PSMain(PSInput input) : SV_TARGET
     float3 normal = normalize(input.normal.xyz);
     float3 lightDir = normalize(-_DirLight_WorldPos.xyz);
     float3 viewDir = normalize(_Camera_WorldPos.xyz - worldPos.xyz);
+    float3 halfDir = normalize(lightDir + viewDir);
 
 
     float shadow = CalcDirectLightShadow(worldPos);
 
-    //float3 color = _SampleTexture.Sample(_SampleSampler, input.uv.xy).rgb;
+    float3 color = float3(1.0f, 1.0f, 1.0f);
 
-    // 最终光照 = 环境光(Ambient) + 漫反射(Diffuse) + 高光（Specular）
-    float3 halfDir = normalize(lightDir + viewDir);
-     //float diffuse = max(dot(normal, lightDir), 0.0f);
-    float diffuse = dot(normal, lightDir) * 0.5f + 0.5f;
-    float specular = pow(max(dot(normal, halfDir), 0.0f), 256.0f);
+    //color = _SampleTexture.Sample(_SampleSampler, input.uv.xy).rgb;
+    float _Smoothness = 16.0f;
 
-    float3 color = shadow * diffuse + specular;
+    // 经典 Blinn-Phong 模型
+    //{
+    //    // 最终光照 = 环境光(Ambient) + 漫反射(Diffuse) + 高光（Specular）
+    //    //float diffuse = max(dot(normal, lightDir), 0.0f);
+    //    float diffuse = dot(normal, lightDir) * 0.5f + 0.5f;
+    //    float specular = pow(max(dot(normal, halfDir), 0.0f), _Smoothness);
+    //    color = shadow * diffuse + specular;
+    //}
 
-    color *= _DirLight_Color.rgb;
+    // 优化的 Blinn-Phong 模型（向PBR靠拢）
+    {
+        float diffuse = max(dot(normal, lightDir), 0.0f);
+        float specular = pow(max(dot(normal, halfDir), 0.0f), _Smoothness);
+        color *= ((1.0f / PI) + (_Smoothness + 8.0f) / (8.0f * PI) * specular) * diffuse * shadow;
+    }
+    //color *= _DirLight_Color.rgb;
 
     //if (screenUV.x < 0.5f)
     //    return float4(_DirLightShadowMap.Sample(_SampleSampler, projCoords.xy).rrr, 1.0f);

@@ -48,24 +48,31 @@ namespace ShaderCommon {
         float4 _DirLight_ShadowmapParams;
     };
 
-
-    // Reverse-Z 的无限远裁面深度值转到视角空间
-    float ReverseInfDepthToViewDepth(float depth, float nearClip)
-    {
-        return nearClip / depth;
-    }
-    // Reverse-Z 的深度值转到线性空间
-    float ReverseDepthToLinearDepth(float depth, float nearClip, float farClip)
-    {
-        return nearClip / (depth * (farClip - nearClip) + nearClip);
-    }
-    // Reverse-Z 的深度值转到视角空间
-    float ReverseDepthToViewDepth(float depth, float nearClip, float farClip)
-    {
-        return farClip * ReverseDepthToLinearDepth(depth, nearClip, farClip);
-    }
-
-
 #ifdef CONSOLE
 }
 #endif // CONSOLE
+
+
+#ifdef SHADER_COMPILE
+
+// 着色器通用方法
+
+// Reverse-Z 的无限远裁面深度值转到视角空间
+float ReverseInfDepthToViewDepth(float depth, float nearClip)
+{
+    return nearClip / depth;
+}
+// Reverse-Z 的深度值转到线性空间
+float ReverseDepthToLinearDepth(float depth, float nearClip, float farClip)
+{
+    return nearClip / (depth * (farClip - nearClip) + nearClip);
+}
+// Reverse-Z 的深度值转到视角空间
+float ReverseDepthToViewDepth(float depth, float nearClip, float farClip)
+{
+    return farClip * ReverseDepthToLinearDepth(depth, nearClip, farClip);
+}
+
+static const float PI = 3.141592653589f;
+
+#endif // SHADER_COMPILE
