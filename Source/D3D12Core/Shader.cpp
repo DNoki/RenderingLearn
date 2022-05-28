@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 
 #include <d3dcompiler.h>
+#include <fstream>
 
 #include "AppMain.h"
 #include "PipelineState.h"
@@ -22,6 +23,12 @@ using namespace Graphics;
 
 namespace Game
 {
+    ShaderDesc ShaderDesc::CreatFromFileName(const string& path)
+    {
+        auto shaderPath = Application::GetShaderPath().append(Application::Format("%s.h", path.c_str()));
+        auto shaderFile = fstream(shaderPath, ios::in | ios::out);
+        return ShaderDesc();
+    }
 
     void Shader::Create(const ShaderDesc* shaderDesc)
     {

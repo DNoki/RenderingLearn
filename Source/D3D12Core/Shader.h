@@ -32,6 +32,8 @@ namespace Game
 
         inline int GetBindResourceCount() const { return m_SrvCount + m_UavCount; }
 
+        static ShaderDesc CreatFromFileName(const std::string& path);
+
         ShaderDesc() = default;
 
     private:

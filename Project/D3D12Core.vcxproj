@@ -84,6 +84,12 @@
       <ShaderType>Pixel</ShaderType>
       <PreprocessorDefinitions>SHADER_COMPILE;D3DCOMPILE_DEBUG;D3DCOMPILE_DEBUG_NAME_FOR_BINARY</PreprocessorDefinitions>
       <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
+      <VariableName>CompiledShader_%(Filename)</VariableName>
+      <HeaderFileOutput>$(OutDir)CompiledShaders\%(Filename).h</HeaderFileOutput>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <AssemblerOutputFile>
+      </AssemblerOutputFile>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -119,6 +125,12 @@
       <ShaderType>Pixel</ShaderType>
       <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>SHADER_COMPILE</PreprocessorDefinitions>
+      <VariableName>CompiledShader_%(Filename)</VariableName>
+      <HeaderFileOutput>$(OutDir)CompiledShaders\%(Filename).h</HeaderFileOutput>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <AssemblerOutputFile>
+      </AssemblerOutputFile>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

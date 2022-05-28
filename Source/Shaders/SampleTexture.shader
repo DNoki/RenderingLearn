@@ -21,7 +21,8 @@ Texture2D<float4> _SampleTexture : register(t0);
 SamplerState _SampleSampler : register(s0);
 
 Texture2D<float4> _DirLightShadowMap : register(t1);
-SamplerComparisonState _DirLightShadowMapState : register(s1);
+SamplerState _DirLightShadowMapState : register(s1);
+SamplerComparisonState _DirLightShadowMapComparState : register(s2);
 
 
 float CalcDirectLightShadow(float4 worldPos)
@@ -65,7 +66,7 @@ float CalcDirectLightShadow(float4 worldPos)
             [unroll(BLOCKER_FIND_COUNT)] for (int y = 0; y < BLOCKER_FIND_COUNT; y++)
             {
                 float2 sampleUV = projCoords.xy + (float2(x, y) - offset) * _DirLight_ShadowmapParams.zw * searchWidth;
-                float recordedDistance = _DirLightShadowMap.Sample(_SampleSampler, sampleUV).r;
+                float recordedDistance = _DirLightShadowMap.Sample(_DirLightShadowMapState, sampleUV).r;
 
                 if (projCoords.z < recordedDistance)
                 {
@@ -93,7 +94,7 @@ float CalcDirectLightShadow(float4 worldPos)
         [unroll(8)] for (int y = 0; y < count; y++)
         {
         float2 sampleUV = projCoords.xy + ((float2(x, y) - offset) * _DirLight_ShadowmapParams.zw * 8.0f * pcssFilterSize);
-            sum += _DirLightShadowMap.SampleCmp(_DirLightShadowMapState, sampleUV, projCoords.z);
+            sum += _DirLightShadowMap.SampleCmp(_DirLightShadowMapComparState, sampleUV, projCoords.z);
         }
     shadow = sum / (count * count);
 

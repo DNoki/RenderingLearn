@@ -85,7 +85,7 @@ namespace Game
             shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = Application::GetShaderPath().append("SampleTexture_ps.cso");
             shaderDesc.m_CbvCount = 3;
             shaderDesc.m_SrvCount = 2;
-            shaderDesc.m_SamplerCount = 2;
+            shaderDesc.m_SamplerCount = 3;
 
             g_SampleShader = &AddGameResource<Shader>();
             g_SampleShader->Create(&shaderDesc);
@@ -101,7 +101,8 @@ namespace Game
                 g_SampleMaterial[i]->BindSampler(0, g_SamplerLinearBorder);
 
                 g_SampleMaterial[i]->BindTexture(1, g_ShadowMapTexture);
-                g_SampleMaterial[i]->BindSampler(1, g_SamplerLinearBorderCompare);
+                g_SampleMaterial[i]->BindSampler(1, g_SamplerLinearBorder);
+                g_SampleMaterial[i]->BindSampler(2, g_SamplerLinearBorderCompare);
             }
         }
 

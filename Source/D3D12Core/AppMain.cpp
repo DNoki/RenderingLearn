@@ -8,6 +8,9 @@
 #include "Scene.h"
 #include "SceneManager.h"
 
+#include "RootSignature.h"
+#include "Shader.h"
+
 #include "AppMain.h"
 
 //#pragma comment(lib, "d3d12.lib")
@@ -242,6 +245,9 @@ namespace Application
             g_ShaderPath = g_AppPath;
             g_ShaderPath.append("CompiledShaders");
         }
+
+        ShaderDesc::CreatFromFileName("SampleTexture_vs");
+        return 0;
 
         CreateGameWindow(hInstance, WINDOW_TITLE, DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
         if (g_Hwnd == NULL)
