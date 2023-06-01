@@ -9,6 +9,8 @@
 
 // DirectX 图形基础结构 (DXGI) ：最佳实践 https://docs.microsoft.com/zh-cn/windows/win32/direct3darticles/dxgi-best-practices
 
+// 可变刷新率显示/关闭垂直同步 https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
+
 using namespace std;
 using namespace Resources;
 
@@ -36,7 +38,10 @@ namespace Graphics
             m_SwapChainDesc.Scaling = DXGI_SCALING_NONE;                    // 标识调整行为
             m_SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;     // 交换链使用的表示模型和用于在呈现表面后处理演示缓冲区内容的选项
             m_SwapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;             // 交换链后台缓冲区的透明度行为
-            m_SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // 指定交换链行为
+            // 指定交换链行为 https://learn.microsoft.com/zh-cn/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_chain_flag
+            m_SwapChainDesc.Flags =
+                DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH | // 允许调用 ResizeTarget 切换模式
+                (VSYNC_ENABLE ? 0 : DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING); // 支持撕裂以启用可变刷新率
         }
 
         // 全屏交换链描述，设置为 NULL 时将创建窗口交换链
@@ -80,17 +85,14 @@ namespace Graphics
             0, // 保留后台缓冲区数量
             m_SwapChainDesc.Width, m_SwapChainDesc.Height,
             DXGI_FORMAT_UNKNOWN, // 保留后台缓冲区格式
-            0));
+            VSYNC_ENABLE ? 0 : DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING));
 
         // 获取交换链描述
         m_SwapChain->GetDesc1(&m_SwapChainDesc);
 
         RebuildRenderTargets();
 
-        m_SwapChain->Present(1, 0); // 交换一次缓冲，使黑色填充屏幕
-
-        // TODO 需要在这里等待指令队列完成
-        GraphicsManager::GetGraphicsCommandQueue()->WaitForQueueCompleted();
+        m_SwapChain->Present(0, 0); // 交换一次缓冲，使黑色填充屏幕
 
         TRACE(L"Changing display resolution to %ux%u", m_SwapChainDesc.Width, m_SwapChainDesc.Height);
     }

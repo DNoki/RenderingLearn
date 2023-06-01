@@ -86,7 +86,7 @@ namespace Application
         case WM_ENTERSIZEMOVE: // 窗口进入调整模式（位置，大小）
         {
             g_AppEvent.set(EventFlag::AdjWindow);
-            GraphicsManager::GetSwapChain()->Resize(8, 8); // TODO 使窗口黑屏
+            GraphicsManager::GetSwapChain()->Resize(8, 8); // 使窗口黑屏
             TimeSystem::ProcessMsg(message, wParam, lParam);
         }
         break;

@@ -153,7 +153,11 @@ namespace Game
         GraphicsManager::GetGraphicsCommandQueue()->WaitForQueueCompleted();
 
         // 呈现帧。
-        CHECK_HRESULT(GraphicsManager::GetSwapChain()->GetD3D12SwapChain()->Present(VSYNC_ENABLE ? 1 : 0, 0));
+        CHECK_HRESULT(GraphicsManager::GetSwapChain()->GetD3D12SwapChain()->Present(
+            VSYNC_ENABLE ? 1 : 0,
+            // 允许撕裂是可变刷新速率显示的要求
+            VSYNC_ENABLE ? 0 : DXGI_PRESENT_ALLOW_TEARING
+        ));
 
         TimeSystem::AddFrameCompleted(); // 帧完成信号+1
         TimeSystem::AddSwapFrameCompleted(); // 已交换帧数量+1

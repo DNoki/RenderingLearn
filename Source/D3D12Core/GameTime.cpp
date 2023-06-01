@@ -85,19 +85,10 @@ namespace TimeSystem
 
     void RefreshTimeSystem()
     {
-        // TODO 多重缓冲刷新错位可能会导致帧率跳动
-        const double frameMinTime = 15.75;
+        // 线程等待
+        //this_thread::sleep_for(chrono::microseconds(static_cast<UINT>((frameMinTime - deltaTimeMilli) * 1000)));
 
         double nowTimeMilli = g_RunTimer.GetElapsedMillisecond();
-        double deltaTimeMilli = nowTimeMilli - g_RunTimeMilli;
-
-        if (VSYNC_ENABLE && deltaTimeMilli < frameMinTime)
-        {
-            // 线程等待
-            this_thread::sleep_for(chrono::microseconds(static_cast<UINT>((frameMinTime - deltaTimeMilli) * 1000)));
-        }
-
-        nowTimeMilli = g_RunTimer.GetElapsedMillisecond();
         g_RunTimeMilli = nowTimeMilli;
 
         float nowTime = static_cast<float>(nowTimeMilli * 0.001);

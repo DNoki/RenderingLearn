@@ -80,7 +80,7 @@ namespace Graphics
 
         std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc{}; // 全屏交换链描述
 
-        std::vector<std::unique_ptr<Resources::RenderTargetTexture>> m_RenderTargets{}; // 渲染目标贴图列表
+        std::vector<std::shared_ptr<Resources::RenderTargetTexture>> m_RenderTargets{}; // 渲染目标贴图列表
 
         /**
          * @brief 重新生成渲染目标贴图

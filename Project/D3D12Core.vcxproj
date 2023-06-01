@@ -16,20 +16,20 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{2e6a9e1a-43e9-4fb8-b06c-1542c147adf7}</ProjectGuid>
     <RootNamespace>D3D12Core</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>D3D12Core</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -84,6 +84,12 @@
       <ShaderType>Pixel</ShaderType>
       <PreprocessorDefinitions>SHADER_COMPILE;D3DCOMPILE_DEBUG;D3DCOMPILE_DEBUG_NAME_FOR_BINARY</PreprocessorDefinitions>
       <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
+      <VariableName>CompiledShader_%(Filename)</VariableName>
+      <HeaderFileOutput>$(OutDir)CompiledShaders\%(Filename).h</HeaderFileOutput>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <AssemblerOutputFile>
+      </AssemblerOutputFile>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -119,6 +125,12 @@
       <ShaderType>Pixel</ShaderType>
       <AdditionalOptions>/Zpr %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>SHADER_COMPILE</PreprocessorDefinitions>
+      <VariableName>CompiledShader_%(Filename)</VariableName>
+      <HeaderFileOutput>$(OutDir)CompiledShaders\%(Filename).h</HeaderFileOutput>
+      <AssemblerOutput>
+      </AssemblerOutput>
+      <AssemblerOutputFile>
+      </AssemblerOutputFile>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

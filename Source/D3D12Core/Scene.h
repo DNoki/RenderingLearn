@@ -16,7 +16,7 @@ namespace Game
     {
     public:
         UINT64 m_Version{ 0 };
-        std::unique_ptr<GameObject> m_GameObject{};
+        std::shared_ptr<GameObject> m_GameObject{};
 
         VersionedGameObject() = default;
 
