@@ -190,7 +190,7 @@ namespace Graphics
         // 后处理共通资源
         {
             // 渲染目标呈现贴图
-            g_RenderRtvTexture.PlacedCreate(DXGI_FORMAT_R8G8B8A8_UNORM, defalutRenderSizeX, defalutRenderSizeY, Color(0.0f, 0.2f, 0.4f, 1.0f));
+            g_RenderRtvTexture.PlacedCreate(DXGI_FORMAT_R16G16B16A16_FLOAT, defalutRenderSizeX, defalutRenderSizeY, Color(0.0f, 0.2f, 0.4f, 1.0f));
             g_RenderRtvTexture.SetName(L"FinalRtvTexture");
             // 渲染目标深度贴图
             g_RenderDsvTexture.PlacedCreate(DXGI_FORMAT_D32_FLOAT, defalutRenderSizeX, defalutRenderSizeY);

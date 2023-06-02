@@ -118,10 +118,10 @@ namespace Game
                 }
                 // 记录组件指针
                 objIt->m_Version = objIt->m_GameObject->GetVersion();
-                for (auto& componentList : objIt->m_GameObject->GetRawComponents())
+                for (auto& [componentTypeID, components] : objIt->m_GameObject->GetRawComponents())
                 {
-                    auto& bakedComponents = m_BakedComponents[componentList.first];
-                    for (auto& component : componentList.second)
+                    auto& bakedComponents = m_BakedComponents[componentTypeID];
+                    for (auto& component : components)
                     {
                         bakedComponents.push_back(component.get());
                     }

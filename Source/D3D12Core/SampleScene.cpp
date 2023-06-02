@@ -225,9 +225,9 @@ namespace Game
             g_SampleCameraObject->GetTransform().Translate(Time::GetDeltaTime() * 10.0f * pos);
 
             pos = Vector3::Zero;
-            if (Input::KeyState(KeyCode::Space))
+            if (Input::KeyState(KeyCode::Space) || Input::KeyState(KeyCode::E))
                 pos.y += 1.0f;
-            if (Input::KeyState(KeyCode::C))
+            if (Input::KeyState(KeyCode::C) || Input::KeyState(KeyCode::Q))
                 pos.y -= 1.0f;
             g_SampleCameraObject->GetTransform().Translate(Time::GetDeltaTime() * 10.0f * pos, true);
 

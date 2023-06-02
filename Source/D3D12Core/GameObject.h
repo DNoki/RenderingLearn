@@ -45,7 +45,7 @@ namespace Game
         T& AddComponent()
         {
             if (m_Version == 0) throw L"ERROR::Object has been destroyed.";
-            auto component = make_unique<T>(*this);
+            auto component = std::make_unique<T>(*this);
 
             T* result = component.get();
             m_Components[typeid(T).hash_code()].push_back(move(component));

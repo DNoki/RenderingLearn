@@ -304,6 +304,12 @@
     <FxCompile Include="..\Source\Shaders\GenerateDepth_ps.hlsl">
       <Filter>Shaders\PS</Filter>
     </FxCompile>
+    <FxCompile Include="..\Source\Shaders\ToneMapping_ps.hlsl">
+      <Filter>Shaders\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\ToneMapping_vs.hlsl">
+      <Filter>Shaders\VS</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -314,6 +320,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\Source\Shaders\ShaderCommon.inl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Source\Shaders\ToneMapping.shader">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

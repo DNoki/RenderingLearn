@@ -251,11 +251,14 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VSMain</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="..\Source\Shaders\ToneMapping_ps.hlsl" />
+    <FxCompile Include="..\Source\Shaders\ToneMapping_vs.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Source\Shaders\Blit.shader" />
     <None Include="..\Source\Shaders\GenerateDepth.shader" />
     <None Include="..\Source\Shaders\ShaderCommon.inl" />
+    <None Include="..\Source\Shaders\ToneMapping.shader" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
