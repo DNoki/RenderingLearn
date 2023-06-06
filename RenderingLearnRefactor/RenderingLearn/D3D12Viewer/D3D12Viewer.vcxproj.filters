@@ -1,35 +1,41 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Headers">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Sources">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Headers\Utility">
+    <Filter Include="Utility">
       <UniqueIdentifier>{c2f50519-ed3a-48bc-89ee-42017d1cdeb6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sources\Utility">
-      <UniqueIdentifier>{85d59351-b1d4-4d67-b454-8e7931400a7d}</UniqueIdentifier>
+    <Filter Include="Component">
+      <UniqueIdentifier>{f53eeccf-96ce-46d1-823e-2bbe513ccc2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{cb64e73e-f01d-40f7-a049-887f1a8b9adb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{fc812f6b-23f6-41bc-b134-bc2be538f5de}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\D3D12Viewer.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\pch.cpp">
-      <Filter>Sources\Utility</Filter>
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12Viewer.cpp" />
+    <ClCompile Include="Source\System\GraphicsManager.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\System\WindowApplication.cpp">
+      <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\D3D12Viewer.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\pch.h">
-      <Filter>Headers\Utility</Filter>
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\D3D12Viewer.h" />
+    <ClInclude Include="Include\System\GraphicsManager.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\System\WindowApplication.h">
+      <Filter>System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

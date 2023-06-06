@@ -1,35 +1,101 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Headers">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Sources">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Headers\Utility">
+    <Filter Include="Utility">
       <UniqueIdentifier>{6f455c30-e650-475e-9d8c-e3a609b1828e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sources\Utility">
-      <UniqueIdentifier>{2d9242ad-7181-494a-bcf0-fe3dd6ed6d14}</UniqueIdentifier>
+    <Filter Include="​GraphicsCommand">
+      <UniqueIdentifier>{eab2a47a-24ee-437e-a5f5-7e3baf0fe8be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="​GraphicsContext">
+      <UniqueIdentifier>{9c2d9d30-c884-4c6b-a08a-99b92639d98f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="​GraphicsResource">
+      <UniqueIdentifier>{0f1170f3-b816-4766-9ef8-df8719a0bbd7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\D3D12Core.cpp">
-      <Filter>Sources</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Utility\pch.cpp">
-      <Filter>Sources\Utility</Filter>
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\D3D12Core.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandAllocator.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\CommandAllocatorPool.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\CommandList.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\CommandQueue.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsContext\GraphicsContext.cpp">
+      <Filter>​GraphicsContext</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsContext\SwapChain.cpp">
+      <Filter>​GraphicsContext</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\Utility.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\IGraphicsResource.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\ITexture.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\DescriptorAllocator.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\DescriptorHandle.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\DescriptorHeap.cpp">
+      <Filter>​GraphicsResource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\D3D12Core.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Utility\pch.h">
-      <Filter>Headers\Utility</Filter>
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\D3D12Core.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandAllocator.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\CommandAllocatorPool.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\CommandList.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\CommandQueue.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsContext\SwapChain.h">
+      <Filter>​GraphicsContext</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsContext\GraphicsContext.h">
+      <Filter>​GraphicsContext</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Utility\Utility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\IGraphicsResource.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\ITexture.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\DescriptorAllocator.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\DescriptorHandle.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\DescriptorHeap.h">
+      <Filter>​GraphicsResource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

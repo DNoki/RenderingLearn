@@ -20,6 +20,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\D3D12Core.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandAllocator.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandAllocatorPool.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandList.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandQueue.cpp" />
+    <ClCompile Include="Source\GraphicsContext\GraphicsContext.cpp" />
+    <ClCompile Include="Source\GraphicsContext\SwapChain.cpp" />
+    <ClCompile Include="Source\GraphicsResource\DescriptorAllocator.cpp" />
+    <ClCompile Include="Source\GraphicsResource\DescriptorHandle.cpp" />
+    <ClCompile Include="Source\GraphicsResource\DescriptorHeap.cpp" />
+    <ClCompile Include="Source\GraphicsResource\IGraphicsResource.cpp" />
+    <ClCompile Include="Source\GraphicsResource\ITexture.cpp" />
+    <ClCompile Include="Source\Utility\Utility.cpp" />
     <ClCompile Include="Source\Utility\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -27,6 +39,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\D3D12Core.h" />
+    <ClInclude Include="Include\Utility\Utility.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandAllocator.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandAllocatorPool.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandList.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandQueue.h" />
+    <ClInclude Include="Include\​GraphicsContext\GraphicsContext.h" />
+    <ClInclude Include="Include\​GraphicsContext\SwapChain.h" />
+    <ClInclude Include="Include\​GraphicsResource\DescriptorAllocator.h" />
+    <ClInclude Include="Include\​GraphicsResource\DescriptorHandle.h" />
+    <ClInclude Include="Include\​GraphicsResource\DescriptorHeap.h" />
+    <ClInclude Include="Include\​GraphicsResource\IGraphicsResource.h" />
+    <ClInclude Include="Include\​GraphicsResource\ITexture.h" />
     <ClInclude Include="Source\Utility\pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -136,6 +160,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -157,6 +182,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\Libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
