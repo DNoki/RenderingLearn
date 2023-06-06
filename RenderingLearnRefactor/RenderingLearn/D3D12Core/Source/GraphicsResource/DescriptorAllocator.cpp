@@ -18,7 +18,7 @@ class DescriptorAllocatorImpl
 public:
     DescriptorAllocatorImpl() = default;
 
-    DescriptorHandle Allocat(const GraphicsContext* context, D3D12_DESCRIPTOR_HEAP_TYPE type)
+    DescriptorHandle Allocat(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type)
     {
         if (m_CurrentHeap[type] == nullptr || (m_CurrentHeap[type]->m_NextHandle >= m_CurrentHeap[type]->m_DescriptorHeap->GetDescriptorsCount()))
         {
@@ -47,7 +47,7 @@ private:
 
 } g_DescriptorAllocatorImpl;
 
-DescriptorHandle DescriptorAllocator::Allocat(const GraphicsContext* context, D3D12_DESCRIPTOR_HEAP_TYPE type)
+DescriptorHandle DescriptorAllocator::Allocat(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type)
 {
     return g_DescriptorAllocatorImpl.Allocat(context, type);
 }

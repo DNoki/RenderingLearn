@@ -3,8 +3,6 @@
 
 #include "System/GraphicsManager.h"
 
-#pragma comment(lib, "D3D12Core.lib")
-
 using namespace D3D12Viewer;
 
 WindowApplication WindowApplication::s_Instance = WindowApplication();

@@ -90,7 +90,7 @@ namespace D3D12Core
         Print(format);
     }
 
-    HRESULT CheckHresult(HRESULT hr)
+    void CheckHresult(HRESULT hr)
     {
         // 查询错误信息 https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dxgi-error
         if (hr == 0x887a0005)

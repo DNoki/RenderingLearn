@@ -6,6 +6,7 @@
 
 namespace D3D12Core
 {
+    // TODO 重命名为ShaderResource （SRV）
     class Texture : public GraphicsResource
     {
     public:
@@ -26,6 +27,31 @@ namespace D3D12Core
 
     protected:
         DescriptorHandle m_SRV;
+
+    };
+
+    class IRenderTarget : public Texture
+    {
+    public:
+        ~IRenderTarget() override = 0 {};
+
+        const DescriptorHandle& GetRTV() const { return m_RTV; }
+        /**
+         * @brief 获取 RTV 描述
+         * @return
+        */
+        const D3D12_RENDER_TARGET_VIEW_DESC* GetRtvDesc() const { return m_RtvDesc.get(); }
+        /**
+         * @brief 获取清空值
+         * @return
+        */
+        const D3D12_CLEAR_VALUE* GetClearValue() const { return &m_ClearValue; }
+
+    private:
+        DescriptorHandle m_RTV;
+        UniquePtr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc{};
+
+        D3D12_CLEAR_VALUE m_ClearValue{};
 
     };
 }

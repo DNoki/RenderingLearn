@@ -1,21 +1,7 @@
 ﻿#pragma once
 
-#include "​GraphicsResource/ITexture.h"
-
 namespace D3D12Core
 {
-    class SwapChainBuffer : public Texture
-    {
-    public:
-        ~SwapChainBuffer() override = default;
-
-        void Create(class SwapChain& swapChain, UINT index);
-
-    private:
-        DescriptorHandle m_RTV;
-
-    };
-
     class SwapChain
     {
     public:
@@ -68,7 +54,7 @@ namespace D3D12Core
          * @param count 交换链数量
          * @param format 帧缓冲格式
         */
-        void CreateForHwnd(const GraphicsContext* context, const class CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format);
+        void CreateForHwnd(const GraphicsContext& context, const class CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format);
 
         /**
          * @brief 调整渲染目标大小
@@ -86,7 +72,7 @@ namespace D3D12Core
 
         std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc{}; // 全屏交换链描述
 
-        Vector<UniquePtr<SwapChainBuffer>> m_RenderTargets{}; // 渲染目标贴图列表
+        Vector<UniquePtr<class IRenderTarget>> m_RenderTargets{}; // 渲染目标贴图列表
 
         bool m_VsyncEnable = false;
 

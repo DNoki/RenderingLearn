@@ -31,6 +31,9 @@
     <ClCompile Include="Source\GraphicsResource\DescriptorHeap.cpp" />
     <ClCompile Include="Source\GraphicsResource\IGraphicsResource.cpp" />
     <ClCompile Include="Source\GraphicsResource\ITexture.cpp" />
+    <ClCompile Include="Source\GraphicsResource\PipelineState.cpp" />
+    <ClCompile Include="Source\GraphicsResource\PipelineStateManager.cpp" />
+    <ClCompile Include="Source\GraphicsResource\RootSignature.cpp" />
     <ClCompile Include="Source\Utility\Utility.cpp" />
     <ClCompile Include="Source\Utility\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -51,6 +54,9 @@
     <ClInclude Include="Include\​GraphicsResource\DescriptorHeap.h" />
     <ClInclude Include="Include\​GraphicsResource\IGraphicsResource.h" />
     <ClInclude Include="Include\​GraphicsResource\ITexture.h" />
+    <ClInclude Include="Include\​GraphicsResource\PipelineState.h" />
+    <ClInclude Include="Include\​GraphicsResource\PipelineStateManager.h" />
+    <ClInclude Include="Include\​GraphicsResource\RootSignature.h" />
     <ClInclude Include="Source\Utility\pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

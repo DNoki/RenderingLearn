@@ -15,7 +15,7 @@ namespace D3D12Core
         /**
          * @brief 创建描述符堆
         */
-        void Create(const GraphicsContext* context, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count, bool isShaderVisible = false);
+        void Create(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count, bool isShaderVisible = false);
 
         /**
          * @brief 是否是着色器可见

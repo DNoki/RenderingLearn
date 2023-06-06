@@ -13,9 +13,22 @@
 */
 // --------------------------------------------------------------------------
 
-using namespace std;
-using namespace winrt;
+using namespace D3D12Core;
 
-namespace D3D12Core
+void CommandAllocator::Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type)
 {
+    // 创建命令列表分配器
+    CHECK_HRESULT(context.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));
+
+    if (D3D12_COMMAND_LIST_TYPE_DIRECT <= type && type < D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE)
+    {
+        static const String names[] =
+        {
+            TEXT("Graphics"),
+            TEXT("Bundle"),
+            TEXT("Compute"),
+            TEXT("Copy"),
+        };
+        GraphicsContext::SetDebugName(m_CommandAllocator.get(), FORMAT(TEXT("%s (CommandAllocator)"), names[type].c_str()));
+    }
 }

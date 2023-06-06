@@ -34,7 +34,7 @@
 //using namespace winrt;
 using namespace D3D12Core;
 
-void DescriptorHeap::Create(const GraphicsContext* context, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count, bool isShaderVisible)
+void DescriptorHeap::Create(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count, bool isShaderVisible)
 {
     ASSERT(m_DescriptorHeap == nullptr);
     m_DescriptorHeapDesc = {};
@@ -46,14 +46,14 @@ void DescriptorHeap::Create(const GraphicsContext* context, D3D12_DESCRIPTOR_HEA
     m_DescriptorHeapDesc.NumDescriptors = count;
     m_DescriptorHeapDesc.Type = type;
     m_DescriptorHeapDesc.Flags = isShaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-    m_DescriptorHeapDesc.NodeMask = context->GetNodeMask();
+    m_DescriptorHeapDesc.NodeMask = context.GetNodeMask();
 
 
     // 创建描述符堆
-    CHECK_HRESULT(context->GetDevice()->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
+    CHECK_HRESULT(context.GetDevice()->CreateDescriptorHeap(&m_DescriptorHeapDesc, IID_PPV_ARGS(m_DescriptorHeap.put())));
 
     // 单个描述符大小
-    m_DescriptorSize = context->GetDevice()->GetDescriptorHandleIncrementSize(type);
+    m_DescriptorSize = context.GetDevice()->GetDescriptorHandleIncrementSize(type);
 
     // 描述符起始句柄
     m_StartDescriptorHandle = {

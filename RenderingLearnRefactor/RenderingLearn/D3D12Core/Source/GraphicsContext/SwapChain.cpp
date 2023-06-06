@@ -13,8 +13,19 @@
 
 // 可变刷新率显示/关闭垂直同步 https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
 
-//using namespace std;
 using namespace D3D12Core;
+
+class SwapChainBuffer : public IRenderTarget
+{
+public:
+    ~SwapChainBuffer() override = default;
+
+    void Create(SwapChain& swapChain, UINT index);
+
+private:
+    DescriptorHandle m_RTV;
+
+};
 
 void SwapChainBuffer::Create(SwapChain& swapChain, UINT index)
 {
@@ -29,7 +40,7 @@ void SwapChainBuffer::Create(SwapChain& swapChain, UINT index)
         rtvDesc.Format = GetFormat();
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-        m_RTV = DescriptorAllocator::Allocat(swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        m_RTV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         swapChain.GetGraphicsContext()->GetDevice()->CreateRenderTargetView(m_Resource.get(), &rtvDesc, m_RTV);
     }
 
@@ -41,16 +52,16 @@ void SwapChainBuffer::Create(SwapChain& swapChain, UINT index)
         srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels = 1;
 
-        m_SRV = DescriptorAllocator::Allocat(swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        m_SRV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         swapChain.GetGraphicsContext()->GetDevice()->CreateShaderResourceView(m_Resource.get(), &srvDesc, m_SRV);
     }
 }
 
-void SwapChain::CreateForHwnd(const GraphicsContext* graphicsContext, const CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format)
+void SwapChain::CreateForHwnd(const GraphicsContext& graphicsContext, const CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format)
 {
     ASSERT(m_SwapChain == nullptr);
 
-    m_GraphicsContext = graphicsContext;
+    m_GraphicsContext = &graphicsContext;
 
     // 计算窗口客户区大小
     //RECT clientRect;
@@ -80,7 +91,7 @@ void SwapChain::CreateForHwnd(const GraphicsContext* graphicsContext, const Comm
     m_FullScreenDesc = nullptr;
     //m_FullScreenDesc->Windowed = TRUE;
 
-    CHECK_HRESULT(graphicsContext->GetFactory()->CreateSwapChainForHwnd(
+    CHECK_HRESULT(graphicsContext.GetFactory()->CreateSwapChainForHwnd(
         commandQueue->GetD3D12CommandQueue(), // 对于 Direct3D 12，这是一个指向直接命令队列的指针
         hwnd,
         &m_SwapChainDesc,       // 交换链描述
@@ -143,7 +154,7 @@ void SwapChain::RebuildRenderTargets()
         //m_SwapChain->GetBuffer(i, IID_PPV_ARGS(m_RenderTargets[i]->PutD3D12Resource()));
         //m_RenderTargets[i]->GetResourceDesc()
 
-        m_RenderTargets[i]->Create(*this, i);
+        static_cast<SwapChainBuffer*>(m_RenderTargets[i].get())->Create(*this, i);
     }
 
 

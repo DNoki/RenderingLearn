@@ -34,7 +34,7 @@ using namespace std;
 
 namespace D3D12Core
 {
-    void CommandQueue::Create(const GraphicsContext* context, D3D12_COMMAND_LIST_TYPE type)
+    void CommandQueue::Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type)
     {
         ASSERT(type < D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE);
         m_Type = type;
@@ -44,11 +44,11 @@ namespace D3D12Core
         queueDesc.Type = m_Type; // 命令队列类型
         queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL; // 命令队列的优先级
         queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // 命令队列选项
-        queueDesc.NodeMask = context->GetNodeMask(); // 节点标识
-        CHECK_HRESULT(context->GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
+        queueDesc.NodeMask = context.GetNodeMask(); // 节点标识
+        CHECK_HRESULT(context.GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
 
         // 创建同步对象 Fence， 用于等待渲染完成
-        CHECK_HRESULT(context->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
+        CHECK_HRESULT(context.GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
         m_FenceValue = 1;
 
         // 创建用于帧同步的事件句柄，用于等待Fence事件通知

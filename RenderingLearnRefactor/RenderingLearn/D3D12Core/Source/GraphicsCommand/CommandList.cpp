@@ -45,36 +45,36 @@ namespace D3D12Core
     {
         m_Type = type;
 
-        //if (isAllocate)
-        //{
-        //    // 返回一个命令分配器
-        //    m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+        if (isAllocate)
+        {
+            // 返回一个命令分配器
+            m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
 
-        //    CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandList(
-        //        NODEMASK,
-        //        m_Type,                     // 命令列表类型
-        //        m_CommandAllocator->GetD3D12Allocator(),    // 命令列表分配器
-        //        pso ? pso->GetD3D12PSO() : nullptr,         // 初始管线状态为NULL
-        //        IID_PPV_ARGS(m_CommandList.put())));
+            CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList(
+                GraphicsContext::GetCurrentInstance()->GetNodeMask(),
+                m_Type,                     // 命令列表类型
+                m_CommandAllocator->GetD3D12Allocator(),    // 命令列表分配器
+                pso ? pso->GetD3D12PSO() : nullptr,         // 初始管线状态为NULL
+                IID_PPV_ARGS(m_CommandList.put())));
 
-        //    // 指示列表可以写入命令
-        //    m_IsLocked = false;
-        //}
-        //else
-        //{
-        //    // 创建命令列表
-        //    // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
-        //    CHECK_HRESULT(GraphicsManager::GetDevice()->CreateCommandList1(
-        //        NODEMASK,
-        //        m_Type,
-        //        D3D12_COMMAND_LIST_FLAG_NONE,
-        //        IID_PPV_ARGS(m_CommandList.put())));
+            // 指示列表可以写入命令
+            m_IsLocked = false;
+        }
+        else
+        {
+            // 创建命令列表
+            // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
+            CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList1(
+                GraphicsContext::GetCurrentInstance()->GetNodeMask(),
+                m_Type,
+                D3D12_COMMAND_LIST_FLAG_NONE,
+                IID_PPV_ARGS(m_CommandList.put())));
 
-        //    // 指示列表处于关闭状态
-        //    m_IsLocked = true;
-        //    m_CommandAllocator = nullptr;
-        //}
-        //SET_DEBUGNAME(m_CommandList.get(), _T("CommandList"));
+            // 指示列表处于关闭状态
+            m_IsLocked = true;
+            m_CommandAllocator = nullptr;
+        }
+        GraphicsContext::SetDebugName(m_CommandList.get(), _T("CommandList"));
     }
 
     void CommandList::Close()

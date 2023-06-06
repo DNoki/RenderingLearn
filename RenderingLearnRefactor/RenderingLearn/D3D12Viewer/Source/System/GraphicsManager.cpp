@@ -17,14 +17,14 @@ void GraphicsManager::Initialize(HWND windowHandle)
         m_GraphicsCommandQueue.reset(new CommandQueue());
         m_ComputeCommandQueue.reset(new CommandQueue());
         m_CopyCommandQueue.reset(new CommandQueue());
-        m_GraphicsCommandQueue->Create(m_GraphicsContext.get(), D3D12_COMMAND_LIST_TYPE_DIRECT);
-        m_ComputeCommandQueue->Create(m_GraphicsContext.get(), D3D12_COMMAND_LIST_TYPE_COMPUTE);
-        m_CopyCommandQueue->Create(m_GraphicsContext.get(), D3D12_COMMAND_LIST_TYPE_COPY);
+        m_GraphicsCommandQueue->Create(*m_GraphicsContext, D3D12_COMMAND_LIST_TYPE_DIRECT);
+        m_ComputeCommandQueue->Create(*m_GraphicsContext, D3D12_COMMAND_LIST_TYPE_COMPUTE);
+        m_CopyCommandQueue->Create(*m_GraphicsContext, D3D12_COMMAND_LIST_TYPE_COPY);
     }
 
     // 初始化交换链
     m_SwapChain.reset(new SwapChain());
-    m_SwapChain->CreateForHwnd(m_GraphicsContext.get(), m_GraphicsCommandQueue.get(), windowHandle, SwapFrameBackBufferCount, SwapChainRenderTargetFormat);
+    m_SwapChain->CreateForHwnd(*m_GraphicsContext, m_GraphicsCommandQueue.get(), windowHandle, SwapFrameBackBufferCount, SwapChainRenderTargetFormat);
 }
 
 void GraphicsManager::Destory()
@@ -36,5 +36,5 @@ void GraphicsManager::Destory()
     m_ComputeCommandQueue->CloseQueue();
     m_CopyCommandQueue->CloseQueue();
 
-    m_GraphicsContext->Destory();
+    m_GraphicsContext->Destroy();
 }

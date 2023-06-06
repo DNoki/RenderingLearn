@@ -38,7 +38,7 @@
 // Direct3D 12 的帮助程序结构 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/helper-structures-for-d3d12
 #define D3DX12_NO_STATE_OBJECT_HELPERS
 #define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
-//#include <D3DX12/d3dx12.h> 
+#include <D3DX12/d3dx12.h> 
 
 
 #ifndef TEXT
@@ -60,8 +60,13 @@ template <class T>
 using SharedPtr = std::shared_ptr<T>;
 template <class T>
 using WeakPtr = std::weak_ptr<T>;
+
 template <class T>
 using Vector = std::vector<T>;
+template <class T>
+using Queue = std::queue<T>;
+template <class TKey, class TValue>
+using Map = std::map<TKey, TValue>;
 
 #include "Utility/Utility.h"
 
@@ -99,3 +104,7 @@ using Vector = std::vector<T>;
 #include "​GraphicsCommand/CommandQueue.h"
 #include "​GraphicsCommand/CommandList.h"
 #include "​GraphicsResource/ITexture.h"
+#include "​GraphicsCommand/CommandAllocator.h"
+#include "​GraphicsResource/RootSignature.h"
+#include "​GraphicsResource/PipelineState.h"
+#include "​GraphicsResource/PipelineStateManager.h"

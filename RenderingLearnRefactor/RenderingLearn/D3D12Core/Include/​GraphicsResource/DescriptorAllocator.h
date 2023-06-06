@@ -9,7 +9,7 @@ namespace D3D12Core
     public:
         DescriptorAllocator() = delete;
 
-        static DescriptorHandle Allocat(const GraphicsContext* context, D3D12_DESCRIPTOR_HEAP_TYPE type);
+        static DescriptorHandle Allocat(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type);
 
     private:
 

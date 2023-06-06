@@ -55,6 +55,15 @@
     <ClCompile Include="Source\GraphicsResource\DescriptorHeap.cpp">
       <Filter>​GraphicsResource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\PipelineState.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\PipelineStateManager.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\RootSignature.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility\pch.h">
@@ -95,6 +104,15 @@
       <Filter>​GraphicsResource</Filter>
     </ClInclude>
     <ClInclude Include="Include\​GraphicsResource\DescriptorHeap.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\PipelineState.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\PipelineStateManager.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\RootSignature.h">
       <Filter>​GraphicsResource</Filter>
     </ClInclude>
   </ItemGroup>

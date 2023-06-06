@@ -1,12 +1,14 @@
 ﻿#include "pch.h"
 #include "​GraphicsContext/GraphicsContext.h"
 
-#pragma comment(lib, "d3d12.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "dxguid.lib")
+using namespace D3D12Core;
 
-void D3D12Core::GraphicsContext::Initialize()
+GraphicsContext* GraphicsContext::CurrentInstance = nullptr;
+
+void ::GraphicsContext::Initialize()
 {
+    CurrentInstance = this;
+
     UINT nDXGIFactoryFlags = 0U;
 #if DEBUG
     // 启用调试层（需要图形工具“可选功能”）。
@@ -66,7 +68,7 @@ void D3D12Core::GraphicsContext::Initialize()
     }
 }
 
-void D3D12Core::GraphicsContext::Destory()
+void D3D12Core::GraphicsContext::Destroy()
 {
     m_Device = nullptr;
     m_Adapter = nullptr;

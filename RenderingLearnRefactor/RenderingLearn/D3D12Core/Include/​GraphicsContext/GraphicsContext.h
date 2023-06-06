@@ -5,16 +5,20 @@ namespace D3D12Core
     class GraphicsContext
     {
     public:
+        // TODO temp
+        static GraphicsContext* CurrentInstance;
+        static GraphicsContext* GetCurrentInstance() { return CurrentInstance; }
+
         GraphicsContext() = default;
 
         void Initialize();
-        void Destory();
+        void Destroy();
 
         [[nodiscard]] IDXGIFactory7* GetFactory() const { return m_Factory.get(); }
         [[nodiscard]] IDXGIAdapter4* GetAdapter() const { return m_Adapter.get(); }
         [[nodiscard]] ID3D12Device6* GetDevice() const { return m_Device.get(); }
 
-        const DXGI_ADAPTER_DESC3& GetAdapterDesc() { return m_AdapterDesc; }
+        const DXGI_ADAPTER_DESC3& GetAdapterDesc() const { return m_AdapterDesc; }
 
         void SetAltEnterEnable(HWND winHandle, bool enable);
 
@@ -32,7 +36,7 @@ namespace D3D12Core
         winrt::com_ptr<IDXGIAdapter4> m_Adapter{};
         winrt::com_ptr<ID3D12Device6> m_Device{};
 
-        DXGI_ADAPTER_DESC3 m_AdapterDesc;
+        DXGI_ADAPTER_DESC3 m_AdapterDesc{};
 
     };
 }
