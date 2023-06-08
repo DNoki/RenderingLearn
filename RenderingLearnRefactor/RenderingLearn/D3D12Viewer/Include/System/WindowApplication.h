@@ -16,7 +16,7 @@ namespace D3D12Viewer
         const String g_TitleFormat = L"%s  GPU(%s)  FPS:%.2f";
         const String g_TitleGPU = L"";
 
-    public:
+    private:
         HWND g_Hwnd; // 当前程序窗口句柄
         std::bitset<EventFlag::Count> g_AppEvent; // 应用程序事件集
 
@@ -34,6 +34,10 @@ namespace D3D12Viewer
         static WindowApplication& GetInstance() { return s_Instance; }
 
         void Run(HINSTANCE hInstance, int nCmdShow);
+
+        Path GetProjectPath() { return g_ProjectPath; }
+        Path GetAssetPath() { return g_AssetPath; }
+        Path GetShaderPath() { return g_ShaderPath; }
 
     private:
         static WindowApplication s_Instance;

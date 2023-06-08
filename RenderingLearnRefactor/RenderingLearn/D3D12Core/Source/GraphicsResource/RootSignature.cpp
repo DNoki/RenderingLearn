@@ -67,8 +67,8 @@ void RootSignature::Finalize(D3D12_ROOT_SIGNATURE_FLAGS Flags)
         m_NumStaticSamplers, m_NumStaticSamplers > 0 ? m_SamplerArray.data() : nullptr,
         Flags);
 
-    winrt::com_ptr<ID3DBlob> pSignature;
-    winrt::com_ptr<ID3DBlob> pErrorSignature;
+    ComPtr<ID3DBlob> pSignature;
+    ComPtr<ID3DBlob> pErrorSignature;
 
     CHECK_HRESULT(D3DX12SerializeVersionedRootSignature(
         &verRootSignDesc,
@@ -77,8 +77,9 @@ void RootSignature::Finalize(D3D12_ROOT_SIGNATURE_FLAGS Flags)
         pErrorSignature.put()
     ));
 
-    //if (pErrorSignature)
-    //    TRACE((char*)pErrorSignature->GetBufferPointer());
+    // TODO
+    if (pErrorSignature)
+        TRACE((TCHAR*)pErrorSignature->GetBufferPointer());
 
     CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateRootSignature(GraphicsContext::GetCurrentInstance()->GetNodeMask(), pSignature->GetBufferPointer(), pSignature->GetBufferSize(), IID_PPV_ARGS(m_RootSignature.put())));
 }

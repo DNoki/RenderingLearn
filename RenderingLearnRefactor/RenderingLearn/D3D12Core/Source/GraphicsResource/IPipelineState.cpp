@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "​GraphicsResource/PipelineState.h"
+#include "​GraphicsResource/IPipelineState.h"
 
 // --------------------------------------------------------------------------
 /*
@@ -60,7 +60,7 @@ void GraphicsPipelineState::SetSampleMask(UINT sampleMask)
 void GraphicsPipelineState::SetPrimitiveTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType)
 {
     // TODO 修改基元拓扑类型
-    ASSERT(topologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, L"WARNING::Can't draw with undefined topology");
+    ASSERT(topologyType != D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED, TEXT("WARNING::Can't draw with undefined topology"));
     m_PSODesc.PrimitiveTopologyType = topologyType;
 }
 
@@ -159,7 +159,7 @@ void GraphicsPipelineState::Finalize()
     if (m_PSO == nullptr)
     {
         // 创建一个新的管线状态对象
-        winrt::com_ptr<ID3D12PipelineState> pso;
+        ComPtr<ID3D12PipelineState> pso;
         CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateGraphicsPipelineState(&m_PSODesc, IID_PPV_ARGS(pso.put())));
         GraphicsContext::SetDebugName(pso.get(), _T("PipelineState"));
 

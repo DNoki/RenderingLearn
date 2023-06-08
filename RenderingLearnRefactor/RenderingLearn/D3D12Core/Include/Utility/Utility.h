@@ -52,7 +52,7 @@ namespace D3D12Core
     extern void Trace(const TCHAR* format, ...);
     inline void Trace(void) {}
 
-    extern void CheckHresult(HRESULT hr);
+    extern HRESULT CheckHresult(HRESULT hr);
 
 
 #endif

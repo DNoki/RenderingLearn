@@ -3,6 +3,7 @@
 
 #include "System/GraphicsManager.h"
 
+using namespace D3D12Core;
 using namespace D3D12Viewer;
 
 WindowApplication WindowApplication::s_Instance = WindowApplication();
@@ -33,6 +34,23 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
     // 显示窗口
     ShowWindow(g_Hwnd, nCmdShow);
 
+    Mesh g_Mesh = Mesh::CreateQuad();
+
+    ShaderDesc shaderDesc{};
+    shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Normal) | (1 << (int)VertexSemantic::Texcoord);
+    shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = GetShaderPath().append("Sample_vs.cso");
+    shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = GetShaderPath().append("Sample_ps.cso");
+    shaderDesc.m_CbvCount = 3;
+    shaderDesc.m_SrvCount = 2;
+    shaderDesc.m_SamplerCount = 2;
+    Shader g_Shader{};
+    g_Shader.Create(&shaderDesc);
+    g_Shader.SetName(TEXT("示例着色器"));
+
+    auto g_Material = Material();
+    g_Material.Create(&g_Shader);
+    g_Material.SetName(TEXT("示例材质"));
+
     MSG msg;
     while (!g_AppEvent.test(EventFlag::Exit))
     {
@@ -44,6 +62,31 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
             if (msg.message == WM_QUIT)
                 g_AppEvent.set(EventFlag::Exit);
         }
+
+        auto* graphicsCommandList = CommandListPool::Request<GraphicsCommandList>();
+        graphicsCommandList->Reset();
+
+        auto swapChain = GraphicsManager::GetInstance().GetSwapChain();
+        auto currentRenderTarget = swapChain->GetRenderTarget(swapChain->GetCurrentBackBufferIndex());
+
+        graphicsCommandList->ResourceTransitionBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+        graphicsCommandList->OMSetRenderTargets(1, currentRenderTarget);
+
+        auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, ScreenWidth, ScreenHeight);
+        graphicsCommandList->RSSetViewports(1, &viewport);
+        auto scissorRect = CD3DX12_RECT(0, 0, ScreenWidth, ScreenHeight);
+        graphicsCommandList->RSSetScissorRects(1, &scissorRect);
+
+        graphicsCommandList->ClearRenderTargetView(currentRenderTarget->GetRTV(), Color(0.0f, 0.5f, 0.75f), 0, nullptr);
+
+        graphicsCommandList->ResourceTransitionBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
+
+        ICommandList* c = graphicsCommandList;
+        GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);
+        GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
+
+        CHECK_HRESULT(swapChain->GetD3D12SwapChain()->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 
         //    TimeSystem::RefreshTimeSystem();
         //    Input::RefreshBeforeUpdate();

@@ -32,3 +32,18 @@ void CommandAllocator::Create(const GraphicsContext& context, D3D12_COMMAND_LIST
         GraphicsContext::SetDebugName(m_CommandAllocator.get(), FORMAT(TEXT("%s (CommandAllocator)"), names[type].c_str()));
     }
 }
+
+void CommandAllocator::AssignOnCompletedCallback(Function<void()> onCompleted)
+{
+    m_OnCompletedEvents.push_back(onCompleted);
+}
+
+void CommandAllocator::NotifyCompletedEvent()
+{
+    for (auto& onCompletedEvent : m_OnCompletedEvents)
+    {
+        if (onCompletedEvent)
+            onCompletedEvent();
+    }
+    m_OnCompletedEvents.clear();
+}

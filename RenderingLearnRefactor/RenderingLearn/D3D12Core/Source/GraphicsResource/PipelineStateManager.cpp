@@ -4,7 +4,7 @@
 using namespace D3D12Core;
 
 
-static Map<size_t, winrt::com_ptr<ID3D12PipelineState>> g_GraphicsPipelineStateMap{};
+static Map<size_t, ComPtr<ID3D12PipelineState>> g_GraphicsPipelineStateMap{};
 
 ID3D12PipelineState* PipelineStateManager::GetPipelineState(UINT64 psoDescHash)
 {
@@ -17,7 +17,7 @@ ID3D12PipelineState* PipelineStateManager::GetPipelineState(UINT64 psoDescHash)
     return nullptr;
 }
 
-void PipelineStateManager::StorePipelineState(UINT64 psoDescHash, winrt::com_ptr<ID3D12PipelineState>& pso)
+void PipelineStateManager::StorePipelineState(UINT64 psoDescHash, ComPtr<ID3D12PipelineState>& pso)
 {
     g_GraphicsPipelineStateMap[psoDescHash] = std::move(pso);
 }

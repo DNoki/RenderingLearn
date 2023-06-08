@@ -2,50 +2,18 @@
 
 namespace D3D12Core
 {
+    class IRenderTarget;
+
     class SwapChain
     {
     public:
         // --------------------------------------------------------------------------
         SwapChain() = default;
-        SwapChain(const SwapChain& sc) = delete;
-        SwapChain(SwapChain&& sc) = default;
+        //SwapChain(const SwapChain& sc) = delete;
+        //SwapChain(SwapChain&& sc) = default;
 
-        inline SwapChain& operator = (const SwapChain& sc) = delete;
-        inline SwapChain& operator = (SwapChain&& sc) = default;
-
-        // --------------------------------------------------------------------------
-        inline IDXGISwapChain4* GetD3D12SwapChain() const { return m_SwapChain.get(); }
-
-        /**
-         * @brief 获取窗口宽度
-         * @return
-        */
-        inline UINT GetWidth() const { return m_SwapChainDesc.Width; }
-        /**
-         * @brief 获取窗口高度
-         * @return
-        */
-        inline UINT GetHeight() const { return m_SwapChainDesc.Height; }
-        /**
-         * @brief 获取窗口宽高比
-         * @return
-        */
-        inline float GetScreenAspect() const { return GetWidth() / (float)GetHeight(); }
-
-        // --------------------------------------------------------------------------
-        /**
-         * @brief 获取当前后台缓冲索引
-         * @return
-        */
-        inline UINT GetCurrentBackBufferIndex() const
-        {
-            return m_SwapChain->GetCurrentBackBufferIndex();
-        }
-        /**
-         * @brief 获取渲染目标贴图
-         * @return
-        */
-        //inline Resources::RenderTargetTexture* GetRenderTarget(UINT index) const { return m_RenderTargets[index].get(); }
+        //SwapChain& operator = (const SwapChain& sc) = delete;
+        //SwapChain& operator = (SwapChain&& sc) = default;
 
         // --------------------------------------------------------------------------
         /**
@@ -63,18 +31,53 @@ namespace D3D12Core
         */
         void Resize(UINT width = 0, UINT height = 0);
 
+        // --------------------------------------------------------------------------
+        IDXGISwapChain4* GetD3D12SwapChain() const { return m_SwapChain.get(); }
+
+        /**
+         * @brief 获取窗口宽度
+         * @return
+        */
+        UINT GetWidth() const { return m_SwapChainDesc.Width; }
+        /**
+         * @brief 获取窗口高度
+         * @return
+        */
+        UINT GetHeight() const { return m_SwapChainDesc.Height; }
+        /**
+         * @brief 获取窗口宽高比
+         * @return
+        */
+        float GetScreenAspect() const { return GetWidth() / static_cast<float>(GetHeight()); }
+
+        // --------------------------------------------------------------------------
+        /**
+         * @brief 获取当前后台缓冲索引
+         * @return
+        */
+        UINT GetCurrentBackBufferIndex() const
+        {
+            return m_SwapChain->GetCurrentBackBufferIndex();
+        }
+        /**
+         * @brief 获取渲染目标贴图
+         * @return
+        */
+        IRenderTarget* GetRenderTarget(UINT index) const { return m_RenderTargets[index].get(); }
+
+        // TODO temp
+        const GraphicsContext* m_GraphicsContext{};
         const GraphicsContext* GetGraphicsContext() const { return m_GraphicsContext; }
 
     private:
-        winrt::com_ptr<IDXGISwapChain4> m_SwapChain{};    // 交换链
+        ComPtr<IDXGISwapChain4> m_SwapChain{};    // 交换链
         DXGI_SWAP_CHAIN_DESC1 m_SwapChainDesc{};          // 交换链描述
-        const GraphicsContext* m_GraphicsContext;
 
-        std::unique_ptr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc{}; // 全屏交换链描述
+        UniquePtr<DXGI_SWAP_CHAIN_FULLSCREEN_DESC> m_FullScreenDesc{}; // 全屏交换链描述
 
-        Vector<UniquePtr<class IRenderTarget>> m_RenderTargets{}; // 渲染目标贴图列表
+        Vector<UniquePtr<IRenderTarget>> m_RenderTargets{}; // 渲染目标贴图列表
 
-        bool m_VsyncEnable = false;
+        bool m_VsyncEnable = false; // 垂直同步
 
         /**
          * @brief 重新生成渲染目标贴图

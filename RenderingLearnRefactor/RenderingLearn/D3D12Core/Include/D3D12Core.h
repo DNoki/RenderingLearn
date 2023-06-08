@@ -38,35 +38,44 @@
 // Direct3D 12 的帮助程序结构 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/helper-structures-for-d3d12
 #define D3DX12_NO_STATE_OBJECT_HELPERS
 #define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
-#include <D3DX12/d3dx12.h> 
-
+#include <D3DX12/d3dx12.h>
 
 #ifndef TEXT
 #define TEXT(x) _T(x)
 #endif
 
-// 重命名常用类型
-typedef std::filesystem::path Path;
+namespace D3D12Core
+{
+    // 重命名常用类型
+    typedef std::filesystem::path Path;
 
 #ifdef UNICODE
-typedef std::wstring String;
+    typedef std::wstring String;
 #else
-typedef std::string String;
+    typedef std::string String;
 #endif
 
-template <class T>
-using UniquePtr = std::unique_ptr<T>;
-template <class T>
-using SharedPtr = std::shared_ptr<T>;
-template <class T>
-using WeakPtr = std::weak_ptr<T>;
+    template <class T>
+    using UniquePtr = std::unique_ptr<T>;
+    template <class T>
+    using SharedPtr = std::shared_ptr<T>;
+    template <class T>
+    using WeakPtr = std::weak_ptr<T>;
 
-template <class T>
-using Vector = std::vector<T>;
-template <class T>
-using Queue = std::queue<T>;
-template <class TKey, class TValue>
-using Map = std::map<TKey, TValue>;
+    template <class T>
+    using Vector = std::vector<T>;
+    template <class T>
+    using Queue = std::queue<T>;
+    template <class T>
+    using Set = std::set<T>;
+    template <class TKey, class TValue>
+    using Map = std::map<TKey, TValue>;
+    template <class T>
+    using Function = std::function<T>;
+
+    template <class T>
+    using ComPtr = winrt::com_ptr<T>;
+}
 
 #include "Utility/Utility.h"
 
@@ -99,12 +108,22 @@ using Map = std::map<TKey, TValue>;
 
 #endif
 
+
 #include "​GraphicsContext/GraphicsContext.h"
 #include "​GraphicsContext/SwapChain.h"
+
+#include "​GraphicsCommand/CommandAllocator.h"
+#include "​GraphicsCommand/CommandAllocatorPool.h"
 #include "​GraphicsCommand/CommandQueue.h"
 #include "​GraphicsCommand/CommandList.h"
+
+#include "​GraphicsResource/DescriptorHeap.h"
+#include "​GraphicsResource/IGraphicsResource.h"
 #include "​GraphicsResource/ITexture.h"
-#include "​GraphicsCommand/CommandAllocator.h"
+#include "​GraphicsResource/UploadBuffer.h"
+#include "​GraphicsResource/GraphicsBuffer.h"
 #include "​GraphicsResource/RootSignature.h"
-#include "​GraphicsResource/PipelineState.h"
+#include "​GraphicsResource/IPipelineState.h"
 #include "​GraphicsResource/PipelineStateManager.h"
+#include "​GraphicsResource/PlacedHeap.h"
+#include "​GraphicsResource/GraphicsMemory.h"

@@ -30,8 +30,6 @@
 // --------------------------------------------------------------------------
 
 
-//using namespace std;
-//using namespace winrt;
 using namespace D3D12Core;
 
 void DescriptorHeap::Create(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT count, bool isShaderVisible)
@@ -64,7 +62,7 @@ void DescriptorHeap::Create(const GraphicsContext& context, D3D12_DESCRIPTOR_HEA
 
 DescriptorHandle DescriptorHeap::GetDescriptorHandle(UINT index) const
 {
-    ASSERT(0 <= index || index < GetDescriptorsCount());
+    ASSERT(0 <= index && index < GetDescriptorsCount());
     return m_StartDescriptorHandle + index * m_DescriptorSize;
 }
 

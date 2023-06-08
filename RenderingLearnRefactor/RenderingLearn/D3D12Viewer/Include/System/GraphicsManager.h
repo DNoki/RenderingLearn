@@ -14,6 +14,8 @@ namespace D3D12Viewer
         void Initialize(HWND windowHandle);
         void Destory();
 
+        D3D12Core::GraphicsContext* GetGraphicsContext() { return m_GraphicsContext.get(); }
+        D3D12Core::CommandQueue* GetGraphicsCommandQueue() { return m_GraphicsCommandQueue.get(); }
         D3D12Core::SwapChain* GetSwapChain() { return m_SwapChain.get(); }
 
     private:

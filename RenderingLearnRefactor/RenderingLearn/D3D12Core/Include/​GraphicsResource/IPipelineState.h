@@ -5,21 +5,21 @@ namespace D3D12Core
     /**
      * @brief 管线状态
     */
-    class PipelineState
+    class IPipelineState
     {
     public:
-        virtual ~PipelineState() = 0 {}
+        virtual ~IPipelineState() = 0 {}
 
         /**
          * @brief 获取D3D12管线状态对象
          * @return
         */
-        inline ID3D12PipelineState* GetD3D12PSO() const { return m_PSO; }
+        ID3D12PipelineState* GetD3D12PSO() const { return m_PSO; }
 
     protected:
         ID3D12PipelineState* m_PSO{};  // 管线状态对象
 
-        PipelineState() = default;
+        IPipelineState() = default;
 
         virtual void Finalize() = 0;
     };
@@ -27,18 +27,18 @@ namespace D3D12Core
     /**
      * @brief 图形管线状态
     */
-    class GraphicsPipelineState : public PipelineState
+    class GraphicsPipelineState : public IPipelineState
     {
     public:
         GraphicsPipelineState();
-        virtual ~GraphicsPipelineState() override = default;
+        ~GraphicsPipelineState() override = default;
 
-        inline D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetPsoDesc() { return m_PSODesc; }
+        D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetPsoDesc() { return m_PSODesc; }
         /**
          * @brief 检测是否已更改管线状态
          * @return
         */
-        inline bool CheckStateChanged() const
+        bool CheckStateChanged() const
         {
             return m_PsoDescHash != std::hash<D3D12_GRAPHICS_PIPELINE_STATE_DESC>::_Do_hash(m_PSODesc);
         }
@@ -47,7 +47,7 @@ namespace D3D12Core
          * @brief 设置根签名
          * @param rootSignature
         */
-        inline void SetRootSignature(const RootSignature* rootSignature)
+        void SetRootSignature(const RootSignature* rootSignature)
         {
             m_PSODesc.pRootSignature = rootSignature->GetD3D12RootSignature();
         }
@@ -63,19 +63,19 @@ namespace D3D12Core
          * @param rasterizerDesc
         */
         void SetRasterizerState(const D3D12_RASTERIZER_DESC& rasterizerDesc);
-        inline D3D12_RASTERIZER_DESC& GetRasterizerState() { return m_PSODesc.RasterizerState; }
+        D3D12_RASTERIZER_DESC& GetRasterizerState() { return m_PSODesc.RasterizerState; }
         /**
          * @brief 设置混合状态
          * @param blendState
         */
         void SetBlendState(const D3D12_BLEND_DESC& blendState);
-        inline D3D12_BLEND_DESC& GetBlendState() { return m_PSODesc.BlendState; }
+        D3D12_BLEND_DESC& GetBlendState() { return m_PSODesc.BlendState; }
         /**
          * @brief 设置深度模板状态
          * @param depthStencilDesc
         */
         void SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC& depthStencilDesc);
-        inline D3D12_DEPTH_STENCIL_DESC& GetDepthStencilState() { return m_PSODesc.DepthStencilState; }
+        D3D12_DEPTH_STENCIL_DESC& GetDepthStencilState() { return m_PSODesc.DepthStencilState; }
 
         /**
          * @brief SampleMask（极少用到，用途未知）
@@ -140,7 +140,7 @@ namespace D3D12Core
 
     };
 
-    class ComputePipelineState : public PipelineState
+    class ComputePipelineState : public IPipelineState
     {
         // TODO
     };

@@ -3,8 +3,6 @@
 
 using namespace D3D12Core;
 
-GraphicsContext* GraphicsContext::CurrentInstance = nullptr;
-
 void ::GraphicsContext::Initialize()
 {
     CurrentInstance = this;
@@ -28,8 +26,8 @@ void ::GraphicsContext::Initialize()
 
     // 创建D3D12设备对象接口
     {
-        winrt::com_ptr<IDXGIAdapter4> pAdapter;
-        winrt::com_ptr<ID3D12Device6> pDevice;
+        ComPtr<IDXGIAdapter4> pAdapter;
+        ComPtr<ID3D12Device6> pDevice;
         SIZE_T MaxSize = 0;
         for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != m_Factory->EnumAdapters1(adapterIndex, reinterpret_cast<IDXGIAdapter1**>(pAdapter.put())); adapterIndex++)
         {

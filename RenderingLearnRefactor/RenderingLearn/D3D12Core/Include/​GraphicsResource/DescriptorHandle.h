@@ -25,14 +25,14 @@ namespace D3D12Core
         DescriptorHandle() = default;
         DescriptorHandle(CpuDescriptorHandle CpuHandle, GpuDescriptorHandle GpuHandle) : m_CpuHandle(CpuHandle), m_GpuHandle(GpuHandle) {}
 
-        inline DescriptorHandle operator+ (INT OffsetScaledByDescriptorSize) const
+        DescriptorHandle operator+ (INT OffsetScaledByDescriptorSize) const
         {
             DescriptorHandle ret = *this;
             ret += OffsetScaledByDescriptorSize;
             return ret;
         }
 
-        inline void operator += (INT OffsetScaledByDescriptorSize)
+        void operator += (INT OffsetScaledByDescriptorSize)
         {
             if (m_CpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN)
                 m_CpuHandle.ptr += OffsetScaledByDescriptorSize;
@@ -40,16 +40,16 @@ namespace D3D12Core
                 m_GpuHandle.ptr += OffsetScaledByDescriptorSize;
         }
 
-        inline operator CpuDescriptorHandle () const { return m_CpuHandle; }
-        inline operator GpuDescriptorHandle () const { return m_GpuHandle; }
-        inline operator const CpuDescriptorHandle* () const { return &m_CpuHandle; }
-        inline operator const GpuDescriptorHandle* () const { return &m_GpuHandle; }
+        operator CpuDescriptorHandle () const { return m_CpuHandle; }
+        operator GpuDescriptorHandle () const { return m_GpuHandle; }
+        operator const CpuDescriptorHandle* () const { return &m_CpuHandle; }
+        operator const GpuDescriptorHandle* () const { return &m_GpuHandle; }
 
         /**
          * @brief 是否是着色器可见描述符
          * @return
         */
-        inline bool IsShaderVisible() const { return m_GpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
+        bool IsShaderVisible() const { return m_GpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN; }
 
     private:
         CpuDescriptorHandle m_CpuHandle{ D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN };    // Cpu句柄（必定CPU可见）

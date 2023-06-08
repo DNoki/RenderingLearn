@@ -90,7 +90,7 @@ namespace D3D12Core
         Print(format);
     }
 
-    void CheckHresult(HRESULT hr)
+    HRESULT CheckHresult(HRESULT hr)
     {
         // 查询错误信息 https://docs.microsoft.com/zh-cn/windows/win32/direct3ddxgi/dxgi-error
         if (hr == 0x887a0005)
@@ -99,7 +99,8 @@ namespace D3D12Core
             // 在即时窗口窗口查看设备移除原因
             ASSERT(0);
         }
-        return winrt::check_hresult(hr);
+        winrt::check_hresult(hr);
+        return hr;
     }
 
     //#pragma region CodePage Convert
@@ -201,4 +202,4 @@ namespace D3D12Core
     //    pObj->GetPrivateData(WKPDID_D3DDebugObjectNameW, &size, text.data());
     //    return text;
     //}
-    }
+}

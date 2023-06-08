@@ -2,6 +2,7 @@
 #include "​GraphicsCommand/CommandList.h"
 
 #include "​GraphicsCommand/CommandAllocatorPool.h"
+#include "​GraphicsResource/DescriptorHeap.h"
 
 // --------------------------------------------------------------------------
 /*
@@ -27,224 +28,290 @@
 */
 // --------------------------------------------------------------------------
 
-using namespace std;
+using namespace D3D12Core;
 
-namespace D3D12Core
+
+
+void ICommandList::Close()
 {
-    CommandList::~CommandList()
+    ASSERT(!m_IsLocked);
+
+    // 关闭命令列表
+    CHECK_HRESULT(m_CommandList->Close());
+    m_IsLocked = true;
+
+    // 命令写入分配器之后，解除之前绑定的分配器
+    m_CommandAllocator = nullptr;
+}
+
+void ICommandList::Reset()
+{
+    // 在应用程序调用Reset之前，命令列表必须处于“关闭”状态。
+    ASSERT(m_IsLocked);
+
+    // 返回一个命令分配器
+    ASSERT(!m_CommandAllocator);
+    m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+
+    // 将命令列表重置回其初始状态
+    // 通过使用Reset，您可以重用命令列表跟踪结构而无需任何分配。与ID3D12CommandAllocator::Reset不同，您可以在命令列表仍在执行时调用Reset。一个典型的模式是提交一个命令列表，然后立即重置它以将分配的内存重新用于另一个命令列表。
+    CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator->GetD3D12Allocator(), nullptr));
+
+    // 指示列表可以写入命令
+    m_IsLocked = false;
+}
+
+void D3D12Core::GraphicsCommandList::Create()
+{
+    m_Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+    // 创建命令列表
+    // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
+    CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList1(
+        GraphicsContext::GetCurrentInstance()->GetNodeMask(),
+        m_Type,
+        D3D12_COMMAND_LIST_FLAG_NONE,
+        IID_PPV_ARGS(m_CommandList.put())));
+
+    // 指示列表处于关闭状态
+    m_IsLocked = true;
+    m_CommandAllocator = nullptr;
+
+    GraphicsContext::SetDebugName(m_CommandList.get(), TEXT("GraphicsCommandList"));
+}
+
+void GraphicsCommandList::Create(const IPipelineState* pso)
+{
+    ASSERT(pso);
+    m_Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+    // 返回一个命令分配器
+    m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+
+    CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList(
+        GraphicsContext::GetCurrentInstance()->GetNodeMask(),
+        m_Type,                     // 命令列表类型
+        m_CommandAllocator->GetD3D12Allocator(),    // 命令列表分配器
+        pso->GetD3D12PSO(),         // 初始管线状态
+        IID_PPV_ARGS(m_CommandList.put())));
+
+    // 指示列表可以写入命令
+    m_IsLocked = false;
+
+    GraphicsContext::SetDebugName(m_CommandList.get(), TEXT("GraphicsCommandList"));
+}
+
+void GraphicsCommandList::Reset(const IPipelineState* pso)
+{
+    ASSERT(m_IsLocked);
+    ASSERT(pso);
+    ASSERT(!m_CommandAllocator);
+    m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
+
+    CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator->GetD3D12Allocator(), pso->GetD3D12PSO()));
+
+    // 指示列表可以写入命令
+    m_IsLocked = false;
+}
+
+//ICommandList::~CommandList()
+//{
+//    if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
+//    {
+//        // 回收捆绑包使用的分配器
+//        ASSERT(m_CommandAllocator);
+//        CommandAllocatorPool::Restore(&m_CommandAllocator);
+//    }
+//}
+
+void GraphicsCommandList::ResourceTransitionBarrier(IGraphicsResource* resource,
+    D3D12_RESOURCE_STATES after) const
+{
+    auto before = resource->GetResourceStates();
+    ResourceTransitionBarrier(resource, before, after);
+}
+
+void GraphicsCommandList::ResourceTransitionBarrier(IGraphicsResource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
+{
+    /*
+        资源屏障同步资源状态 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
+    */
+    //ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
+    D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetD3D12Resource(), before, after);
+    m_CommandList->ResourceBarrier(1, &barrier);
+
+    resource->SetResourceStates(after);
+}
+
+void D3D12Core::GraphicsCommandList::OMSetRenderTargets(UINT rtvCount, const IRenderTarget* rtvArray)
+{
+    CpuDescriptorHandle r = rtvArray->GetRTV();
+    m_CommandList->OMSetRenderTargets(rtvCount, &r, false, nullptr);
+}
+
+void GraphicsCommandList::SetGraphicsRootSignature(const RootSignature* pRootSignature) const
+{
+    m_CommandList->SetGraphicsRootSignature(pRootSignature->GetD3D12RootSignature());
+}
+void GraphicsCommandList::SetPipelineState(const IPipelineState* pPipelineState) const
+{
+    m_CommandList->SetPipelineState(pPipelineState->GetD3D12PSO());
+}
+void GraphicsCommandList::SetDescriptorHeaps(const DescriptorHeap* pResourceDescHeap, const DescriptorHeap* pSamplerDescHeap) const
+{
+    /*
+        命令列表只能绑定 CBV_SRV_UAV 或 SAMPLER 类型描述符堆
+        每种类型的描述符堆一次只能设置一个，即一次最多可以设置2个堆
+    */
+    std::vector<ID3D12DescriptorHeap*> descHeaps{};
+    if (pResourceDescHeap)
+        descHeaps.push_back(pResourceDescHeap->GetD3D12DescriptorHeap());
+    if (pSamplerDescHeap)
+        descHeaps.push_back(pSamplerDescHeap->GetD3D12DescriptorHeap());
+
+    if (descHeaps.size() > 0)
+        m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
+}
+
+void GraphicsCommandList::SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* descriptorHeap) const
+{
+    m_CommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, descriptorHeap->GetDescriptorHandle(0));
+}
+void GraphicsCommandList::SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const
+{
+    m_CommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer->GetGpuVirtualAddress());
+}
+
+void GraphicsCommandList::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) const
+{
+    m_CommandList->IASetPrimitiveTopology(primitiveTopology);
+}
+
+void GraphicsCommandList::IASetVertexBuffers(UINT startSlot, UINT numViews,
+    const D3D12_VERTEX_BUFFER_VIEW* pViews) const
+{
+    m_CommandList->IASetVertexBuffers(startSlot, numViews, pViews);
+}
+
+void GraphicsCommandList::IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* pView) const
+{
+    m_CommandList->IASetIndexBuffer(pView);
+}
+
+void GraphicsCommandList::DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation,
+    UINT startInstanceLocation) const
+{
+    m_CommandList->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
+}
+
+void GraphicsCommandList::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation,
+    INT baseVertexLocation, UINT startInstanceLocation) const
+{
+    m_CommandList->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+}
+
+class CommandListPoolImpl
+{
+public:
+    CommandListPoolImpl() = default;
+
+public:
+    ICommandList* Request(D3D12_COMMAND_LIST_TYPE type)
     {
-        if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
+        Vector<UniquePtr<ICommandList>>* _list = nullptr;
+        Queue<ICommandList*>* _queue = nullptr;
+        ICommandList* result = nullptr;
+
+        switch (type)
         {
-            // 回收捆绑包使用的分配器
-            ASSERT(m_CommandAllocator);
-            CommandAllocatorPool::Restore(&m_CommandAllocator);
+        case D3D12_COMMAND_LIST_TYPE_DIRECT:
+            _list = &m_GraphicsCommandLists;
+            _queue = &m_GraphicsIdleQueue;
+            break;
+        case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+            _list = &m_ComputeCommandLists;
+            _queue = &m_ComputeIdleQueue;
+            break;
+        case D3D12_COMMAND_LIST_TYPE_COPY:
+            _list = &m_CopyCommandLists;
+            _queue = &m_CopyIdleQueue;
+            break;
+        default:
+            ASSERT(0, TEXT("ERROR::不支持的命令列表类型"));
+            return result;
         }
-    }
 
-    void CommandList::Create(D3D12_COMMAND_LIST_TYPE type, bool isAllocate, const PipelineState* pso)
-    {
-        m_Type = type;
-
-        if (isAllocate)
+        if (_queue->empty())
         {
-            // 返回一个命令分配器
-            m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
-
-            CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList(
-                GraphicsContext::GetCurrentInstance()->GetNodeMask(),
-                m_Type,                     // 命令列表类型
-                m_CommandAllocator->GetD3D12Allocator(),    // 命令列表分配器
-                pso ? pso->GetD3D12PSO() : nullptr,         // 初始管线状态为NULL
-                IID_PPV_ARGS(m_CommandList.put())));
-
-            // 指示列表可以写入命令
-            m_IsLocked = false;
-        }
-        else
-        {
-            // 创建命令列表
-            // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
-            CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList1(
-                GraphicsContext::GetCurrentInstance()->GetNodeMask(),
-                m_Type,
-                D3D12_COMMAND_LIST_FLAG_NONE,
-                IID_PPV_ARGS(m_CommandList.put())));
-
-            // 指示列表处于关闭状态
-            m_IsLocked = true;
-            m_CommandAllocator = nullptr;
-        }
-        GraphicsContext::SetDebugName(m_CommandList.get(), _T("CommandList"));
-    }
-
-    void CommandList::Close()
-    {
-        ASSERT(!m_IsLocked);
-        CHECK_HRESULT(m_CommandList->Close());
-        m_IsLocked = true;
-
-        // 命令写入分配器之后，解除之前绑定的分配器
-        // 对于捆绑包来说，一般不会对其重置，所以使用保持对分配器的引用
-        if (m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE)
-            m_CommandAllocator = nullptr;
-    }
-
-    void CommandList::Reset(const PipelineState* pso)
-    {
-        //// 在应用程序调用Reset之前，命令列表必须处于“关闭”状态。
-        //ASSERT(m_IsLocked);
-
-        //// 返回一个命令分配器
-        //if (!m_CommandAllocator)
-        //    m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
-        //else if (m_Type == D3D12_COMMAND_LIST_TYPE_BUNDLE)
-        //{
-        //    CommandAllocatorPool::Restore(&m_CommandAllocator);
-        //    m_CommandAllocator = CommandAllocatorPool::Request(m_Type);
-        //}
-
-        //// 将命令列表重置回其初始状态
-        //// TODO 通过使用Reset，您可以重用命令列表跟踪结构而无需任何分配。与ID3D12CommandAllocator::Reset不同，您可以在命令列表仍在执行时调用Reset。一个典型的模式是提交一个命令列表，然后立即重置它以将分配的内存重新用于另一个命令列表。
-        //CHECK_HRESULT(m_CommandList->Reset(m_CommandAllocator->GetD3D12Allocator(), pso ? pso->GetD3D12PSO() : nullptr));
-
-        //// 指示列表可以写入命令
-        //m_IsLocked = false;
-    }
-
-    void CommandList::AddOnCompletedEvent(std::function<void()> onCompleted) const
-    {
-        //ASSERT(m_CommandAllocator);
-        //if (m_CommandAllocator)
-        //    m_CommandAllocator->m_OnCompletedEvents.push_back(onCompleted);
-    }
-
-    void CommandList::ResourceTransitionBarrier(const GraphicsResource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after) const
-    {
-        /*
-            资源屏障同步资源状态 https://docs.microsoft.com/zh-cn/windows/win32/direct3d12/using-resource-barriers-to-synchronize-resource-states-in-direct3d-12
-        */
-        //ASSERT(m_Type != D3D12_COMMAND_LIST_TYPE_BUNDLE);
-        //D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource->GetD3D12Resource(), before, after);
-        //m_CommandList->ResourceBarrier(1, &barrier);
-    }
-
-    void CommandList::SetGraphicsRootSignature(const RootSignature* pRootSignature) const
-    {
-        //m_CommandList->SetGraphicsRootSignature(pRootSignature->GetD3D12RootSignature());
-    }
-    void CommandList::SetPipelineState(const PipelineState* pPipelineState) const
-    {
-        //m_CommandList->SetPipelineState(pPipelineState->GetD3D12PSO());
-    }
-    void CommandList::SetDescriptorHeaps(const DescriptorHeap* pResourceDescHeap, const DescriptorHeap* pSamplerDescHeap) const
-    {
-        /*
-            命令列表只能绑定 CBV_SRV_UAV 或 SAMPLER 类型描述符堆
-            每种类型的描述符堆一次只能设置一个，即一次最多可以设置2个堆
-        */
-        //std::vector<ID3D12DescriptorHeap*> descHeaps{};
-        //if (pResourceDescHeap)
-        //    descHeaps.push_back(pResourceDescHeap->GetD3D12DescriptorHeap());
-        //if (pSamplerDescHeap)
-        //    descHeaps.push_back(pSamplerDescHeap->GetD3D12DescriptorHeap());
-
-        //if (descHeaps.size() > 0)
-        //    m_CommandList->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
-    }
-
-    void CommandList::SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* descriptorHeap) const
-    {
-        //m_CommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, descriptorHeap->GetDescriptorHandle(0));
-    }
-    void CommandList::SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const
-    {
-        //m_CommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer->GetGpuVirtualAddress());
-    }
-
-    class CommandListPoolImpl
-    {
-    public:
-        CommandListPoolImpl() = default;
-
-        inline CommandList* Request(D3D12_COMMAND_LIST_TYPE type)
-        {
-            vector<unique_ptr<CommandList>>* _list = nullptr;
-            queue<CommandList*>* _queue = nullptr;
-            CommandList* result = nullptr;
 
             switch (type)
             {
             case D3D12_COMMAND_LIST_TYPE_DIRECT:
-                _list = &m_GraphicsCommandLists;
-                _queue = &m_GraphicsIdleQueue;
-                break;
-            case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-                _list = &m_ComputeCommandLists;
-                _queue = &m_ComputeIdleQueue;
-                break;
-            case D3D12_COMMAND_LIST_TYPE_COPY:
-                _list = &m_CopyCommandLists;
-                _queue = &m_CopyIdleQueue;
-                break;
-            default:
-                ASSERT(0, L"ERROR::不支持的命令列表类型");
-                return result;
-            }
-
-            if (_queue->empty())
-            {
-                _list->push_back(unique_ptr<CommandList>(new CommandList()));
+                _list->push_back(std::make_unique<GraphicsCommandList>());
                 result = _list->back().get();
-                result->Create(type);
-            }
-            else
-            {
-                result = _queue->front();
-                _queue->pop();
-            }
-            return result;
-        }
-        inline void Restore(CommandList** commandList)
-        {
-            queue<CommandList*>* queqe = nullptr;
-
-            switch ((*commandList)->GetType())
-            {
-            case D3D12_COMMAND_LIST_TYPE_DIRECT:
-                queqe = &m_GraphicsIdleQueue;
+                static_cast<GraphicsCommandList*>(result)->Create();
                 break;
             case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-                queqe = &m_ComputeIdleQueue;
+                //_list->push_back(std::make_unique<ComputeCommandList>());
+                //result = _list->back().get();
+                //static_cast<ComputeCommandList*>(result)->Create();
                 break;
             case D3D12_COMMAND_LIST_TYPE_COPY:
-                queqe = &m_CopyIdleQueue;
+                //_list->push_back(std::make_unique<CopyCommandList>());
+                //result = _list->back().get();
+                //static_cast<CopyCommandList*>(result)->Create();
                 break;
-            default:
-                ASSERT(0, L"ERROR::不支持的命令列表类型");
-                break;
+            default: return result;
             }
+        }
+        else
+        {
+            result = _queue->front();
+            _queue->pop();
+        }
+        return result;
+    }
+    void Restore(ICommandList** commandList)
+    {
+        Queue<ICommandList*>* queqe = nullptr;
 
-            queqe->push(*commandList);
-            *commandList = nullptr;
+        switch ((*commandList)->GetType())
+        {
+        case D3D12_COMMAND_LIST_TYPE_DIRECT:
+            queqe = &m_GraphicsIdleQueue;
+            break;
+        case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+            queqe = &m_ComputeIdleQueue;
+            break;
+        case D3D12_COMMAND_LIST_TYPE_COPY:
+            queqe = &m_CopyIdleQueue;
+            break;
+        default:
+            ASSERT(0, L"ERROR::不支持的命令列表类型");
+            break;
         }
 
-    private:
-        vector<unique_ptr<CommandList>> m_GraphicsCommandLists{};
-        vector<unique_ptr<CommandList>> m_ComputeCommandLists{};
-        vector<unique_ptr<CommandList>> m_CopyCommandLists{};
-
-        queue<CommandList*> m_GraphicsIdleQueue{};
-        queue<CommandList*> m_ComputeIdleQueue{};
-        queue<CommandList*> m_CopyIdleQueue{};
-
-    } g_CommandListPoolImpl;
-
-    CommandList* CommandListPool::Request(D3D12_COMMAND_LIST_TYPE type)
-    {
-        return g_CommandListPoolImpl.Request(type);
+        queqe->push(*commandList);
+        *commandList = nullptr;
     }
-    void CommandListPool::Restore(CommandList** commandList)
-    {
-        g_CommandListPoolImpl.Restore(commandList);
-    }
+
+private:
+    Vector<UniquePtr<ICommandList>> m_GraphicsCommandLists{};
+    Vector<UniquePtr<ICommandList>> m_ComputeCommandLists{};
+    Vector<UniquePtr<ICommandList>> m_CopyCommandLists{};
+
+    Queue<ICommandList*> m_GraphicsIdleQueue{};
+    Queue<ICommandList*> m_ComputeIdleQueue{};
+    Queue<ICommandList*> m_CopyIdleQueue{};
+
+} g_CommandListPoolImpl;
+
+void CommandListPool::Restore(ICommandList** commandList)
+{
+    g_CommandListPoolImpl.Restore(commandList);
+}
+
+ICommandList* CommandListPool::RequstImpl(D3D12_COMMAND_LIST_TYPE type)
+{
+    return g_CommandListPoolImpl.Request(D3D12_COMMAND_LIST_TYPE_DIRECT);
 }

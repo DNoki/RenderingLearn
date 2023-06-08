@@ -5,6 +5,8 @@
 
 using namespace D3D12Core;
 
+#define FIXED_DESCRIPTOR_HEAP_SIZE 256
+
 struct AllocatorHeap
 {
 public:
@@ -25,7 +27,7 @@ public:
             m_Heaps[type].push_back(AllocatorHeap());
             m_CurrentHeap[type] = &m_Heaps[type].back();
             m_CurrentHeap[type]->m_DescriptorHeap.reset(new DescriptorHeap());
-            m_CurrentHeap[type]->m_DescriptorHeap->Create(context, type, 256, false);
+            m_CurrentHeap[type]->m_DescriptorHeap->Create(context, type, FIXED_DESCRIPTOR_HEAP_SIZE, false);
 
             static const String heapNames[] =
             {
@@ -34,7 +36,6 @@ public:
                 TEXT("RTV"),
                 TEXT("DSV"),
             };
-            //m_CurrentHeap[type]->m_DescriptorHeap->SetName(heapNames[type].c_str());
             GraphicsContext::SetDebugName(m_CurrentHeap[type]->m_DescriptorHeap->GetD3D12DescriptorHeap(), heapNames[type]);
         }
         return m_CurrentHeap[type]->m_DescriptorHeap->GetDescriptorHandle(m_CurrentHeap[type]->m_NextHandle++);
@@ -45,10 +46,12 @@ private:
 
     AllocatorHeap* m_CurrentHeap[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES]{};
 
-} g_DescriptorAllocatorImpl;
+};
+
+Map<const GraphicsContext*, DescriptorAllocatorImpl> g_DescriptorAllocatorImpl;
 
 DescriptorHandle DescriptorAllocator::Allocat(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type)
 {
-    return g_DescriptorAllocatorImpl.Allocat(context, type);
+    return g_DescriptorAllocatorImpl[&context].Allocat(context, type);
 }
 

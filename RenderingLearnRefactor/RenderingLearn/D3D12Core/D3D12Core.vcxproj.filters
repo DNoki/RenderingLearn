@@ -55,13 +55,28 @@
     <ClCompile Include="Source\GraphicsResource\DescriptorHeap.cpp">
       <Filter>​GraphicsResource</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GraphicsResource\PipelineState.cpp">
+    <ClCompile Include="Source\GraphicsResource\IPipelineState.cpp">
       <Filter>​GraphicsResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\GraphicsResource\PipelineStateManager.cpp">
       <Filter>​GraphicsResource</Filter>
     </ClCompile>
     <ClCompile Include="Source\GraphicsResource\RootSignature.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\UploadBuffer.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\GraphicsBuffer.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\GraphicsMemory.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\PlacedHeap.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\IBufferResource.cpp">
       <Filter>​GraphicsResource</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,13 +121,28 @@
     <ClInclude Include="Include\​GraphicsResource\DescriptorHeap.h">
       <Filter>​GraphicsResource</Filter>
     </ClInclude>
-    <ClInclude Include="Include\​GraphicsResource\PipelineState.h">
+    <ClInclude Include="Include\​GraphicsResource\IPipelineState.h">
       <Filter>​GraphicsResource</Filter>
     </ClInclude>
     <ClInclude Include="Include\​GraphicsResource\PipelineStateManager.h">
       <Filter>​GraphicsResource</Filter>
     </ClInclude>
     <ClInclude Include="Include\​GraphicsResource\RootSignature.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\GraphicsBuffer.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\GraphicsMemory.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\UploadBuffer.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\PlacedHeap.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\IBufferResource.h">
       <Filter>​GraphicsResource</Filter>
     </ClInclude>
   </ItemGroup>

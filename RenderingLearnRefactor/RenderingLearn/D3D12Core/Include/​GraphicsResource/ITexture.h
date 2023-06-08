@@ -1,16 +1,22 @@
 ﻿#pragma once
 
-#include "​GraphicsResource/DescriptorHandle.h"
-#include "​GraphicsResource/IGraphicsResource.h"
-//#include "IGraphicsResource.h"
+#include "DescriptorHandle.h"
+#include "IGraphicsResource.h"
 
 namespace D3D12Core
 {
     // TODO 重命名为ShaderResource （SRV）
-    class Texture : public GraphicsResource
+    class ITexture : public IGraphicsResource
     {
     public:
-        ~Texture() override = 0 {};
+        ITexture() = default;
+        ~ITexture() override = 0 {};
+
+        ITexture(const ITexture& buffer) = delete;
+        ITexture(ITexture&& buffer) = default;
+
+        ITexture& operator = (const ITexture& buffer) = delete;
+        ITexture& operator = (ITexture&& buffer) = default;
 
         DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
         UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }
@@ -23,17 +29,24 @@ namespace D3D12Core
          * @param commandList 图形命令列表
          * @param after 要改变的状态
         */
-        void DispatchTransitionStates(const class CommandList* commandList, D3D12_RESOURCE_STATES after);
+        //void DispatchTransitionStates(const class GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after);
 
     protected:
         DescriptorHandle m_SRV;
 
     };
 
-    class IRenderTarget : public Texture
+    class IRenderTarget : public ITexture
     {
     public:
+        IRenderTarget() = default;
         ~IRenderTarget() override = 0 {};
+
+        IRenderTarget(const IRenderTarget& buffer) = delete;
+        IRenderTarget(IRenderTarget&& buffer) = default;
+
+        IRenderTarget& operator = (const IRenderTarget& buffer) = delete;
+        IRenderTarget& operator = (IRenderTarget&& buffer) = default;
 
         const DescriptorHandle& GetRTV() const { return m_RTV; }
         /**
@@ -47,7 +60,7 @@ namespace D3D12Core
         */
         const D3D12_CLEAR_VALUE* GetClearValue() const { return &m_ClearValue; }
 
-    private:
+    protected:
         DescriptorHandle m_RTV;
         UniquePtr<D3D12_RENDER_TARGET_VIEW_DESC> m_RtvDesc{};
 

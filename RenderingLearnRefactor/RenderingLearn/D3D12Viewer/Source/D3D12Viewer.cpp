@@ -17,5 +17,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance
 
     //system("pause");
 
+
+
     return 0;
 }

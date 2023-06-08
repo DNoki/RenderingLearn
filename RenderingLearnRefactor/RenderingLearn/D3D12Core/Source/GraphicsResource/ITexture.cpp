@@ -72,15 +72,15 @@
 using namespace D3D12Core;
 
 
-void Texture::DispatchTransitionStates(const CommandList* commandList, D3D12_RESOURCE_STATES after)
-{
-    if (m_ResourceStates != after)
-    {
-        commandList->ResourceTransitionBarrier(this, m_ResourceStates, after);
-        m_ResourceStates = after; // TODO 资源状态并非是立即更新的
-    }
-    else
-    {
-        TRACE(L"WARNING::资源前后转换状态一致，已跳过转换。");
-    }
-}
+//void ITexture::DispatchTransitionStates(const GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after)
+//{
+//    if (m_ResourceStates != after)
+//    {
+//        commandList->ResourceTransitionBarrier(this, m_ResourceStates, after);
+//        m_ResourceStates = after; // TODO 资源状态并非是立即更新的
+//    }
+//    else
+//    {
+//        TRACE(L"WARNING::资源前后转换状态一致，已跳过转换。");
+//    }
+//}

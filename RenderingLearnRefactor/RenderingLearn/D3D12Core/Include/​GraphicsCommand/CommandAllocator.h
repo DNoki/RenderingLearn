@@ -8,8 +8,6 @@ namespace D3D12Core
     class CommandAllocator
     {
     public:
-        Vector<std::function<void()>> m_OnCompletedEvents;
-
         CommandAllocator() = default;
 
         void Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type);
@@ -20,11 +18,22 @@ namespace D3D12Core
         void Reset() const { m_CommandAllocator->Reset(); }
 
         D3D12_COMMAND_LIST_TYPE GetType() const { return m_Type; }
-        ID3D12CommandAllocator* GetD3D12Allocator() { return m_CommandAllocator.get(); }
+        ID3D12CommandAllocator* GetD3D12Allocator() const { return m_CommandAllocator.get(); }
+
+        /**
+         * \brief 注册当命令完成时的回调
+         */
+        void AssignOnCompletedCallback(Function<void()> onCompleted);
+        /**
+         * \brief 通知命令已完成
+         */
+        void NotifyCompletedEvent();
 
     private:
         const D3D12_COMMAND_LIST_TYPE m_Type{};
-        winrt::com_ptr<ID3D12CommandAllocator> m_CommandAllocator{};
+        ComPtr<ID3D12CommandAllocator> m_CommandAllocator{};
+
+        Vector<Function<void()>> m_OnCompletedEvents{};
 
     };
 }

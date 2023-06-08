@@ -40,16 +40,15 @@ public:
             _queue = &m_CopyIdleQueue;
             break;
         default:
-            ASSERT(0, L"ERROR::不支持的命令分配器类型");
+            ASSERT(0, TEXT("ERROR::不支持的命令分配器类型"));
             return result;
         }
 
         if (_queue->empty())
         {
-            auto allocator = UniquePtr<CommandAllocator>(new CommandAllocator());
-            allocator->Create(*GraphicsContext::GetCurrentInstance(), type);
-            _list->push_back(std::move(allocator));
+            _list->push_back(std::make_unique<CommandAllocator>());
             result = _list->back().get();
+            result->Create(*GraphicsContext::GetCurrentInstance(), type);
             result->Reset();
         }
         else
@@ -106,9 +105,11 @@ private:
 
 CommandAllocator* CommandAllocatorPool::Request(D3D12_COMMAND_LIST_TYPE type)
 {
-    return nullptr;
+    return g_CommandAllocatorPoolImpl.RequestAllocator(type);
 }
 void CommandAllocatorPool::Restore(CommandAllocator** allocator)
 {
-
+    // 回收此命令分配器，必须保证该分配器已执行完毕
+    // 命令列表分配器只能在相关命令列表在 GPU 上完成执行时重置, 应用程序应使用围栏来确定 GPU 执行进度。
+    g_CommandAllocatorPoolImpl.RestoreAllocator(allocator);
 }

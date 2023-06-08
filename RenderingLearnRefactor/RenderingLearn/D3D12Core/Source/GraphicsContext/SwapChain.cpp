@@ -20,42 +20,37 @@ class SwapChainBuffer : public IRenderTarget
 public:
     ~SwapChainBuffer() override = default;
 
-    void Create(SwapChain& swapChain, UINT index);
+    void Create(SwapChain& swapChain, UINT index)
+    {
+        CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
 
-private:
-    DescriptorHandle m_RTV;
+        m_ResourceDesc = m_Resource->GetDesc();
+        m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
 
+        // 渲染呈现视图
+        {
+            D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+            rtvDesc.Format = GetFormat();
+            rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+            m_RTV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            swapChain.GetGraphicsContext()->GetDevice()->CreateRenderTargetView(m_Resource.get(), &rtvDesc, m_RTV);
+        }
+
+        // 着色器资源视图
+        {
+            D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+            srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+            srvDesc.Format = GetFormat();
+            srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+            srvDesc.Texture2D.MipLevels = 1;
+
+            m_SRV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+            swapChain.GetGraphicsContext()->GetDevice()->CreateShaderResourceView(m_Resource.get(), &srvDesc, m_SRV);
+        }
+    }
 };
 
-void SwapChainBuffer::Create(SwapChain& swapChain, UINT index)
-{
-    CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
-
-    m_ResourceDesc = m_Resource->GetDesc();
-    m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
-
-    // 渲染呈现视图
-    {
-        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-        rtvDesc.Format = GetFormat();
-        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-
-        m_RTV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-        swapChain.GetGraphicsContext()->GetDevice()->CreateRenderTargetView(m_Resource.get(), &rtvDesc, m_RTV);
-    }
-
-    // 着色器资源视图
-    {
-        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-        srvDesc.Format = GetFormat();
-        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-        srvDesc.Texture2D.MipLevels = 1;
-
-        m_SRV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-        swapChain.GetGraphicsContext()->GetDevice()->CreateShaderResourceView(m_Resource.get(), &srvDesc, m_SRV);
-    }
-}
 
 void SwapChain::CreateForHwnd(const GraphicsContext& graphicsContext, const CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format)
 {

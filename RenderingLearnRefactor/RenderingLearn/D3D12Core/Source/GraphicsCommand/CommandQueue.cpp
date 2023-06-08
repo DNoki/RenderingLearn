@@ -30,116 +30,109 @@
 */
 // --------------------------------------------------------------------------
 
-using namespace std;
+using namespace D3D12Core;
 
-namespace D3D12Core
+void CommandQueue::Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type)
 {
-    void CommandQueue::Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type)
-    {
-        ASSERT(type < D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE);
-        m_Type = type;
+    ASSERT(type < D3D12_COMMAND_LIST_TYPE_VIDEO_DECODE);
+    m_Type = type;
 
-        // 创建D3D12命令队列接口
-        D3D12_COMMAND_QUEUE_DESC queueDesc{};
-        queueDesc.Type = m_Type; // 命令队列类型
-        queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL; // 命令队列的优先级
-        queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // 命令队列选项
-        queueDesc.NodeMask = context.GetNodeMask(); // 节点标识
-        CHECK_HRESULT(context.GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
+    // 创建D3D12命令队列接口
+    D3D12_COMMAND_QUEUE_DESC queueDesc{};
+    queueDesc.Type = m_Type; // 命令队列类型
+    queueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL; // 命令队列的优先级
+    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE; // 命令队列选项
+    queueDesc.NodeMask = context.GetNodeMask(); // 节点标识
+    CHECK_HRESULT(context.GetDevice()->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(m_CommandQueue.put())));
 
-        // 创建同步对象 Fence， 用于等待渲染完成
-        CHECK_HRESULT(context.GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
-        m_FenceValue = 1;
+    // 创建同步对象 Fence， 用于等待渲染完成
+    CHECK_HRESULT(context.GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(m_Fence.put())));
+    m_FenceValue = 1;
 
-        // 创建用于帧同步的事件句柄，用于等待Fence事件通知
-        m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-        if (m_FenceEvent == nullptr)
-            CHECK_HRESULT(HRESULT_FROM_WIN32(GetLastError()));
+    // 创建用于帧同步的事件句柄，用于等待Fence事件通知
+    m_FenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (m_FenceEvent == nullptr)
+        CHECK_HRESULT(HRESULT_FROM_WIN32(GetLastError()));
 
-        // 设置调试名
-        static const String names[] = { TEXT("Direct"), TEXT("Bundle"), TEXT("Compute"), TEXT("Copy"), };
-        if (m_Type < 0 || _countof(names) <= m_Type) return;
-        GraphicsContext::SetDebugName(m_CommandQueue.get(), FORMAT(L"%s (CommandQueue)", names[m_Type].c_str()));
-        GraphicsContext::SetDebugName(m_Fence.get(), FORMAT(TEXT("%s (CommandQueue::Fence)"), names[m_Type].c_str()));
-    }
+    // 设置调试名
+    static const String names[] = { TEXT("Direct"), TEXT("Bundle"), TEXT("Compute"), TEXT("Copy"), };
+    if (m_Type < 0 || _countof(names) <= m_Type) return;
+    GraphicsContext::SetDebugName(m_CommandQueue.get(), FORMAT(L"%s (CommandQueue)", names[m_Type].c_str()));
+    GraphicsContext::SetDebugName(m_Fence.get(), FORMAT(TEXT("%s (CommandQueue::Fence)"), names[m_Type].c_str()));
+}
 
-    void CommandQueue::CloseQueue()
-    {
-        WaitForQueueCompleted();
+void CommandQueue::CloseQueue()
+{
+    WaitForQueueCompleted();
 
-        CloseHandle(m_FenceEvent);
+    CloseHandle(m_FenceEvent);
 
-        m_CommandQueue = nullptr;
-        m_Fence = nullptr;
-    }
+    m_CommandQueue = nullptr;
+    m_Fence = nullptr;
+}
 
 #if 0
-    void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists)
+void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists)
+{
+    std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
+
+    for (UINT i = 0; i < numCommandLists; i++)
     {
-        std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
+        ASSERT(m_Type == commandLists[i].GetType(), L"ERROR::命令列表类型与队列类型不一致。");
+        ASSERT(!commandLists[i].IsLocked()); // 设只允许队列来关闭命令列表
 
-        for (UINT i = 0; i < numCommandLists; i++)
-        {
-            ASSERT(m_Type == commandLists[i].GetType(), L"ERROR::命令列表类型与队列类型不一致。");
-            ASSERT(!commandLists[i].IsLocked()); // 设只允许队列来关闭命令列表
-
-            m_Allocators.push_back(commandLists[i].GetCommandAllocator()); // 添加分配器到使用中
-            commandLists[i].Close(); // 关闭列表以执行命令
-            ppCommandLists[i] = commandLists[i].GetD3D12CommandList();
-        }
-        m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
-        for (UINT i = 0; i < numCommandLists; i++)
-            CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
+        m_Allocators.push_back(commandLists[i].GetCommandAllocator()); // 添加分配器到使用中
+        commandLists[i].Close(); // 关闭列表以执行命令
+        ppCommandLists[i] = commandLists[i].GetD3D12CommandList();
     }
+    m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
+    for (UINT i = 0; i < numCommandLists; i++)
+        CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
+}
 #endif
-    void CommandQueue::ExecuteCommandLists(CommandList** commandLists, UINT numCommandLists)
+void CommandQueue::ExecuteCommandLists(ICommandList** commandLists, UINT numCommandLists)
+{
+    Vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
+
+    for (UINT i = 0; i < numCommandLists; i++)
     {
-        //std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
+        ICommandList* commandList = commandLists[i];
+        ASSERT(m_Type == commandList->GetType(), L"ERROR::命令列表类型与队列类型不一致。");
+        ASSERT(!commandList->IsLocked()); // 设只允许队列来关闭命令列表
 
-        //for (UINT i = 0; i < numCommandLists; i++)
-        //{
-        //    auto* commandList = commandLists[i];
-        //    ASSERT(m_Type == commandList->GetType(), L"ERROR::命令列表类型与队列类型不一致。");
-        //    ASSERT(!commandList->IsLocked()); // 设只允许队列来关闭命令列表
+        m_Allocators.push_back(commandList->GetCommandAllocator()); // 添加分配器到使用中
+        commandList->Close(); // 关闭列表以执行命令
+        ppCommandLists[i] = commandList->GetD3D12CommandList();
+    }
+    m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
+    for (UINT i = 0; i < numCommandLists; i++)
+    {
+        CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
+    }
+}
 
-        //    m_Allocators.push_back(commandList->GetCommandAllocator()); // 添加分配器到使用中
-        //    commandList->Close(); // 关闭列表以执行命令
-        //    ppCommandLists[i] = commandList->GetD3D12CommandList();
-        //}
-        //m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
-        //for (UINT i = 0; i < numCommandLists; i++)
-        //{
-        //    CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
-        //}
+void CommandQueue::WaitForQueueCompleted()
+{
+    // 在继续之前等待框架完成不是最佳实践。 为简单起见，这是这样实现的代码。 D3D12HelloFrameBuffering 示例说明了如何使用围栏来有效利用资源并最大限度地提高 GPU 利用率。
+
+    // 发出信号并增加围栏值。
+    const UINT64 fence = m_FenceValue;
+    CHECK_HRESULT(m_CommandQueue->Signal(m_Fence.get(), fence));
+    m_FenceValue++;
+
+    // 等到前一帧完成。
+    auto completedValue = m_Fence->GetCompletedValue();
+    if (completedValue < fence)
+    {
+        CHECK_HRESULT(m_Fence->SetEventOnCompletion(fence, m_FenceEvent));
+        WaitForSingleObject(m_FenceEvent, INFINITE);
     }
 
-    void CommandQueue::WaitForQueueCompleted()
+    // 将所有使用的分配器释放
+    for (auto* allocator : m_Allocators)
     {
-        // 在继续之前等待框架完成不是最佳实践。 为简单起见，这是这样实现的代码。 D3D12HelloFrameBuffering 示例说明了如何使用围栏来有效利用资源并最大限度地提高 GPU 利用率。
-
-        //// 发出信号并增加围栏值。
-        //const UINT64 fence = m_FenceValue;
-        //CHECK_HRESULT(m_CommandQueue->Signal(m_Fence.get(), fence));
-        //m_FenceValue++;
-
-        //// 等到前一帧完成。
-        //auto completedValue = m_Fence->GetCompletedValue();
-        //if (completedValue < fence)
-        //{
-        //    CHECK_HRESULT(m_Fence->SetEventOnCompletion(fence, m_FenceEvent));
-        //    WaitForSingleObject(m_FenceEvent, INFINITE);
-        //}
-
-        //// 将所有使用的分配器释放
-        //for (auto* allocator : m_Allocators)
-        //{
-        //    for (auto& onCompletedEvent : allocator->m_OnCompletedEvents)
-        //    {
-        //        if (onCompletedEvent) onCompletedEvent();
-        //    }
-        //    allocator->m_OnCompletedEvents.clear();
-        //    CommandAllocatorPool::Restore(&allocator);
-        //}
-        //m_Allocators.clear();
+        allocator->NotifyCompletedEvent();
+        CommandAllocatorPool::Restore(&allocator);
     }
+    m_Allocators.clear();
 }

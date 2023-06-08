@@ -13,6 +13,15 @@
     <Filter Include="System">
       <UniqueIdentifier>{fc812f6b-23f6-41bc-b134-bc2be538f5de}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{34f371dd-134f-4d3b-b0ca-ba83eda591b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\PS">
+      <UniqueIdentifier>{93e4e434-88fb-4b1f-8a5d-c246113d1333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\VS">
+      <UniqueIdentifier>{ade52490-7753-4d10-939b-d3282464147a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Utility\pch.cpp">
@@ -24,6 +33,21 @@
     </ClCompile>
     <ClCompile Include="Source\System\WindowApplication.cpp">
       <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\Mesh.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\IGameResource.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility\MathCommon.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\Material.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Resource\Shader.cpp">
+      <Filter>Resource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -37,5 +61,34 @@
     <ClInclude Include="Include\System\WindowApplication.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Resource\Mesh.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Resource\IGameResource.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Utility\MathCommon.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Resource\Material.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Resource\Shader.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Source\Shader\Sample.shader">
+      <Filter>Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Source\Shader\Sample_ps.hlsl">
+      <Filter>Shader\PS</Filter>
+    </FxCompile>
+    <FxCompile Include="Source\Shader\Sample_vs.hlsl">
+      <Filter>Shader\VS</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

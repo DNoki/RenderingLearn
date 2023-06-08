@@ -72,13 +72,11 @@
 */
 // --------------------------------------------------------------------------
 
-    //PlacedResourceDesc::~PlacedResourceDesc()
-    //{
-    //    if (m_PlacedHeapPtr)
-    //    {
-    //        m_PlacedHeapPtr->ReleaseResource(m_PlacedOrder);
-    //        m_PlacedHeapPtr = nullptr;
-    //    }
-    //}
+void D3D12Core::IGraphicsResource::DispatchTransitionStates(const GraphicsCommandList* commandList,
+    D3D12_RESOURCE_STATES after)
 
-
+{
+    ASSERT(m_ResourceStates != after);
+    commandList->ResourceTransitionBarrier(this, m_ResourceStates, after);
+    m_ResourceStates = after; // TODO 资源状态并非是立即更新的
+}

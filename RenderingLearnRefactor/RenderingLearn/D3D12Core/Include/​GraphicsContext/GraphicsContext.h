@@ -6,7 +6,7 @@ namespace D3D12Core
     {
     public:
         // TODO temp
-        static GraphicsContext* CurrentInstance;
+        inline static GraphicsContext* CurrentInstance = nullptr;
         static GraphicsContext* GetCurrentInstance() { return CurrentInstance; }
 
         GraphicsContext() = default;
@@ -30,11 +30,11 @@ namespace D3D12Core
 
     private:
 #if DEBUG
-        winrt::com_ptr<ID3D12Debug3> m_D3D12Debug{};
+        ComPtr<ID3D12Debug3> m_D3D12Debug{};
 #endif // DEBUG
-        winrt::com_ptr<IDXGIFactory7> m_Factory{};
-        winrt::com_ptr<IDXGIAdapter4> m_Adapter{};
-        winrt::com_ptr<ID3D12Device6> m_Device{};
+        ComPtr<IDXGIFactory7> m_Factory{};
+        ComPtr<IDXGIAdapter4> m_Adapter{};
+        ComPtr<ID3D12Device6> m_Device{};
 
         DXGI_ADAPTER_DESC3 m_AdapterDesc{};
 

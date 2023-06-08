@@ -38,7 +38,7 @@ namespace D3D12Core
          * @brief D3D12 描述符堆
          * @return
         */
-        inline ID3D12DescriptorHeap* GetD3D12DescriptorHeap() const { return m_DescriptorHeap.get(); }
+        ID3D12DescriptorHeap* GetD3D12DescriptorHeap() const { return m_DescriptorHeap.get(); }
 
         /**
          * @brief 获取描述符句柄
@@ -55,7 +55,7 @@ namespace D3D12Core
         //}
 
     private:
-        winrt::com_ptr<ID3D12DescriptorHeap> m_DescriptorHeap{};    // 描述符堆
+        ComPtr<ID3D12DescriptorHeap> m_DescriptorHeap{};    // 描述符堆
         D3D12_DESCRIPTOR_HEAP_DESC m_DescriptorHeapDesc{};          // 描述符堆属性
         UINT m_DescriptorSize{};                    // 单个描述符大小
         DescriptorHandle m_StartDescriptorHandle{}; // 描述符起始句柄
