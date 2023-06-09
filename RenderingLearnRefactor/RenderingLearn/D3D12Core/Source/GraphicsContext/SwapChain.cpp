@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "​GraphicsContext/SwapChain.h"
 
+#include "​GraphicsResource/IRenderTexture.h"
 #include "​GraphicsResource/DescriptorAllocator.h"
 
 //#include "AppMain.h"
@@ -24,6 +25,7 @@ public:
     {
         CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
 
+        m_Type = RenderTargetType::Color;
         m_ResourceDesc = m_Resource->GetDesc();
         m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
 
@@ -33,8 +35,8 @@ public:
             rtvDesc.Format = GetFormat();
             rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-            m_RTV = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-            swapChain.GetGraphicsContext()->GetDevice()->CreateRenderTargetView(m_Resource.get(), &rtvDesc, m_RTV);
+            m_RtvOrDsv = DescriptorAllocator::Allocat(*swapChain.GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+            swapChain.GetGraphicsContext()->GetDevice()->CreateRenderTargetView(m_Resource.get(), &rtvDesc, m_RtvOrDsv);
         }
 
         // 着色器资源视图

@@ -54,26 +54,26 @@ namespace D3D12Viewer
 
         // --------------------------------------------------------------------------
         DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
-        
+
         void SetName(const String& name) override;
 
         /**
          * @brief 执行检查资源屏障状态
          * @param commandList
         */
-        void DispatchResourceExamine(const D3D12Core::GraphicsCommandList* commandList) const;
+        void DispatchResourceExamine(D3D12Core::GraphicsCommandList* commandList) const;
         /**
          * @brief 执行绘制
          * @param commandList
          * @param bindSemanticFlag
         */
-        void DispatchDraw(const D3D12Core::GraphicsCommandList* commandList, int bindSemanticFlag) const;
+        void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, int bindSemanticFlag) const;
         /**
          * @brief 以指定材质绘制
          * @param commandList
          * @param mat
         */
-        void DispatchDraw(const D3D12Core::GraphicsCommandList* commandList, Material* mat) const;
+        void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, Material* mat) const;
 
 
         // --------------------------------------------------------------------------

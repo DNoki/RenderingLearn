@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
-#include "​GraphicsResource/ITexture.h"
+#include "​GraphicsResource/IRenderTexture.h"
 
 using namespace D3D12Core;
+

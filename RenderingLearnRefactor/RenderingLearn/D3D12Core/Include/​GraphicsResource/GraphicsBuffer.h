@@ -50,7 +50,7 @@ namespace D3D12Core
          * @param commandList 拷贝命令队列
          * @param data
         */
-        void DispatchCopyBuffer(const GraphicsCommandList& commandList, const void* data);
+        //void DispatchCopyBuffer(const GraphicsCommandList& commandList, const void* data);
         /**
          * @brief 改变资源状态
          * @param commandList 图形命令列表

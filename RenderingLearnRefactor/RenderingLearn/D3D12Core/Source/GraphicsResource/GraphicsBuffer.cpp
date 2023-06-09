@@ -55,45 +55,45 @@ void GraphicsBuffer::PlacedCreate(UINT64 size)
     Finalize();
 }
 
-void GraphicsBuffer::DispatchCopyBuffer(const GraphicsCommandList& commandList, const void* data)
-{
-    ASSERT(m_Resource != nullptr);
-    auto bufferSize = m_ResourceDesc.Width;
-
-    // 创建上传缓冲
-    m_UploadBuffer.reset(new UploadBuffer());
-    m_UploadBuffer->PlacedCreate(bufferSize);
-
-    // 添加拷贝命令到命令队列
-    {
-        // 使用 UpdateSubresources 拷贝资源
-        D3D12_SUBRESOURCE_DATA srcData = {};
-        srcData.pData = data;
-        srcData.RowPitch = bufferSize;
-        srcData.SlicePitch = bufferSize;
-        UpdateSubresources(
-            commandList.GetD3D12CommandList(),
-            m_Resource.get(),
-            m_UploadBuffer->GetD3D12Resource(),
-            0, 0, 1,
-            &srcData);
-
-#if 0
-        // 等待拷贝完成
-        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
-            m_Resource.get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
-        commandList.ResourceBarrier(1, &barriers);
-#endif
-    }
-
-    // 拷贝完成后释放上传堆
-    commandList.GetCommandAllocator()->AssignOnCompletedCallback([this]()
-        {
-            m_UploadBuffer.reset();
-        });
-}
+//void GraphicsBuffer::DispatchCopyBuffer(const GraphicsCommandList& commandList, const void* data)
+//{
+//    ASSERT(m_Resource != nullptr);
+//    auto bufferSize = m_ResourceDesc.Width;
+//
+//    // 创建上传缓冲
+//    m_UploadBuffer.reset(new UploadBuffer());
+//    m_UploadBuffer->PlacedCreate(bufferSize);
+//
+//    // 添加拷贝命令到命令队列
+//    {
+//        // 使用 UpdateSubresources 拷贝资源
+//        D3D12_SUBRESOURCE_DATA srcData = {};
+//        srcData.pData = data;
+//        srcData.RowPitch = bufferSize;
+//        srcData.SlicePitch = bufferSize;
+//        UpdateSubresources(
+//            commandList.GetD3D12CommandList(),
+//            m_Resource.get(),
+//            m_UploadBuffer->GetD3D12Resource(),
+//            0, 0, 1,
+//            &srcData);
+//
+//#if 0
+//        // 等待拷贝完成
+//        auto barriers = CD3DX12_RESOURCE_BARRIER::Transition(
+//            m_Resource.get(),
+//            D3D12_RESOURCE_STATE_COPY_DEST,                 // 之前的状态
+//            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);    // 之后的状态 TODO
+//        commandList.ResourceBarrier(1, &barriers);
+//#endif
+//    }
+//
+//    // 拷贝完成后释放上传堆
+//    commandList.GetCommandAllocator()->AssignOnCompletedCallback([this]()
+//        {
+//            m_UploadBuffer.reset();
+//        });
+//}
 
 //void GraphicsBuffer::DispatchTransitionStates(const GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after)
 //{

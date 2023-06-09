@@ -9,7 +9,7 @@ namespace D3D12Core
     //class PlacedHeap;
     //class CommandList;
     class PlacedResourceDesc;
-    
+
     /**
      * @brief D3D12 资源抽象类
      * @return
@@ -51,7 +51,7 @@ namespace D3D12Core
             return m_Resource.put();
         }
 
-        void DispatchTransitionStates(const GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after);
+        void DispatchTransitionStates(GraphicsCommandList* commandList, D3D12_RESOURCE_STATES after);
 
         //inline virtual std::wstring GetName() const { return m_Name; }
         //inline virtual void SetName(const std::wstring& name)

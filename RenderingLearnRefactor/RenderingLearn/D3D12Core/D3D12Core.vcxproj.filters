@@ -25,7 +25,7 @@
     <ClCompile Include="Source\GraphicsCommand\CommandAllocatorPool.cpp">
       <Filter>​GraphicsCommand</Filter>
     </ClCompile>
-    <ClCompile Include="Source\GraphicsCommand\CommandList.cpp">
+    <ClCompile Include="Source\GraphicsCommand\ICommandList.cpp">
       <Filter>​GraphicsCommand</Filter>
     </ClCompile>
     <ClCompile Include="Source\GraphicsCommand\CommandQueue.cpp">
@@ -79,6 +79,24 @@
     <ClCompile Include="Source\GraphicsResource\IBufferResource.cpp">
       <Filter>​GraphicsResource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\IRenderTexture.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\CommandBundle.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\CommandListPool.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\ComputeCommandList.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\CopyCommandList.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsCommand\GraphicsCommandList.cpp">
+      <Filter>​GraphicsCommand</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility\pch.h">
@@ -91,7 +109,7 @@
     <ClInclude Include="Include\​GraphicsCommand\CommandAllocatorPool.h">
       <Filter>​GraphicsCommand</Filter>
     </ClInclude>
-    <ClInclude Include="Include\​GraphicsCommand\CommandList.h">
+    <ClInclude Include="Include\​GraphicsCommand\ICommandList.h">
       <Filter>​GraphicsCommand</Filter>
     </ClInclude>
     <ClInclude Include="Include\​GraphicsCommand\CommandQueue.h">
@@ -144,6 +162,27 @@
     </ClInclude>
     <ClInclude Include="Include\​GraphicsResource\IBufferResource.h">
       <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\IRenderTexture.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\CommandBundle.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\CommandListPool.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\ComputeCommandList.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\CopyCommandList.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsCommand\GraphicsCommandList.h">
+      <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\GraphicsCommand\CommandListUtil.h">
+      <Filter>​GraphicsCommand</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

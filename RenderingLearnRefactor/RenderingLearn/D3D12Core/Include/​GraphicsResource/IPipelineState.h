@@ -18,6 +18,7 @@ namespace D3D12Core
 
     protected:
         ID3D12PipelineState* m_PSO{};  // 管线状态对象
+        const RootSignature* m_RootSignature;
 
         IPipelineState() = default;
 
@@ -49,7 +50,7 @@ namespace D3D12Core
         */
         void SetRootSignature(const RootSignature* rootSignature)
         {
-            m_PSODesc.pRootSignature = rootSignature->GetD3D12RootSignature();
+            m_RootSignature = rootSignature;
         }
         /**
          * @brief 设置管线使用的输入结构
@@ -138,10 +139,15 @@ namespace D3D12Core
         UINT64 m_PsoDescHash = 0; // 已生成管线状态对象所使用的描述哈希值
         D3D12_GRAPHICS_PIPELINE_STATE_DESC m_PSODesc{}; // 图形管线状态描述
 
+
     };
 
     class ComputePipelineState : public IPipelineState
     {
         // TODO
+
+    private:
+        D3D12_COMPUTE_PIPELINE_STATE_DESC m_ComputePSODesc{};
+
     };
 }

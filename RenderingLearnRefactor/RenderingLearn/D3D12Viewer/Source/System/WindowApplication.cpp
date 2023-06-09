@@ -69,18 +69,16 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
         auto swapChain = GraphicsManager::GetInstance().GetSwapChain();
         auto currentRenderTarget = swapChain->GetRenderTarget(swapChain->GetCurrentBackBufferIndex());
 
-        graphicsCommandList->ResourceTransitionBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-        graphicsCommandList->OMSetRenderTargets(1, currentRenderTarget);
+        graphicsCommandList->OMSetRenderTarget(currentRenderTarget);
 
-        auto viewport = CD3DX12_VIEWPORT(0.0f, 0.0f, ScreenWidth, ScreenHeight);
-        graphicsCommandList->RSSetViewports(1, &viewport);
-        auto scissorRect = CD3DX12_RECT(0, 0, ScreenWidth, ScreenHeight);
-        graphicsCommandList->RSSetScissorRects(1, &scissorRect);
+        graphicsCommandList->RSSetViewports(0.0f, 0.0f, static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
+        graphicsCommandList->RSSetScissorRects(0, 0, ScreenWidth, ScreenHeight);
 
-        graphicsCommandList->ClearRenderTargetView(currentRenderTarget->GetRTV(), Color(0.0f, 0.5f, 0.75f), 0, nullptr);
+        graphicsCommandList->ClearRenderTargetView(currentRenderTarget, Color(0.0f, 0.5f, 0.75f));
 
-        graphicsCommandList->ResourceTransitionBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
+        graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
 
         ICommandList* c = graphicsCommandList;
         GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);

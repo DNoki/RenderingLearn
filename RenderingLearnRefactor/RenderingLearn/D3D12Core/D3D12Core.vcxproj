@@ -22,7 +22,12 @@
     <ClCompile Include="Source\D3D12Core.cpp" />
     <ClCompile Include="Source\GraphicsCommand\CommandAllocator.cpp" />
     <ClCompile Include="Source\GraphicsCommand\CommandAllocatorPool.cpp" />
-    <ClCompile Include="Source\GraphicsCommand\CommandList.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandBundle.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CommandListPool.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\ComputeCommandList.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\CopyCommandList.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\GraphicsCommandList.cpp" />
+    <ClCompile Include="Source\GraphicsCommand\ICommandList.cpp" />
     <ClCompile Include="Source\GraphicsCommand\CommandQueue.cpp" />
     <ClCompile Include="Source\GraphicsContext\GraphicsContext.cpp" />
     <ClCompile Include="Source\GraphicsContext\SwapChain.cpp" />
@@ -33,6 +38,7 @@
     <ClCompile Include="Source\GraphicsResource\GraphicsMemory.cpp" />
     <ClCompile Include="Source\GraphicsResource\IBufferResource.cpp" />
     <ClCompile Include="Source\GraphicsResource\IGraphicsResource.cpp" />
+    <ClCompile Include="Source\GraphicsResource\IRenderTexture.cpp" />
     <ClCompile Include="Source\GraphicsResource\ITexture.cpp" />
     <ClCompile Include="Source\GraphicsResource\IPipelineState.cpp" />
     <ClCompile Include="Source\GraphicsResource\PipelineStateManager.cpp" />
@@ -50,7 +56,12 @@
     <ClInclude Include="Include\Utility\Utility.h" />
     <ClInclude Include="Include\​GraphicsCommand\CommandAllocator.h" />
     <ClInclude Include="Include\​GraphicsCommand\CommandAllocatorPool.h" />
-    <ClInclude Include="Include\​GraphicsCommand\CommandList.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandBundle.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CommandListPool.h" />
+    <ClInclude Include="Include\​GraphicsCommand\ComputeCommandList.h" />
+    <ClInclude Include="Include\​GraphicsCommand\CopyCommandList.h" />
+    <ClInclude Include="Include\​GraphicsCommand\GraphicsCommandList.h" />
+    <ClInclude Include="Include\​GraphicsCommand\ICommandList.h" />
     <ClInclude Include="Include\​GraphicsCommand\CommandQueue.h" />
     <ClInclude Include="Include\​GraphicsContext\GraphicsContext.h" />
     <ClInclude Include="Include\​GraphicsContext\SwapChain.h" />
@@ -61,12 +72,14 @@
     <ClInclude Include="Include\​GraphicsResource\GraphicsMemory.h" />
     <ClInclude Include="Include\​GraphicsResource\IBufferResource.h" />
     <ClInclude Include="Include\​GraphicsResource\IGraphicsResource.h" />
+    <ClInclude Include="Include\​GraphicsResource\IRenderTexture.h" />
     <ClInclude Include="Include\​GraphicsResource\ITexture.h" />
     <ClInclude Include="Include\​GraphicsResource\IPipelineState.h" />
     <ClInclude Include="Include\​GraphicsResource\PipelineStateManager.h" />
     <ClInclude Include="Include\​GraphicsResource\PlacedHeap.h" />
     <ClInclude Include="Include\​GraphicsResource\RootSignature.h" />
     <ClInclude Include="Include\​GraphicsResource\UploadBuffer.h" />
+    <ClInclude Include="Source\GraphicsCommand\CommandListUtil.h" />
     <ClInclude Include="Source\Utility\pch.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

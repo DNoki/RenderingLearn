@@ -44,7 +44,7 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     m_PrimitiveTopology = primitiveTopology;
 
     // 取得一个闲置拷贝命令列表
-    auto* commandList = CommandListPool::Request<GraphicsCommandList>();
+    auto* commandList = CommandListPool::Request<CopyCommandList>();
     commandList->Reset();
 
     // 顶点数量
@@ -65,7 +65,8 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
 
         m_VertexBuffers[i].reset(new GraphicsBuffer());
         m_VertexBuffers[i]->PlacedCreate(vertexStrideArray[i] * vertexCountArray[i]);
-        m_VertexBuffers[i]->DispatchCopyBuffer(*commandList, vertexDataArray[i]);
+        //m_VertexBuffers[i]->DispatchCopyBuffer(*commandList, vertexDataArray[i]);
+        commandList->DispatchCopyBuffer(m_VertexBuffers[i].get(), vertexDataArray[i]);
 
         m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
             {
@@ -80,7 +81,8 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     {
         m_IndexBuffer.reset(new GraphicsBuffer());
         m_IndexBuffer->PlacedCreate(m_Indices.size() * sizeof(UINT16));
-        m_IndexBuffer->DispatchCopyBuffer(*commandList, m_Indices.data());
+        //m_IndexBuffer->DispatchCopyBuffer(*commandList, m_Indices.data());
+        commandList->DispatchCopyBuffer(m_IndexBuffer.get(), m_Indices.data());
 
         m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW
             {
@@ -95,9 +97,9 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);
 }
 
-void Mesh::SetName(const std::wstring& name)
+void Mesh::SetName(const String& name)
 {
-    m_Name = std::wstring(name);
+    m_Name = String(name);
 
     static const String vertexNames[] =
     {
@@ -120,7 +122,7 @@ void Mesh::SetName(const std::wstring& name)
     }
 }
 
-void Mesh::DispatchResourceExamine(const GraphicsCommandList* commandList) const
+void Mesh::DispatchResourceExamine(GraphicsCommandList* commandList) const
 {
     for (int i = 0; i < VertexSemanticCount; i++)
     {
@@ -133,7 +135,7 @@ void Mesh::DispatchResourceExamine(const GraphicsCommandList* commandList) const
         m_IndexBuffer->DispatchTransitionStates(commandList, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 }
 
-void Mesh::DispatchDraw(const GraphicsCommandList* commandList, int bindSemanticFlag) const
+void Mesh::DispatchDraw(GraphicsCommandList* commandList, int bindSemanticFlag) const
 {
     commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 
@@ -161,7 +163,7 @@ void Mesh::DispatchDraw(const GraphicsCommandList* commandList, int bindSemantic
     }
 }
 
-void Mesh::DispatchDraw(const GraphicsCommandList* commandList, Material* mat) const
+void Mesh::DispatchDraw(GraphicsCommandList* commandList, Material* mat) const
 {
     //// 必须由图形命令列表调用
     //ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);

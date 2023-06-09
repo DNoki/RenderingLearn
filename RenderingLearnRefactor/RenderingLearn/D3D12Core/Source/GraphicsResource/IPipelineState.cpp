@@ -147,11 +147,13 @@ void GraphicsPipelineState::Finalize()
             ·渲染目标/深度模板格式是否支持样本计数和质量。
     */
 
-    ASSERT(m_PSODesc.pRootSignature != nullptr);
+    ASSERT(m_RootSignature);
     ASSERT(m_PSODesc.InputLayout.NumElements > 0);
     //m_PSODesc.StreamOutput=
     //m_PSODesc.CachedPSO=
     //m_PSODesc.Flags=
+
+    m_PSODesc.pRootSignature = m_RootSignature->GetD3D12RootSignature();
 
     // 根据管线状态描述生成哈希值，并在管理池中查询是否已经创建了相同的对象
     m_PsoDescHash = std::hash<D3D12_GRAPHICS_PIPELINE_STATE_DESC>::_Do_hash(m_PSODesc);

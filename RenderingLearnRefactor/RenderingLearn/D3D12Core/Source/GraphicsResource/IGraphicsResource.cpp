@@ -72,11 +72,11 @@
 */
 // --------------------------------------------------------------------------
 
-void D3D12Core::IGraphicsResource::DispatchTransitionStates(const GraphicsCommandList* commandList,
+void D3D12Core::IGraphicsResource::DispatchTransitionStates(GraphicsCommandList* commandList,
     D3D12_RESOURCE_STATES after)
 
 {
     ASSERT(m_ResourceStates != after);
-    commandList->ResourceTransitionBarrier(this, m_ResourceStates, after);
+    commandList->ResourceBarrier(this, after);
     m_ResourceStates = after; // TODO 资源状态并非是立即更新的
 }

@@ -37,7 +37,7 @@ namespace D3D12Viewer
 
         UINT64 GetVersion() const { return m_Version; }
 
-        void SetName(const std::wstring& name) override;
+        void SetName(const String& name) override;
 
         // --------------------------------------------------------------------------
         /**
@@ -45,7 +45,7 @@ namespace D3D12Viewer
          * @param commandList 命令列表
          * @param isOnlyBindDescriptorHeap 仅绑定描述符堆
         */
-        void DispatchBindMaterial(const D3D12Core::GraphicsCommandList* commandList, bool isOnlyBindDescriptorHeap) const;
+        void DispatchBindMaterial(D3D12Core::GraphicsCommandList* commandList, bool isOnlyBindDescriptorHeap) const;
 
         /**
          * @brief 绑定常量缓冲
@@ -116,12 +116,12 @@ namespace D3D12Viewer
     private:
         const Shader* m_Shader{}; // 材质使用的着色器
 
-        std::unique_ptr<D3D12Core::GraphicsPipelineState> m_PipelineState{}; // 材质定义的管线状态
-        std::vector<const D3D12Core::IBufferResource*> m_ConstantBuffers{}; // 常量缓冲列表
-        std::unique_ptr<D3D12Core::DescriptorHeap> m_ResourceDescHeap{}; // 资源描述符堆
-        std::unique_ptr<D3D12Core::DescriptorHeap> m_SamplerDescHeap{}; // 采样器描述符堆
+        UniquePtr<D3D12Core::GraphicsPipelineState> m_PipelineState{}; // 材质定义的管线状态
+        Vector<const D3D12Core::IBufferResource*> m_ConstantBuffers{}; // 常量缓冲列表
+        UniquePtr<D3D12Core::DescriptorHeap> m_ResourceDescHeap{}; // 资源描述符堆
+        UniquePtr<D3D12Core::DescriptorHeap> m_SamplerDescHeap{}; // 采样器描述符堆
 
-        std::wstring m_Name{};
+        String m_Name{};
 
         UINT64 m_Version{ 1 }; // 每当更新绑定的资源时，版本号加1
 

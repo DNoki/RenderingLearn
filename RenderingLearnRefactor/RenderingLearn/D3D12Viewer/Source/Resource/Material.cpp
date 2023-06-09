@@ -50,9 +50,9 @@ void Material::Create(const Shader* shader)
     }
 }
 
-void Material::SetName(const std::wstring& name)
+void Material::SetName(const String& name)
 {
-    m_Name = std::wstring(name);
+    m_Name = String(name);
     if (m_PipelineState)
     {
         // TODO
@@ -68,7 +68,7 @@ void Material::SetName(const std::wstring& name)
     }
 }
 
-void Material::DispatchBindMaterial(const GraphicsCommandList* commandList, bool isOnlyBindDescriptorHeap) const
+void Material::DispatchBindMaterial(GraphicsCommandList* commandList, bool isOnlyBindDescriptorHeap) const
 {
     /*
         允许 图形命令列表 或 捆绑包命令列表 执行绑定材质操作。
