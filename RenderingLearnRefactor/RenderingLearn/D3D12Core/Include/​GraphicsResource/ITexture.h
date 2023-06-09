@@ -11,12 +11,11 @@ namespace D3D12Core
     public:
         ITexture() = default;
         ~ITexture() override = 0 {};
-
         ITexture(const ITexture& buffer) = delete;
         ITexture(ITexture&& buffer) = default;
-
         ITexture& operator = (const ITexture& buffer) = delete;
         ITexture& operator = (ITexture&& buffer) = default;
+
 
         DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
         UINT GetWidth() const { return static_cast<UINT>(m_ResourceDesc.Width); }

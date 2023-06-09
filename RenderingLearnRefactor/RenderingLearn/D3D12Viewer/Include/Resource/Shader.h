@@ -33,16 +33,15 @@ namespace D3D12Viewer
 
     };
 
-    class Shader final : public IGameResource
+    class Shader : public IGameResource
     {
     public:
         Shader() = default;
-        ~Shader() override = default;;
-        Shader(const Shader&) = delete;
-        Shader(Shader&&) = default;
-
-        Shader& operator = (const Shader&) = delete;
-        Shader& operator = (Shader&&) = default;
+        //~Shader() override = default;;
+        //Shader(const Shader&) = delete;
+        //Shader(Shader&&) = default;
+        //Shader& operator = (const Shader&) = delete;
+        //Shader& operator = (Shader&&) = default;
 
         void Create(const ShaderDesc* shaderDesc);
 
@@ -52,16 +51,16 @@ namespace D3D12Viewer
         int GetBindSemanticFlag() const { return m_ShaderDesc.m_SemanticFlags; }
         const ID3DBlob* GetShaderBuffer(ShaderType type) const { return m_ShaderBlobs[static_cast<int>(type)].get(); }
 
-        void SetName(const std::wstring& name) override;
+        void SetName(const String& name) override;
 
     private:
         ShaderDesc m_ShaderDesc{};
         winrt::com_ptr<ID3DBlob> m_ShaderBlobs[static_cast<int>(ShaderType::Count)]{}; // 着色器编译缓冲
 
-        std::unique_ptr<D3D12Core::RootSignature> m_RootSignature{};   // 根签名
-        std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts{};       // 顶点输入结构
+        UniquePtr<D3D12Core::RootSignature> m_RootSignature{};   // 根签名
+        Vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts{};       // 顶点输入结构
 
-        std::wstring m_Name{};
+        String m_Name{};
 
         void ReadFromFile(ShaderType type, const Path& filePath);
     };

@@ -4,14 +4,10 @@
 
 namespace D3D12Core
 {
-    class IGraphicsResource;
-    class UploadBuffer;
-
     class CopyCommandList : public ICommandList
     {
     public:
         CopyCommandList() = default;
-        //~CopyCommandList() override {}
 
         void Create();
 
@@ -33,6 +29,6 @@ namespace D3D12Core
         void ResourceBarrier(IGraphicsResource* resource, D3D12_RESOURCE_STATES after) const;
 
 
-        void DispatchCopyBuffer(IBufferResource* resource, const void* data) const;
+        void DispatchUploadBuffer(IBufferResource* resource, const void* data) const;
     };
 }

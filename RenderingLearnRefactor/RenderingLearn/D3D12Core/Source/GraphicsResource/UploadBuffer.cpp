@@ -1,11 +1,6 @@
 ﻿#include "pch.h"
 #include "​GraphicsResource/UploadBuffer.h"
 
-//#include "GraphicsManager.h"
-//#include "GraphicsMemory.h"
-//
-//#include "UploadBuffer.h"
-
 // --------------------------------------------------------------------------
 /*
     上传堆缓冲

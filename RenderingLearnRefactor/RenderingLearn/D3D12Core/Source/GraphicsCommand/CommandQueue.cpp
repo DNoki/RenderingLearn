@@ -1,12 +1,6 @@
 ﻿#include "pch.h"
 #include "​GraphicsCommand/CommandQueue.h"
 
-//#include "GraphicsManager.h"
-//#include "PipelineState.h"
-//#include "CommandAllocatorPool.h"
-//#include "CommandList.h"
-
-
 // --------------------------------------------------------------------------
 /*
     Direct3D 12 中的工作提交
@@ -74,7 +68,7 @@ void CommandQueue::CloseQueue()
 #if 0
 void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists)
 {
-    std::vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
+    Vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
 
     for (UINT i = 0; i < numCommandLists; i++)
     {

@@ -21,7 +21,7 @@ void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCou
 
     auto vertexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
     vertexBuffer->DirectCreate(vertexCount * m_VertexStrideSize);
-    vertexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, m_VertexStrideSize, vertices);
+    vertexBuffer->DispatchUploadBuffer(g_GraphicsCommandList, m_VertexStrideSize, vertices);
     m_VertexBuffer = move(vertexBuffer);
 
     m_Vertices.resize(m_VertexBuffer->GetBufferSize());
@@ -31,7 +31,7 @@ void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCou
     {
         auto indexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
         indexBuffer->DirectCreate(indexCount * sizeof(UINT16));
-        indexBuffer->DispatchCopyBuffer(g_GraphicsCommandList, sizeof(UINT16), indices);
+        indexBuffer->DispatchUploadBuffer(g_GraphicsCommandList, sizeof(UINT16), indices);
         m_IndexBuffer = move(indexBuffer);
 
         m_Indices.resize(indexCount);
@@ -65,8 +65,8 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
 
         m_VertexBuffers[i].reset(new GraphicsBuffer());
         m_VertexBuffers[i]->PlacedCreate(vertexStrideArray[i] * vertexCountArray[i]);
-        //m_VertexBuffers[i]->DispatchCopyBuffer(*commandList, vertexDataArray[i]);
-        commandList->DispatchCopyBuffer(m_VertexBuffers[i].get(), vertexDataArray[i]);
+        //m_VertexBuffers[i]->DispatchUploadBuffer(*commandList, vertexDataArray[i]);
+        commandList->DispatchUploadBuffer(m_VertexBuffers[i].get(), vertexDataArray[i]);
 
         m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
             {
@@ -81,8 +81,8 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     {
         m_IndexBuffer.reset(new GraphicsBuffer());
         m_IndexBuffer->PlacedCreate(m_Indices.size() * sizeof(UINT16));
-        //m_IndexBuffer->DispatchCopyBuffer(*commandList, m_Indices.data());
-        commandList->DispatchCopyBuffer(m_IndexBuffer.get(), m_Indices.data());
+        //m_IndexBuffer->DispatchUploadBuffer(*commandList, m_Indices.data());
+        commandList->DispatchUploadBuffer(m_IndexBuffer.get(), m_Indices.data());
 
         m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW
             {
@@ -94,7 +94,7 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     else m_IndexBuffer = nullptr;
 
     ICommandList* c = commandList;
-    GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);
+    GraphicsManager::GetInstance().GetCopyCommandQueue()->ExecuteCommandLists(&c);
 }
 
 void Mesh::SetName(const String& name)

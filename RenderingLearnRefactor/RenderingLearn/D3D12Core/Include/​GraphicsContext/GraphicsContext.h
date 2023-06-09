@@ -14,9 +14,9 @@ namespace D3D12Core
         void Initialize();
         void Destroy();
 
-        [[nodiscard]] IDXGIFactory7* GetFactory() const { return m_Factory.get(); }
-        [[nodiscard]] IDXGIAdapter4* GetAdapter() const { return m_Adapter.get(); }
-        [[nodiscard]] ID3D12Device6* GetDevice() const { return m_Device.get(); }
+        IDXGIFactory7* GetFactory() const { return m_Factory.get(); }
+        IDXGIAdapter4* GetAdapter() const { return m_Adapter.get(); }
+        ID3D12Device6* GetDevice() const { return m_Device.get(); }
 
         const DXGI_ADAPTER_DESC3& GetAdapterDesc() const { return m_AdapterDesc; }
 

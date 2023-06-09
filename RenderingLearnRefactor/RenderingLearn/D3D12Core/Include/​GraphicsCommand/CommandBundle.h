@@ -8,7 +8,6 @@ namespace D3D12Core
     {
     public:
         CommandBundle() = default;
-        //~CommandBundle() override {}
 
     };
 }

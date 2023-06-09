@@ -2,27 +2,15 @@
 
 namespace D3D12Core
 {
-    //class IGraphicsResource;
-    //class CommandAllocator;
-    //class RootSignature;
-    //class IPipelineState;
-    //class DescriptorHeap;
-    //class IBufferResource;
-
-    class ICommandList abstract
+    class ICommandList
     {
-    protected:
-        ICommandList() = default;
-
     public:
-        virtual ~ICommandList() = default;
-        //virtual ~ICommandList() = 0 {}
-
-        //ICommandList(const ICommandList& buffer) = delete;
-        //ICommandList(ICommandList&& buffer) = default;
-
-        //ICommandList& operator = (const ICommandList& buffer) = delete;
-        //ICommandList& operator = (ICommandList&& buffer) = default;
+        ICommandList() = default;
+        virtual ~ICommandList() = 0 {}
+        ICommandList(const ICommandList& buffer) = delete;
+        ICommandList(ICommandList&& buffer) = default;
+        ICommandList& operator = (const ICommandList& buffer) = delete;
+        ICommandList& operator = (ICommandList&& buffer) = default;
 
         virtual void Close();
         virtual void Reset();
@@ -49,6 +37,9 @@ namespace D3D12Core
          * false : 列表可以写入命令
          */
         bool m_IsLocked{};
+
+    protected:
+        void CreateImpl(D3D12_COMMAND_LIST_TYPE type, const String& name);
 
     };
 }

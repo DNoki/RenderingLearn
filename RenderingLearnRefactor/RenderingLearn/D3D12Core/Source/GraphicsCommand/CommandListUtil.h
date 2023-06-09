@@ -136,7 +136,7 @@ namespace D3D12Core
         UINT64 SlicePitch,
         const void* pData);
 
-    extern void CL_CopyResource(const ICommandList* CommandList, const IGraphicsResource* DstResource, const IGraphicsResource* SrcResource);
+    extern void CL_CopyResource(const ICommandList* CommandList, IGraphicsResource* DstResource, const IGraphicsResource* SrcResource);
     extern void CL_CopyTextureRegion(
         const ICommandList* CommandList,
         const D3D12_TEXTURE_COPY_LOCATION* DstResource,
@@ -145,6 +145,9 @@ namespace D3D12Core
         UINT DstZ,
         const D3D12_TEXTURE_COPY_LOCATION* pSrc,
         const D3D12_BOX* pSrcBox);
+
+    extern void CL_DispatchUploadBuffer(const ICommandList* CommandList, IBufferResource* resource, const void* data);
+
 #pragma endregion
 
 }

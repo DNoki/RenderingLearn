@@ -6,21 +6,7 @@ using namespace D3D12Core;
 
 void GraphicsCommandList::Create()
 {
-    m_Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-    // 创建命令列表
-    // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
-    CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList1(
-        GraphicsContext::GetCurrentInstance()->GetNodeMask(),
-        m_Type,
-        D3D12_COMMAND_LIST_FLAG_NONE,
-        IID_PPV_ARGS(m_CommandList.put())));
-
-    // 指示列表处于关闭状态
-    m_IsLocked = true;
-    m_CommandAllocator = nullptr;
-
-    GraphicsContext::SetDebugName(m_CommandList.get(), TEXT("GraphicsCommandList"));
+    CreateImpl(D3D12_COMMAND_LIST_TYPE_DIRECT, TEXT("GraphicsCommandList"));
 }
 
 void GraphicsCommandList::Create(const IPipelineState* pso)
@@ -140,19 +126,4 @@ void GraphicsCommandList::DrawInstanced(UINT vertexCountPerInstance, UINT instan
 void GraphicsCommandList::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation) const
 {
     CL_DrawIndexedInstanced(this, indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
-}
-
-void GraphicsCommandList::UpdateSubresources(IGraphicsResource* DstResource, const UploadBuffer* Intermediate,
-    UINT64 RowPitch, UINT64 SlicePitch, const void* pData) const
-{
-    // 转换目标资源到拷贝状态
-    ResourceBarrier(DstResource, D3D12_RESOURCE_STATE_COPY_DEST);
-    CL_UpdateSubresources(this, DstResource, Intermediate, RowPitch, SlicePitch, pData);
-}
-
-void GraphicsCommandList::CopyResource(IGraphicsResource* DstResource, const IGraphicsResource* SrcResource) const
-{
-    // 转换目标资源到拷贝状态
-    ResourceBarrier(DstResource, D3D12_RESOURCE_STATE_COPY_DEST);
-    CL_CopyResource(this, DstResource, SrcResource);
 }

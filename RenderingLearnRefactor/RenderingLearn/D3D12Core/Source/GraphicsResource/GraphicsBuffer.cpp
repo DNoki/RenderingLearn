@@ -1,16 +1,6 @@
 ﻿#include "pch.h"
 #include "​GraphicsResource/GraphicsBuffer.h"
 
-//#include "DescriptorHandle.h"
-//#include "UploadBuffer.h"
-//#include "GraphicsManager.h"
-//#include "GraphicsMemory.h"
-//#include "CommandQueue.h"
-//#include "CommandList.h"
-//
-//#include "GraphicsBuffer.h"
-
-
 // --------------------------------------------------------------------------
 /*
     GPU 缓冲是存储于 GPU （默认堆）上的缓冲，提供了以下资源的创建
@@ -55,7 +45,7 @@ void GraphicsBuffer::PlacedCreate(UINT64 size)
     Finalize();
 }
 
-//void GraphicsBuffer::DispatchCopyBuffer(const GraphicsCommandList& commandList, const void* data)
+//void GraphicsBuffer::DispatchUploadBuffer(const GraphicsCommandList& commandList, const void* data)
 //{
 //    ASSERT(m_Resource != nullptr);
 //    auto bufferSize = m_ResourceDesc.Width;
@@ -154,7 +144,7 @@ void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const
     Finalize();
 
     // 创建顶点缓冲视图
-    m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+    m_VertexBufferView = UniquePtr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
             m_GpuVirtualAddress,
             bufferSize,
             strideSize });
@@ -168,7 +158,7 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
     pPlacedHeap.PlacedResource(D3D12_RESOURCE_STATE_COPY_DEST, *this);
 
 
-    m_UploadBuffer = std::unique_ptr<UploadBuffer>(new UploadBuffer());
+    m_UploadBuffer = UniquePtr<UploadBuffer>(new UploadBuffer());
     m_UploadBuffer->PlacedCreate(bufferSize, pUploadPlacedHeap);
 
     D3D12_SUBRESOURCE_DATA srcData = {};
@@ -192,7 +182,7 @@ void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const
     Finalize();
 
     // 创建顶点缓冲视图
-    m_VertexBufferView = std::unique_ptr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
+    m_VertexBufferView = UniquePtr<D3D12_VERTEX_BUFFER_VIEW>(new D3D12_VERTEX_BUFFER_VIEW{
             m_GpuVirtualAddress,
             bufferSize,
             strideSize });

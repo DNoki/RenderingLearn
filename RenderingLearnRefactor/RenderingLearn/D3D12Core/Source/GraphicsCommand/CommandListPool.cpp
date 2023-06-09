@@ -48,11 +48,12 @@ public:
                 //_list->push_back(std::make_unique<ComputeCommandList>());
                 //result = _list->back().get();
                 //static_cast<ComputeCommandList*>(result)->Create();
+                ASSERT(0);
                 break;
             case D3D12_COMMAND_LIST_TYPE_COPY:
-                //_list->push_back(std::make_unique<CopyCommandList>());
-                //result = _list->back().get();
-                //static_cast<CopyCommandList*>(result)->Create();
+                _list->push_back(std::make_unique<CopyCommandList>());
+                result = _list->back().get();
+                static_cast<CopyCommandList*>(result)->Create();
                 break;
             default: return result;
             }
@@ -104,7 +105,7 @@ void CommandListPool::Restore(ICommandList** commandList)
     g_CommandListPoolImpl.Restore(commandList);
 }
 
-ICommandList* CommandListPool::RequstImpl(D3D12_COMMAND_LIST_TYPE type)
+ICommandList* CommandListPool::RequestImpl(D3D12_COMMAND_LIST_TYPE type)
 {
     return g_CommandListPoolImpl.Request(type);
 }

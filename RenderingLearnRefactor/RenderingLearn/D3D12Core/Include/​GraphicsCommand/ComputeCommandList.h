@@ -8,7 +8,6 @@ namespace D3D12Core
     {
     public:
         ComputeCommandList() = default;
-        //~ComputeCommandList() override {}
 
     };
 }

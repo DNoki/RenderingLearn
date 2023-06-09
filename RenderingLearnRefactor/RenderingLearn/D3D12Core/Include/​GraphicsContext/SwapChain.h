@@ -2,18 +2,10 @@
 
 namespace D3D12Core
 {
-    class IRenderTarget;
-
     class SwapChain
     {
     public:
-        // --------------------------------------------------------------------------
         SwapChain() = default;
-        //SwapChain(const SwapChain& sc) = delete;
-        //SwapChain(SwapChain&& sc) = default;
-
-        //SwapChain& operator = (const SwapChain& sc) = delete;
-        //SwapChain& operator = (SwapChain&& sc) = default;
 
         // --------------------------------------------------------------------------
         /**

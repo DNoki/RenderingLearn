@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "​GraphicsResource/DescriptorHandle.h"
+#include "DescriptorHandle.h"
 
 namespace D3D12Core
 {

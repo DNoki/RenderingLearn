@@ -97,6 +97,12 @@
     <ClCompile Include="Source\GraphicsCommand\GraphicsCommandList.cpp">
       <Filter>​GraphicsCommand</Filter>
     </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\GraphicsPipelineState.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\GraphicsResource\ComputePipelineState.cpp">
+      <Filter>​GraphicsResource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility\pch.h">
@@ -183,6 +189,12 @@
     </ClInclude>
     <ClInclude Include="Source\GraphicsCommand\CommandListUtil.h">
       <Filter>​GraphicsCommand</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\ComputePipelineState.h">
+      <Filter>​GraphicsResource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\​GraphicsResource\GraphicsPipelineState.h">
+      <Filter>​GraphicsResource</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

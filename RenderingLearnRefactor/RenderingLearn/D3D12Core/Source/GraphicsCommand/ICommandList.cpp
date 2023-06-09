@@ -278,7 +278,7 @@ namespace D3D12Core
 #pragma region Copy
 
     /**
-     * \brief 更新子资源，应通过调用 ID3D12Device：：GetCopyableFootprints 填充所有子资源数组。
+     * \brief 更新子资源
      */
     void CL_UpdateSubresources(
         const ICommandList* CommandList,
@@ -289,7 +289,9 @@ namespace D3D12Core
         const void* pData)
     {
         ASSERT(Intermediate->GetResourceStates() & D3D12_RESOURCE_STATE_COPY_SOURCE);
-        ASSERT(DstResource->GetResourceStates() & D3D12_RESOURCE_STATE_COPY_DEST);
+
+        // 转换目标资源到拷贝状态
+        CL_ResourceBarrier(CommandList, DstResource, D3D12_RESOURCE_STATE_COPY_DEST);
 
         D3D12_SUBRESOURCE_DATA srcData;
         srcData.pData = pData;
@@ -305,10 +307,13 @@ namespace D3D12Core
     /**
      * \brief 将源资源的全部内容复制到目标资源
      */
-    void CL_CopyResource(const ICommandList* CommandList, const IGraphicsResource* DstResource, const IGraphicsResource* SrcResource)
+    void CL_CopyResource(const ICommandList* CommandList, IGraphicsResource* DstResource, const IGraphicsResource* SrcResource)
     {
         ASSERT(SrcResource->GetResourceStates() & D3D12_RESOURCE_STATE_COPY_SOURCE);
-        ASSERT(DstResource->GetResourceStates() & D3D12_RESOURCE_STATE_COPY_DEST);
+
+        // 转换目标资源到拷贝状态
+        CL_ResourceBarrier(CommandList, DstResource, D3D12_RESOURCE_STATE_COPY_DEST);
+
         CommandList->GetD3D12CommandList()->CopyResource(DstResource->GetD3D12Resource(), SrcResource->GetD3D12Resource());
     }
     void CL_CopyTextureRegion(
@@ -321,6 +326,25 @@ namespace D3D12Core
         const D3D12_BOX* pSrcBox)
     {
         CommandList->GetD3D12CommandList()->CopyTextureRegion(DstResource, DstX, DstY, DstZ, pSrc, pSrcBox);
+    }
+
+    void CL_DispatchUploadBuffer(const ICommandList* CommandList, IBufferResource* resource, const void* data)
+    {
+        const auto bufferSize = resource->GetResourceDesc().Width;
+
+        // 创建上传缓冲
+        SharedPtr<UploadBuffer> m_UploadBuffer;
+        m_UploadBuffer.reset(new UploadBuffer());
+        m_UploadBuffer->PlacedCreate(bufferSize);
+
+        CL_UpdateSubresources(CommandList, resource, m_UploadBuffer.get(), bufferSize, bufferSize, data);
+
+        // 拷贝完成后释放上传堆
+        CommandList->GetCommandAllocator()->AssignOnCompletedCallback([m_UploadBuffer]()
+            {
+                // 上传缓冲会被 Lambda 函数值拷贝捕获，并在拷贝完成后释放
+                const_cast<SharedPtr<UploadBuffer>&>(m_UploadBuffer).reset();
+            });
     }
 #pragma endregion
 
@@ -354,4 +378,23 @@ void ICommandList::Reset()
 
     // 指示列表可以写入命令
     m_IsLocked = false;
+}
+
+void ICommandList::CreateImpl(D3D12_COMMAND_LIST_TYPE type, const String& name)
+{
+    m_Type = type;
+
+    // 创建命令列表
+    // 使用 CreateCommandList1 可以直接创建关闭的命令列表，而无需传入管线状态对象
+    CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommandList1(
+        GraphicsContext::GetCurrentInstance()->GetNodeMask(),
+        m_Type,
+        D3D12_COMMAND_LIST_FLAG_NONE,
+        IID_PPV_ARGS(m_CommandList.put())));
+
+    // 指示列表处于关闭状态
+    m_IsLocked = true;
+    m_CommandAllocator = nullptr;
+
+    GraphicsContext::SetDebugName(m_CommandList.get(), name);
 }

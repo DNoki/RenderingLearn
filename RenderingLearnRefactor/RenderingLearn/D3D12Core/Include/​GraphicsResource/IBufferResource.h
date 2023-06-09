@@ -9,10 +9,8 @@ namespace D3D12Core
     public:
         IBufferResource() = default;
         ~IBufferResource() override = 0 {};
-
         IBufferResource(const IBufferResource& buffer) = delete;
         IBufferResource(IBufferResource&& buffer) = default;
-
         IBufferResource& operator = (const IBufferResource& buffer) = delete;
         IBufferResource& operator = (IBufferResource&& buffer) = default;
 

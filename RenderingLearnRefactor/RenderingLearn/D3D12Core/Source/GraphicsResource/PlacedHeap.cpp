@@ -66,10 +66,10 @@ void PlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GraphicsReso
     auto size = static_cast<UINT>(index + 1);
     m_PlacedResources.push_back(&resource);
 
-    std::vector<D3D12_RESOURCE_DESC> resourceDescs(size);
+    Vector<D3D12_RESOURCE_DESC> resourceDescs(size);
     for (auto i = 0u; i < size; i++)
         resourceDescs[i] = m_PlacedResources[i]->GetResourceDesc();
-    std::vector<D3D12_RESOURCE_ALLOCATION_INFO1> resourceInfos(size);
+    Vector<D3D12_RESOURCE_ALLOCATION_INFO1> resourceInfos(size);
 
     // 当需要放置多个资源时，可以直接利用 GetResourceAllocationInfo1 函数计算偏移
     GraphicsManager::GetDevice()->GetResourceAllocationInfo1(

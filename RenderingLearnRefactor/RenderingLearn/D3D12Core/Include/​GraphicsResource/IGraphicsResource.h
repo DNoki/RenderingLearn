@@ -1,15 +1,10 @@
 ﻿#pragma once
 
+// TODO 完善堆放置堆描述
 #include "PlacedHeap.h"
-//#include "DescriptorHandle.h"
 
 namespace D3D12Core
 {
-    //class DescriptorHandle;
-    //class PlacedHeap;
-    //class CommandList;
-    class PlacedResourceDesc;
-
     /**
      * @brief D3D12 资源抽象类
      * @return

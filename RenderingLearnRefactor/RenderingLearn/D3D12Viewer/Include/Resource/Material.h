@@ -16,17 +16,16 @@ namespace D3D12Viewer
 {
     class Shader;
 
-    class Material final : public IGameResource
+    class Material : public IGameResource
     {
     public:
         // --------------------------------------------------------------------------
         Material() = default;
-        ~Material() override = default;
-        Material(const Material& mat) = delete;
-        Material(Material&& mat) = default;
-
-        Material& operator = (const Material& mat) = delete;
-        Material& operator = (Material&& mat) = default;
+        //~Material() override = default;
+        //Material(const Material& mat) = delete;
+        //Material(Material&& mat) = default;
+        //Material& operator = (const Material& mat) = delete;
+        //Material& operator = (Material&& mat) = default;
 
         void Create(const Shader* shader);
 

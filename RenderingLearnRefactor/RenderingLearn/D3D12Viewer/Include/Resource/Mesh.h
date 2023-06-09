@@ -21,7 +21,7 @@ namespace D3D12Viewer
 
     constexpr UINT VertexSemanticCount = (int)VertexSemantic::Count;
 
-    class Mesh final : public IGameResource
+    class Mesh : public IGameResource
     {
     public:
         Vector<Vector3> m_Positions;   // 位置
@@ -34,12 +34,11 @@ namespace D3D12Viewer
 
         // --------------------------------------------------------------------------
         Mesh() = default;
-        ~Mesh() override = default;
-        Mesh(const Mesh& buffer) = delete;
-        Mesh(Mesh&& buffer) = default;
-
-        Mesh& operator = (const Mesh& buffer) = delete;
-        Mesh& operator = (Mesh&& buffer) = default;
+        //~Mesh() override = default;
+        //Mesh(const Mesh& buffer) = delete;
+        //Mesh(Mesh&& buffer) = default;
+        //Mesh& operator = (const Mesh& buffer) = delete;
+        //Mesh& operator = (Mesh&& buffer) = default;
 
         // --------------------------------------------------------------------------
 #if 0

@@ -30,7 +30,7 @@ namespace D3D12Core
         void NotifyCompletedEvent();
 
     private:
-        const D3D12_COMMAND_LIST_TYPE m_Type{};
+        D3D12_COMMAND_LIST_TYPE m_Type{};
         ComPtr<ID3D12CommandAllocator> m_CommandAllocator{};
 
         Vector<Function<void()>> m_OnCompletedEvents{};

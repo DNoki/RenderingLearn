@@ -2,9 +2,6 @@
 
 namespace D3D12Core
 {
-    class CommandAllocator;
-    class ICommandList;
-
     /**
      * @brief 指令队列
     */

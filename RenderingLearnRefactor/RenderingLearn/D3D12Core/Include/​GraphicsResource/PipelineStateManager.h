@@ -7,9 +7,9 @@ namespace D3D12Core
     public:
         PipelineStateManager() = delete;
 
-        static ID3D12PipelineState* GetPipelineState(UINT64 psoDescHash);
-        static void StorePipelineState(UINT64 psoDescHash, ComPtr<ID3D12PipelineState>& pso);
-        static void DestoryAllPlpelineState();
+        static ID3D12PipelineState* GetPipelineState(HashValue psoDescHash);
+        static void StorePipelineState(HashValue psoDescHash, ComPtr<ID3D12PipelineState>& pso);
+        static void DestroyAllPlpelineState();
 
     private:
 

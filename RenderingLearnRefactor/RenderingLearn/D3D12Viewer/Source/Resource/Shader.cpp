@@ -144,9 +144,9 @@ void Shader::Create(const ShaderDesc* shaderDesc)
     }
 }
 
-void Shader::SetName(const std::wstring& name)
+void Shader::SetName(const String& name)
 {
-    m_Name = std::wstring(name);
+    m_Name = String(name);
     if (m_RootSignature)
     {
         GraphicsContext::SetDebugName(m_RootSignature->GetD3D12RootSignature(), FORMAT(TEXT("%s (RootSignature)"), m_Name.c_str()));

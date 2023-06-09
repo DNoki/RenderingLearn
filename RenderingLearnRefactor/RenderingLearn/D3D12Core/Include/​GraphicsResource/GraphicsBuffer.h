@@ -1,12 +1,9 @@
 ﻿#pragma once
 
-#include "IGraphicsResource.h"
+#include "IBufferResource.h"
 
 namespace D3D12Core
 {
-    class UploadBuffer;
-    class GraphicsCommandList;
-
     /**
      * @brief GPU 缓冲
     */
@@ -14,13 +11,13 @@ namespace D3D12Core
     {
     public:
         GraphicsBuffer() = default;
-        ~GraphicsBuffer() override = default;
+        //~GraphicsBuffer() override = default;
 
-        GraphicsBuffer(const GraphicsBuffer& buffer) = delete;
-        GraphicsBuffer(GraphicsBuffer&& buffer) = default;
+        //GraphicsBuffer(const GraphicsBuffer& buffer) = delete;
+        //GraphicsBuffer(GraphicsBuffer&& buffer) = default;
 
-        GraphicsBuffer& operator = (const GraphicsBuffer& buffer) = delete;
-        GraphicsBuffer& operator = (GraphicsBuffer&& buffer) = default;
+        //GraphicsBuffer& operator = (const GraphicsBuffer& buffer) = delete;
+        //GraphicsBuffer& operator = (GraphicsBuffer&& buffer) = default;
 
         // --------------------------------------------------------------------------
         UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
@@ -50,7 +47,7 @@ namespace D3D12Core
          * @param commandList 拷贝命令队列
          * @param data
         */
-        //void DispatchCopyBuffer(const GraphicsCommandList& commandList, const void* data);
+        //void DispatchUploadBuffer(const GraphicsCommandList& commandList, const void* data);
         /**
          * @brief 改变资源状态
          * @param commandList 图形命令列表
@@ -60,8 +57,6 @@ namespace D3D12Core
 
 
     private:
-        UniquePtr<UploadBuffer> m_UploadBuffer{};
-
         void Finalize() override
         {
             // Resource必须创建以后才可以完成初始化

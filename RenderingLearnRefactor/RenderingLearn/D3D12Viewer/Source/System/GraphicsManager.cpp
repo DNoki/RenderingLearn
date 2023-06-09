@@ -27,7 +27,7 @@ void GraphicsManager::Initialize(HWND windowHandle)
     m_SwapChain->CreateForHwnd(*m_GraphicsContext, m_GraphicsCommandQueue.get(), windowHandle, SwapFrameBackBufferCount, SwapChainRenderTargetFormat);
 }
 
-void GraphicsManager::Destory()
+void GraphicsManager::Destroy()
 {
     m_SwapChain = nullptr;
 

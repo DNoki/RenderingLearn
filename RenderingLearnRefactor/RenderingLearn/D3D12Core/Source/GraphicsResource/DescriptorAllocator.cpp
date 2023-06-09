@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "​GraphicsResource/DescriptorAllocator.h"
 
-#include "​GraphicsResource/DescriptorHeap.h"
-
 using namespace D3D12Core;
 
 #define FIXED_DESCRIPTOR_HEAP_SIZE 256

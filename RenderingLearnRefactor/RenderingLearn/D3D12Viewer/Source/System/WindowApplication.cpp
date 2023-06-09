@@ -51,6 +51,9 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
     g_Material.Create(&g_Shader);
     g_Material.SetName(TEXT("示例材质"));
 
+    GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
+    GraphicsManager::GetInstance().GetCopyCommandQueue()->WaitForQueueCompleted();
+
     MSG msg;
     while (!g_AppEvent.test(EventFlag::Exit))
     {
@@ -107,9 +110,9 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
     //}
 
     //// 销毁场景管理器
-    //SceneManager::Destory();
+    //SceneManager::Destroy();
     // 销毁图形管理器
-    GraphicsManager::GetInstance().Destory();
+    GraphicsManager::GetInstance().Destroy();
 }
 
 void WindowApplication::InitWindow(HINSTANCE hInstance)

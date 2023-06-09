@@ -11,13 +11,6 @@ namespace D3D12Core
     {
     public:
         UploadBuffer() = default;
-        ~UploadBuffer() override = default;
-
-        UploadBuffer(const UploadBuffer& buffer) = delete;
-        UploadBuffer(UploadBuffer&& buffer) = default;
-
-        UploadBuffer& operator = (const UploadBuffer& buffer) = delete;
-        UploadBuffer& operator = (UploadBuffer&& buffer) = default;
 
         // --------------------------------------------------------------------------
         UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
@@ -72,6 +65,14 @@ namespace D3D12Core
             // 仅缓冲资源可以获取 GPU 虚拟地址
             m_GpuVirtualAddress = m_Resource->GetGPUVirtualAddress();
         }
+
+    };
+
+    class UploadBufferAllocator
+    {
+    public:
+        static SharedPtr<UploadBuffer> Allocat(HANDLE key);
+        static void Release(HANDLE key);
 
     };
 }

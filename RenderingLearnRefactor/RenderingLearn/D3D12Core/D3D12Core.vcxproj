@@ -31,11 +31,13 @@
     <ClCompile Include="Source\GraphicsCommand\CommandQueue.cpp" />
     <ClCompile Include="Source\GraphicsContext\GraphicsContext.cpp" />
     <ClCompile Include="Source\GraphicsContext\SwapChain.cpp" />
+    <ClCompile Include="Source\GraphicsResource\ComputePipelineState.cpp" />
     <ClCompile Include="Source\GraphicsResource\DescriptorAllocator.cpp" />
     <ClCompile Include="Source\GraphicsResource\DescriptorHandle.cpp" />
     <ClCompile Include="Source\GraphicsResource\DescriptorHeap.cpp" />
     <ClCompile Include="Source\GraphicsResource\GraphicsBuffer.cpp" />
     <ClCompile Include="Source\GraphicsResource\GraphicsMemory.cpp" />
+    <ClCompile Include="Source\GraphicsResource\GraphicsPipelineState.cpp" />
     <ClCompile Include="Source\GraphicsResource\IBufferResource.cpp" />
     <ClCompile Include="Source\GraphicsResource\IGraphicsResource.cpp" />
     <ClCompile Include="Source\GraphicsResource\IRenderTexture.cpp" />
@@ -65,11 +67,13 @@
     <ClInclude Include="Include\​GraphicsCommand\CommandQueue.h" />
     <ClInclude Include="Include\​GraphicsContext\GraphicsContext.h" />
     <ClInclude Include="Include\​GraphicsContext\SwapChain.h" />
+    <ClInclude Include="Include\​GraphicsResource\ComputePipelineState.h" />
     <ClInclude Include="Include\​GraphicsResource\DescriptorAllocator.h" />
     <ClInclude Include="Include\​GraphicsResource\DescriptorHandle.h" />
     <ClInclude Include="Include\​GraphicsResource\DescriptorHeap.h" />
     <ClInclude Include="Include\​GraphicsResource\GraphicsBuffer.h" />
     <ClInclude Include="Include\​GraphicsResource\GraphicsMemory.h" />
+    <ClInclude Include="Include\​GraphicsResource\GraphicsPipelineState.h" />
     <ClInclude Include="Include\​GraphicsResource\IBufferResource.h" />
     <ClInclude Include="Include\​GraphicsResource\IGraphicsResource.h" />
     <ClInclude Include="Include\​GraphicsResource\IRenderTexture.h" />

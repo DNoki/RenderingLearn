@@ -17,6 +17,8 @@ using namespace D3D12Core;
 
 void CommandAllocator::Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type)
 {
+    m_Type = type;
+
     // 创建命令列表分配器
     CHECK_HRESULT(context.GetDevice()->CreateCommandAllocator(type, IID_PPV_ARGS(m_CommandAllocator.put())));
 

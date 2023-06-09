@@ -18,12 +18,11 @@ namespace D3D12Core
     public:
         IRenderTarget() = default;
         ~IRenderTarget() override = 0 {};
-
         IRenderTarget(const IRenderTarget& buffer) = delete;
         IRenderTarget(IRenderTarget&& buffer) = default;
-
         IRenderTarget& operator = (const IRenderTarget& buffer) = delete;
         IRenderTarget& operator = (IRenderTarget&& buffer) = default;
+
 
         RenderTargetType GetType() const { return m_Type; }
         const DescriptorHandle& GetRtvOrDsv() const { return m_RtvOrDsv; }

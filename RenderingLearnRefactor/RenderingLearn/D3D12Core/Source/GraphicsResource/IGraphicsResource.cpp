@@ -1,11 +1,6 @@
 ﻿#include "pch.h"
 #include "​GraphicsResource/IGraphicsResource.h"
 
-//#include "GraphicsMemory.h"
-//#include "CommandList.h"
-//
-//#include "GraphicsResource.h"
-
 // --------------------------------------------------------------------------
 /*
     D3D12 中的内存管理

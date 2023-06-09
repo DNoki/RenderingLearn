@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "​GraphicsResource/DescriptorHandle.h"
-
 namespace D3D12Core
 {
     /**
@@ -19,8 +17,6 @@ namespace D3D12Core
          * \return
          */
         static DescriptorHandle Allocat(const GraphicsContext& context, D3D12_DESCRIPTOR_HEAP_TYPE type);
-
-    private:
 
     };
 }

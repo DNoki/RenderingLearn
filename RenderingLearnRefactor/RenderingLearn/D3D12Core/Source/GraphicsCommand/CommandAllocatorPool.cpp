@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "​GraphicsCommand/CommandAllocatorPool.h"
 
-#include "​GraphicsCommand/CommandAllocator.h"
-
 using namespace D3D12Core;
 
 class CommandAllocatorPoolImpl

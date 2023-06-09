@@ -1,25 +1,16 @@
 ﻿#include "pch.h"
 #include "​GraphicsContext/SwapChain.h"
 
-#include "​GraphicsResource/IRenderTexture.h"
-#include "​GraphicsResource/DescriptorAllocator.h"
-
-//#include "AppMain.h"
-//#include "GraphicsManager.h"
-//#include "CommandQueue.h"
-//#include "RenderTexture.h"
-
-
 // DirectX 图形基础结构 (DXGI) ：最佳实践 https://docs.microsoft.com/zh-cn/windows/win32/direct3darticles/dxgi-best-practices
 
 // 可变刷新率显示/关闭垂直同步 https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
 
 using namespace D3D12Core;
 
-class SwapChainBuffer : public IRenderTarget
+class SwapChainBuffer final : public IRenderTarget
 {
 public:
-    ~SwapChainBuffer() override = default;
+    SwapChainBuffer() = default;
 
     void Create(SwapChain& swapChain, UINT index)
     {

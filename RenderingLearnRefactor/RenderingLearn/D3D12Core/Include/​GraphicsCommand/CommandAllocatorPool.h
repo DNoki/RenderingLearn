@@ -2,8 +2,6 @@
 
 namespace D3D12Core
 {
-    class CommandAllocator;
-
     /**
      * @brief 命令分配器对象池
     */

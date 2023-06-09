@@ -99,6 +99,7 @@ namespace D3D12Core
             // 在即时窗口窗口查看设备移除原因
             ASSERT(0);
         }
+        ASSERT(hr == 0);
         winrt::check_hresult(hr);
         return hr;
     }

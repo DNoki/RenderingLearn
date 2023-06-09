@@ -2,8 +2,6 @@
 
 namespace D3D12Core
 {
-    class PlacedHeap;
-
     class GraphicsMemory
     {
     public:

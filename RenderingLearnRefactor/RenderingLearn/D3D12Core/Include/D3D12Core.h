@@ -72,9 +72,47 @@ namespace D3D12Core
     using Map = std::map<TKey, TValue>;
     template <class T>
     using Function = std::function<T>;
+    template <class T>
+    using Hash = std::hash<T>;
+    typedef size_t HashValue;
 
     template <class T>
     using ComPtr = winrt::com_ptr<T>;
+
+    // 前置声明
+    class CommandAllocator;
+    class CommandAllocatorPool;
+
+    class ICommandList;
+    class GraphicsCommandList;
+    class ComputeCommandList;
+    class CopyCommandList;
+    class CommandBundle;
+    class CommandListPool;
+    class CommandQueue;
+
+    class DescriptorHandle;
+    class DescriptorAllocator;
+    class DescriptorHeap;
+
+    class RootSignature;
+    class IPipelineState;
+    class GraphicsPipelineState;
+    class ComputePipelineState;
+    class PipelineStateManager;
+
+    class IGraphicsResource;
+    class IBufferResource;
+    class ITexture;
+    class IRenderTarget;
+    class UploadBuffer;
+    class GraphicsBuffer;
+
+    class PlacedHeap;
+    class GraphicsMemory;
+    class GraphicsContext;
+    class SwapChain;
+
 }
 
 #include "Utility/Utility.h"
@@ -112,10 +150,7 @@ namespace D3D12Core
 #include "​GraphicsContext/GraphicsContext.h"
 #include "​GraphicsContext/SwapChain.h"
 
-#include "​GraphicsCommand/CommandAllocator.h"
-#include "​GraphicsCommand/CommandAllocatorPool.h"
 #include "​GraphicsCommand/CommandQueue.h"
-//#include "​GraphicsCommand/ICommandList.h"
 #include "​GraphicsCommand/GraphicsCommandList.h"
 #include "​GraphicsCommand/CopyCommandList.h"
 #include "​GraphicsCommand/ComputeCommandList.h"
@@ -123,13 +158,11 @@ namespace D3D12Core
 #include "​GraphicsCommand/CommandListPool.h"
 
 #include "​GraphicsResource/DescriptorHeap.h"
-#include "​GraphicsResource/IGraphicsResource.h"
 #include "​GraphicsResource/ITexture.h"
 #include "​GraphicsResource/IRenderTexture.h"
 #include "​GraphicsResource/UploadBuffer.h"
 #include "​GraphicsResource/GraphicsBuffer.h"
 #include "​GraphicsResource/RootSignature.h"
-#include "​GraphicsResource/IPipelineState.h"
+#include "​GraphicsResource/GraphicsPipelineState.h"
+#include "​GraphicsResource/ComputePipelineState.h"
 #include "​GraphicsResource/PipelineStateManager.h"
-#include "​GraphicsResource/PlacedHeap.h"
-#include "​GraphicsResource/GraphicsMemory.h"

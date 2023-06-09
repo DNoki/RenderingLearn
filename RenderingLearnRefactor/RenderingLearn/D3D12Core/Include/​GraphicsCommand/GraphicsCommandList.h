@@ -4,13 +4,6 @@
 
 namespace D3D12Core
 {
-    class IGraphicsResource;
-    class RootSignature;
-    class IPipelineState;
-    class DescriptorHeap;
-    class IBufferResource;
-    class UploadBuffer;
-
     /**
      * \brief 图形命令列表
      */
@@ -18,7 +11,6 @@ namespace D3D12Core
     {
     public:
         GraphicsCommandList() = default;
-        //~GraphicsCommandList() override {}
 
         /**
          * @brief 创建命令队列
@@ -53,10 +45,6 @@ namespace D3D12Core
         void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount = 1, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0) const;
 
         void DispatchBundleCommand(const class CommandBundle* pCommandList);
-
-
-        void UpdateSubresources(IGraphicsResource* DstResource, const UploadBuffer* Intermediate, UINT64 RowPitch, UINT64 SlicePitch, const void* pData) const;
-        void CopyResource(IGraphicsResource* DstResource, const IGraphicsResource* SrcResource) const;
 
     };
 }
