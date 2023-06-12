@@ -50,6 +50,7 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
     auto g_Material = Material();
     g_Material.Create(&g_Shader);
     g_Material.SetName(TEXT("示例材质"));
+    g_Material.SetDepthEnable(false);
 
     GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
     GraphicsManager::GetInstance().GetCopyCommandQueue()->WaitForQueueCompleted();
@@ -80,6 +81,23 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
         graphicsCommandList->RSSetScissorRects(0, 0, ScreenWidth, ScreenHeight);
 
         graphicsCommandList->ClearRenderTargetView(currentRenderTarget, Color(0.0f, 0.5f, 0.75f));
+
+        {
+            graphicsCommandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+            auto rtvFormat = currentRenderTarget->GetFormat();
+            g_Material.GetPipelineState()->SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_UNKNOWN);
+            g_Material.GetPipelineState()->Finalize();
+
+            graphicsCommandList->SetGraphicsRootSignature(g_Shader.GetRootSignature());
+            graphicsCommandList->SetPipelineState(g_Material.GetPipelineState());
+
+            graphicsCommandList->IASetVertexBuffers(0, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Position)].get());
+            graphicsCommandList->IASetVertexBuffers(4, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Texcoord)].get());
+            graphicsCommandList->IASetIndexBuffer(g_Mesh.m_IBV.get());
+
+            graphicsCommandList->DrawIndexedInstanced(static_cast<UINT>(g_Mesh.m_Indices.size()));
+        }
 
         graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
 

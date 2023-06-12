@@ -146,7 +146,7 @@ void Mesh::DispatchDraw(GraphicsCommandList* commandList, int bindSemanticFlag) 
         {
             ASSERT(m_VertexBuffers[i], _T("ERROR::未设置要使用的顶点缓冲。"));
             if (m_VertexBuffers[i])
-                commandList->IASetVertexBuffers(i, 1, m_VBVs[i].get());
+                commandList->IASetVertexBuffers(i, m_VBVs[i].get());
         }
     }
 

@@ -117,7 +117,7 @@ namespace D3D12Core
 
 #include "Utility/Utility.h"
 
-#define FORMAT(x, ...) D3D12Core::Format(x, __VA_ARGS__)
+#define FORMAT(...) D3D12Core::Format(__VA_ARGS__)
 
 #if DEBUG
 

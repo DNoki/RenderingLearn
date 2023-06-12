@@ -56,7 +56,7 @@ namespace D3D12Core
 
     void CL_ClearRenderTargetView(const ICommandList* commandList, const IRenderTarget* renderTarget, const float colorRGBA[4])
     {
-        commandList->GetD3D12CommandList()->ClearRenderTargetView(renderTarget->GetRtvOrDsv(), colorRGBA, 0, nullptr);
+        commandList->GetD3D12CommandList()->ClearRenderTargetView(renderTarget->GetDescriptorHandle(), colorRGBA, 0, nullptr);
     }
 
     void CL_ClearDepthStencilView(const ICommandList* commandList, const IRenderTarget* depthStencil)
@@ -78,7 +78,7 @@ namespace D3D12Core
         }
 
         commandList->GetD3D12CommandList()->ClearDepthStencilView(
-            depthStencil->GetRtvOrDsv(), clearFlags,
+            depthStencil->GetDescriptorHandle(), clearFlags,
             clearValue->DepthStencil.Depth,
             clearValue->DepthStencil.Stencil,
             0, nullptr);
@@ -213,11 +213,11 @@ namespace D3D12Core
 
             if ((*rt)->GetType() == RenderTargetType::Color)
             {
-                RtvHandles.push_back((*rt)->GetRtvOrDsv());
+                RtvHandles.push_back((*rt)->GetDescriptorHandle());
             }
             else if ((*rt)->GetType() == RenderTargetType::DepthStencil)
             {
-                DsvHandle.push_back((*rt)->GetRtvOrDsv());
+                DsvHandle.push_back((*rt)->GetDescriptorHandle());
             }
         }
 
@@ -330,6 +330,7 @@ namespace D3D12Core
 
     void CL_DispatchUploadBuffer(const ICommandList* CommandList, IBufferResource* resource, const void* data)
     {
+        ASSERT(resource->GetD3D12Resource());
         const auto bufferSize = resource->GetResourceDesc().Width;
 
         // 创建上传缓冲

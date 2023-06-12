@@ -146,6 +146,9 @@ namespace D3D12Core
         const D3D12_TEXTURE_COPY_LOCATION* pSrc,
         const D3D12_BOX* pSrcBox);
 
+    /**
+     * \brief 自动分配上传缓冲，拷贝数据到资源
+     */
     extern void CL_DispatchUploadBuffer(const ICommandList* CommandList, IBufferResource* resource, const void* data);
 
 #pragma endregion

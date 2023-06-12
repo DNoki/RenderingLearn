@@ -92,7 +92,7 @@ void GraphicsCommandList::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primit
 {
     CL_IASetPrimitiveTopology(this, primitiveTopology);
 }
-void GraphicsCommandList::IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* VBV) const
+void GraphicsCommandList::IASetVertexBuffers(UINT startSlot, const D3D12_VERTEX_BUFFER_VIEW* VBV) const
 {
     CL_IASetVertexBuffers(this, startSlot, VBV);
 }

@@ -25,7 +25,7 @@ namespace D3D12Core
 
 
         RenderTargetType GetType() const { return m_Type; }
-        const DescriptorHandle& GetRtvOrDsv() const { return m_RtvOrDsv; }
+        const DescriptorHandle& GetDescriptorHandle() const { return m_RtvOrDsv; }
         /**
          * @brief 获取 RTV 描述
          * @return

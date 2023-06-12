@@ -18,7 +18,31 @@ namespace D3D12Core
         IDXGIAdapter4* GetAdapter() const { return m_Adapter.get(); }
         ID3D12Device6* GetDevice() const { return m_Device.get(); }
 
-        const DXGI_ADAPTER_DESC3& GetAdapterDesc() const { return m_AdapterDesc; }
+        /**
+         * \brief 获取显卡设备数量
+         */
+        UINT GetGpuCount() const;
+        /**
+         * \brief 获取显卡设备名称
+         */
+        String GetGpuDescription(UINT Node = 0) const;
+        /**
+         * \brief 获取 GPU 显存大小
+         */
+        UINT64 GetGpuDedicatedMemory(UINT Node = 0) const;
+        /**
+         * \brief 获取 GPU 共享内存大小
+         */
+        UINT64 GetGpuSharedMemory(UINT Node = 0) const;
+        /**
+         * \brief 获取 GPU 分配给此应用的内存预算
+         */
+        UINT64 GetGpuMemoryBudget(UINT Node = 0) const;
+        /**
+         * \brief 获取当前已使用 GPU 内存的大小
+         */
+        UINT64 GetGpuUsagedMemory(UINT Node = 0) const;
+
 
         void SetAltEnterEnable(HWND winHandle, bool enable);
 
@@ -36,7 +60,7 @@ namespace D3D12Core
         ComPtr<IDXGIAdapter4> m_Adapter{};
         ComPtr<ID3D12Device6> m_Device{};
 
-        DXGI_ADAPTER_DESC3 m_AdapterDesc{};
+        Vector<DXGI_ADAPTER_DESC3> m_AdapterDesc{};
 
     };
 }

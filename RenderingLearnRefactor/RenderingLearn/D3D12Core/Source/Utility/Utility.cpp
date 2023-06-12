@@ -29,6 +29,8 @@
             %p         指针
             %s         字符串
             %%         输出字符%
+            %lld(I64d) 有符号长整型
+            %llu(I64u) 无符号长整型
         标志
             左对齐："-"   比如："%-20s"
             右对齐："+"   比如："%+20s"
@@ -87,7 +89,7 @@ namespace D3D12Core
         vsprintf_s(buffer, 256, format, ap);
 #endif
         va_end(ap);
-        Print(format);
+        Print(buffer);
     }
 
     HRESULT CheckHresult(HRESULT hr)

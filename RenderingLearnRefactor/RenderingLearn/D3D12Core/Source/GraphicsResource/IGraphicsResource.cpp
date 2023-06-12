@@ -67,7 +67,9 @@
 */
 // --------------------------------------------------------------------------
 
-void D3D12Core::IGraphicsResource::DispatchTransitionStates(GraphicsCommandList* commandList,
+using namespace D3D12Core;
+
+void IGraphicsResource::DispatchTransitionStates(GraphicsCommandList* commandList,
     D3D12_RESOURCE_STATES after)
 
 {

@@ -34,13 +34,14 @@ void ::GraphicsContext::Initialize()
             // 遍历所有适配器
             DXGI_ADAPTER_DESC3 desc;
             pAdapter->GetDesc3(&desc);
+
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {} // 软件虚拟适配器，跳过
             else if (desc.DedicatedVideoMemory > MaxSize) // 选择最大专用适配器内存（显存）
             {
                 auto hr = D3D12CreateDevice(pAdapter.get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(pDevice.put()));
                 if (SUCCEEDED(hr))
                 {
-                    TRACE(L"D3D12-capable hardware found:  %s (%u MB)\n", desc.Description, desc.DedicatedVideoMemory >> 20);
+                    TRACE(TEXT("D3D12-capable hardware found:  %s (%u MB)\n"), desc.Description, desc.DedicatedVideoMemory >> 20);
                     MaxSize = desc.DedicatedVideoMemory;
                     m_Adapter = std::move(pAdapter);
                 }
@@ -50,23 +51,22 @@ void ::GraphicsContext::Initialize()
         }
         if (MaxSize > 0)
             m_Device = std::move(pDevice);
-        ASSERT(m_Device != nullptr, L"ERROR::D3D12设备对象创建失败");
+        ASSERT(m_Device != nullptr, TEXT("ERROR::D3D12设备对象创建失败"));
+        SetDebugName(m_Adapter.get(), TEXT("GraphicsAdapter"));
+        SetDebugName(m_Device.get(), TEXT("GraphicsDevice"));
 
-        DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{}; // TODO 描述当前的GPU内存预算参数
-        CHECK_HRESULT(m_Adapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));
+        // 获取显卡信息
+        const auto GpuCount = GetGpuCount();
+        ASSERT(GpuCount > 0);
+        for (UINT i = 0; i < GpuCount; ++i)
         {
-            m_Adapter->GetDesc3(&m_AdapterDesc);
+            m_AdapterDesc.push_back(DXGI_ADAPTER_DESC3());
+            CHECK_HRESULT(m_Adapter->GetDesc3(&m_AdapterDesc.back()));
         }
-
-        UINT nodeCount = m_Device->GetNodeCount(); // 查询物理适配器数目
-        ASSERT(nodeCount > 0);
-
-        SetDebugName(m_Adapter.get(), TEXT("IDXGIAdapter"));
-        SetDebugName(m_Device.get(), TEXT("Device"));
     }
 }
 
-void D3D12Core::GraphicsContext::Destroy()
+void GraphicsContext::Destroy()
 {
     m_Device = nullptr;
     m_Adapter = nullptr;
@@ -74,13 +74,46 @@ void D3D12Core::GraphicsContext::Destroy()
     m_D3D12Debug = nullptr;
 }
 
-void D3D12Core::GraphicsContext::SetAltEnterEnable(HWND winHandle, bool enable)
+UINT GraphicsContext::GetGpuCount() const
+{
+    return  m_Device->GetNodeCount();
+}
+String GraphicsContext::GetGpuDescription(UINT Node) const
+{
+    return m_AdapterDesc[Node].Description;
+}
+
+UINT64 GraphicsContext::GetGpuDedicatedMemory(UINT Node) const
+{
+    return m_AdapterDesc[Node].DedicatedVideoMemory;
+}
+
+UINT64 GraphicsContext::GetGpuSharedMemory(UINT Node) const
+{
+    return m_AdapterDesc[Node].SharedSystemMemory;
+}
+
+auto GraphicsContext::GetGpuMemoryBudget(UINT Node) const -> UINT64
+{
+    DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{};
+    CHECK_HRESULT(m_Adapter->QueryVideoMemoryInfo(Node, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));
+    return GpuMemoryInfo.Budget;
+}
+
+UINT64 GraphicsContext::GetGpuUsagedMemory(UINT Node) const
+{
+    DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{};
+    CHECK_HRESULT(m_Adapter->QueryVideoMemoryInfo(Node, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));
+    return GpuMemoryInfo.CurrentUsage;
+}
+
+void GraphicsContext::SetAltEnterEnable(HWND winHandle, bool enable)
 {
     // 启用或防止 DXGI 响应 Alt + Enter
     CHECK_HRESULT(m_Factory->MakeWindowAssociation(winHandle, enable ? 0 : DXGI_MWA_NO_ALT_ENTER));
 }
 
-void D3D12Core::GraphicsContext::SetDebugName(IDXGIObject* pObj, const String& name)
+void GraphicsContext::SetDebugName(IDXGIObject* pObj, const String& name)
 {
     static UINT DebugIndex = 0;
 
@@ -90,7 +123,7 @@ void D3D12Core::GraphicsContext::SetDebugName(IDXGIObject* pObj, const String& n
     CHECK_HRESULT(pObj->SetPrivateData(WKPDID_D3DDebugObjectNameW, static_cast<UINT>((indexedName.size() + 1) * sizeof(wchar_t)), indexedName.c_str()));
 }
 
-void D3D12Core::GraphicsContext::SetDebugName(ID3D12Object* pObj, const String& name)
+void GraphicsContext::SetDebugName(ID3D12Object* pObj, const String& name)
 {
     static UINT DebugIndex = 0;
 

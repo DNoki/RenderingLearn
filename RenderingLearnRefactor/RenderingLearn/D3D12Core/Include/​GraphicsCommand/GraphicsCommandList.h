@@ -33,7 +33,7 @@ namespace D3D12Core
         void SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const;
 
         void IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) const;
-        void IASetVertexBuffers(UINT startSlot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW* VBV) const;
+        void IASetVertexBuffers(UINT startSlot, const D3D12_VERTEX_BUFFER_VIEW* VBV) const;
         void IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* IBV) const;
 
         void RSSetViewports(float topLeftX, float topLeftY, float width, float height) const;

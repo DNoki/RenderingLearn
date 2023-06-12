@@ -171,14 +171,16 @@ namespace D3D12Viewer
         */
         static Mesh CreateTeapot(float size = 1, size_t tessellation = 8, bool rhcoords = false);
 
+        UniquePtr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]{}; // 顶点缓冲视图
+        UniquePtr<D3D12_INDEX_BUFFER_VIEW> m_IBV{}; // 索引缓冲视图
     private:
         D3D_PRIMITIVE_TOPOLOGY m_PrimitiveTopology{}; // 定义管道如何解释和呈现顶点
 
         UniquePtr<D3D12Core::GraphicsBuffer> m_VertexBuffers[VertexSemanticCount]{}; // 顶点缓冲列表
         UniquePtr<D3D12Core::GraphicsBuffer> m_IndexBuffer{};  // 索引缓冲
 
-        UniquePtr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]{}; // 顶点缓冲视图
-        UniquePtr<D3D12_INDEX_BUFFER_VIEW> m_IBV{}; // 索引缓冲视图
+        //UniquePtr<D3D12_VERTEX_BUFFER_VIEW> m_VBVs[VertexSemanticCount]{}; // 顶点缓冲视图
+        //UniquePtr<D3D12_INDEX_BUFFER_VIEW> m_IBV{}; // 索引缓冲视图
 
         bool m_Version{ 1 }; // TODO
 
