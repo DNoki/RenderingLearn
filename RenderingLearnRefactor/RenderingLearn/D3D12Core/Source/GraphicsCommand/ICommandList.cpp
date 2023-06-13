@@ -204,7 +204,8 @@ namespace D3D12Core
     void CL_OMSetRenderTargets(const ICommandList* commandList, std::initializer_list<const IRenderTarget*> renderTargets)
     {
         Vector<CpuDescriptorHandle> RtvHandles{};
-        Vector<CpuDescriptorHandle> DsvHandle;
+        CpuDescriptorHandle DsvHandle;
+        bool isHaveDsv = false;
 
         for (auto rt = renderTargets.begin(); rt != renderTargets.end(); ++rt)
         {
@@ -217,12 +218,13 @@ namespace D3D12Core
             }
             else if ((*rt)->GetType() == RenderTargetType::DepthStencil)
             {
-                DsvHandle.push_back((*rt)->GetDescriptorHandle());
+                ASSERT(!isHaveDsv);
+                isHaveDsv = true;
+                DsvHandle = (*rt)->GetDescriptorHandle();
             }
         }
 
-        ASSERT(0 < RtvHandles.size());
-        ASSERT(DsvHandle.size() < 2);
+        ASSERT(0 < RtvHandles.size()); // TODO 应当允许仅渲染深度缓冲目标
 
         commandList->GetD3D12CommandList()->OMSetRenderTargets(
             static_cast<UINT>(RtvHandles.size()),
@@ -230,7 +232,7 @@ namespace D3D12Core
             // True 表示传入的 RTV 指向连续的描述符范围指针，其在 GPU 内存上是连续存储的
             // False 表示传入的 RTV 是一个描述符句柄数组
             FALSE,
-            DsvHandle.size() == 0 ? nullptr : DsvHandle.data());
+            isHaveDsv ? &DsvHandle : nullptr);
     }
 
     void CL_OMSetBlendFactor(const ICommandList* commandList, const float BlendFactor[4])

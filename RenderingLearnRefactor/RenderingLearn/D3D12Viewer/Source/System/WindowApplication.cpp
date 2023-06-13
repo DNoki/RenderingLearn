@@ -75,12 +75,27 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
 
         graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-        graphicsCommandList->OMSetRenderTarget(currentRenderTarget);
+
+        D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{};
+        renderPassRenderTargetDesc.cpuDescriptor = currentRenderTarget->GetDescriptorHandle();
+        renderPassRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+        renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+        memcpy(&renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color, Color(0.0f, 0.5f, 0.75f), sizeof(Color));
+        renderPassRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+        renderPassRenderTargetDesc.EndingAccess.Resolve = {};
+
+        graphicsCommandList->GetD3D12CommandList()->BeginRenderPass(
+            1,
+            &renderPassRenderTargetDesc,
+            nullptr,
+            D3D12_RENDER_PASS_FLAG_NONE);
+
+        //graphicsCommandList->OMSetRenderTarget(currentRenderTarget);
 
         graphicsCommandList->RSSetViewports(0.0f, 0.0f, static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
         graphicsCommandList->RSSetScissorRects(0, 0, ScreenWidth, ScreenHeight);
 
-        graphicsCommandList->ClearRenderTargetView(currentRenderTarget, Color(0.0f, 0.5f, 0.75f));
+        //graphicsCommandList->ClearRenderTargetView(currentRenderTarget, Color(0.0f, 0.5f, 0.75f));
 
         {
             graphicsCommandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -99,13 +114,18 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
             graphicsCommandList->DrawIndexedInstanced(static_cast<UINT>(g_Mesh.m_Indices.size()));
         }
 
+
+        graphicsCommandList->GetD3D12CommandList()->EndRenderPass();
+
+
         graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
 
         ICommandList* c = graphicsCommandList;
         GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);
         GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
 
-        CHECK_HRESULT(swapChain->GetD3D12SwapChain()->Present(0, DXGI_PRESENT_ALLOW_TEARING));
+        CHECK_HRESULT(swapChain->GetD3D12SwapChain()->Present(1, 0));
+        //CHECK_HRESULT(swapChain->GetD3D12SwapChain()->Present(0, DXGI_PRESENT_ALLOW_TEARING));
 
         //    TimeSystem::RefreshTimeSystem();
         //    Input::RefreshBeforeUpdate();

@@ -177,6 +177,7 @@ namespace D3D12Viewer
         operator DirectX::XMFLOAT4& () noexcept { return *reinterpret_cast<DirectX::XMFLOAT4*>(this); }
         operator DirectX::XMVECTOR() const noexcept { return DirectX::XMLoadFloat4(reinterpret_cast<const DirectX::XMFLOAT4*>(this)); }
         operator const float* () const noexcept { return reinterpret_cast<const float*>(this); }
+        operator float* () const noexcept { return const_cast<float*>(reinterpret_cast<const float*>(this)); }
 
         /**
          * @brief 从 HSV 模型创建颜色(0.0 ~ 1.0)
