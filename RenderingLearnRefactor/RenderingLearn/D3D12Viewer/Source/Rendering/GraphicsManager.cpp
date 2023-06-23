@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "System/GraphicsManager.h"
+#include "Rendering/GraphicsManager.h"
 
 using namespace D3D12Core;
 using namespace D3D12Viewer;

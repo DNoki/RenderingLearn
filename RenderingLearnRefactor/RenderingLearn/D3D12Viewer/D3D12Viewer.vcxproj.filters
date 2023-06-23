@@ -22,15 +22,15 @@
     <Filter Include="Shader\VS">
       <UniqueIdentifier>{ade52490-7753-4d10-939b-d3282464147a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rendering">
+      <UniqueIdentifier>{7ab0cede-b285-4982-bab7-d362b64106b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Utility\pch.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Source\D3D12Viewer.cpp" />
-    <ClCompile Include="Source\System\GraphicsManager.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
     <ClCompile Include="Source\System\WindowApplication.cpp">
       <Filter>System</Filter>
     </ClCompile>
@@ -49,15 +49,18 @@
     <ClCompile Include="Source\Resource\Shader.cpp">
       <Filter>Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Rendering\RenderPass.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\GraphicsManager.cpp">
+      <Filter>Rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility\pch.h">
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="Include\D3D12Viewer.h" />
-    <ClInclude Include="Include\System\GraphicsManager.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Include\System\WindowApplication.h">
       <Filter>System</Filter>
     </ClInclude>
@@ -75,6 +78,12 @@
     </ClInclude>
     <ClInclude Include="Include\Resource\Shader.h">
       <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Rendering\RenderPass.h">
+      <Filter>Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Rendering\GraphicsManager.h">
+      <Filter>Rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -35,10 +35,16 @@ namespace D3D12Viewer
 
         Count
     };
+
+    class GraphicsManager;
+    class RenderPass;
+    class Mesh;
+    class Material;
 }
 
 #include "Utility/MathCommon.h"
-#include "System/GraphicsManager.h"
+#include "Rendering/GraphicsManager.h"
+#include "Rendering/RenderPass.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Material.h"

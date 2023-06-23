@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "System/WindowApplication.h"
 
-#include "System/GraphicsManager.h"
-
 using namespace D3D12Core;
 using namespace D3D12Viewer;
 
@@ -67,60 +65,76 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
                 g_AppEvent.set(EventFlag::Exit);
         }
 
-        auto* graphicsCommandList = CommandListPool::Request<GraphicsCommandList>();
-        graphicsCommandList->Reset();
+        //auto* graphicsCommandList = CommandListPool::Request<GraphicsCommandList>();
+        //graphicsCommandList->Reset();
 
         auto swapChain = GraphicsManager::GetInstance().GetSwapChain();
         auto currentRenderTarget = swapChain->GetRenderTarget(swapChain->GetCurrentBackBufferIndex());
 
-        graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        auto renderPass = RenderPass();
+        renderPass.Create();
+        renderPass.SetRenderTargets({ currentRenderTarget });
+        renderPass.SetRTBeginningAccess(0,
+            D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR,
+            DXGI_FORMAT_R32G32B32_FLOAT,
+            Color(0.0f, 0.5f, 0.75f));
+        renderPass.SetRTEndingAccess(0,
+            D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE);
+        renderPass.BeginRenderPass();
+        renderPass.SetViewports(0, 0, ScreenWidth, ScreenHeight);
+
+        //graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 
-        D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{};
-        renderPassRenderTargetDesc.cpuDescriptor = currentRenderTarget->GetDescriptorHandle();
-        renderPassRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-        renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-        memcpy(&renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color, Color(0.0f, 0.5f, 0.75f), sizeof(Color));
-        renderPassRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-        renderPassRenderTargetDesc.EndingAccess.Resolve = {};
+        //D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{};
+        //renderPassRenderTargetDesc.cpuDescriptor = currentRenderTarget->GetDescriptorHandle();
+        //renderPassRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+        //renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+        //reinterpret_cast<Color&>(renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color) = Color(0.0f, 0.5f, 0.75f);
+        //renderPassRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+        //renderPassRenderTargetDesc.EndingAccess.Resolve = {};
 
-        graphicsCommandList->GetD3D12CommandList()->BeginRenderPass(
-            1,
-            &renderPassRenderTargetDesc,
-            nullptr,
-            D3D12_RENDER_PASS_FLAG_NONE);
+        //graphicsCommandList->RSSetViewports(0.0f, 0.0f, static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
+        //graphicsCommandList->RSSetScissorRects(0, 0, ScreenWidth, ScreenHeight);
+
+        //graphicsCommandList->GetD3D12CommandList()->BeginRenderPass(
+        //    1,
+        //    &renderPassRenderTargetDesc,
+        //    nullptr,
+        //    D3D12_RENDER_PASS_FLAG_NONE);
 
         //graphicsCommandList->OMSetRenderTarget(currentRenderTarget);
-
-        graphicsCommandList->RSSetViewports(0.0f, 0.0f, static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
-        graphicsCommandList->RSSetScissorRects(0, 0, ScreenWidth, ScreenHeight);
 
         //graphicsCommandList->ClearRenderTargetView(currentRenderTarget, Color(0.0f, 0.5f, 0.75f));
 
         {
-            graphicsCommandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+            renderPass.DrawCall(&g_Mesh, &g_Material);
 
-            auto rtvFormat = currentRenderTarget->GetFormat();
-            g_Material.GetPipelineState()->SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_UNKNOWN);
-            g_Material.GetPipelineState()->Finalize();
+            //graphicsCommandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-            graphicsCommandList->SetGraphicsRootSignature(g_Shader.GetRootSignature());
-            graphicsCommandList->SetPipelineState(g_Material.GetPipelineState());
+            //auto rtvFormat = currentRenderTarget->GetFormat();
+            //g_Material.GetPipelineState()->SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_UNKNOWN);
+            //g_Material.GetPipelineState()->Finalize();
 
-            graphicsCommandList->IASetVertexBuffers(0, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Position)].get());
-            graphicsCommandList->IASetVertexBuffers(4, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Texcoord)].get());
-            graphicsCommandList->IASetIndexBuffer(g_Mesh.m_IBV.get());
+            //graphicsCommandList->SetGraphicsRootSignature(g_Shader.GetRootSignature());
+            //graphicsCommandList->SetPipelineState(g_Material.GetPipelineState());
 
-            graphicsCommandList->DrawIndexedInstanced(static_cast<UINT>(g_Mesh.m_Indices.size()));
+            //graphicsCommandList->IASetVertexBuffers(0, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Position)].get());
+            //graphicsCommandList->IASetVertexBuffers(4, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Texcoord)].get());
+            //graphicsCommandList->IASetIndexBuffer(g_Mesh.m_IBV.get());
+
+            //graphicsCommandList->DrawIndexedInstanced(static_cast<UINT>(g_Mesh.m_Indices.size()));
         }
 
 
-        graphicsCommandList->GetD3D12CommandList()->EndRenderPass();
+        //graphicsCommandList->GetD3D12CommandList()->EndRenderPass();
 
 
-        graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
+        //graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
+        renderPass.EndRenderPass();
 
-        ICommandList* c = graphicsCommandList;
+        ICommandList* c = renderPass.m_CommandList;
+        //ICommandList* c = graphicsCommandList;
         GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);
         GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
 

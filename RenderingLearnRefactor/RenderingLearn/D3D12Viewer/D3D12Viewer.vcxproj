@@ -185,11 +185,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\D3D12Viewer.cpp" />
+    <ClCompile Include="Source\Rendering\RenderPass.cpp" />
+    <ClCompile Include="Source\Rendering\GraphicsManager.cpp" />
     <ClCompile Include="Source\Resource\IGameResource.cpp" />
     <ClCompile Include="Source\Resource\Material.cpp" />
     <ClCompile Include="Source\Resource\Mesh.cpp" />
     <ClCompile Include="Source\Resource\Shader.cpp" />
-    <ClCompile Include="Source\System\GraphicsManager.cpp" />
     <ClCompile Include="Source\System\WindowApplication.cpp" />
     <ClCompile Include="Source\Utility\MathCommon.cpp" />
     <ClCompile Include="Source\Utility\pch.cpp">
@@ -199,11 +200,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\D3D12Viewer.h" />
+    <ClInclude Include="Include\Rendering\RenderPass.h" />
+    <ClInclude Include="Include\Rendering\GraphicsManager.h" />
     <ClInclude Include="Include\Resource\IGameResource.h" />
     <ClInclude Include="Include\Resource\Material.h" />
     <ClInclude Include="Include\Resource\Mesh.h" />
     <ClInclude Include="Include\Resource\Shader.h" />
-    <ClInclude Include="Include\System\GraphicsManager.h" />
     <ClInclude Include="Include\System\WindowApplication.h" />
     <ClInclude Include="Include\Utility\MathCommon.h" />
     <ClInclude Include="Source\Utility\pch.h" />

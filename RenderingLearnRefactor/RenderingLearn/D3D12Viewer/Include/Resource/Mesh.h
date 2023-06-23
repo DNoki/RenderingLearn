@@ -53,6 +53,7 @@ namespace D3D12Viewer
 
         // --------------------------------------------------------------------------
         DrawType GetDrawType() const { return (m_IndexBuffer != nullptr ? DrawType::Indexed : DrawType::VertexList); }
+        D3D_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const { return m_PrimitiveTopology; }
 
         void SetName(const String& name) override;
 
