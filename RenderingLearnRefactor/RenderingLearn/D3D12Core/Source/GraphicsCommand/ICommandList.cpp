@@ -120,13 +120,13 @@ namespace D3D12Core
             descHeaps.push_back(pSamplerDescHeap->GetD3D12DescriptorHeap());
 
         if (descHeaps.size() > 0)
-            commandList->GetD3D12CommandList()->SetDescriptorHeaps(static_cast<UINT>(descHeaps.size()), descHeaps.data());
+            commandList->GetD3D12CommandList()->SetDescriptorHeaps(static_cast<uint32>(descHeaps.size()), descHeaps.data());
     }
 
     /**
      * \brief 将描述符表绑定到图形根签名
      */
-    void CL_SetGraphicsRootDescriptorTable(const ICommandList* commandList, UINT rootParameterIndex, const DescriptorHeap* descriptorHeap)
+    void CL_SetGraphicsRootDescriptorTable(const ICommandList* commandList, uint32 rootParameterIndex, const DescriptorHeap* descriptorHeap)
     {
         commandList->GetD3D12CommandList()->SetGraphicsRootDescriptorTable(rootParameterIndex, descriptorHeap->GetDescriptorHandle(0));
     }
@@ -134,7 +134,7 @@ namespace D3D12Core
     /**
      * \brief 将常量缓冲绑定到图形根签名
      */
-    void CL_SetGraphicsRootConstantBufferView(const ICommandList* commandList, UINT rootParameterIndex, const IBufferResource* buffer)
+    void CL_SetGraphicsRootConstantBufferView(const ICommandList* commandList, uint32 rootParameterIndex, const IBufferResource* buffer)
     {
         commandList->GetD3D12CommandList()->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer->GetGpuVirtualAddress());
     }
@@ -154,7 +154,7 @@ namespace D3D12Core
      * \param startSlot 索引到设备的从零开始的数组中，开始设置顶点缓冲区
      * \param pViews 指定顶点缓冲区视图
      */
-    void CL_IASetVertexBuffers(const ICommandList* commandList, UINT startSlot, const D3D12_VERTEX_BUFFER_VIEW* pViews)
+    void CL_IASetVertexBuffers(const ICommandList* commandList, uint32 startSlot, const D3D12_VERTEX_BUFFER_VIEW* pViews)
     {
         commandList->GetD3D12CommandList()->IASetVertexBuffers(startSlot, 1, pViews);
     }
@@ -176,7 +176,7 @@ namespace D3D12Core
      * \param numViewports 要绑定的视区数。 有效值的范围 (0，D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE)
      * \param pViewports 要绑定到设备的 D3D12_VIEWPORT 结构的数组
      */
-    void CL_RSSetViewports(const ICommandList* commandList, UINT numViewports, const D3D12_VIEWPORT* pViewports)
+    void CL_RSSetViewports(const ICommandList* commandList, uint32 numViewports, const D3D12_VIEWPORT* pViewports)
     {
         commandList->GetD3D12CommandList()->RSSetViewports(numViewports, pViewports);
     }
@@ -187,7 +187,7 @@ namespace D3D12Core
      * \param numRects 要绑定的剪刀矩形的数目
      * \param pRects 剪刀矩形数组
      */
-    void CL_RSSetScissorRects(const ICommandList* commandList, UINT numRects, const D3D12_RECT* pRects)
+    void CL_RSSetScissorRects(const ICommandList* commandList, uint32 numRects, const D3D12_RECT* pRects)
     {
         commandList->GetD3D12CommandList()->RSSetScissorRects(numRects, pRects);
     }
@@ -227,7 +227,7 @@ namespace D3D12Core
         ASSERT(0 < RtvHandles.size()); // TODO 应当允许仅渲染深度缓冲目标
 
         commandList->GetD3D12CommandList()->OMSetRenderTargets(
-            static_cast<UINT>(RtvHandles.size()),
+            static_cast<uint32>(RtvHandles.size()),
             RtvHandles.data(),
             // True 表示传入的 RTV 指向连续的描述符范围指针，其在 GPU 内存上是连续存储的
             // False 表示传入的 RTV 是一个描述符句柄数组
@@ -240,7 +240,7 @@ namespace D3D12Core
         commandList->GetD3D12CommandList()->OMSetBlendFactor(BlendFactor);
     }
 
-    void CL_OMSetStencilRef(const ICommandList* commandList, UINT StencilRef)
+    void CL_OMSetStencilRef(const ICommandList* commandList, uint32 StencilRef)
     {
         commandList->GetD3D12CommandList()->OMSetStencilRef(StencilRef);
     }
@@ -257,7 +257,7 @@ namespace D3D12Core
      * \param startVertexLocation 第一个顶点的索引
      * \param startInstanceLocation 在从顶点缓冲区读取每实例数据之前，向每个索引添加一个值
      */
-    void CL_DrawInstanced(const ICommandList* commandList, UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation)
+    void CL_DrawInstanced(const ICommandList* commandList, uint32 vertexCountPerInstance, uint32 instanceCount, uint32 startVertexLocation, uint32 startInstanceLocation)
     {
         commandList->GetD3D12CommandList()->DrawInstanced(vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
     }
@@ -271,7 +271,7 @@ namespace D3D12Core
      * \param baseVertexLocation 在从顶点缓冲区读取顶点之前，向每个索引添加一个值
      * \param startInstanceLocation 在从顶点缓冲区读取每实例数据之前，向每个索引添加一个值
      */
-    void CL_DrawIndexedInstanced(const ICommandList* commandList, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation)
+    void CL_DrawIndexedInstanced(const ICommandList* commandList, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, int32 baseVertexLocation, uint32 startInstanceLocation)
     {
         commandList->GetD3D12CommandList()->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
     }
@@ -286,8 +286,8 @@ namespace D3D12Core
         const ICommandList* CommandList,
         IGraphicsResource* DstResource,
         const UploadBuffer* Intermediate,
-        UINT64 RowPitch,
-        UINT64 SlicePitch,
+        uint64 RowPitch,
+        uint64 SlicePitch,
         const void* pData)
     {
         ASSERT(Intermediate->GetResourceStates() & D3D12_RESOURCE_STATE_COPY_SOURCE);
@@ -321,9 +321,9 @@ namespace D3D12Core
     void CL_CopyTextureRegion(
         const ICommandList* CommandList,
         const D3D12_TEXTURE_COPY_LOCATION* DstResource,
-        UINT DstX,
-        UINT DstY,
-        UINT DstZ,
+        uint32 DstX,
+        uint32 DstY,
+        uint32 DstZ,
         const D3D12_TEXTURE_COPY_LOCATION* pSrc,
         const D3D12_BOX* pSrcBox)
     {

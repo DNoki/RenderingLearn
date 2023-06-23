@@ -15,7 +15,7 @@
 
 using namespace D3D12Core;
 
-void GraphicsBuffer::DirectCreate(UINT64 size)
+void GraphicsBuffer::DirectCreate(uint64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
     m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
@@ -33,7 +33,7 @@ void GraphicsBuffer::DirectCreate(UINT64 size)
     Finalize();
 }
 
-void GraphicsBuffer::PlacedCreate(UINT64 size)
+void GraphicsBuffer::PlacedCreate(uint64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
     m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
@@ -93,27 +93,27 @@ void GraphicsBuffer::PlacedCreate(UINT64 size)
 //}
 
 #if 0
-void GraphicsBuffer::GenerateVertexOrIndexView(UINT strideSize)
+void GraphicsBuffer::GenerateVertexOrIndexView(uint32 strideSize)
 {
     // 创建顶点缓冲视图
     m_VertexBufferView.reset(new D3D12_VERTEX_BUFFER_VIEW{
             m_GpuVirtualAddress,
-            static_cast<UINT>(m_ResourceDesc.Width),
+            static_cast<uint32>(m_ResourceDesc.Width),
             strideSize });
 
     DXGI_FORMAT ibvFormat = DXGI_FORMAT_R16_UINT;
     switch (strideSize)
     {
-        case sizeof(UINT16) : ibvFormat = DXGI_FORMAT_R16_UINT; break;
+        case sizeof(uint16) : ibvFormat = DXGI_FORMAT_R16_UINT; break;
         default: break;
     }
     m_IndexBufferView.reset(new D3D12_INDEX_BUFFER_VIEW{
             m_GpuVirtualAddress,
-            static_cast<UINT>(m_ResourceDesc.Width),
+            static_cast<uint32>(m_ResourceDesc.Width),
             ibvFormat });
 }
 
-void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices)
+void GraphicsBuffer::CreateVertexBuffer(uint32 strideSize, uint32 vertexCount, const void* vertices)
 {
     // 说明：上传缓冲区对 CPU 和 GPU 都是可见的，但由于内存是写合并的，因此应避免使用 CPU 读取数据。 上传缓冲区用于将数据移动到默认 GPU 缓冲区。 您可以将文件直接读入上传缓冲区，而不是读入常规缓存内存，将其复制到上传缓冲区，然后将其复制到 GPU。
 
@@ -132,7 +132,7 @@ void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const
 
 
     // 将三角形数据复制到顶点缓冲区
-    UINT8* pVertexDataBegin = nullptr;
+    uint8* pVertexDataBegin = nullptr;
     CD3DX12_RANGE readRange(0, 0); // 不在 CPU 上读取此资源
     CHECK_HRESULT(m_Resource->Map( // 获取指向资源中指定子资源的 CPU 指针，但不得将指针值透露给应用程序。
         0, // 指定子资源的索引号
@@ -150,7 +150,7 @@ void GraphicsBuffer::CreateVertexBuffer(UINT strideSize, UINT vertexCount, const
             strideSize });
 }
 
-void GraphicsBuffer::PlacedVertexBuffer(UINT strideSize, UINT vertexCount, const void* vertices, PlacedHeap& pPlacedHeap, PlacedHeap& pUploadPlacedHeap)
+void GraphicsBuffer::PlacedVertexBuffer(uint32 strideSize, uint32 vertexCount, const void* vertices, PlacedHeap& pPlacedHeap, PlacedHeap& pUploadPlacedHeap)
 {
     auto bufferSize = strideSize * vertexCount;
 

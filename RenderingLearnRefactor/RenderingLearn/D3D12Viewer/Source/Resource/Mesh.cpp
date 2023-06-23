@@ -14,7 +14,7 @@ using namespace D3D12Core;
 using namespace D3D12Viewer;
 
 #if 0
-void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount, const UINT16* indices)
+void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, uint32 vertexCount, uint32 strideSize, const void* vertices, uint32 indexCount, const uint16* indices)
 {
     m_VertexStrideSize = strideSize;
     m_PrimitiveTopology = primitiveTopology;
@@ -30,8 +30,8 @@ void Mesh::DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCou
     if (indexCount > 0)
     {
         auto indexBuffer = unique_ptr<GraphicsBuffer>(new GraphicsBuffer());
-        indexBuffer->DirectCreate(indexCount * sizeof(UINT16));
-        indexBuffer->DispatchUploadBuffer(g_GraphicsCommandList, sizeof(UINT16), indices);
+        indexBuffer->DirectCreate(indexCount * sizeof(uint16));
+        indexBuffer->DispatchUploadBuffer(g_GraphicsCommandList, sizeof(uint16), indices);
         m_IndexBuffer = move(indexBuffer);
 
         m_Indices.resize(indexCount);
@@ -48,15 +48,15 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     commandList->Reset();
 
     // 顶点数量
-    UINT64 vertexCount = m_Positions.size();
-    UINT64 vertexCountArray[] = { m_Positions.size(), m_Normals.size(), m_Tangents.size(), m_Colors.size(), m_UVs.size(), };
+    uint64 vertexCount = m_Positions.size();
+    uint64 vertexCountArray[] = { m_Positions.size(), m_Normals.size(), m_Tangents.size(), m_Colors.size(), m_UVs.size(), };
     // 顶点语义数据类型
-    UINT vertexStrideArray[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector4), sizeof(Vector2), };
+    uint32 vertexStrideArray[] = { sizeof(Vector3), sizeof(Vector3), sizeof(Vector3), sizeof(Vector4), sizeof(Vector2), };
     // 顶点语义数据
     void* vertexDataArray[] = { m_Positions.data(), m_Normals.data(), m_Tangents.data(), m_Colors.data(), m_UVs.data(), };
 
     // 创建需要使用的顶点缓冲
-    for (int i = 0; i < VertexSemanticCount; i++)
+    for (size_t i = 0; i < VertexSemanticCount; i++)
     {
         m_VertexBuffers[i] = nullptr;
         m_VBVs[i] = nullptr;
@@ -71,7 +71,7 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
         m_VBVs[i].reset(new D3D12_VERTEX_BUFFER_VIEW
             {
                 m_VertexBuffers[i]->GetGpuVirtualAddress(),
-                static_cast<UINT>(m_VertexBuffers[i]->GetBufferSize()),
+                static_cast<uint32>(m_VertexBuffers[i]->GetBufferSize()),
                 vertexStrideArray[i],
             });
     }
@@ -80,15 +80,15 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
     if (m_Indices.size() > 0)
     {
         m_IndexBuffer.reset(new GraphicsBuffer());
-        m_IndexBuffer->PlacedCreate(m_Indices.size() * sizeof(UINT16));
+        m_IndexBuffer->PlacedCreate(m_Indices.size() * sizeof(uint16));
         //m_IndexBuffer->DispatchUploadBuffer(*commandList, m_Indices.data());
         commandList->DispatchUploadBuffer(m_IndexBuffer.get(), m_Indices.data());
 
         m_IBV.reset(new D3D12_INDEX_BUFFER_VIEW
             {
                 m_IndexBuffer->GetGpuVirtualAddress(),
-                static_cast<UINT>(m_IndexBuffer->GetBufferSize()),
-                DXGI_FORMAT_R16_UINT, // UINT16
+                static_cast<uint32>(m_IndexBuffer->GetBufferSize()),
+                DXGI_FORMAT_R16_UINT, // uint16
             });
     }
     else m_IndexBuffer = nullptr;
@@ -109,7 +109,7 @@ void Mesh::SetName(const String& name)
         L"VBV颜色",
         L"VBV纹理坐标",
     };
-    for (int i = 0; i < VertexSemanticCount; i++)
+    for (size_t i = 0; i < VertexSemanticCount; i++)
     {
         if (m_VertexBuffers[i])
         {
@@ -124,7 +124,7 @@ void Mesh::SetName(const String& name)
 
 void Mesh::DispatchResourceExamine(GraphicsCommandList* commandList) const
 {
-    for (int i = 0; i < VertexSemanticCount; i++)
+    for (size_t i = 0; i < VertexSemanticCount; i++)
     {
         if (m_VertexBuffers[i] && (m_VertexBuffers[i]->GetResourceStates() != D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER))
         {
@@ -135,29 +135,29 @@ void Mesh::DispatchResourceExamine(GraphicsCommandList* commandList) const
         m_IndexBuffer->DispatchTransitionStates(commandList, D3D12_RESOURCE_STATE_INDEX_BUFFER);
 }
 
-void Mesh::DispatchDraw(GraphicsCommandList* commandList, int bindSemanticFlag) const
+void Mesh::DispatchDraw(GraphicsCommandList* commandList, int32 bindSemanticFlag) const
 {
     commandList->IASetPrimitiveTopology(m_PrimitiveTopology);
 
     // 绑定顶点缓冲
-    for (int i = 0; i < VertexSemanticCount; i++)
+    for (size_t i = 0; i < VertexSemanticCount; i++)
     {
         if (bindSemanticFlag & (1 << i))
         {
             ASSERT(m_VertexBuffers[i], _T("ERROR::未设置要使用的顶点缓冲。"));
             if (m_VertexBuffers[i])
-                commandList->IASetVertexBuffers(i, m_VBVs[i].get());
+                commandList->IASetVertexBuffers(static_cast<uint32>(i), m_VBVs[i].get());
         }
     }
 
     switch (GetDrawType())
     {
     case DrawType::VertexList:
-        commandList->DrawInstanced(static_cast<UINT>(m_Positions.size()), 1, 0, 0);
+        commandList->DrawInstanced(static_cast<uint32>(m_Positions.size()), 1, 0, 0);
         break;
     case DrawType::Indexed:
         commandList->IASetIndexBuffer(m_IBV.get()); // 绑定索引缓冲
-        commandList->DrawIndexedInstanced(static_cast<UINT>(m_Indices.size()), 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced(static_cast<uint32>(m_Indices.size()), 1, 0, 0, 0);
         break;
     default: break;
     }
@@ -341,7 +341,7 @@ void Mesh::ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexColl
     mesh.m_Colors.clear();
     mesh.m_UVs.clear();
 
-    for (int i = 0; i < vertices.size(); i++)
+    for (size_t i = 0; i < vertices.size(); i++)
     {
         mesh.m_Positions.push_back(vertices[i].position);
         mesh.m_Normals.push_back(vertices[i].normal);
@@ -349,6 +349,6 @@ void Mesh::ProcessPresetMesh(Mesh& mesh, DirectX::GeometricPrimitive::VertexColl
     }
 
     mesh.m_Indices.resize(indices.size());
-    CopyMemory(mesh.m_Indices.data(), indices.data(), indices.size() * sizeof(UINT16));
+    CopyMemory(mesh.m_Indices.data(), indices.data(), indices.size() * sizeof(uint16));
     mesh.Finalize(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

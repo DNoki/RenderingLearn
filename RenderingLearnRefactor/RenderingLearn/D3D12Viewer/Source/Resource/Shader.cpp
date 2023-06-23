@@ -28,7 +28,7 @@ void Shader::Create(const ShaderDesc* shaderDesc)
     m_ShaderDesc = *shaderDesc;
 
     // 加载着色器缓冲
-    for (int i = 0; i < _countof(m_ShaderDesc.m_ShaderFilePaths); i++)
+    for (size_t i = 0; i < _countof(m_ShaderDesc.m_ShaderFilePaths); i++)
     {
         if (!m_ShaderDesc.m_ShaderFilePaths[i].empty())
             ReadFromFile(static_cast<ShaderType>(i), m_ShaderDesc.m_ShaderFilePaths[i]);
@@ -67,28 +67,28 @@ void Shader::Create(const ShaderDesc* shaderDesc)
         }
 
         // 计算根参数数量
-        UINT rootParamsCount = (resourceDescriptorRanges.size() > 0 ? 1 : 0) + (sampleDescriptorRanges.size() > 0 ? 1 : 0) + m_ShaderDesc.m_CbvCount;
+        uint32 rootParamsCount = (resourceDescriptorRanges.size() > 0 ? 1 : 0) + (sampleDescriptorRanges.size() > 0 ? 1 : 0) + m_ShaderDesc.m_CbvCount;
 
         m_RootSignature.reset(new RootSignature());
         m_RootSignature->Reset(rootParamsCount, 0); // 不使用静态采样器
 
-        UINT rootParamIndex = 0;
+        uint32 rootParamIndex = 0;
 
         // 根描述符
-        for (int i = 0; i < m_ShaderDesc.m_CbvCount; i++)
+        for (size_t i = 0; i < m_ShaderDesc.m_CbvCount; i++)
         {
-            (*m_RootSignature)[rootParamIndex++].InitAsConstantBufferView(i);
+            (*m_RootSignature)[rootParamIndex++].InitAsConstantBufferView(static_cast<uint32>(i));
         }
 
         // CBV、SRV、UAV 描述符表
         if (resourceDescriptorRanges.size() > 0)
         {
-            (*m_RootSignature)[rootParamIndex++].InitAsDescriptorTable(static_cast<UINT>(resourceDescriptorRanges.size()), resourceDescriptorRanges.data());
+            (*m_RootSignature)[rootParamIndex++].InitAsDescriptorTable(static_cast<uint32>(resourceDescriptorRanges.size()), resourceDescriptorRanges.data());
         }
         // 采样器描述符表
         if (sampleDescriptorRanges.size() > 0)
         {
-            (*m_RootSignature)[rootParamIndex++].InitAsDescriptorTable(static_cast<UINT>(sampleDescriptorRanges.size()), sampleDescriptorRanges.data());
+            (*m_RootSignature)[rootParamIndex++].InitAsDescriptorTable(static_cast<uint32>(sampleDescriptorRanges.size()), sampleDescriptorRanges.data());
         }
 
         m_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -117,27 +117,27 @@ void Shader::Create(const ShaderDesc* shaderDesc)
             ranges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
             ranges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 1, 0);
 
-            for (int i = 0; i < _countof(ranges); i++)
+            for (SIZE_T i = 0; i < _countof(ranges); i++)
                 (*m_RootSignature)[i].InitAsDescriptorTable(1, &ranges[i]);
         }
         m_RootSignature->Finalize(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
     }
 
     m_BindSemanticFlag =
-        (1 << (int)VertexSemantic::Position) |
-        (1 << (int)VertexSemantic::Normal) |
-        (1 << (int)VertexSemantic::Texcoord);
+        (1 << (int32)VertexSemantic::Position) |
+        (1 << (int32)VertexSemantic::Normal) |
+        (1 << (int32)VertexSemantic::Texcoord);
 #endif
 
     // 定义顶点输入层
     {
         static const D3D12_INPUT_ELEMENT_DESC sampleInputElementDescs[] =
         {
-            {"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, (int)VertexSemantic::Position, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
-            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, (int)VertexSemantic::Normal, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
-            {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, (int)VertexSemantic::Tangent, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
-            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, (int)VertexSemantic::Color, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT4
-            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, (int)VertexSemantic::Texcoord, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT2
+            {"SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, (int32)VertexSemantic::Position, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
+            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, (int32)VertexSemantic::Normal, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
+            {"TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, (int32)VertexSemantic::Tangent, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT3
+            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, (int32)VertexSemantic::Color, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT4
+            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, (int32)VertexSemantic::Texcoord, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, // XMFLOAT2
         };
         m_InputLayouts.resize(_countof(sampleInputElementDescs));
         CopyMemory(m_InputLayouts.data(), sampleInputElementDescs, sizeof(sampleInputElementDescs));
@@ -157,7 +157,7 @@ void Shader::ReadFromFile(ShaderType type, const Path& filePath)
 {
     using namespace std;
 
-    auto& blob = m_ShaderBlobs[static_cast<int>(type)];
+    auto& blob = m_ShaderBlobs[static_cast<int32>(type)];
     ASSERT(blob == nullptr, _T("ERROR::已加载指定着色器类型。"));
 
     // C++ 文件读写操作
@@ -204,7 +204,7 @@ void Shader::ReadFromFile(ShaderType type, const Path& filePath)
     auto hresult = D3DCreateBlob(size, blob.put());
     CHECK_HRESULT(hresult);
 
-    file.read(reinterpret_cast<char*>(blob.get()->GetBufferPointer()), size);
+    file.read(static_cast<ANSICHAR*>(blob.get()->GetBufferPointer()), size);
     file.close();
 }
 
@@ -248,15 +248,15 @@ HRESULT ShaderUtility::CompileFromFile(ShaderType type, Path& pFileName, ID3DBlo
         pFileName.c_str(),                              // HLSL文件路径
         nullptr,                                // 定义着色器宏
         D3D_COMPILE_STANDARD_FILE_INCLUDE,      // 默认包含处理
-        entryPoints[static_cast<int>(type)].c_str(),    // 着色器入口函数
-        compileTarget[static_cast<int>(type)].c_str(),  // 着色器目标
+        entryPoints[static_cast<int32>(type)].c_str(),    // 着色器入口函数
+        compileTarget[static_cast<int32>(type)].c_str(),  // 着色器目标
         compileFlags,                           // 着色器编译选项
         0,                                      // 效果编译选项
         ppCode,                                 // 接收已编译的代码
         errorBlob.put()                         // 接收编译错误信息
     );
     if (FAILED(compileResult) && errorBlob)
-        TRACE((char*)errorBlob->GetBufferPointer());
+        TRACE((ANSICHAR*)errorBlob->GetBufferPointer());
 
     CHECK_HRESULT(compileResult);
 
@@ -310,7 +310,7 @@ HRESULT ShaderUtility::ReadFromFile(ShaderType type, Path& pFileName, ID3DBlob**
     auto hresult = D3DCreateBlob(size, ppCode);
     CHECK_HRESULT(hresult);
 
-    file.read(reinterpret_cast<char*>((*ppCode)->GetBufferPointer()), size);
+    file.read(reinterpret_cast<ANSICHAR*>((*ppCode)->GetBufferPointer()), size);
     file.close();
 
     return hresult;

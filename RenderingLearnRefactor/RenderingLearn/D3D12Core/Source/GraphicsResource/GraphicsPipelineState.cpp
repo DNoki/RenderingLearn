@@ -18,7 +18,7 @@ GraphicsPipelineState::GraphicsPipelineState()
     m_PSODesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 }
 
-void GraphicsPipelineState::SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs)
+void GraphicsPipelineState::SetInputLayout(uint32 numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs)
 {
     m_PSODesc.InputLayout = { pInputElementDescs, numElements };
 }
@@ -42,7 +42,7 @@ void GraphicsPipelineState::SetDepthStencilState(const D3D12_DEPTH_STENCIL_DESC&
     m_PSODesc.DepthStencilState = depthStencilDesc;
 }
 
-void GraphicsPipelineState::SetSampleMask(UINT sampleMask)
+void GraphicsPipelineState::SetSampleMask(uint32 sampleMask)
 {
     m_PSODesc.SampleMask = sampleMask;
 }
@@ -68,7 +68,7 @@ void GraphicsPipelineState::SetIBStripCutValue(D3D12_INDEX_BUFFER_STRIP_CUT_VALU
  * @param msaaCount 多采样抗锯齿样本
  * @param msaaQuality 多采样抗锯齿质量
 */
-void GraphicsPipelineState::SetRenderTargetFormats(UINT numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, UINT msaaCount, UINT msaaQuality)
+void GraphicsPipelineState::SetRenderTargetFormats(uint32 numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, uint32 msaaCount, uint32 msaaQuality)
 {
     m_PSODesc.NumRenderTargets = numRTVs; // 渲染目标视图数量（最大为8）
     if (numRTVs > 0 && rtvFormats != nullptr)

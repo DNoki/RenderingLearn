@@ -14,6 +14,20 @@
 
 namespace D3D12Viewer
 {
+    using D3D12Core::uint8;
+    using D3D12Core::uint16;
+    using D3D12Core::uint32;
+    using D3D12Core::uint64;
+    using D3D12Core::int8;
+    using D3D12Core::int16;
+    using D3D12Core::int32;
+    using D3D12Core::int64;
+    using D3D12Core::ANSICHAR;
+    using D3D12Core::WIDECHAR;
+    using D3D12Core::UTF8CHAR;
+    using D3D12Core::UTF16CHAR;
+    using D3D12Core::UTF32CHAR;
+
     using D3D12Core::Path;
     using D3D12Core::String;
     using D3D12Core::UniquePtr;

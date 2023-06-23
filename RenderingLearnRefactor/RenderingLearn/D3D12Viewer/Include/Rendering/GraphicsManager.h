@@ -5,7 +5,7 @@ namespace D3D12Viewer
     class GraphicsManager
     {
     public:
-        UINT SwapFrameBackBufferCount = 3; // 交换链后缓冲数量
+        uint32 SwapFrameBackBufferCount = 3; // 交换链后缓冲数量
         DXGI_FORMAT SwapChainRenderTargetFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 
     public:

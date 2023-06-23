@@ -12,7 +12,7 @@
 using namespace D3D12Core;
 
 
-void UploadBuffer::DirectCreate(UINT64 size)
+void UploadBuffer::DirectCreate(uint64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
     m_ResourceStates = D3D12_RESOURCE_STATE_GENERIC_READ; // 上传堆的初始状态必须此项，且不能更改
@@ -29,7 +29,7 @@ void UploadBuffer::DirectCreate(UINT64 size)
     Finalize();
 }
 
-void UploadBuffer::PlacedCreate(UINT64 size)
+void UploadBuffer::PlacedCreate(uint64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
     m_ResourceStates = D3D12_RESOURCE_STATE_GENERIC_READ;
@@ -42,12 +42,12 @@ void UploadBuffer::PlacedCreate(UINT64 size)
 }
 
 #if 0
-void UploadBuffer::CopyVertexBuffer(UINT strideSize, const void* vertices)
+void UploadBuffer::CopyVertexBuffer(uint32 strideSize, const void* vertices)
 {
     ASSERT(m_Resource != nullptr);
     auto bufferSize = m_ResourceDesc.Width;
 
-    UINT8* pVertexDataBegin = nullptr;
+    uint8* pVertexDataBegin = nullptr;
     Map(0, reinterpret_cast<void**>(&pVertexDataBegin));
     memcpy(pVertexDataBegin, vertices, bufferSize);
     Unmap(0);
@@ -55,7 +55,7 @@ void UploadBuffer::CopyVertexBuffer(UINT strideSize, const void* vertices)
     // 创建顶点缓冲视图
     m_VertexBufferView.reset(new D3D12_VERTEX_BUFFER_VIEW{
             m_GpuVirtualAddress,
-            static_cast<UINT>(bufferSize),
+            static_cast<uint32>(bufferSize),
             strideSize });
 
     TRACE(L"WARNING::正在使用上传堆顶点缓冲。");

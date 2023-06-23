@@ -19,7 +19,7 @@ namespace D3D12Viewer
         Indexed,
     };
 
-    constexpr UINT VertexSemanticCount = (int)VertexSemantic::Count;
+    constexpr uint32 VertexSemanticCount = (int32)VertexSemantic::Count;
 
     class Mesh : public IGameResource
     {
@@ -30,7 +30,7 @@ namespace D3D12Viewer
         Vector<Vector4> m_Colors;      // 颜色
         Vector<Vector2> m_UVs;         // 纹理UV
 
-        Vector<UINT16> m_Indices;  // 索引列表
+        Vector<uint16> m_Indices;  // 索引列表
 
         // --------------------------------------------------------------------------
         Mesh() = default;
@@ -43,11 +43,11 @@ namespace D3D12Viewer
         // --------------------------------------------------------------------------
 #if 0
         template <typename TVertex>
-        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, const TVertex* vertices, UINT indexCount = 0, const UINT16* indices = nullptr)
+        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, uint32 vertexCount, const TVertex* vertices, uint32 indexCount = 0, const uint16* indices = nullptr)
         {
             DirectCreate(primitiveTopology, vertexCount, sizeof(TVertex), vertices, indexCount, indices);
         }
-        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, UINT vertexCount, UINT strideSize, const void* vertices, UINT indexCount = 0, const UINT16* indices = nullptr);
+        void DirectCreate(D3D_PRIMITIVE_TOPOLOGY primitiveTopology, uint32 vertexCount, uint32 strideSize, const void* vertices, uint32 indexCount = 0, const uint16* indices = nullptr);
 #endif
         void Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
 
@@ -67,7 +67,7 @@ namespace D3D12Viewer
          * @param commandList
          * @param bindSemanticFlag
         */
-        void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, int bindSemanticFlag) const;
+        void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, int32 bindSemanticFlag) const;
         /**
          * @brief 以指定材质绘制
          * @param commandList

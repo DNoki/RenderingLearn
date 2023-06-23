@@ -10,10 +10,10 @@ namespace D3D12Viewer
         void Create();
         void SetRenderTargets(std::initializer_list<D3D12Core::IRenderTarget*> renderTargets);
 
-        void SetRTBeginningAccess(int number, D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE type, DXGI_FORMAT clearFormat = DXGI_FORMAT_UNKNOWN, const Color& clearColor = Color());
-        void SetRTEndingAccess(int number, D3D12_RENDER_PASS_ENDING_ACCESS_TYPE type, D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS resolve = {});
+        void SetRTBeginningAccess(int32 number, D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE type, DXGI_FORMAT clearFormat = DXGI_FORMAT_UNKNOWN, const Color& clearColor = Color());
+        void SetRTEndingAccess(int32 number, D3D12_RENDER_PASS_ENDING_ACCESS_TYPE type, D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS resolve = {});
 
-        void SetViewports(UINT topLeftX, UINT topLeftY, UINT width, UINT height) const;
+        void SetViewports(uint32 topLeftX, uint32 topLeftY, uint32 width, uint32 height) const;
 
         void BeginRenderPass();
         void EndRenderPass();

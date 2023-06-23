@@ -19,7 +19,7 @@ namespace D3D12Core
          * @brief 获取缓冲大小
          * @return
         */
-        virtual UINT64 GetBufferSize() const = 0;
+        virtual uint64 GetBufferSize() const = 0;
 
         virtual D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const = 0;
 
@@ -27,13 +27,13 @@ namespace D3D12Core
          * @brief 创建一个资源并为其分配内存
          * @param size
         */
-        virtual void DirectCreate(UINT64 size) = 0;
+        virtual void DirectCreate(uint64 size) = 0;
         /**
          * @brief 使用定位方式创建一个资源
          * @param size
          * @param pPlacedHeap
         */
-        virtual void PlacedCreate(UINT64 size) = 0;
+        virtual void PlacedCreate(uint64 size) = 0;
 
     protected:
         virtual void Finalize() = 0;

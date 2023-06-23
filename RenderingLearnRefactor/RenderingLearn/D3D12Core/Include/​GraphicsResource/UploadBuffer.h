@@ -13,7 +13,7 @@ namespace D3D12Core
         UploadBuffer() = default;
 
         // --------------------------------------------------------------------------
-        UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
+        uint64  GetBufferSize() const override { return m_ResourceDesc.Width; }
         D3D12_GPU_VIRTUAL_ADDRESS  GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         //void SetName(const std::wstring& name) override
@@ -27,13 +27,13 @@ namespace D3D12Core
          * @brief 创建一个上传堆并为其分配内存
          * @param size
         */
-        void DirectCreate(UINT64 size) override;
+        void DirectCreate(uint64 size) override;
         /**
          * @brief 使用定位方式创建一个上传堆
          * @param size
          * @param pPlacedHeap
         */
-        void PlacedCreate(UINT64 size) override;
+        void PlacedCreate(uint64 size) override;
 
 
         /**
@@ -42,7 +42,7 @@ namespace D3D12Core
          * @param ppData 一个指向内存块的指针，它接收指向资源数据的指针
          * @return
         */
-        HRESULT Map(UINT Subresource, void** ppData) const
+        HRESULT Map(uint32 Subresource, void** ppData) const
         {
             // 简单模型不允许 CPU 读取上传堆内数据
             return m_Resource->Map(Subresource, &c_ZeroReadRange, ppData);
@@ -51,7 +51,7 @@ namespace D3D12Core
          * @brief 使指向资源中指定子资源的 CPU 指针无效
          * @param Subresource 子资源的索引
         */
-        void Unmap(UINT Subresource) const { m_Resource->Unmap(Subresource, &c_ZeroReadRange); }
+        void Unmap(uint32 Subresource) const { m_Resource->Unmap(Subresource, &c_ZeroReadRange); }
 
 
     private:

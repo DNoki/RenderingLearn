@@ -66,11 +66,11 @@ void CommandQueue::CloseQueue()
 }
 
 #if 0
-void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists)
+void CommandQueue::ExecuteCommandLists(CommandList* commandLists, uint32 numCommandLists)
 {
     Vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
 
-    for (UINT i = 0; i < numCommandLists; i++)
+    for (uint32 i = 0; i < numCommandLists; i++)
     {
         ASSERT(m_Type == commandLists[i].GetType(), L"ERROR::命令列表类型与队列类型不一致。");
         ASSERT(!commandLists[i].IsLocked()); // 设只允许队列来关闭命令列表
@@ -80,15 +80,15 @@ void CommandQueue::ExecuteCommandLists(CommandList* commandLists, UINT numComman
         ppCommandLists[i] = commandLists[i].GetD3D12CommandList();
     }
     m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
-    for (UINT i = 0; i < numCommandLists; i++)
+    for (uint32 i = 0; i < numCommandLists; i++)
         CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
 }
 #endif
-void CommandQueue::ExecuteCommandLists(ICommandList** commandLists, UINT numCommandLists)
+void CommandQueue::ExecuteCommandLists(ICommandList** commandLists, uint32 numCommandLists)
 {
     Vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
 
-    for (UINT i = 0; i < numCommandLists; i++)
+    for (uint32 i = 0; i < numCommandLists; i++)
     {
         ICommandList* commandList = commandLists[i];
         ASSERT(m_Type == commandList->GetType(), L"ERROR::命令列表类型与队列类型不一致。");
@@ -99,7 +99,7 @@ void CommandQueue::ExecuteCommandLists(ICommandList** commandLists, UINT numComm
         ppCommandLists[i] = commandList->GetD3D12CommandList();
     }
     m_CommandQueue->ExecuteCommandLists(numCommandLists, ppCommandLists.data());
-    for (UINT i = 0; i < numCommandLists; i++)
+    for (uint32 i = 0; i < numCommandLists; i++)
     {
         CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
     }
@@ -110,7 +110,7 @@ void CommandQueue::WaitForQueueCompleted()
     // 在继续之前等待框架完成不是最佳实践。 为简单起见，这是这样实现的代码。 D3D12HelloFrameBuffering 示例说明了如何使用围栏来有效利用资源并最大限度地提高 GPU 利用率。
 
     // 发出信号并增加围栏值。
-    const UINT64 fence = m_FenceValue;
+    const uint64 fence = m_FenceValue;
     CHECK_HRESULT(m_CommandQueue->Signal(m_Fence.get(), fence));
     m_FenceValue++;
 

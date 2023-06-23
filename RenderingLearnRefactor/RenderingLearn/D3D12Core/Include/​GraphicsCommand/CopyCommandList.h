@@ -19,7 +19,7 @@ namespace D3D12Core
          * \param SlicePitch 子资源数据的深度间距、宽度或物理大小（以字节为单位）
          * \param pData 指向包含子资源数据的内存块的指针
          */
-        void UpdateSubresources(IGraphicsResource* DstResource, const UploadBuffer* Intermediate, UINT64 RowPitch, UINT64 SlicePitch, const void* pData) const;
+        void UpdateSubresources(IGraphicsResource* DstResource, const UploadBuffer* Intermediate, uint64 RowPitch, uint64 SlicePitch, const void* pData) const;
 
         /**
          * \brief 将源资源的全部内容复制到目标资源

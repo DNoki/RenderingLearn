@@ -47,6 +47,43 @@
 namespace D3D12Core
 {
     // 重命名常用类型
+
+    //~ Unsigned base types
+
+    // 8-bit unsigned integer
+    typedef unsigned char 		uint8;
+    // 16-bit unsigned integer
+    typedef unsigned short int	uint16;
+    // 32-bit unsigned integer
+    typedef unsigned int		uint32;
+    // 64-bit unsigned integer
+    typedef unsigned long long	uint64;
+
+    //~ Signed base types.
+
+    // 8-bit signed integer
+    typedef	signed char			int8;
+    // 16-bit signed integer
+    typedef signed short int	int16;
+    // 32-bit signed integer
+    typedef signed int	 		int32;
+    // 64-bit signed integer
+    typedef signed long long	int64;
+
+    //~ Character types.
+
+    /// An ANSI character. Normally a signed type.
+    typedef char				ANSICHAR;
+    /// A wide character. Normally a signed type.
+    typedef wchar_t				WIDECHAR;
+    /// An 8-bit character containing a UTF8 (Unicode, 8-bit, variable-width) code unit.
+    typedef char8_t				UTF8CHAR;
+    /// A 16-bit character containing a UTF16 (Unicode, 16-bit, variable-width) code unit.
+    typedef char16_t			UTF16CHAR;
+    /// A 32-bit character containing a UTF32 (Unicode, 32-bit, fixed-width) code unit.
+    typedef char32_t			UTF32CHAR;
+
+
     typedef std::filesystem::path Path;
 
 #ifdef UNICODE
@@ -74,10 +111,11 @@ namespace D3D12Core
     using Function = std::function<T>;
     template <class T>
     using Hash = std::hash<T>;
-    typedef size_t HashValue;
+    typedef uint64 HashValue;
 
     template <class T>
     using ComPtr = winrt::com_ptr<T>;
+
 
     // 前置声明
     class CommandAllocator;

@@ -36,7 +36,7 @@ namespace D3D12Core
          * @param numElements 输入元素数量
          * @param pInputElementDescs 输入元素表
         */
-        void SetInputLayout(UINT numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs);
+        void SetInputLayout(uint32 numElements, const D3D12_INPUT_ELEMENT_DESC* pInputElementDescs);
         void SetInputLayout(const D3D12_INPUT_LAYOUT_DESC& inputLayout);
         /**
          * @brief 设置栅格化状态
@@ -61,7 +61,7 @@ namespace D3D12Core
          * @brief SampleMask（极少用到，用途未知）
          * @param sampleMask
         */
-        void SetSampleMask(UINT sampleMask);
+        void SetSampleMask(uint32 sampleMask);
         /**
          * @brief 指定管道如何解释几何体或外壳着色器输入图元
          * @param topologyType
@@ -81,7 +81,7 @@ namespace D3D12Core
          * @param msaaCount 多采样抗锯齿样本
          * @param msaaQuality 多采样抗锯齿质量
         */
-        void SetRenderTargetFormats(UINT numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, UINT msaaCount = 1, UINT msaaQuality = 0);
+        void SetRenderTargetFormats(uint32 numRTVs, const DXGI_FORMAT* rtvFormats, DXGI_FORMAT dsvFormat, uint32 msaaCount = 1, uint32 msaaQuality = 0);
 
         /**
          * @brief 设置顶点着色器

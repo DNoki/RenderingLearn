@@ -5,7 +5,7 @@
 
 using namespace D3D12Viewer;
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ TCHAR* /*lpCmdLine*/, _In_ int nCmdShow)
+int32 WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ TCHAR* /*lpCmdLine*/, _In_ int32 nCmdShow)
 {
 #if DEBUG
     std::cout.imbue(std::locale(".utf8"));

@@ -28,7 +28,7 @@
 
 using namespace D3D12Core;
 
-void RootSignature::Reset(UINT numRootParams, UINT numStaticSamplers)
+void RootSignature::Reset(uint32 numRootParams, uint32 numStaticSamplers)
 {
     m_IsFinalized = false;
     m_NumRootParams = numRootParams;
@@ -36,13 +36,13 @@ void RootSignature::Reset(UINT numRootParams, UINT numStaticSamplers)
     m_RootSignature = nullptr;
 
     m_ParamArray.clear();
-    for (UINT i = 0; i < m_NumRootParams; i++)
+    for (uint32 i = 0; i < m_NumRootParams; i++)
     {
         m_ParamArray.push_back(CD3DX12_ROOT_PARAMETER1{});
     }
 
     m_SamplerArray.clear();
-    for (UINT i = 0; i < m_NumStaticSamplers; i++)
+    for (uint32 i = 0; i < m_NumStaticSamplers; i++)
     {
         m_SamplerArray.push_back(CD3DX12_STATIC_SAMPLER_DESC{});
     }

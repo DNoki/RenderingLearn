@@ -29,20 +29,20 @@ namespace D3D12Core
         void SetGraphicsRootSignature(const RootSignature* pRootSignature) const;
         void SetPipelineState(const IPipelineState* pPipelineState) const;
         void SetDescriptorHeaps(const DescriptorHeap* pResourceDescHeap = nullptr, const DescriptorHeap* pSamplerDescHeap = nullptr) const;
-        void SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* baseDescriptor) const;
-        void SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const;
+        void SetGraphicsRootDescriptorTable(uint32 rootParameterIndex, const DescriptorHeap* baseDescriptor) const;
+        void SetGraphicsRootConstantBufferView(uint32 rootParameterIndex, const IBufferResource* buffer) const;
 
         void IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primitiveTopology) const;
-        void IASetVertexBuffers(UINT startSlot, const D3D12_VERTEX_BUFFER_VIEW* VBV) const;
+        void IASetVertexBuffers(uint32 startSlot, const D3D12_VERTEX_BUFFER_VIEW* VBV) const;
         void IASetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW* IBV) const;
 
         void RSSetViewports(float topLeftX, float topLeftY, float width, float height) const;
-        void RSSetScissorRects(UINT Left, UINT Top, UINT Right, UINT Bottom) const;
+        void RSSetScissorRects(uint32 Left, uint32 Top, uint32 Right, uint32 Bottom) const;
 
         void OMSetRenderTarget(const IRenderTarget* renderTarget, const IRenderTarget* depthStencil = nullptr) const;
 
-        void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount = 1, UINT startVertexLocation = 0, UINT startInstanceLocation = 0) const;
-        void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount = 1, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0) const;
+        void DrawInstanced(uint32 vertexCountPerInstance, uint32 instanceCount = 1, uint32 startVertexLocation = 0, uint32 startInstanceLocation = 0) const;
+        void DrawIndexedInstanced(uint32 indexCountPerInstance, uint32 instanceCount = 1, uint32 startIndexLocation = 0, int32 baseVertexLocation = 0, uint32 startInstanceLocation = 0) const;
 
         void DispatchBundleCommand(const class CommandBundle* pCommandList);
 

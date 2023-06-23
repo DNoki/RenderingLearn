@@ -16,8 +16,8 @@ namespace D3D12Core
         */
         void Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type);
 
-        //void ExecuteCommandLists(CommandList* commandLists, UINT numCommandLists = 1);
-        void ExecuteCommandLists(ICommandList** commandLists, UINT numCommandLists = 1);
+        //void ExecuteCommandLists(CommandList* commandLists, uint32 numCommandLists = 1);
+        void ExecuteCommandLists(ICommandList** commandLists, uint32 numCommandLists = 1);
 
         /**
          * @brief 等待队列完成
@@ -39,7 +39,7 @@ namespace D3D12Core
         Vector<CommandAllocator*> m_Allocators{}; // 执行中的命令分配器
 
         ComPtr<ID3D12Fence1> m_Fence{};   // 围栏（用于同步 CPU 和一个或多个 GPU 的对象）
-        UINT64 m_FenceValue{ 1 };                    // 围栏值
+        uint64 m_FenceValue{ 1 };                    // 围栏值
         HANDLE m_FenceEvent{};
     };
 }

@@ -35,7 +35,7 @@ void RenderPass::SetRenderTargets(std::initializer_list<IRenderTarget*> renderTa
     ASSERT(0 < m_RenderTargets.size());
 }
 
-void RenderPass::SetRTBeginningAccess(int number, D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE type, DXGI_FORMAT clearFormat,
+void RenderPass::SetRTBeginningAccess(int32 number, D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE type, DXGI_FORMAT clearFormat,
     const Color& clearColor)
 {
     ASSERT(number < m_RTDescArray.size());
@@ -44,14 +44,14 @@ void RenderPass::SetRTBeginningAccess(int number, D3D12_RENDER_PASS_BEGINNING_AC
     reinterpret_cast<Color&>(m_RTDescArray[number].BeginningAccess.Clear.ClearValue.Color) = clearColor;
 }
 
-void RenderPass::SetRTEndingAccess(int number, D3D12_RENDER_PASS_ENDING_ACCESS_TYPE type,
+void RenderPass::SetRTEndingAccess(int32 number, D3D12_RENDER_PASS_ENDING_ACCESS_TYPE type,
     D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS resolve)
 {
     m_RTDescArray[number].EndingAccess.Type = type;
     m_RTDescArray[number].EndingAccess.Resolve = resolve;
 }
 
-void RenderPass::SetViewports(UINT topLeftX, UINT topLeftY, UINT width, UINT height) const
+void RenderPass::SetViewports(uint32 topLeftX, uint32 topLeftY, uint32 width, uint32 height) const
 {
     ASSERT(m_CommandList);
     m_CommandList->RSSetViewports(
@@ -69,7 +69,7 @@ void RenderPass::BeginRenderPass()
 
     // 渲染目标资源状态转换
     ASSERT(m_RenderTargets.size() == m_RTDescArray.size());
-    for (int i = 0; i < m_RenderTargets.size(); ++i)
+    for (size_t i = 0; i < m_RenderTargets.size(); ++i)
     {
         m_CommandList->ResourceBarrier(m_RenderTargets[i], D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
@@ -82,7 +82,7 @@ void RenderPass::BeginRenderPass()
 
     // 开始渲染队列
     m_CommandList->GetD3D12CommandList()->BeginRenderPass(
-        static_cast<UINT>(m_RenderTargets.size()),
+        static_cast<uint32>(m_RenderTargets.size()),
         m_RTDescArray.data(),
         m_DepthStencil ? &m_DSDesc : nullptr,
         m_Flags);
@@ -92,7 +92,7 @@ void RenderPass::EndRenderPass()
 {
     m_CommandList->GetD3D12CommandList()->EndRenderPass();
 
-    for (int i = 0; i < m_RenderTargets.size(); ++i)
+    for (size_t i = 0; i < m_RenderTargets.size(); ++i)
     {
         m_CommandList->ResourceBarrier(m_RenderTargets[i], D3D12_RESOURCE_STATE_COMMON);
     }
@@ -117,7 +117,7 @@ void RenderPass::DrawCall(const Mesh* mesh, const Material* material)
     }
 
     material->GetPipelineState()->SetRenderTargetFormats(
-        static_cast<UINT>(rtvFormats.size()),
+        static_cast<uint32>(rtvFormats.size()),
         rtvFormats.data(),
         m_DepthStencil ? m_DepthStencil->GetFormat() : DXGI_FORMAT_UNKNOWN);
     material->GetPipelineState()->Finalize();
@@ -126,10 +126,10 @@ void RenderPass::DrawCall(const Mesh* mesh, const Material* material)
     m_CommandList->SetPipelineState(material->GetPipelineState());
 
     // TODO
-    m_CommandList->IASetVertexBuffers(0, mesh->m_VBVs[static_cast<int>(VertexSemantic::Position)].get());
-    m_CommandList->IASetVertexBuffers(4, mesh->m_VBVs[static_cast<int>(VertexSemantic::Texcoord)].get());
+    m_CommandList->IASetVertexBuffers(0, mesh->m_VBVs[static_cast<int32>(VertexSemantic::Position)].get());
+    m_CommandList->IASetVertexBuffers(4, mesh->m_VBVs[static_cast<int32>(VertexSemantic::Texcoord)].get());
     m_CommandList->IASetIndexBuffer(mesh->m_IBV.get());
 
-    m_CommandList->DrawIndexedInstanced(static_cast<UINT>(mesh->m_Indices.size()));
+    m_CommandList->DrawIndexedInstanced(static_cast<uint32>(mesh->m_Indices.size()));
 
 }

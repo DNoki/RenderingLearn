@@ -12,7 +12,7 @@ class SwapChainBuffer final : public IRenderTarget
 public:
     SwapChainBuffer() = default;
 
-    void Create(SwapChain& swapChain, UINT index)
+    void Create(SwapChain& swapChain, uint32 index)
     {
         CHECK_HRESULT(swapChain.GetD3D12SwapChain()->GetBuffer(index, IID_PPV_ARGS(PutD3D12Resource())));
 
@@ -45,7 +45,7 @@ public:
 };
 
 
-void SwapChain::CreateForHwnd(const GraphicsContext& graphicsContext, const CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format)
+void SwapChain::CreateForHwnd(const GraphicsContext& graphicsContext, const CommandQueue* commandQueue, HWND hwnd, uint32 count, DXGI_FORMAT format)
 {
     ASSERT(m_SwapChain == nullptr);
 
@@ -98,7 +98,7 @@ void SwapChain::CreateForHwnd(const GraphicsContext& graphicsContext, const Comm
     //g_SwapChain->SetBackgroundColor(&backColor);
 }
 
-void SwapChain::Resize(UINT width, UINT height)
+void SwapChain::Resize(uint32 width, uint32 height)
 {
     //if (m_SwapChainDesc.Width == width && m_SwapChainDesc.Height == height)
     //    return;
@@ -133,7 +133,7 @@ void SwapChain::RebuildRenderTargets()
     m_RenderTargets.clear();
     m_RenderTargets.resize(m_SwapChainDesc.BufferCount);
 
-    for (int i = 0; i < m_RenderTargets.size(); i++)
+    for (SIZE_T i = 0; i < m_RenderTargets.size(); i++)
     {
         m_RenderTargets[i].reset(new SwapChainBuffer());
         //m_RenderTargets[i]->CreateFromSwapChain(*this, i);
@@ -142,7 +142,7 @@ void SwapChain::RebuildRenderTargets()
         //m_SwapChain->GetBuffer(i, IID_PPV_ARGS(m_RenderTargets[i]->PutD3D12Resource()));
         //m_RenderTargets[i]->GetResourceDesc()
 
-        static_cast<SwapChainBuffer*>(m_RenderTargets[i].get())->Create(*this, i);
+        static_cast<SwapChainBuffer*>(m_RenderTargets[i].get())->Create(*this, static_cast<uint32>(i));
     }
 
 

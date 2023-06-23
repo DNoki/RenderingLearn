@@ -40,7 +40,7 @@ PlacedResourceDesc::~PlacedResourceDesc()
     }
 }
 
-void PlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags)
+void PlacedHeap::Create(D3D12_HEAP_TYPE type, uint64 size, D3D12_HEAP_FLAGS flags)
 {
     m_MinBlockSize = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
@@ -52,10 +52,10 @@ void PlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flag
 
     CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateHeap(&m_PlacedHeapDesc, IID_PPV_ARGS(m_PlacedHeap.put())));
 
-    m_MaxOrderSize = static_cast<UINT>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
+    m_MaxOrderSize = static_cast<uint32>(m_PlacedHeapDesc.SizeInBytes / m_MinBlockSize);
 
-    m_PlacedResources = Map<UINT, IGraphicsResource*>();
-    m_MemoryBlockOrders = Set<UINT>();
+    m_PlacedResources = Map<uint32, IGraphicsResource*>();
+    m_MemoryBlockOrders = Set<uint32>();
     m_MemoryBlockOrders.insert(0);
 }
 
@@ -63,7 +63,7 @@ void PlacedHeap::Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flag
 void PlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GraphicsResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
 {
     auto index = m_PlacedResources.size();
-    auto size = static_cast<UINT>(index + 1);
+    auto size = static_cast<uint32>(index + 1);
     m_PlacedResources.push_back(&resource);
 
     Vector<D3D12_RESOURCE_DESC> resourceDescs(size);
@@ -93,7 +93,7 @@ void PlacedHeap::PlacedResource(D3D12_RESOURCE_STATES initialState, GraphicsReso
     SET_DEBUGNAME(resource.GetD3D12Resource(), _T("Resource"));
 }
 
-void PlacedHeap::PlacedResource(UINT64 offset, D3D12_RESOURCE_STATES initialState, GraphicsResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
+void PlacedHeap::PlacedResource(uint64 offset, D3D12_RESOURCE_STATES initialState, GraphicsResource& resource, const D3D12_CLEAR_VALUE* pOptimizedClearValue)
 {
     // TODO 能否用Map来管理放置堆？
 }
@@ -104,7 +104,7 @@ bool PlacedHeap::PlacedResource(IGraphicsResource& resource)
     auto& resourceDesc = resource.GetResourceDesc();
     auto* placedDesc = resource.GetPlacedResourceDesc();
 
-    UINT allocateSize = UINT64_UPPER(placedDesc->m_AllocationSize, m_MinBlockSize) / m_MinBlockSize; // 对齐到块大小，计算需要使用块数量
+    uint32 allocateSize = UINT64_UPPER(placedDesc->m_AllocationSize, m_MinBlockSize) / m_MinBlockSize; // 对齐到块大小，计算需要使用块数量
 
     if (allocateSize > m_MaxOrderSize)
     {
@@ -122,11 +122,11 @@ bool PlacedHeap::PlacedResource(IGraphicsResource& resource)
         if (pFindedRes == m_PlacedResources.end())
         {
             // 当前 Block 位置未被使用
-            Set<UINT>::iterator checkFreeBlock = pBlock;
+            Set<uint32>::iterator checkFreeBlock = pBlock;
             ++checkFreeBlock; // 设定为下一个块必定是使用状态，当资源不使用时，应当移除绑定块的索引
 
             // 剩余可分配大小
-            UINT remain;
+            uint32 remain;
             if (checkFreeBlock == m_MemoryBlockOrders.end())
                 remain = m_MaxOrderSize - *pBlock;
             else
@@ -156,11 +156,11 @@ bool PlacedHeap::PlacedResource(IGraphicsResource& resource)
     {
         placedDesc->m_PlacedOrder = *pBlock;
         placedDesc->m_PlacedHeapPtr = this;
-        ASSERT(placedDesc->m_AllocationSize == (allocateSize * (UINT64)m_MinBlockSize));
+        ASSERT(placedDesc->m_AllocationSize == (allocateSize * (uint64)m_MinBlockSize));
 
         CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreatePlacedResource(
             m_PlacedHeap.get(), // 放置资源的堆
-            (*pBlock * (UINT64)m_MinBlockSize), // 资源的偏移量，必须是资源的对齐的倍数
+            (*pBlock * (uint64)m_MinBlockSize), // 资源的偏移量，必须是资源的对齐的倍数
             &resourceDesc, // 资源描述
             resource.GetResourceStates(), // 资源的初始状态
             placedDesc->m_OptimizedClearValue, // 描述用于优化特定资源的清除操作的值
@@ -177,7 +177,7 @@ bool PlacedHeap::PlacedResource(IGraphicsResource& resource)
     }
 }
 
-void PlacedHeap::ReleaseResource(UINT order)
+void PlacedHeap::ReleaseResource(uint32 order)
 {
     // 移除该资源
     auto findedRes = m_PlacedResources.find(order);
@@ -189,7 +189,7 @@ void PlacedHeap::ReleaseResource(UINT order)
     {
         // 检测尾部块是否被使用
         {
-            Set<UINT>::iterator nextOrder = bindedOrder;
+            Set<uint32>::iterator nextOrder = bindedOrder;
             ++nextOrder;
             if (nextOrder != m_MemoryBlockOrders.end())
             {
@@ -205,7 +205,7 @@ void PlacedHeap::ReleaseResource(UINT order)
         // 检测上一个资源是否存在
         if (bindedOrder != m_MemoryBlockOrders.begin())
         {
-            Set<UINT>::iterator prevOrder = bindedOrder;
+            Set<uint32>::iterator prevOrder = bindedOrder;
             --prevOrder;
             auto findedPrevRes = m_PlacedResources.find(*prevOrder);
             if (findedPrevRes == m_PlacedResources.end())

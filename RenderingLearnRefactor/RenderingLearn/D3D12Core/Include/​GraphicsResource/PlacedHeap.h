@@ -13,19 +13,19 @@ namespace D3D12Core
         PlacedResourceDesc& operator = (const PlacedResourceDesc& desc) = delete;
         PlacedResourceDesc& operator = (PlacedResourceDesc&& desc) = default;
 
-        UINT64 GetPlacedHeapOffset() const { return m_PlacedOrder * m_AllocationAlignment; }
+        uint64 GetPlacedHeapOffset() const { return m_PlacedOrder * m_AllocationAlignment; }
 
         // 资源创建信息
         D3D12_HEAP_TYPE m_HeapType{};
         const D3D12_CLEAR_VALUE* m_OptimizedClearValue{};
 
         // 资源分配信息（从设备获取分配大小与对齐大小）
-        UINT64 m_AllocationSize{};
-        UINT64 m_AllocationAlignment{};
+        uint64 m_AllocationSize{};
+        uint64 m_AllocationAlignment{};
 
         // 资源放置信息（由放置堆填充）
         class PlacedHeap* m_PlacedHeapPtr{};
-        UINT m_PlacedOrder{};         // 放置的定位位置
+        uint32 m_PlacedOrder{};         // 放置的定位位置
 
     private:
 
@@ -39,14 +39,14 @@ namespace D3D12Core
     public:
         PlacedHeap() = default;
 
-        void Create(D3D12_HEAP_TYPE type, UINT64 size, D3D12_HEAP_FLAGS flags);
+        void Create(D3D12_HEAP_TYPE type, uint64 size, D3D12_HEAP_FLAGS flags);
 
         bool PlacedResource(IGraphicsResource& resource);
-        void ReleaseResource(UINT order);
+        void ReleaseResource(uint32 order);
 
 
         const D3D12_HEAP_DESC* GetHeapDesc() const { return &m_PlacedHeapDesc; }
-        UINT64 GetHeapSize() const { return m_PlacedHeapDesc.SizeInBytes; }
+        uint64 GetHeapSize() const { return m_PlacedHeapDesc.SizeInBytes; }
 
         ID3D12Heap* GetPlacedHeap() const { return m_PlacedHeap.get(); }
 
@@ -61,11 +61,11 @@ namespace D3D12Core
         ComPtr<ID3D12Heap> m_PlacedHeap{};    // D3D12 放置堆对象
         D3D12_HEAP_DESC m_PlacedHeapDesc{};           // D3D12 放置堆描述
 
-        UINT m_MinBlockSize{ D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT }; // 最小可分配内存块大小（对齐大小）
-        UINT m_MaxOrderSize{}; // 放置堆容量
+        uint32 m_MinBlockSize{ D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT }; // 最小可分配内存块大小（对齐大小）
+        uint32 m_MaxOrderSize{}; // 放置堆容量
 
-        Map<UINT, IGraphicsResource*> m_PlacedResources{}; // 已放置的资源
-        Set<UINT> m_MemoryBlockOrders{}; // 已经定位的块索引
+        Map<uint32, IGraphicsResource*> m_PlacedResources{}; // 已放置的资源
+        Set<uint32> m_MemoryBlockOrders{}; // 已经定位的块索引
 
         //String m_Name{};
     };

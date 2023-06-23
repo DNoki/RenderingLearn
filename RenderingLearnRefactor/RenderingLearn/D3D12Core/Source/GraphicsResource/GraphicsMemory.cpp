@@ -31,7 +31,7 @@
 
 using namespace D3D12Core;
 
-const UINT64 DEFAULT_HEAP_SIZE = 1000 * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+const uint64 DEFAULT_HEAP_SIZE = 1000 * D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
 
 void GraphicsMemory::PlacedResource(IGraphicsResource& resource)

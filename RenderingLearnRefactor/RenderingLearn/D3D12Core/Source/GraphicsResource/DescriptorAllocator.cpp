@@ -9,7 +9,7 @@ struct AllocatorHeap
 {
 public:
     UniquePtr<DescriptorHeap> m_DescriptorHeap{};
-    UINT m_NextHandle{};
+    uint32 m_NextHandle{};
 
 };
 

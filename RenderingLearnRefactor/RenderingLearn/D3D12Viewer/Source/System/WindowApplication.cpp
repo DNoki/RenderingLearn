@@ -6,7 +6,7 @@ using namespace D3D12Viewer;
 
 WindowApplication WindowApplication::s_Instance = WindowApplication();
 
-void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
+void WindowApplication::Run(HINSTANCE hInstance, int32 nCmdShow)
 {
     // 初始化窗口
     InitWindow(hInstance);
@@ -35,9 +35,9 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
     Mesh g_Mesh = Mesh::CreateQuad();
 
     ShaderDesc shaderDesc{};
-    shaderDesc.m_SemanticFlags = (1 << (int)VertexSemantic::Position) | (1 << (int)VertexSemantic::Normal) | (1 << (int)VertexSemantic::Texcoord);
-    shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::VertexShader)] = GetShaderPath().append("Sample_vs.cso");
-    shaderDesc.m_ShaderFilePaths[static_cast<int>(ShaderType::PixelShader)] = GetShaderPath().append("Sample_ps.cso");
+    shaderDesc.m_SemanticFlags = (1 << (int32)VertexSemantic::Position) | (1 << (int32)VertexSemantic::Normal) | (1 << (int32)VertexSemantic::Texcoord);
+    shaderDesc.m_ShaderFilePaths[static_cast<int32>(ShaderType::VertexShader)] = GetShaderPath().append("Sample_vs.cso");
+    shaderDesc.m_ShaderFilePaths[static_cast<int32>(ShaderType::PixelShader)] = GetShaderPath().append("Sample_ps.cso");
     shaderDesc.m_CbvCount = 3;
     shaderDesc.m_SrvCount = 2;
     shaderDesc.m_SamplerCount = 2;
@@ -119,11 +119,11 @@ void WindowApplication::Run(HINSTANCE hInstance, int nCmdShow)
             //graphicsCommandList->SetGraphicsRootSignature(g_Shader.GetRootSignature());
             //graphicsCommandList->SetPipelineState(g_Material.GetPipelineState());
 
-            //graphicsCommandList->IASetVertexBuffers(0, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Position)].get());
-            //graphicsCommandList->IASetVertexBuffers(4, g_Mesh.m_VBVs[static_cast<int>(VertexSemantic::Texcoord)].get());
+            //graphicsCommandList->IASetVertexBuffers(0, g_Mesh.m_VBVs[static_cast<int32>(VertexSemantic::Position)].get());
+            //graphicsCommandList->IASetVertexBuffers(4, g_Mesh.m_VBVs[static_cast<int32>(VertexSemantic::Texcoord)].get());
             //graphicsCommandList->IASetIndexBuffer(g_Mesh.m_IBV.get());
 
-            //graphicsCommandList->DrawIndexedInstanced(static_cast<UINT>(g_Mesh.m_Indices.size()));
+            //graphicsCommandList->DrawIndexedInstanced(static_cast<uint32>(g_Mesh.m_Indices.size()));
         }
 
 
@@ -244,7 +244,7 @@ void WindowApplication::InitPathes()
     g_ShaderPath.append("CompiledShaders");
 }
 
-LRESULT WindowApplication::WindowProcess(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT WindowApplication::WindowProcess(HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -307,8 +307,8 @@ LRESULT WindowApplication::WindowProcess(HWND hWnd, UINT message, WPARAM wParam,
 
     case WM_SIZE: // 在窗口的大小更改后发送到窗口
     {
-        UINT width = LOWORD(lParam);
-        UINT height = HIWORD(lParam);
+        uint32 width = LOWORD(lParam);
+        uint32 height = HIWORD(lParam);
         switch (wParam)
         {
         case SIZE_MAXIMIZED:    // 窗口已最大化

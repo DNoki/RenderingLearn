@@ -38,12 +38,12 @@ namespace D3D12Core
     /**
      * \brief 将描述符表绑定到图形根签名
      */
-    extern void CL_SetGraphicsRootDescriptorTable(const ICommandList* commandList, UINT rootParameterIndex, const DescriptorHeap* descriptorHeap);
+    extern void CL_SetGraphicsRootDescriptorTable(const ICommandList* commandList, uint32 rootParameterIndex, const DescriptorHeap* descriptorHeap);
 
     /**
      * \brief 将常量缓冲绑定到图形根签名
      */
-    extern void CL_SetGraphicsRootConstantBufferView(const ICommandList* commandList, UINT rootParameterIndex, const IBufferResource* buffer);
+    extern void CL_SetGraphicsRootConstantBufferView(const ICommandList* commandList, uint32 rootParameterIndex, const IBufferResource* buffer);
 
 #pragma endregion
 
@@ -57,7 +57,7 @@ namespace D3D12Core
      * \param startSlot 索引到设备的从零开始的数组中，开始设置顶点缓冲区
      * \param pViews 指定顶点缓冲区视图
      */
-    extern void CL_IASetVertexBuffers(const ICommandList* commandList, UINT startSlot, const D3D12_VERTEX_BUFFER_VIEW* pViews);
+    extern void CL_IASetVertexBuffers(const ICommandList* commandList, uint32 startSlot, const D3D12_VERTEX_BUFFER_VIEW* pViews);
 
     /**
      * \brief 设置索引缓冲区的视图
@@ -73,7 +73,7 @@ namespace D3D12Core
      * \param numViewports 要绑定的视区数。 有效值的范围 (0，D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE)
      * \param pViewports 要绑定到设备的 D3D12_VIEWPORT 结构的数组
      */
-    extern void CL_RSSetViewports(const ICommandList* commandList, UINT numViewports, const D3D12_VIEWPORT* pViewports);
+    extern void CL_RSSetViewports(const ICommandList* commandList, uint32 numViewports, const D3D12_VIEWPORT* pViewports);
 
     /**
      * \brief 将剪刀矩形数组绑定到光栅器阶段
@@ -81,7 +81,7 @@ namespace D3D12Core
      * \param numRects 要绑定的剪刀矩形的数目
      * \param pRects 剪刀矩形数组
      */
-    extern void CL_RSSetScissorRects(const ICommandList* commandList, UINT numRects, const D3D12_RECT* pRects);
+    extern void CL_RSSetScissorRects(const ICommandList* commandList, uint32 numRects, const D3D12_RECT* pRects);
 
 #pragma endregion
 
@@ -96,7 +96,7 @@ namespace D3D12Core
 
     extern void CL_OMSetBlendFactor(const ICommandList* commandList, const float BlendFactor[4]);
 
-    extern void CL_OMSetStencilRef(const ICommandList* commandList, UINT StencilRef);
+    extern void CL_OMSetStencilRef(const ICommandList* commandList, uint32 StencilRef);
 
 #pragma endregion
 
@@ -110,7 +110,7 @@ namespace D3D12Core
      * \param startVertexLocation 第一个顶点的索引
      * \param startInstanceLocation 在从顶点缓冲区读取每实例数据之前，向每个索引添加一个值
      */
-    extern void CL_DrawInstanced(const ICommandList* commandList, UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation);
+    extern void CL_DrawInstanced(const ICommandList* commandList, uint32 vertexCountPerInstance, uint32 instanceCount, uint32 startVertexLocation, uint32 startInstanceLocation);
 
     /**
      * \brief 绘制索引的实例化基元
@@ -121,7 +121,7 @@ namespace D3D12Core
      * \param baseVertexLocation 在从顶点缓冲区读取顶点之前，向每个索引添加一个值
      * \param startInstanceLocation 在从顶点缓冲区读取每实例数据之前，向每个索引添加一个值
      */
-    extern void CL_DrawIndexedInstanced(const ICommandList* commandList, UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation);
+    extern void CL_DrawIndexedInstanced(const ICommandList* commandList, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, int32 baseVertexLocation, uint32 startInstanceLocation);
 #pragma endregion
 
 #pragma region Copy
@@ -132,17 +132,17 @@ namespace D3D12Core
         const ICommandList* CommandList,
         IGraphicsResource* DstResource,
         const UploadBuffer* Intermediate,
-        UINT64 RowPitch,
-        UINT64 SlicePitch,
+        uint64 RowPitch,
+        uint64 SlicePitch,
         const void* pData);
 
     extern void CL_CopyResource(const ICommandList* CommandList, IGraphicsResource* DstResource, const IGraphicsResource* SrcResource);
     extern void CL_CopyTextureRegion(
         const ICommandList* CommandList,
         const D3D12_TEXTURE_COPY_LOCATION* DstResource,
-        UINT DstX,
-        UINT DstY,
-        UINT DstZ,
+        uint32 DstX,
+        uint32 DstY,
+        uint32 DstZ,
         const D3D12_TEXTURE_COPY_LOCATION* pSrc,
         const D3D12_BOX* pSrcBox);
 

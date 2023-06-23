@@ -34,7 +34,7 @@ namespace D3D12Viewer
         D3D12Core::GraphicsPipelineState* GetPipelineState() const { return m_PipelineState.get(); }
         const D3D12Core::DescriptorHeap* GetResourceDescHeap() const { return m_ResourceDescHeap.get(); }
 
-        UINT64 GetVersion() const { return m_Version; }
+        uint64 GetVersion() const { return m_Version; }
 
         void SetName(const String& name) override;
 
@@ -51,18 +51,18 @@ namespace D3D12Viewer
          * @param slot
          * @param buffer
         */
-        void BindBuffer(int slot, const D3D12Core::IBufferResource& buffer);
+        void BindBuffer(int32 slot, const D3D12Core::IBufferResource& buffer);
         /**
          * @brief 绑定贴图
          * @param slot
          * @param texture
         */
-        void BindTexture(int slot, const D3D12Core::ITexture& texture);
+        void BindTexture(int32 slot, const D3D12Core::ITexture& texture);
         /**
          * @brief 绑定采样器
          * @param sampler
         */
-        void BindSampler(int slot, const D3D12Core::DescriptorHandle& sampler);
+        void BindSampler(int32 slot, const D3D12Core::DescriptorHandle& sampler);
 
         /**
          * @brief 设置渲染目标
@@ -110,7 +110,7 @@ namespace D3D12Viewer
         void SetDepthFunc(D3D12_COMPARISON_FUNC func);
         D3D12_COMPARISON_FUNC GetDepthFunc() const;
 
-        void SetDepthBias(int bias, float slopeScaledBias = 0.0f, float maxBias = 0.0f);
+        void SetDepthBias(int32 bias, float slopeScaledBias = 0.0f, float maxBias = 0.0f);
 
     private:
         const Shader* m_Shader{}; // 材质使用的着色器
@@ -122,7 +122,7 @@ namespace D3D12Viewer
 
         String m_Name{};
 
-        UINT64 m_Version{ 1 }; // 每当更新绑定的资源时，版本号加1
+        uint64 m_Version{ 1 }; // 每当更新绑定的资源时，版本号加1
 
     };
 

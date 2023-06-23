@@ -152,7 +152,7 @@ Color Color::CreateFromHSV(float hue, float saturation, float value)
     rgb_max = value;
     rgb_min = rgb_max * (1.0f - saturation);
 
-    int i = (int)(hue / 0.16666667f);
+    int32 i = (int32)(hue / 0.16666667f);
     auto difs = Math::Mod(hue, 0.16666667f); // factorial part of h
 
     // RGB adjustment amount by hue 

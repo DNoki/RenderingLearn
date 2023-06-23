@@ -25,14 +25,14 @@ namespace D3D12Core
         DescriptorHandle() = default;
         DescriptorHandle(CpuDescriptorHandle CpuHandle, GpuDescriptorHandle GpuHandle) : m_CpuHandle(CpuHandle), m_GpuHandle(GpuHandle) {}
 
-        DescriptorHandle operator+ (INT OffsetScaledByDescriptorSize) const
+        DescriptorHandle operator+ (int32 OffsetScaledByDescriptorSize) const
         {
             DescriptorHandle ret = *this;
             ret += OffsetScaledByDescriptorSize;
             return ret;
         }
 
-        void operator += (INT OffsetScaledByDescriptorSize)
+        void operator += (int32 OffsetScaledByDescriptorSize)
         {
             if (m_CpuHandle.ptr != D3D12_GPU_VIRTUAL_ADDRESS_UNKNOWN)
                 m_CpuHandle.ptr += OffsetScaledByDescriptorSize;

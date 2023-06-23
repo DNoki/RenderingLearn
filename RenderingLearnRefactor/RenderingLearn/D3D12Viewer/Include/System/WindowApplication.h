@@ -27,13 +27,13 @@ namespace D3D12Viewer
         Path g_ShaderPath;  // 着色器路径
 
         String WindowTitle = L"Rendering Learn";
-        UINT ScreenWidth = 1280u >> 0;
-        UINT ScreenHeight = 720u >> 0;
+        uint32 ScreenWidth = 1280u >> 0;
+        uint32 ScreenHeight = 720u >> 0;
 
     public:
         static WindowApplication& GetInstance() { return s_Instance; }
 
-        void Run(HINSTANCE hInstance, int nCmdShow);
+        void Run(HINSTANCE hInstance, int32 nCmdShow);
 
         Path GetProjectPath() { return g_ProjectPath; }
         Path GetAssetPath() { return g_AssetPath; }
@@ -47,7 +47,7 @@ namespace D3D12Viewer
         void InitWindow(HINSTANCE hInstance);
         void InitPathes();
 
-        static LRESULT CALLBACK WindowProcess(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+        static LRESULT CALLBACK WindowProcess(HWND hWnd, uint32 message, WPARAM wParam, LPARAM lParam);
 
     };
 }

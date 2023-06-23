@@ -4,14 +4,6 @@
 //#include <d3dcompiler.h>
 //#include <AtlConv.h> // ATL 和 MFC 字符串转换宏 https://docs.microsoft.com/zh-cn/previous-versions/87zae4a3(v=vs.140)?redirectedfrom=MSDN
 
-//#include "GraphicsManager.h"
-
-
-// 重新解释为char字符串
-#define RP_CHAR(str) reinterpret_cast<const char*>(str)
-// 重新解释为char8_t字符串
-#define RP_CHAR8(str) reinterpret_cast<const char8_t*>(str)
-
 // --------------------------------------------------------------------------
 /*
     字符串格式转换符、标识符、格式符
@@ -105,104 +97,4 @@ namespace D3D12Core
         winrt::check_hresult(hr);
         return hr;
     }
-
-    //#pragma region CodePage Convert
-    //    /**
-    //     * @brief 多字节字符串转宽字节字符串
-    //     * @param codePage
-    //     * @param src
-    //     * @param dest
-    //     * @return
-    //    */
-    //    static inline int MB2WC_Impl(UINT codePage, const char* src, wchar_t* dest)
-    //    {
-    //        auto len = static_cast<int>(strnlen(src, MAX_PATH)) + 1;
-    //        return MultiByteToWideChar(codePage, 0, src, len, dest, MAX_PATH);
-    //    }
-    //    /**
-    //     * @brief 宽字节字符串转多字节字符串
-    //     * @param codePage
-    //     * @param src
-    //     * @param dest
-    //     * @return
-    //    */
-    //    static inline int WC2MB_Impl(UINT codePage, const wchar_t* src, char* dest)
-    //    {
-    //        auto len = static_cast<int>(wcsnlen(src, MAX_PATH)) + 1;
-    //        return WideCharToMultiByte(codePage, 0, src, len, dest, MAX_PATH, NULL, NULL);
-    //    }
-    //
-    //    string ToAnsi(const char* str)
-    //    {
-    //        wchar_t result[MAX_PATH]{};
-    //        MB2WC_Impl(CP_UTF8, RP_CHAR(str), result);
-    //        return ToAnsi(result);
-    //    }
-    //    string ToAnsi(const char8_t* str)
-    //    {
-    //        return ToAnsi(RP_CHAR(str));
-    //    }
-    //    string ToAnsi(const wchar_t* str)
-    //    {
-    //        char result[MAX_PATH]{};
-    //        WC2MB_Impl(CP_ACP, str, result);
-    //        return result;
-    //    }
-    //
-    //    string ToUtf8(const char* str)
-    //    {
-    //        wchar_t result[MAX_PATH]{};
-    //        MB2WC_Impl(CP_ACP, RP_CHAR(str), result);
-    //        return ToUtf8(result);
-    //    }
-    //    string ToUtf8(const wchar_t* str)
-    //    {
-    //        char result[MAX_PATH]{};
-    //        WC2MB_Impl(CP_UTF8, str, result);
-    //        return result;
-    //    }
-    //
-    //    wstring ToUnicode(const char* str, UINT codePage)
-    //    {
-    //        wchar_t result[MAX_PATH]{};
-    //        MB2WC_Impl(codePage, str, result);
-    //        return result;
-    //    }
-    //#pragma endregion
-
-    //int g_GlobalDebugIndex = 0;
-    //void SetDebugName(ID3D12Object* pObj, const wstring& name)
-    //{
-    //    wstring indexedName = Format(_T("%s_%06d"), name.c_str(), g_GlobalDebugIndex++);
-    //    D3D12Core::CheckHresult(pObj->SetName(indexedName.c_str()));
-    //}
-    //void SetDebugName(ID3D12Object* pObj, const string& name)
-    //{
-    //    //SetDebugName(pObj, ToUnicode(name.c_str(), CP_UTF8));
-    //}
-    //wstring GetDebugName(ID3D12Object* pObj)
-    //{
-    //    UINT size = MAX_PATH;
-    //    wstring text;
-    //    text.resize(MAX_PATH);
-    //    pObj->GetPrivateData(WKPDID_D3DDebugObjectNameW, &size, text.data());
-    //    return text;
-    //}
-    //void SetDebugName(IDXGIObject* pObj, const wstring& name)
-    //{
-    //    wstring indexedName = Format(_T("%s_%06d"), name.c_str(), g_GlobalDebugIndex++);
-    //    D3D12Core::CheckHresult(pObj->SetPrivateData(WKPDID_D3DDebugObjectNameW, static_cast<UINT>((indexedName.size() + 1) * sizeof(wchar_t)), indexedName.c_str()));
-    //}
-    //void SetDebugName(IDXGIObject* pObj, const string& name)
-    //{
-    //    //SetDebugName(pObj, ToUnicode(name.c_str(), CP_UTF8));
-    //}
-    //wstring GetDebugName(IDXGIObject* pObj)
-    //{
-    //    UINT size = MAX_PATH;
-    //    wstring text;
-    //    text.resize(MAX_PATH);
-    //    pObj->GetPrivateData(WKPDID_D3DDebugObjectNameW, &size, text.data());
-    //    return text;
-    //}
 }

@@ -20,7 +20,7 @@ namespace D3D12Core
         //GraphicsBuffer& operator = (GraphicsBuffer&& buffer) = default;
 
         // --------------------------------------------------------------------------
-        UINT64  GetBufferSize() const override { return m_ResourceDesc.Width; }
+        uint64  GetBufferSize() const override { return m_ResourceDesc.Width; }
         D3D12_GPU_VIRTUAL_ADDRESS GetGpuVirtualAddress() const override { return m_GpuVirtualAddress; }
 
         //virtual void SetName(const std::wstring& name) override
@@ -34,13 +34,13 @@ namespace D3D12Core
          * @brief 创建指定大小的默认堆
          * @param size
         */
-        void DirectCreate(UINT64 size) override;
+        void DirectCreate(uint64 size) override;
         /**
          * @brief 使用定位方式创建一个默认堆
          * @param size
          * @param pPlacedHeap
         */
-        void PlacedCreate(UINT64 size) override;
+        void PlacedCreate(uint64 size) override;
 
         /**
          * @brief 添加拷贝缓冲命令

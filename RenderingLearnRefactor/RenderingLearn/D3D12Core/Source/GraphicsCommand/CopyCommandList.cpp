@@ -9,7 +9,7 @@ void CopyCommandList::Create()
     CreateImpl(D3D12_COMMAND_LIST_TYPE_COPY, TEXT("CopyCommandList"));
 }
 
-void CopyCommandList::UpdateSubresources(IGraphicsResource* DstResource, const UploadBuffer* Intermediate, UINT64 RowPitch, UINT64 SlicePitch, const void* pData) const
+void CopyCommandList::UpdateSubresources(IGraphicsResource* DstResource, const UploadBuffer* Intermediate, uint64 RowPitch, uint64 SlicePitch, const void* pData) const
 {
     CL_UpdateSubresources(this, DstResource, Intermediate, RowPitch, SlicePitch, pData);
 }

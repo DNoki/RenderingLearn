@@ -57,15 +57,15 @@ namespace D3D12Viewer
          * @param max 最大值（不包含）
          * @return
         */
-        inline static int Repeat(int value, int min, int max)
+        inline static int32 Repeat(int32 value, int32 min, int32 max)
         {
             if (min > max)
             {
-                int temp = max;
+                int32 temp = max;
                 max = min;
                 min = temp;
             }
-            int range = max - min;
+            int32 range = max - min;
             if (range == 0) return min;
             value -= min;
             if (value < 0)

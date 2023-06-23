@@ -14,14 +14,14 @@ namespace D3D12Core
          * @param count 交换链数量
          * @param format 帧缓冲格式
         */
-        void CreateForHwnd(const GraphicsContext& context, const class CommandQueue* commandQueue, HWND hwnd, UINT count, DXGI_FORMAT format);
+        void CreateForHwnd(const GraphicsContext& context, const class CommandQueue* commandQueue, HWND hwnd, uint32 count, DXGI_FORMAT format);
 
         /**
          * @brief 调整渲染目标大小
          * @param width 宽度（为0时从窗口获取大小）
          * @param height 高度（为0时从窗口获取大小）
         */
-        void Resize(UINT width = 0, UINT height = 0);
+        void Resize(uint32 width = 0, uint32 height = 0);
 
         // --------------------------------------------------------------------------
         IDXGISwapChain4* GetD3D12SwapChain() const { return m_SwapChain.get(); }
@@ -30,12 +30,12 @@ namespace D3D12Core
          * @brief 获取窗口宽度
          * @return
         */
-        UINT GetWidth() const { return m_SwapChainDesc.Width; }
+        uint32 GetWidth() const { return m_SwapChainDesc.Width; }
         /**
          * @brief 获取窗口高度
          * @return
         */
-        UINT GetHeight() const { return m_SwapChainDesc.Height; }
+        uint32 GetHeight() const { return m_SwapChainDesc.Height; }
         /**
          * @brief 获取窗口宽高比
          * @return
@@ -47,7 +47,7 @@ namespace D3D12Core
          * @brief 获取当前后台缓冲索引
          * @return
         */
-        UINT GetCurrentBackBufferIndex() const
+        uint32 GetCurrentBackBufferIndex() const
         {
             return m_SwapChain->GetCurrentBackBufferIndex();
         }
@@ -55,7 +55,7 @@ namespace D3D12Core
          * @brief 获取渲染目标贴图
          * @return
         */
-        IRenderTarget* GetRenderTarget(UINT index) const { return m_RenderTargets[index].get(); }
+        IRenderTarget* GetRenderTarget(uint32 index) const { return m_RenderTargets[index].get(); }
 
         // TODO temp
         const GraphicsContext* m_GraphicsContext{};

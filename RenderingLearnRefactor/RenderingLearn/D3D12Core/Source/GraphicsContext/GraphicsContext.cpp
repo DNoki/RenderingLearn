@@ -7,7 +7,7 @@ void ::GraphicsContext::Initialize()
 {
     CurrentInstance = this;
 
-    UINT nDXGIFactoryFlags = 0U;
+    uint32 nDXGIFactoryFlags = 0U;
 #if DEBUG
     // 启用调试层（需要图形工具“可选功能”）。
     // 注意：在设备创建后启用调试层将使活动设备无效。
@@ -29,7 +29,7 @@ void ::GraphicsContext::Initialize()
         ComPtr<IDXGIAdapter4> pAdapter;
         ComPtr<ID3D12Device6> pDevice;
         SIZE_T MaxSize = 0;
-        for (UINT adapterIndex = 0; DXGI_ERROR_NOT_FOUND != m_Factory->EnumAdapters1(adapterIndex, reinterpret_cast<IDXGIAdapter1**>(pAdapter.put())); adapterIndex++)
+        for (uint32 adapterIndex = 0; DXGI_ERROR_NOT_FOUND != m_Factory->EnumAdapters1(adapterIndex, reinterpret_cast<IDXGIAdapter1**>(pAdapter.put())); adapterIndex++)
         {
             // 遍历所有适配器
             DXGI_ADAPTER_DESC3 desc;
@@ -58,7 +58,7 @@ void ::GraphicsContext::Initialize()
         // 获取显卡信息
         const auto GpuCount = GetGpuCount();
         ASSERT(GpuCount > 0);
-        for (UINT i = 0; i < GpuCount; ++i)
+        for (uint32 i = 0; i < GpuCount; ++i)
         {
             m_AdapterDesc.push_back(DXGI_ADAPTER_DESC3());
             CHECK_HRESULT(m_Adapter->GetDesc3(&m_AdapterDesc.back()));
@@ -74,33 +74,33 @@ void GraphicsContext::Destroy()
     m_D3D12Debug = nullptr;
 }
 
-UINT GraphicsContext::GetGpuCount() const
+uint32 GraphicsContext::GetGpuCount() const
 {
     return  m_Device->GetNodeCount();
 }
-String GraphicsContext::GetGpuDescription(UINT Node) const
+String GraphicsContext::GetGpuDescription(uint32 Node) const
 {
     return m_AdapterDesc[Node].Description;
 }
 
-UINT64 GraphicsContext::GetGpuDedicatedMemory(UINT Node) const
+uint64 GraphicsContext::GetGpuDedicatedMemory(uint32 Node) const
 {
     return m_AdapterDesc[Node].DedicatedVideoMemory;
 }
 
-UINT64 GraphicsContext::GetGpuSharedMemory(UINT Node) const
+uint64 GraphicsContext::GetGpuSharedMemory(uint32 Node) const
 {
     return m_AdapterDesc[Node].SharedSystemMemory;
 }
 
-auto GraphicsContext::GetGpuMemoryBudget(UINT Node) const -> UINT64
+auto GraphicsContext::GetGpuMemoryBudget(uint32 Node) const -> uint64
 {
     DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{};
     CHECK_HRESULT(m_Adapter->QueryVideoMemoryInfo(Node, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));
     return GpuMemoryInfo.Budget;
 }
 
-UINT64 GraphicsContext::GetGpuUsagedMemory(UINT Node) const
+uint64 GraphicsContext::GetGpuUsagedMemory(uint32 Node) const
 {
     DXGI_QUERY_VIDEO_MEMORY_INFO GpuMemoryInfo{};
     CHECK_HRESULT(m_Adapter->QueryVideoMemoryInfo(Node, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &GpuMemoryInfo));
@@ -115,17 +115,17 @@ void GraphicsContext::SetAltEnterEnable(HWND winHandle, bool enable)
 
 void GraphicsContext::SetDebugName(IDXGIObject* pObj, const String& name)
 {
-    static UINT DebugIndex = 0;
+    static uint32 DebugIndex = 0;
 
     if (!pObj) return;
 
     String indexedName = Format(TEXT("%s_%06d"), name.c_str(), DebugIndex++);
-    CHECK_HRESULT(pObj->SetPrivateData(WKPDID_D3DDebugObjectNameW, static_cast<UINT>((indexedName.size() + 1) * sizeof(wchar_t)), indexedName.c_str()));
+    CHECK_HRESULT(pObj->SetPrivateData(WKPDID_D3DDebugObjectNameW, static_cast<uint32>((indexedName.size() + 1) * sizeof(TCHAR)), indexedName.c_str()));
 }
 
 void GraphicsContext::SetDebugName(ID3D12Object* pObj, const String& name)
 {
-    static UINT DebugIndex = 0;
+    static uint32 DebugIndex = 0;
 
     if (!pObj) return;
 

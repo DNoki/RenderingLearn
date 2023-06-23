@@ -18,14 +18,14 @@ namespace D3D12Viewer
     class ShaderDesc
     {
     public:
-        int m_SemanticFlags{ 1 << (int)VertexSemantic::Position }; // 着色器使用语义
-        Path m_ShaderFilePaths[static_cast<int>(ShaderType::Count)]{};
-        int m_SrvCount{ 0 };
-        int m_UavCount{ 0 };
-        int m_CbvCount{ 0 };
-        int m_SamplerCount{ 0 };
+        int32 m_SemanticFlags{ 1 << (int32)VertexSemantic::Position }; // 着色器使用语义
+        Path m_ShaderFilePaths[static_cast<int32>(ShaderType::Count)]{};
+        int32 m_SrvCount{ 0 };
+        int32 m_UavCount{ 0 };
+        int32 m_CbvCount{ 0 };
+        int32 m_SamplerCount{ 0 };
 
-        int GetBindResourceCount() const { return m_SrvCount + m_UavCount; }
+        int32 GetBindResourceCount() const { return m_SrvCount + m_UavCount; }
 
         ShaderDesc() = default;
 
@@ -47,15 +47,15 @@ namespace D3D12Viewer
 
         const ShaderDesc& GetShaderDesc() const { return m_ShaderDesc; }
         const D3D12Core::RootSignature* GetRootSignature() const { return m_RootSignature.get(); }
-        D3D12_INPUT_LAYOUT_DESC GetInputLayout() const { return { m_InputLayouts.data(), static_cast<UINT>(m_InputLayouts.size()) }; }
-        int GetBindSemanticFlag() const { return m_ShaderDesc.m_SemanticFlags; }
-        const ID3DBlob* GetShaderBuffer(ShaderType type) const { return m_ShaderBlobs[static_cast<int>(type)].get(); }
+        D3D12_INPUT_LAYOUT_DESC GetInputLayout() const { return { m_InputLayouts.data(), static_cast<uint32>(m_InputLayouts.size()) }; }
+        int32 GetBindSemanticFlag() const { return m_ShaderDesc.m_SemanticFlags; }
+        const ID3DBlob* GetShaderBuffer(ShaderType type) const { return m_ShaderBlobs[static_cast<int32>(type)].get(); }
 
         void SetName(const String& name) override;
 
     private:
         ShaderDesc m_ShaderDesc{};
-        winrt::com_ptr<ID3DBlob> m_ShaderBlobs[static_cast<int>(ShaderType::Count)]{}; // 着色器编译缓冲
+        winrt::com_ptr<ID3DBlob> m_ShaderBlobs[static_cast<int32>(ShaderType::Count)]{}; // 着色器编译缓冲
 
         UniquePtr<D3D12Core::RootSignature> m_RootSignature{};   // 根签名
         Vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayouts{};       // 顶点输入结构

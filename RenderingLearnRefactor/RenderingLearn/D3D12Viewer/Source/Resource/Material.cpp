@@ -90,10 +90,10 @@ void Material::DispatchBindMaterial(GraphicsCommandList* commandList, bool isOnl
         {
             commandList->SetDescriptorHeaps(m_ResourceDescHeap.get(), m_SamplerDescHeap.get());
 
-            UINT rootParamIndex = 0;
+            uint32 rootParamIndex = 0;
 
             // 绑定常量缓冲
-            for (int i = 0; i < m_Shader->GetShaderDesc().m_CbvCount; i++)
+            for (size_t i = 0; i < m_Shader->GetShaderDesc().m_CbvCount; i++)
             {
                 commandList->SetGraphicsRootConstantBufferView(rootParamIndex++, m_ConstantBuffers[i]);
             }
@@ -105,7 +105,7 @@ void Material::DispatchBindMaterial(GraphicsCommandList* commandList, bool isOnl
                 commandList->SetGraphicsRootDescriptorTable(rootParamIndex++, m_SamplerDescHeap.get());
 #if 0
             auto rootPrarmIndex = 0;
-            for (UINT i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
+            for (uint32 i = 0; i < m_ResourceDescHeap->GetDescriptorsCount(); i++)
                 commandList->SetGraphicsRootDescriptorTable(rootPrarmIndex++, m_ResourceDescHeap->GetDescriptorHandle(i));
 
             if (m_SamplerDescriptorHandle)
@@ -115,7 +115,7 @@ void Material::DispatchBindMaterial(GraphicsCommandList* commandList, bool isOnl
     }
 }
 
-void Material::BindBuffer(int slot, const IBufferResource& buffer)
+void Material::BindBuffer(int32 slot, const IBufferResource& buffer)
 {
     ASSERT(slot < m_Shader->GetShaderDesc().m_CbvCount);
     if (m_ConstantBuffers[slot] != &buffer)
@@ -125,7 +125,7 @@ void Material::BindBuffer(int slot, const IBufferResource& buffer)
     }
 
 }
-void Material::BindTexture(int slot, const ITexture& texture)
+void Material::BindTexture(int32 slot, const ITexture& texture)
 {
     ASSERT(slot < m_Shader->GetShaderDesc().m_SrvCount);
     GraphicsManager::GetInstance().GetGraphicsContext()->GetDevice()->CopyDescriptorsSimple(1,
@@ -134,7 +134,7 @@ void Material::BindTexture(int slot, const ITexture& texture)
     //m_Version++; // TODO
 }
 
-void Material::BindSampler(int slot, const DescriptorHandle& sampler)
+void Material::BindSampler(int32 slot, const DescriptorHandle& sampler)
 {
     ASSERT(slot < m_Shader->GetShaderDesc().m_SamplerCount);
     GraphicsManager::GetInstance().GetGraphicsContext()->GetDevice()->CopyDescriptorsSimple(1,
@@ -235,7 +235,7 @@ D3D12_COMPARISON_FUNC Material::GetDepthFunc() const
     return m_PipelineState->GetDepthStencilState().DepthFunc;
 }
 
-void Material::SetDepthBias(int bias, float slopeScaledBias, float maxBias)
+void Material::SetDepthBias(int32 bias, float slopeScaledBias, float maxBias)
 {
     // 深度偏差 https://docs.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-output-merger-stage-depth-bias
     auto& psoValue = m_PipelineState->GetRasterizerState();

@@ -79,11 +79,11 @@ void GraphicsCommandList::SetDescriptorHeaps(const DescriptorHeap* pResourceDesc
 {
     CL_SetDescriptorHeaps(this, pResourceDescHeap, pSamplerDescHeap);
 }
-void GraphicsCommandList::SetGraphicsRootDescriptorTable(UINT rootParameterIndex, const DescriptorHeap* descriptorHeap) const
+void GraphicsCommandList::SetGraphicsRootDescriptorTable(uint32 rootParameterIndex, const DescriptorHeap* descriptorHeap) const
 {
     CL_SetGraphicsRootDescriptorTable(this, rootParameterIndex, descriptorHeap);
 }
-void GraphicsCommandList::SetGraphicsRootConstantBufferView(UINT rootParameterIndex, const IBufferResource* buffer) const
+void GraphicsCommandList::SetGraphicsRootConstantBufferView(uint32 rootParameterIndex, const IBufferResource* buffer) const
 {
     CL_SetGraphicsRootConstantBufferView(this, rootParameterIndex, buffer);
 }
@@ -92,7 +92,7 @@ void GraphicsCommandList::IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY primit
 {
     CL_IASetPrimitiveTopology(this, primitiveTopology);
 }
-void GraphicsCommandList::IASetVertexBuffers(UINT startSlot, const D3D12_VERTEX_BUFFER_VIEW* VBV) const
+void GraphicsCommandList::IASetVertexBuffers(uint32 startSlot, const D3D12_VERTEX_BUFFER_VIEW* VBV) const
 {
     CL_IASetVertexBuffers(this, startSlot, VBV);
 }
@@ -107,7 +107,7 @@ void GraphicsCommandList::RSSetViewports(float topLeftX, float topLeftY, float w
     CL_RSSetViewports(this, 1, &viewport);
 }
 
-void GraphicsCommandList::RSSetScissorRects(UINT Left, UINT Top, UINT Right, UINT Bottom) const
+void GraphicsCommandList::RSSetScissorRects(uint32 Left, uint32 Top, uint32 Right, uint32 Bottom) const
 {
     const auto scissorRect = CD3DX12_RECT(Left, Top, Right, Bottom);
     CL_RSSetScissorRects(this, 1, &scissorRect);
@@ -118,12 +118,12 @@ void GraphicsCommandList::OMSetRenderTarget(const IRenderTarget* renderTarget, c
     CL_OMSetRenderTargets(this, { renderTarget, depthStencil });
 }
 
-void GraphicsCommandList::DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation, UINT startInstanceLocation) const
+void GraphicsCommandList::DrawInstanced(uint32 vertexCountPerInstance, uint32 instanceCount, uint32 startVertexLocation, uint32 startInstanceLocation) const
 {
     CL_DrawInstanced(this, vertexCountPerInstance, instanceCount, startVertexLocation, startInstanceLocation);
 }
 
-void GraphicsCommandList::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation) const
+void GraphicsCommandList::DrawIndexedInstanced(uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, int32 baseVertexLocation, uint32 startInstanceLocation) const
 {
     CL_DrawIndexedInstanced(this, indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }

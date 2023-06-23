@@ -13,8 +13,8 @@
 
 
 // 边界对齐，B为2的指数倍
-#define UINT_UPPER(A, B) (((UINT)A + (UINT)B - 1u)&~((UINT)B - 1u))
-#define UINT64_UPPER(A, B) (((UINT64)A + (UINT64)B - 1u)&~((UINT64)B - 1u))
+#define UINT_UPPER(A, B) (((uint32)A + (uint32)B - 1u)&~((uint32)B - 1u))
+#define UINT64_UPPER(A, B) (((uint64)A + (uint64)B - 1u)&~((uint64)B - 1u))
 
 
 #pragma comment(lib, "d3d12.lib")
