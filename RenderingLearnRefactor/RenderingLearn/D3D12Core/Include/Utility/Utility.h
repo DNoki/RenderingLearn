@@ -15,5 +15,9 @@ namespace D3D12Core
 
 
 #endif
+
+    extern int32 MB2WC_Impl(uint32 codePage, const ANSICHAR* src, WIDECHAR* dest);
+    extern int32 WC2MB_Impl(uint32 codePage, const WIDECHAR* src, ANSICHAR* dest);
+
 }
 

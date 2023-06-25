@@ -97,4 +97,31 @@ namespace D3D12Core
         winrt::check_hresult(hr);
         return hr;
     }
+
+#pragma region CodePage Convert
+    /**
+     * @brief 多字节字符串转宽字节字符串
+     * @param codePage
+     * @param src
+     * @param dest
+     * @return
+    */
+    int32 MB2WC_Impl(uint32 codePage, const ANSICHAR* src, WIDECHAR* dest)
+    {
+        auto len = static_cast<int32>(strnlen(src, MAX_PATH)) + 1;
+        return MultiByteToWideChar(codePage, 0, src, len, dest, MAX_PATH);
+    }
+    /**
+     * @brief 宽字节字符串转多字节字符串
+     * @param codePage
+     * @param src
+     * @param dest
+     * @return
+    */
+    int32 WC2MB_Impl(uint32 codePage, const WIDECHAR* src, ANSICHAR* dest)
+    {
+        auto len = static_cast<int32>(wcsnlen(src, MAX_PATH)) + 1;
+        return WideCharToMultiByte(codePage, 0, src, len, dest, MAX_PATH, nullptr, nullptr);
+    }
+#pragma endregion
 }

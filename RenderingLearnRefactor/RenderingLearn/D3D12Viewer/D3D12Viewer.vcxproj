@@ -197,6 +197,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Utility\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\D3D12Viewer.h" />
@@ -208,6 +209,7 @@
     <ClInclude Include="Include\Resource\Shader.h" />
     <ClInclude Include="Include\System\WindowApplication.h" />
     <ClInclude Include="Include\Utility\MathCommon.h" />
+    <ClInclude Include="Include\Utility\TextureLoader.h" />
     <ClInclude Include="Source\Utility\pch.h" />
   </ItemGroup>
   <ItemGroup>
