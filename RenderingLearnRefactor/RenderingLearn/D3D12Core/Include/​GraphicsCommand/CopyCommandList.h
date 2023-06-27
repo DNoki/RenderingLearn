@@ -28,7 +28,17 @@ namespace D3D12Core
 
         void ResourceBarrier(IGraphicsResource* resource, D3D12_RESOURCE_STATES after) const;
 
-
+        /**
+         * \brief 自动分配上传缓冲，拷贝数据到资源
+         * \param resource
+         * \param data
+         */
         void DispatchUploadBuffer(IBufferResource* resource, const void* data) const;
+        /**
+         * \brief 自动分配上传缓冲，拷贝纹理数据到资源
+         * \param resource
+         * \param data
+         */
+        void DispatchUploadBuffer(ITexture* resource, const void* data) const;
     };
 }

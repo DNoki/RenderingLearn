@@ -17,7 +17,8 @@ namespace D3D12Core
         void Create(const GraphicsContext& context, D3D12_COMMAND_LIST_TYPE type);
 
         //void ExecuteCommandLists(CommandList* commandLists, uint32 numCommandLists = 1);
-        void ExecuteCommandLists(ICommandList** commandLists, uint32 numCommandLists = 1);
+        //void ExecuteCommandLists(ICommandList** commandLists, uint32 numCommandLists = 1);
+        void ExecuteCommandLists(std::initializer_list<ICommandList*> commandLists);
 
         /**
          * @brief 等待队列完成

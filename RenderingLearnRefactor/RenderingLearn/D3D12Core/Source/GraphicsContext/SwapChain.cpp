@@ -18,7 +18,7 @@ public:
 
         m_Type = RenderTargetType::Color;
         m_ResourceDesc = m_Resource->GetDesc();
-        m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
+        //m_ResourceStates = D3D12_RESOURCE_STATE_PRESENT;
 
         // 渲染呈现视图
         {

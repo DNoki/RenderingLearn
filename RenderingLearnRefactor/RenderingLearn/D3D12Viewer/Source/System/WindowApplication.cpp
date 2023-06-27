@@ -38,17 +38,53 @@ void WindowApplication::Run(HINSTANCE hInstance, int32 nCmdShow)
     shaderDesc.m_SemanticFlags = (1 << (int32)VertexSemantic::Position) | (1 << (int32)VertexSemantic::Normal) | (1 << (int32)VertexSemantic::Texcoord);
     shaderDesc.m_ShaderFilePaths[static_cast<int32>(ShaderType::VertexShader)] = GetShaderPath().append("Sample_vs.cso");
     shaderDesc.m_ShaderFilePaths[static_cast<int32>(ShaderType::PixelShader)] = GetShaderPath().append("Sample_ps.cso");
-    shaderDesc.m_CbvCount = 3;
-    shaderDesc.m_SrvCount = 2;
-    shaderDesc.m_SamplerCount = 2;
+    shaderDesc.m_CbvCount = 0;
+    shaderDesc.m_SrvCount = 1;
+    shaderDesc.m_SamplerCount = 1;
     Shader g_Shader{};
     g_Shader.Create(&shaderDesc);
     g_Shader.SetName(TEXT("示例着色器"));
+
+
+    DescriptorHandle g_SamplerLinearBorder;  // 线性采样边界色纹理
+    // 创建动态采样器
+    D3D12_SAMPLER_DESC sampler{};
+    sampler.MipLODBias = 0.0f;
+    sampler.MaxAnisotropy = 1;
+    sampler.BorderColor[0] = 0.0f;
+    sampler.BorderColor[1] = 0.0f;
+    sampler.BorderColor[2] = 0.0f;
+    sampler.BorderColor[3] = 0.0f;
+    sampler.MinLOD = 0;
+    sampler.MaxLOD = D3D12_FLOAT32_MAX;
+    sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+    sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+    sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+
+    g_SamplerLinearBorder = DescriptorAllocator::Allocat(*GraphicsManager::GetInstance().GetGraphicsContext(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+    GraphicsManager::GetInstance().GetDevice()->CreateSampler(&sampler, g_SamplerLinearBorder);
+
 
     auto g_Material = Material();
     g_Material.Create(&g_Shader);
     g_Material.SetName(TEXT("示例材质"));
     g_Material.SetDepthEnable(false);
+    g_Material.BindSampler(0, g_SamplerLinearBorder);
+
+    Path texFilePath = FORMAT(TEXT("%s/云堇.jpg"), g_AssetPath.c_str());
+    Vector<uint8> texData; DXGI_FORMAT texFormat;
+    int32 texWidth, texHeight;
+    D3D12Viewer::LoadTexture2D(texFilePath, texData, texFormat, texWidth, texHeight);
+
+    auto g_Texture = Texture2D();
+    g_Texture.Create(texFormat, texWidth, texHeight);
+    g_Texture.DispatchCopyTextureData(texData.data());
+
+    g_Material.BindTexture(0, g_Texture);
+
 
     GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
     GraphicsManager::GetInstance().GetCopyCommandQueue()->WaitForQueueCompleted();
@@ -65,9 +101,6 @@ void WindowApplication::Run(HINSTANCE hInstance, int32 nCmdShow)
                 g_AppEvent.set(EventFlag::Exit);
         }
 
-        //auto* graphicsCommandList = CommandListPool::Request<GraphicsCommandList>();
-        //graphicsCommandList->Reset();
-
         auto swapChain = GraphicsManager::GetInstance().GetSwapChain();
         auto currentRenderTarget = swapChain->GetRenderTarget(swapChain->GetCurrentBackBufferIndex());
 
@@ -81,61 +114,16 @@ void WindowApplication::Run(HINSTANCE hInstance, int32 nCmdShow)
         renderPass.SetRTEndingAccess(0,
             D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE);
         renderPass.BeginRenderPass();
+
         renderPass.SetViewports(0, 0, ScreenWidth, ScreenHeight);
-
-        //graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-
-        //D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{};
-        //renderPassRenderTargetDesc.cpuDescriptor = currentRenderTarget->GetDescriptorHandle();
-        //renderPassRenderTargetDesc.BeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
-        //renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-        //reinterpret_cast<Color&>(renderPassRenderTargetDesc.BeginningAccess.Clear.ClearValue.Color) = Color(0.0f, 0.5f, 0.75f);
-        //renderPassRenderTargetDesc.EndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-        //renderPassRenderTargetDesc.EndingAccess.Resolve = {};
-
-        //graphicsCommandList->RSSetViewports(0.0f, 0.0f, static_cast<float>(ScreenWidth), static_cast<float>(ScreenHeight));
-        //graphicsCommandList->RSSetScissorRects(0, 0, ScreenWidth, ScreenHeight);
-
-        //graphicsCommandList->GetD3D12CommandList()->BeginRenderPass(
-        //    1,
-        //    &renderPassRenderTargetDesc,
-        //    nullptr,
-        //    D3D12_RENDER_PASS_FLAG_NONE);
-
-        //graphicsCommandList->OMSetRenderTarget(currentRenderTarget);
-
-        //graphicsCommandList->ClearRenderTargetView(currentRenderTarget, Color(0.0f, 0.5f, 0.75f));
 
         {
             renderPass.DrawCall(&g_Mesh, &g_Material);
-
-            //graphicsCommandList->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-            //auto rtvFormat = currentRenderTarget->GetFormat();
-            //g_Material.GetPipelineState()->SetRenderTargetFormats(1, &rtvFormat, DXGI_FORMAT_UNKNOWN);
-            //g_Material.GetPipelineState()->Finalize();
-
-            //graphicsCommandList->SetGraphicsRootSignature(g_Shader.GetRootSignature());
-            //graphicsCommandList->SetPipelineState(g_Material.GetPipelineState());
-
-            //graphicsCommandList->IASetVertexBuffers(0, g_Mesh.m_VBVs[static_cast<int32>(VertexSemantic::Position)].get());
-            //graphicsCommandList->IASetVertexBuffers(4, g_Mesh.m_VBVs[static_cast<int32>(VertexSemantic::Texcoord)].get());
-            //graphicsCommandList->IASetIndexBuffer(g_Mesh.m_IBV.get());
-
-            //graphicsCommandList->DrawIndexedInstanced(static_cast<uint32>(g_Mesh.m_Indices.size()));
         }
 
-
-        //graphicsCommandList->GetD3D12CommandList()->EndRenderPass();
-
-
-        //graphicsCommandList->ResourceBarrier(currentRenderTarget, D3D12_RESOURCE_STATE_PRESENT);
         renderPass.EndRenderPass();
 
-        ICommandList* c = renderPass.m_CommandList;
-        //ICommandList* c = graphicsCommandList;
-        GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists(&c);
+        GraphicsManager::GetInstance().GetGraphicsCommandQueue()->ExecuteCommandLists({ renderPass.m_CommandList });
         GraphicsManager::GetInstance().GetGraphicsCommandQueue()->WaitForQueueCompleted();
 
         CHECK_HRESULT(swapChain->GetD3D12SwapChain()->Present(1, 0));
@@ -236,7 +224,8 @@ void WindowApplication::InitPathes()
             ASSERT(0, L"ERROR::未能找到项目路径");
         g_ProjectPath = g_ProjectPath.parent_path();
     }
-    g_AssetPath = g_ProjectPath;
+    g_AssetPath = g_ProjectPath.parent_path().parent_path();
+    //g_AssetPath = g_ProjectPath;
     g_AssetPath.append("Assets");
     //g_ShaderPath = g_ProjectPath;
     //g_ShaderPath.append("Source\\Shaders"); 

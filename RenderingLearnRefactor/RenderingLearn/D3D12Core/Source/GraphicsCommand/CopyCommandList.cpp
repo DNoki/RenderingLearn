@@ -28,3 +28,8 @@ void CopyCommandList::DispatchUploadBuffer(IBufferResource* resource, const void
 {
     CL_DispatchUploadBuffer(this, resource, data);
 }
+
+void CopyCommandList::DispatchUploadBuffer(ITexture* resource, const void* data) const
+{
+    CL_DispatchUploadBuffer(this, resource, data);
+}

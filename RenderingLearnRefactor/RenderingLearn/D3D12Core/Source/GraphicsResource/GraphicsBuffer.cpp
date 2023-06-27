@@ -18,7 +18,7 @@ using namespace D3D12Core;
 void GraphicsBuffer::DirectCreate(uint64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-    m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
+    //m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
 
     auto heapType = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
     CHECK_HRESULT(GraphicsContext::GetCurrentInstance()->GetDevice()->CreateCommittedResource(
@@ -36,7 +36,7 @@ void GraphicsBuffer::DirectCreate(uint64 size)
 void GraphicsBuffer::PlacedCreate(uint64 size)
 {
     m_ResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(size);
-    m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
+    //m_ResourceStates = D3D12_RESOURCE_STATE_COPY_DEST; // 初始状态为拷贝目标
 
     m_PlacedResourceDesc.m_HeapType = D3D12_HEAP_TYPE_DEFAULT;
     m_PlacedResourceDesc.m_OptimizedClearValue = nullptr;

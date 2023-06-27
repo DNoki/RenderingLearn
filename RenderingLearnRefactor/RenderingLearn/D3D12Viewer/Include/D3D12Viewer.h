@@ -57,9 +57,11 @@ namespace D3D12Viewer
 }
 
 #include "Utility/MathCommon.h"
+#include "Utility/TextureLoader.h"
 #include "Rendering/GraphicsManager.h"
 #include "Rendering/RenderPass.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
 #include "Resource/Mesh.h"
+#include "Resource/Texture2D.h"

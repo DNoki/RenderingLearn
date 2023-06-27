@@ -65,7 +65,7 @@ void CommandQueue::CloseQueue()
     m_Fence = nullptr;
 }
 
-#if 0
+#if false
 void CommandQueue::ExecuteCommandLists(CommandList* commandLists, uint32 numCommandLists)
 {
     Vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
@@ -83,7 +83,7 @@ void CommandQueue::ExecuteCommandLists(CommandList* commandLists, uint32 numComm
     for (uint32 i = 0; i < numCommandLists; i++)
         CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
 }
-#endif
+
 void CommandQueue::ExecuteCommandLists(ICommandList** commandLists, uint32 numCommandLists)
 {
     Vector<ID3D12CommandList*> ppCommandLists(numCommandLists);
@@ -102,6 +102,30 @@ void CommandQueue::ExecuteCommandLists(ICommandList** commandLists, uint32 numCo
     for (uint32 i = 0; i < numCommandLists; i++)
     {
         CommandListPool::Restore(&commandLists[i]); // 将使用完毕的列表放回池
+    }
+}
+#endif
+
+void CommandQueue::ExecuteCommandLists(std::initializer_list<ICommandList*> commandLists)
+{
+    Vector<ID3D12CommandList*> ppCommandLists{};
+
+    for (auto pCommandList = commandLists.begin(); pCommandList != commandLists.end(); pCommandList++)
+    {
+        auto commandList = *pCommandList;
+        ASSERT(m_Type == commandList->GetType(), TEXT("ERROR::命令列表类型与队列类型不一致。"));
+        ASSERT(!commandList->IsLocked()); // 设只允许队列来关闭命令列表
+
+        m_Allocators.push_back(commandList->GetCommandAllocator()); // 添加分配器到使用中
+        commandList->Close(); // 关闭列表以执行命令
+        ppCommandLists.push_back(commandList->GetD3D12CommandList());
+    }
+
+    m_CommandQueue->ExecuteCommandLists(static_cast<uint32>(ppCommandLists.size()), ppCommandLists.data());
+    for (auto pCommandList = commandLists.begin(); pCommandList != commandLists.end(); pCommandList++)
+    {
+        auto commandList = *pCommandList;
+        CommandListPool::Restore(&commandList); // 将使用完毕的列表放回池
     }
 }
 

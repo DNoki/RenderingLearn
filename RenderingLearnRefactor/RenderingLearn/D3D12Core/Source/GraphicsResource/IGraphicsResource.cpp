@@ -75,5 +75,5 @@ void IGraphicsResource::DispatchTransitionStates(GraphicsCommandList* commandLis
 {
     ASSERT(m_ResourceStates != after);
     commandList->ResourceBarrier(this, after);
-    m_ResourceStates = after; // TODO 资源状态并非是立即更新的
+    m_ResourceStates = after; // 资源状态并非是 GPU 上的实时状态
 }

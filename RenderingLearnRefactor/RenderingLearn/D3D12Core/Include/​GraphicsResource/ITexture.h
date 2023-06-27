@@ -20,6 +20,7 @@ namespace D3D12Core
         DXGI_FORMAT GetFormat() const { return m_ResourceDesc.Format; }
         uint32 GetWidth() const { return static_cast<uint32>(m_ResourceDesc.Width); }
         uint32 GetHeight() const { return static_cast<uint32>(m_ResourceDesc.Height); }
+        uint32 GetBytesPerPixel() const;
 
         const DescriptorHandle& GetSRV() const { return m_SRV; }
 

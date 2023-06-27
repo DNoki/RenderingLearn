@@ -92,6 +92,7 @@ void RenderPass::EndRenderPass()
 {
     m_CommandList->GetD3D12CommandList()->EndRenderPass();
 
+    // 渲染目标资源状态转换
     for (size_t i = 0; i < m_RenderTargets.size(); ++i)
     {
         m_CommandList->ResourceBarrier(m_RenderTargets[i], D3D12_RESOURCE_STATE_COMMON);
@@ -122,8 +123,10 @@ void RenderPass::DrawCall(const Mesh* mesh, const Material* material)
         m_DepthStencil ? m_DepthStencil->GetFormat() : DXGI_FORMAT_UNKNOWN);
     material->GetPipelineState()->Finalize();
 
-    m_CommandList->SetGraphicsRootSignature(material->GetShader()->GetRootSignature());
-    m_CommandList->SetPipelineState(material->GetPipelineState());
+    //m_CommandList->SetGraphicsRootSignature(material->GetShader()->GetRootSignature());
+    //m_CommandList->SetPipelineState(material->GetPipelineState());
+
+    material->DispatchBindMaterial(m_CommandList, false);
 
     // TODO
     m_CommandList->IASetVertexBuffers(0, mesh->m_VBVs[static_cast<int32>(VertexSemantic::Position)].get());

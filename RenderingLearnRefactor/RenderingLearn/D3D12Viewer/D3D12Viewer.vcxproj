@@ -191,6 +191,7 @@
     <ClCompile Include="Source\Resource\Material.cpp" />
     <ClCompile Include="Source\Resource\Mesh.cpp" />
     <ClCompile Include="Source\Resource\Shader.cpp" />
+    <ClCompile Include="Source\Resource\Texture2D.cpp" />
     <ClCompile Include="Source\System\WindowApplication.cpp" />
     <ClCompile Include="Source\Utility\MathCommon.cpp" />
     <ClCompile Include="Source\Utility\pch.cpp">
@@ -207,6 +208,7 @@
     <ClInclude Include="Include\Resource\Material.h" />
     <ClInclude Include="Include\Resource\Mesh.h" />
     <ClInclude Include="Include\Resource\Shader.h" />
+    <ClInclude Include="Include\Resource\Texture2D.h" />
     <ClInclude Include="Include\System\WindowApplication.h" />
     <ClInclude Include="Include\Utility\MathCommon.h" />
     <ClInclude Include="Include\Utility\TextureLoader.h" />
@@ -234,6 +236,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\directxtk12_desktop_2019.2023.4.28.1\build\native\directxtk12_desktop_2019.targets" Condition="Exists('..\packages\directxtk12_desktop_2019.2023.4.28.1\build\native\directxtk12_desktop_2019.targets')" />
     <Import Project="..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets" Condition="Exists('..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets')" />
+    <Import Project="..\packages\directxtex_desktop_win10.2023.6.14.1\build\native\directxtex_desktop_win10.targets" Condition="Exists('..\packages\directxtex_desktop_win10.2023.6.14.1\build\native\directxtex_desktop_win10.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -241,5 +244,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\directxtk12_desktop_2019.2023.4.28.1\build\native\directxtk12_desktop_2019.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk12_desktop_2019.2023.4.28.1\build\native\directxtk12_desktop_2019.targets'))" />
     <Error Condition="!Exists('..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\WinPixEventRuntime.1.0.230302001\build\WinPixEventRuntime.targets'))" />
+    <Error Condition="!Exists('..\packages\directxtex_desktop_win10.2023.6.14.1\build\native\directxtex_desktop_win10.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtex_desktop_win10.2023.6.14.1\build\native\directxtex_desktop_win10.targets'))" />
   </Target>
 </Project>

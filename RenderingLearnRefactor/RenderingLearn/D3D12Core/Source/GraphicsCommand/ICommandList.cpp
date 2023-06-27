@@ -349,6 +349,36 @@ namespace D3D12Core
                 const_cast<SharedPtr<UploadBuffer>&>(m_UploadBuffer).reset();
             });
     }
+
+    void CL_DispatchUploadBuffer(const ICommandList* CommandList, ITexture* resource, const void* data)
+    {
+        ASSERT(resource->GetD3D12Resource());
+
+        // 关于对齐说明
+        //auto 实际行大小 = width * 4;
+        //auto 对齐后行大小 = INT_UPPER(width * 4, 256);
+        //auto 实际纹理总大小 = 实际行大小 * height;
+        //auto 对齐后总大小 = INT_UPPER((height - 1) * 对齐后行大小, 256) + 实际行大小;
+        // 返回要用于数据上传的缓冲区的所需大小
+        const uint64 uploadBufferSize = GetRequiredIntermediateSize(resource->GetD3D12Resource(), 0, 1);
+
+        // 创建上传缓冲
+        SharedPtr<UploadBuffer> m_UploadBuffer;
+        m_UploadBuffer.reset(new UploadBuffer());
+        m_UploadBuffer->PlacedCreate(uploadBufferSize);
+
+
+        const auto rowPitch = resource->GetResourceDesc().Width * resource->GetBytesPerPixel();
+        const auto slicePitch = rowPitch * resource->GetResourceDesc().Height;
+        CL_UpdateSubresources(CommandList, resource, m_UploadBuffer.get(),
+            rowPitch, slicePitch, data);;
+
+        // 拷贝完成后释放上传堆
+        CommandList->GetCommandAllocator()->AssignOnCompletedCallback([m_UploadBuffer]()
+            {
+                const_cast<SharedPtr<UploadBuffer>&>(m_UploadBuffer).reset();
+            });
+    }
 #pragma endregion
 
 }

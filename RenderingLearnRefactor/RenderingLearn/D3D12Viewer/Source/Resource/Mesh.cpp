@@ -92,9 +92,8 @@ void Mesh::Finalize(D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
             });
     }
     else m_IndexBuffer = nullptr;
-
-    ICommandList* c = commandList;
-    GraphicsManager::GetInstance().GetCopyCommandQueue()->ExecuteCommandLists(&c);
+    
+    GraphicsManager::GetInstance().GetCopyCommandQueue()->ExecuteCommandLists({ commandList });
 }
 
 void Mesh::SetName(const String& name)
@@ -122,6 +121,7 @@ void Mesh::SetName(const String& name)
     }
 }
 
+#if false
 void Mesh::DispatchResourceExamine(GraphicsCommandList* commandList) const
 {
     for (size_t i = 0; i < VertexSemanticCount; i++)
@@ -165,23 +165,24 @@ void Mesh::DispatchDraw(GraphicsCommandList* commandList, int32 bindSemanticFlag
 
 void Mesh::DispatchDraw(GraphicsCommandList* commandList, Material* mat) const
 {
-    //// 必须由图形命令列表调用
-    //ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
+    // 必须由图形命令列表调用
+    ASSERT(commandList->GetType() == D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-    //// 设置当前渲染目标格式
-    //mat->SetRenderTargets(commandList->GetRenderTargetInfos());
+    // 设置当前渲染目标格式
+    mat->SetRenderTargets(commandList->GetRenderTargetInfos());
 
-    //// 检测管线状态是否已更改
-    //if (mat->GetPipelineState()->CheckStateChanged())
-    //{
-    //    // 重新创建管线状态
-    //    mat->GetPipelineState()->Finalize();
-    //}
+    // 检测管线状态是否已更改
+    if (mat->GetPipelineState()->CheckStateChanged())
+    {
+        // 重新创建管线状态
+        mat->GetPipelineState()->Finalize();
+    }
 
-    //mat->DispatchBindMaterial(commandList, false);
-    //DispatchResourceExamine(commandList);
-    //DispatchDraw(commandList, mat->GetShader()->GetBindSemanticFlag());
+    mat->DispatchBindMaterial(commandList, false);
+    DispatchResourceExamine(commandList);
+    DispatchDraw(commandList, mat->GetShader()->GetBindSemanticFlag());
 }
+#endif
 
 Mesh Mesh::CreateQuad(float size, bool rhcoords)
 {

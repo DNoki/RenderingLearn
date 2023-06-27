@@ -195,6 +195,7 @@ namespace D3D12Core
 #include "​GraphicsCommand/CommandBundle.h"
 #include "​GraphicsCommand/CommandListPool.h"
 
+#include "​GraphicsResource/GraphicsMemory.h"
 #include "​GraphicsResource/DescriptorHeap.h"
 #include "​GraphicsResource/ITexture.h"
 #include "​GraphicsResource/IRenderTexture.h"
@@ -204,3 +205,4 @@ namespace D3D12Core
 #include "​GraphicsResource/GraphicsPipelineState.h"
 #include "​GraphicsResource/ComputePipelineState.h"
 #include "​GraphicsResource/PipelineStateManager.h"
+#include "​GraphicsResource/DescriptorAllocator.h"

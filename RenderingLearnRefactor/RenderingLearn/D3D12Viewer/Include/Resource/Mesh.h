@@ -61,19 +61,19 @@ namespace D3D12Viewer
          * @brief 执行检查资源屏障状态
          * @param commandList
         */
-        void DispatchResourceExamine(D3D12Core::GraphicsCommandList* commandList) const;
+        //void DispatchResourceExamine(D3D12Core::GraphicsCommandList* commandList) const;
         /**
          * @brief 执行绘制
          * @param commandList
          * @param bindSemanticFlag
         */
-        void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, int32 bindSemanticFlag) const;
+        //void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, int32 bindSemanticFlag) const;
         /**
          * @brief 以指定材质绘制
          * @param commandList
          * @param mat
         */
-        void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, Material* mat) const;
+        //void DispatchDraw(D3D12Core::GraphicsCommandList* commandList, Material* mat) const;
 
 
         // --------------------------------------------------------------------------

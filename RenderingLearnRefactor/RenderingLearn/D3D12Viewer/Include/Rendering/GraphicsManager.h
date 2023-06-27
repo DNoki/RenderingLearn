@@ -15,6 +15,7 @@ namespace D3D12Viewer
         void Destroy();
 
         D3D12Core::GraphicsContext* GetGraphicsContext() const { return m_GraphicsContext.get(); }
+        ID3D12Device6* GetDevice() const { return GetGraphicsContext()->GetDevice(); }
         D3D12Core::CommandQueue* GetGraphicsCommandQueue() const { return m_GraphicsCommandQueue.get(); }
         D3D12Core::CommandQueue* GetComputeCommandQueue() const { return m_ComputeCommandQueue.get(); }
         D3D12Core::CommandQueue* GetCopyCommandQueue() const { return m_CopyCommandQueue.get(); }
