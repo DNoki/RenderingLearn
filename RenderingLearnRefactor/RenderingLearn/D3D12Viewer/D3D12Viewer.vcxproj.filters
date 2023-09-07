@@ -61,6 +61,9 @@
     <ClCompile Include="Source\Resource\Texture2D.cpp">
       <Filter>Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Resource\RenderTexture.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility\pch.h">
@@ -95,6 +98,9 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="Include\Resource\Texture2D.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Resource\RenderTexture.h">
       <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>

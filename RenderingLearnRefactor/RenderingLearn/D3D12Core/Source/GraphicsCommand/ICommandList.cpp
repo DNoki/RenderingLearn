@@ -54,9 +54,11 @@ namespace D3D12Core
     }
 
 
-    void CL_ClearRenderTargetView(const ICommandList* commandList, const IRenderTarget* renderTarget, const float colorRGBA[4])
+    void CL_ClearRenderTargetView(const ICommandList* commandList, const IRenderTarget* renderTarget)
     {
-        commandList->GetD3D12CommandList()->ClearRenderTargetView(renderTarget->GetDescriptorHandle(), colorRGBA, 0, nullptr);
+        auto* clearValue = renderTarget->GetClearValue();
+
+        commandList->GetD3D12CommandList()->ClearRenderTargetView(renderTarget->GetDescriptorHandle(), clearValue->Color, 0, nullptr);
     }
 
     void CL_ClearDepthStencilView(const ICommandList* commandList, const IRenderTarget* depthStencil)

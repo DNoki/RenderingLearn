@@ -12,7 +12,7 @@ namespace D3D12Core
      */
     extern void CL_ResourceBarrier(const ICommandList* commandList, IGraphicsResource* resource, D3D12_RESOURCE_STATES after);
 
-    extern void CL_ClearRenderTargetView(const ICommandList* commandList, const IRenderTarget* renderTarget, const float colorRGBA[4]);
+    extern void CL_ClearRenderTargetView(const ICommandList* commandList, const IRenderTarget* renderTarget);
 
     extern void CL_ClearDepthStencilView(const ICommandList* commandList, const IRenderTarget* depthStencil);
 

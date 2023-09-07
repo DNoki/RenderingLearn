@@ -23,7 +23,7 @@ namespace D3D12Core
 
         void ResourceBarrier(IGraphicsResource* resource, D3D12_RESOURCE_STATES after) const;
 
-        void ClearRenderTargetView(const IRenderTarget* renderTarget, const float colorRGBA[4]) const;
+        void ClearRenderTargetView(const IRenderTarget* renderTarget) const;
         void ClearDepthStencilView(const IRenderTarget* depthStencil) const;
 
         void SetGraphicsRootSignature(const RootSignature* pRootSignature) const;

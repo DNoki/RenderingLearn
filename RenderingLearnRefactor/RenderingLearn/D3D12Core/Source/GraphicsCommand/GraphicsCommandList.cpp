@@ -57,9 +57,9 @@ void GraphicsCommandList::ResourceBarrier(IGraphicsResource* resource, D3D12_RES
 {
     CL_ResourceBarrier(this, resource, after);
 }
-void GraphicsCommandList::ClearRenderTargetView(const IRenderTarget* renderTarget, const float colorRGBA[4]) const
+void GraphicsCommandList::ClearRenderTargetView(const IRenderTarget* renderTarget) const
 {
-    CL_ClearRenderTargetView(this, renderTarget, colorRGBA);
+    CL_ClearRenderTargetView(this, renderTarget);
 }
 
 void GraphicsCommandList::ClearDepthStencilView(const IRenderTarget* depthStencil) const

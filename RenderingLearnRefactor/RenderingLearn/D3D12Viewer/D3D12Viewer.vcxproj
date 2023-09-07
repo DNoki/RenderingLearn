@@ -190,6 +190,7 @@
     <ClCompile Include="Source\Resource\IGameResource.cpp" />
     <ClCompile Include="Source\Resource\Material.cpp" />
     <ClCompile Include="Source\Resource\Mesh.cpp" />
+    <ClCompile Include="Source\Resource\RenderTexture.cpp" />
     <ClCompile Include="Source\Resource\Shader.cpp" />
     <ClCompile Include="Source\Resource\Texture2D.cpp" />
     <ClCompile Include="Source\System\WindowApplication.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="Include\Resource\IGameResource.h" />
     <ClInclude Include="Include\Resource\Material.h" />
     <ClInclude Include="Include\Resource\Mesh.h" />
+    <ClInclude Include="Include\Resource\RenderTexture.h" />
     <ClInclude Include="Include\Resource\Shader.h" />
     <ClInclude Include="Include\Resource\Texture2D.h" />
     <ClInclude Include="Include\System\WindowApplication.h" />

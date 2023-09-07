@@ -8,7 +8,11 @@ namespace D3D12Viewer
     {
     public:
         Texture2D() = default;
-        virtual ~Texture2D() override = default;
+        ~Texture2D() override = default;
+        Texture2D(const Texture2D& texture) = delete;
+        Texture2D(Texture2D&& texture) = default;
+        Texture2D& operator = (const Texture2D& texture) = delete;
+        Texture2D& operator = (Texture2D&& texture) = default;
 
         void Create(DXGI_FORMAT format, UINT64 width, UINT height, UINT16 arraySize = 1, UINT16 mipLevels = 0);
 
